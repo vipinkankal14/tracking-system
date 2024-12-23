@@ -1,32 +1,38 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import CustomerDetails from './components/CustomerDetails';
-import CarDetails from './components/CarDetails';
-import OrderDetails from './components/OrderDetails';
-import AdditionalDetails from './components/AdditionalDetails';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
-import Sidebar from './sidebar/Sidebar';
 
-export default function App() {
+import { Routes, Route } from "react-router-dom";
+import Home from './Home/Home';
+ import Sidebar from "./Nav/Customer/Sidebar";
+import TopNavbar from "./Nav/Topnav-bar/Navbar";
+import 'bootstrap/dist/css/bootstrap.min.css'
+import './Nav/Customer/Sidebar.scss';
+import { useState } from "react";
+import AdditionalDetails from "./components/AdditionalDetails";
+
+function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
+  
   return (
-    <BrowserRouter>
-      <div className="container py-5">
-        <h1 className="text-center mb-4">Online Car Booking, Anytime, Anywhere</h1>
-        <div className="row">
-          <div className="col-md-3">
-            <Sidebar />
-          </div>
-          <div className="col-md-9">
-            <Routes>
-              <Route path="/" element={<CustomerDetails />} />
-              <Route path="/car-details" element={<CarDetails />} />
-              <Route path="/order-details" element={<OrderDetails />} />
-              <Route path="/additional-details" element={<AdditionalDetails />} />
-            </Routes>
-          </div>
+    < >
+     <div className="main-layout">
+     <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+     <TopNavbar toggleSidebar={toggleSidebar} />
+      <main className="main-content">
+        <div className="container-fluid px-0">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/AdditionalDetails" element={<AdditionalDetails />} />
+            
+          </Routes>
         </div>
-      </div>
-    </BrowserRouter>
+      </main>
+    </div>
+
+    </>
   );
 }
 
+export default App;

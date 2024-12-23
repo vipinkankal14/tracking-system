@@ -22,3 +22,53 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+
+
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+import Topnavbar from './Nav/Topnav-bar/Navbar';
+import CustomerDetails from './components/CustomerDetails';
+import CarDetails from './components/CarDetails';
+import OrderDetails from './components/OrderDetails';
+import AdditionalDetails from './components/AdditionalDetails';
+import Customer from './Nav/Customer/Customer';
+import Home from './Home/Home';
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <div className="container-fluid">
+        {/* Top Navbar */}
+        <Topnavbar />
+
+        <h6>Online Car Booking, Anytime, Anywhere</h6>
+        <hr />
+
+        <div className="row">
+          {/* Sidebar and Main Content Area */}
+          <div className="col-md-3">
+            {/* Sidebar navigation for Customer */}
+             <Customer /> 
+          </div>
+
+          <div className="col-md-9">
+            {/* Main content area */} 
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/customer/customer-details" element={<CustomerDetails />} />
+              <Route path="/customer/car-details" element={<CarDetails />} />
+              <Route path="/customer/order-details" element={<OrderDetails />} />
+              <Route path="/customer/additional-details" element={<AdditionalDetails />} />
+            </Routes>
+          </div>
+        </div>
+      </div>
+    </BrowserRouter>
+  );
+};
+
+export default App;
