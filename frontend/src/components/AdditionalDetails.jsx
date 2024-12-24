@@ -573,271 +573,271 @@ export default function AdditionalDetails() {
 
  
             {step === 4 && (
-  <div className="row g-3">
-    <h6>ADDITIONAL DETAILS</h6>
+              <div className="row g-3">
+                <h6>ADDITIONAL DETAILS</h6>
 
-    {/* Fled Exchange */}
-    <div className="col-md-4">
-      <label htmlFor="fled_exchange" style={{ whiteSpace: 'pre' }}>Exchange: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="exchange"
-          value="yes"
-          checked={formData.AdditionalInfo.exchange === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'exchange', e.target.value)} // Update state
-          id="fled_exchange_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="fled_exchange_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="exchange"
-          value="no"
-          checked={formData.AdditionalInfo.exchange === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'exchange', e.target.value)} // Update state
-          id="fled_exchange_no"
-        />
-        <label className="form-check-label no-label" htmlFor="fled_exchange_no">No</label>
-      </div>
-    </div>
+                {/* Fled Exchange */}
+                <div className="col-md-4">
+                  <label htmlFor="fled_exchange" style={{ whiteSpace: 'pre' }}>Exchange: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="exchange"
+                      value="yes"
+                      checked={formData.AdditionalInfo.exchange === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'exchange', e.target.value)} // Update state
+                      id="fled_exchange_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="fled_exchange_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="exchange"
+                      value="no"
+                      checked={formData.AdditionalInfo.exchange === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'exchange', e.target.value)} // Update state
+                      id="fled_exchange_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="fled_exchange_no">No</label>
+                  </div>
+                </div>
 
-    {/* Finance */}
-    <div className="col-md-4">
-      <label htmlFor="finance" style={{ whiteSpace: 'pre' }}>Finance: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="finance"
-          value="yes"
-          checked={formData.AdditionalInfo.finance === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'finance', e.target.value)} // Update state
-          id="finance_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="finance_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="finance"
-          value="no"
-          checked={formData.AdditionalInfo.finance === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'finance', e.target.value)} // Update state
-          id="finance_no"
-        />
-        <label className="form-check-label no-label" htmlFor="finance_no">No</label>
-      </div>
-    </div>
+                {/* Finance */}
+                <div className="col-md-4">
+                  <label htmlFor="finance" style={{ whiteSpace: 'pre' }}>Finance: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="finance"
+                      value="yes"
+                      checked={formData.AdditionalInfo.finance === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'finance', e.target.value)} // Update state
+                      id="finance_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="finance_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="finance"
+                      value="no"
+                      checked={formData.AdditionalInfo.finance === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'finance', e.target.value)} // Update state
+                      id="finance_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="finance_no">No</label>
+                  </div>
+                </div>
 
-    {/* Accessories */}
-    <div className="col-md-4">
-      <label htmlFor="accessories" style={{ whiteSpace: 'pre' }}>Accessories: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="accessories"
-          value="yes"
-          checked={formData.AdditionalInfo.accessories === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'accessories', e.target.value)} // Update state
-          id="accessories_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="accessories_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="accessories"
-          value="no"
-          checked={formData.AdditionalInfo.accessories === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'accessories', e.target.value)} // Update state
-          id="accessories_no"
-        />
-        <label className="form-check-label no-label" htmlFor="accessories_no">No</label>
-      </div>
-    </div>
+                {/* Accessories */}
+                <div className="col-md-4">
+                  <label htmlFor="accessories" style={{ whiteSpace: 'pre' }}>Accessories: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="accessories"
+                      value="yes"
+                      checked={formData.AdditionalInfo.accessories === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'accessories', e.target.value)} // Update state
+                      id="accessories_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="accessories_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="accessories"
+                      value="no"
+                      checked={formData.AdditionalInfo.accessories === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'accessories', e.target.value)} // Update state
+                      id="accessories_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="accessories_no">No</label>
+                  </div>
+                </div>
 
-    {/* Coating */}
-    <div className="col-md-4">
-      <label htmlFor="coating" style={{ whiteSpace: 'pre' }}>Coating: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="coating"
-          value="yes"
-          checked={formData.AdditionalInfo.coating === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'coating', e.target.value)} // Update state
-          id="coating_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="coating_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="coating"
-          value="no"
-          checked={formData.AdditionalInfo.coating === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'coating', e.target.value)} // Update state
-          id="coating_no"
-        />
-        <label className="form-check-label no-label" htmlFor="coating_no">No</label>
-      </div>
-    </div>
+                {/* Coating */}
+                <div className="col-md-4">
+                  <label htmlFor="coating" style={{ whiteSpace: 'pre' }}>Coating: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="coating"
+                      value="yes"
+                      checked={formData.AdditionalInfo.coating === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'coating', e.target.value)} // Update state
+                      id="coating_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="coating_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="coating"
+                      value="no"
+                      checked={formData.AdditionalInfo.coating === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'coating', e.target.value)} // Update state
+                      id="coating_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="coating_no">No</label>
+                  </div>
+                </div>
 
-    {/* Auto Card */}
-    <div className="col-md-4">
-      <label htmlFor="auto_card" style={{ whiteSpace: 'pre' }}>Auto Card: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="auto_card"
-          value="yes"
-          checked={formData.AdditionalInfo.auto_card === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'auto_card', e.target.value)} // Update state
-          id="auto_card_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="auto_card_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="auto_card"
-          value="no"
-          checked={formData.AdditionalInfo.auto_card === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'auto_card', e.target.value)} // Update state
-          id="auto_card_no"
-        />
-        <label className="form-check-label no-label" htmlFor="auto_card_no">No</label>
-      </div>
-    </div>
+                {/* Auto Card */}
+                <div className="col-md-4">
+                  <label htmlFor="auto_card" style={{ whiteSpace: 'pre' }}>Auto Card: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="auto_card"
+                      value="yes"
+                      checked={formData.AdditionalInfo.auto_card === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'auto_card', e.target.value)} // Update state
+                      id="auto_card_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="auto_card_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="auto_card"
+                      value="no"
+                      checked={formData.AdditionalInfo.auto_card === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'auto_card', e.target.value)} // Update state
+                      id="auto_card_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="auto_card_no">No</label>
+                  </div>
+                </div>
 
-    {/* Extended Warranty */}
-    <div className="col-md-4">
-      <label htmlFor="extended_warranty" style={{ whiteSpace: 'pre' }}>Extended Warranty: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="extended_warranty"
-          value="yes"
-          checked={formData.AdditionalInfo.extended_warranty === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'extended_warranty', e.target.value)} // Update state
-          id="extended_warranty_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="extended_warranty_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="extended_warranty"
-          value="no"
-          checked={formData.AdditionalInfo.extended_warranty === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'extended_warranty', e.target.value)} // Update state
-          id="extended_warranty_no"
-        />
-        <label className="form-check-label no-label" htmlFor="extended_warranty_no">No</label>
-      </div>
-    </div>
+                {/* Extended Warranty */}
+                <div className="col-md-4">
+                  <label htmlFor="extended_warranty" style={{ whiteSpace: 'pre' }}>Extended Warranty: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="extended_warranty"
+                      value="yes"
+                      checked={formData.AdditionalInfo.extended_warranty === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'extended_warranty', e.target.value)} // Update state
+                      id="extended_warranty_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="extended_warranty_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="extended_warranty"
+                      value="no"
+                      checked={formData.AdditionalInfo.extended_warranty === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'extended_warranty', e.target.value)} // Update state
+                      id="extended_warranty_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="extended_warranty_no">No</label>
+                  </div>
+                </div>
 
-    {/* RTO Tax */}
-    <div className="col-md-4">
-      <label htmlFor="rto_tax" style={{ whiteSpace: 'pre' }}>RTO Tax: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="rto_tax"
-          value="yes"
-          checked={formData.AdditionalInfo.rto_tax === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'rto_tax', e.target.value)} // Update state                         
-          id="rto_tax_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="rto_tax_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="rto_tax"
-          value="no"
-          checked={formData.AdditionalInfo.rto_tax === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'rto_tax', e.target.value)} // Update state
-          id="rto_tax_no"
-        />
-        <label className="form-check-label no-label" htmlFor="rto_tax_no">No</label>
-      </div>
-    </div>
+                {/* RTO Tax */}
+                <div className="col-md-4">
+                  <label htmlFor="rto_tax" style={{ whiteSpace: 'pre' }}>RTO Tax: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="rto_tax"
+                      value="yes"
+                      checked={formData.AdditionalInfo.rto_tax === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'rto_tax', e.target.value)} // Update state                         
+                      id="rto_tax_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="rto_tax_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="rto_tax"
+                      value="no"
+                      checked={formData.AdditionalInfo.rto_tax === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'rto_tax', e.target.value)} // Update state
+                      id="rto_tax_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="rto_tax_no">No</label>
+                  </div>
+                </div>
 
-    {/* Fast Tag */}
-    <div className="col-md-4">
-      <label htmlFor="fast_tag" style={{ whiteSpace: 'pre' }}>Fast Tag: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="fast_tag"
-          value="yes"
-          checked={formData.AdditionalInfo.fast_tag === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'fast_tag', e.target.value)} // Update state
-          id="fast_tag_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="fast_tag_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="fast_tag"
-          value="no"
-          checked={formData.AdditionalInfo.fast_tag === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'fast_tag', e.target.value)} // Update state
-          id="fast_tag_no"
-        />
-        <label className="form-check-label no-label" htmlFor="fast_tag_no">No</label>
-      </div>
-    </div>
+                {/* Fast Tag */}
+                <div className="col-md-4">
+                  <label htmlFor="fast_tag" style={{ whiteSpace: 'pre' }}>Fast Tag: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="fast_tag"
+                      value="yes"
+                      checked={formData.AdditionalInfo.fast_tag === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'fast_tag', e.target.value)} // Update state
+                      id="fast_tag_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="fast_tag_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="fast_tag"
+                      value="no"
+                      checked={formData.AdditionalInfo.fast_tag === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'fast_tag', e.target.value)} // Update state
+                      id="fast_tag_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="fast_tag_no">No</label>
+                  </div>
+                </div>
 
-    {/* Insurance */}
-    <div className="col-md-4">
-      <label htmlFor="insurance" style={{ whiteSpace: 'pre' }}>Insurance: </label>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="insurance"
-          value="yes"
-          checked={formData.AdditionalInfo.insurance === 'yes'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'insurance', e.target.value)} // Update state
-          id="insurance_yes"
-        />
-        <label className="form-check-label yes-label" htmlFor="insurance_yes">Yes</label>
-      </div>
-      <div className="form-check form-check-inline">
-        <input
-          type="radio"
-          className="form-check-input"
-          name="insurance"
-          value="no"
-          checked={formData.AdditionalInfo.insurance === 'no'}
-          onChange={(e) => handleInputChange('AdditionalInfo', 'insurance', e.target.value)} // Update state
-          id="insurance_no"
-        />
-        <label className="form-check-label no-label" htmlFor="insurance_no">No</label>
-      </div>
-    </div>
-  </div>
-)}
+                {/* Insurance */}
+                <div className="col-md-4">
+                  <label htmlFor="insurance" style={{ whiteSpace: 'pre' }}>Insurance: </label>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="insurance"
+                      value="yes"
+                      checked={formData.AdditionalInfo.insurance === 'yes'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'insurance', e.target.value)} // Update state
+                      id="insurance_yes"
+                    />
+                    <label className="form-check-label yes-label" htmlFor="insurance_yes">Yes</label>
+                  </div>
+                  <div className="form-check form-check-inline">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="insurance"
+                      value="no"
+                      checked={formData.AdditionalInfo.insurance === 'no'}
+                      onChange={(e) => handleInputChange('AdditionalInfo', 'insurance', e.target.value)} // Update state
+                      id="insurance_no"
+                    />
+                    <label className="form-check-label no-label" htmlFor="insurance_no">No</label>
+                  </div>
+                </div>
+              </div>
+            )}
 
 
             {step === 5 && (
@@ -865,9 +865,7 @@ export default function AdditionalDetails() {
                     <div className="card-body">
                       <p className="mb-1"><strong>Name:</strong> {formData.personalInfo.firstName} {formData.personalInfo.lastName}</p>
                       <p className="mb-1"><strong>Email:</strong> {formData.personalInfo.email}</p>
-                      <p className="mb-1"><strong>Company:</strong> {formData.CarInfo.companyName}</p>
-                      <p className="mb-1"><strong>Project Type:</strong> {formData.OrderInfo.projectType}</p>
-                      <p className="mb-0"><strong>Budget Range:</strong> {formData.OrderInfo.budget}</p>
+                     
                     </div>
                   </div>
                 </div>
@@ -901,6 +899,7 @@ export default function AdditionalDetails() {
                 </button>
               )}
             </div>
+            
           </form>
 
         </div>
