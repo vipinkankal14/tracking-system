@@ -29,9 +29,10 @@ const PaymentForm = () => {
   };
 
   return (
-      <div>
-          <CashierTransactionsTable />
-          <CustomersTable />
+    <div>
+      <CustomersTable />
+      <CashierTransactionsTable />
+          
 
       <h2>Payment Form</h2>
       <form onSubmit={handleSubmit}>

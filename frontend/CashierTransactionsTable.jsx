@@ -21,18 +21,17 @@ const CashierTransactionsTable = () => {
             <th>ID</th>
             <th>Debited Amount</th>
             <th>Status</th>
-            <th>Receiver Role</th>
-            <th>Comment</th>
+            
           </tr>
         </thead>
         <tbody>
           {transactions.map((transaction) => (
             <tr key={transaction.id}>
            
+              <td>{transaction.user_id}</td>
               <td>{transaction.debitedAmount}</td>
               <td>{transaction.status}</td>
-              <td>{transaction.receiver_role}</td>
-              <td>{transaction.comment}</td>
+              
             </tr>
           ))}
         </tbody>

@@ -7,6 +7,7 @@ import './Nav/Customer/Sidebar.scss';
 import { useState } from "react";
 import AdditionalDetails from "./components/AdditionalDetails";
 import PaymentForm from "./PaymentForm";
+import CashierApp from "./cashier/CashierApp";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -24,7 +25,8 @@ function App() {
         <div className="container-fluid px-0">
           <Routes>
             <Route path="/" element={<PaymentForm />} />
-            <Route path="/AdditionalDetails" element={<AdditionalDetails />} />
+              <Route path="/AdditionalDetails" element={<AdditionalDetails />} />
+              <Route path="/CashierApp" element={<CashierApp />} />
             
           </Routes>
         </div>
