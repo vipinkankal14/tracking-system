@@ -8,6 +8,8 @@ import { useState } from "react";
 import AdditionalDetails from "./components/AdditionalDetails";
 import PaymentForm from "./PaymentForm";
 import CashierApp from "./cashier/CashierApp";
+import PaymentDetails from "./cashier/PaymentDetails";
+import PaymentSuccessful from "./cashier/PaymentSuccessful";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -27,6 +29,8 @@ function App() {
             <Route path="/" element={<PaymentForm />} />
               <Route path="/AdditionalDetails" element={<AdditionalDetails />} />
               <Route path="/CashierApp" element={<CashierApp />} />
+              <Route path="/PaymentDetails" element={<PaymentDetails />} />
+              <Route path="/PaymentSuccessful" element={<PaymentSuccessful />} />
             
           </Routes>
         </div>

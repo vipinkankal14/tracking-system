@@ -20,19 +20,16 @@ const CashierTransactionsTable = () => {
           <tr>
             <th>ID</th>
             <th>Debited Amount</th>
-            <th>Status</th>
-            
+             
           </tr>
         </thead>
         <tbody>
           {transactions.map((transaction) => (
             <tr key={transaction.id}>
            
-              <td>{transaction.user_id}</td>
+              <td>{transaction.userpayment_id}</td>
               <td>{transaction.debitedAmount}</td>
-              <td>{transaction.status}</td>
-              
-            </tr>
+              </tr>
           ))}
         </tbody>
       </table>

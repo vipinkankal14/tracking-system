@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css"; // Import Bootstrap Icons
 import "./CustomersTable.scss";
+import VisibilitySharpIcon from '@mui/icons-material/VisibilitySharp';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const CustomersTable = () => {
   const [customers, setCustomers] = useState([]);
@@ -30,7 +33,7 @@ const CustomersTable = () => {
     <div className="container mt-5 customers-table">
       <h2>Customers Table</h2>
       <div className="table-responsive">
-        <table className="table table-bordered">
+        <table className="table ">
           <thead>
             <tr>
               <th className="" style={{padding:'6px'}}>ID</th>
@@ -60,15 +63,24 @@ const CustomersTable = () => {
                     >
                       <i className="bi bi-three-dots-vertical"></i>
                     </Dropdown.Toggle>
-                    <Dropdown.Menu>
+                    <Dropdown.Menu style={{padding:'0px',fontSize:'9px',width:'0px',minWidth:'110px',textAlign:'center'}}>
                       <Dropdown.Item onClick={() => handleDetailsClick(customer.id)}>
-                        View Details
+                        <div style={{ display: 'flex', alignItems: 'center',fontWeight:'bold'}}>
+                          <VisibilitySharpIcon style={{ fontSize: '14px', color:'blue',marginRight:'8px'}} /> View Details
+                        </div>
+                        
                       </Dropdown.Item>
                       <Dropdown.Item onClick={() => handleEditClick(customer.id)}>
+                      <div style={{ display: 'flex', alignItems: 'center', fontWeight:'bold' }}>
+                        <EditIcon style={{ fontSize: '14px', color: 'blue', marginRight: '8px' }} />
                         Edit
+                      </div>
                       </Dropdown.Item>
                       <Dropdown.Item onClick={() => handleDeleteClick(customer.id)}>
+                      <div style={{ display: 'flex', alignItems: 'center', fontWeight:'bold' }}>
+                        <DeleteIcon style={{ fontSize: '14px', color: 'red', marginRight: '8px' }} />
                         Delete
+                      </div>
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>

@@ -10,8 +10,8 @@ app.use(cors());
 app.use(express.json());
 
 // Import the payment function from the paymentRoutes file
-const { handlePayment, getAllCashierTransactions, getAllCustomers } = require('./db/routes/cashier/paymentRoutes');
-
+const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
+ 
  
 // Use the payment routes
 app.post('/api/payment', handlePayment);
@@ -20,6 +20,8 @@ app.get('/api/customers', getAllCustomers);
 
 app.get('/api/cashier/all', getAllCashierTransactions); 
 
+// Assuming you already have a connection to MySQL
+app.get("/api/customers/:id",getCustomerById);
 
 // Start the server
 app.listen(port, () => {
