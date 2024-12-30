@@ -14,7 +14,7 @@ const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerBy
  
  
 // Use the payment routes
-app.post('/api/payment', handlePayment);
+app.post('/api/payments', handlePayment);
 
 app.get('/api/customers', getAllCustomers);
 

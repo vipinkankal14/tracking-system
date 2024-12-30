@@ -9,7 +9,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     { icon: <Home size={20} />, label: 'Home', path: '/' },
     { icon: <GitPullRequest size={20} />, label: 'Customers', path: '/AdditionalDetails' },
     { icon: <CircuitBoard size={20} />, label: 'CashierApp', path: '/CashierApp' },
-    { icon: <MessageSquare size={20} />, label: 'Discussions', path: '/discussions' },
+    { icon: <MessageSquare size={20} />, label: 'car', path: '/Car' },
     { icon: <Code2 size={20} />, label: 'Codespaces', path: '/codespaces' },
     { icon: <Cpu size={20} />, label: 'Copilot', path: '/copilot' },
     { icon: <Compass size={20} />, label: 'Explore', path: '/explore' },

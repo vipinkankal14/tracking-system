@@ -1,15 +1,17 @@
 
 import { Routes, Route } from "react-router-dom";
-  import Sidebar from "./Nav/Customer/Sidebar";
+  import Sidebar from "./Nav/sidebar/Sidebar";
 import TopNavbar from "./Nav/Topnav-bar/Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css'
-import './Nav/Customer/Sidebar.scss';
+import './Nav/sidebar/Sidebar.scss';
 import { useState } from "react";
 import AdditionalDetails from "./components/AdditionalDetails";
 import PaymentForm from "./PaymentForm";
 import CashierApp from "./cashier/CashierApp";
 import PaymentDetails from "./cashier/PaymentDetails";
 import PaymentSuccessful from "./cashier/PaymentSuccessful";
+import Car from "./carStocks/car";
+
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -31,6 +33,7 @@ function App() {
               <Route path="/CashierApp" element={<CashierApp />} />
               <Route path="/PaymentDetails" element={<PaymentDetails />} />
               <Route path="/PaymentSuccessful" element={<PaymentSuccessful />} />
+              <Route path = "/car" element = {<Car/>}/>
             
           </Routes>
         </div>
