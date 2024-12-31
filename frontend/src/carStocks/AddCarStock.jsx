@@ -41,8 +41,6 @@ const AddCarStock = () => {
     <Form onSubmit={handleSubmit} className="input-form">
       
       <h6>Add Car Stock</h6>
-   
-
       <Row className="mb-3">
 
         <Col xs={12} sm={6} md={4}>
