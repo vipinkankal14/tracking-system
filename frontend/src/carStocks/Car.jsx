@@ -3,10 +3,11 @@ import AddCarStock from './AddCarStock'
 import CarStockShow from './CarStockShow'
 
 const Car = () => {
+  
   return (
     <div>
-          <AddCarStock />
-          <CarStockShow />
+      <AddCarStock />
+      <CarStockShow />
     </div>
   )
 }
