@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Row, Col, Alert } from "react-bootstrap";
 import "./scss/AddCarStock.scss";
+import '../App.css';
 
 const AddCarStock = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ const AddCarStock = () => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
-  const fuelOptions = ["Petrol", "Diesel", "Electric", "Hybrid", "Other"];
+  const fuelOptions = ["Petrol", "Diesel", "Electric Vehicles (EVs)", "LPG", "CNG", "BIO-Diesel"];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -74,10 +75,10 @@ const AddCarStock = () => {
         </Alert>
       )}
 
-      <Row className="mb-3">
+      <Row className="mb-3 noto-sans" >
         <Col xs={12} sm={6} md={4}>
           <Form.Group controlId="vin">
-            <Form.Label style={{ marginTop: '10px' }}>VIN Number</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>VIN Number</Form.Label>
             <Form.Control
               type="text"
               name="vin"
@@ -92,7 +93,7 @@ const AddCarStock = () => {
 
         <Col xs={12} sm={6} md={4}>
           <Form.Group controlId="chassisNumber">
-            <Form.Label style={{ marginTop: '10px' }}>Chassis Number</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Chassis Number</Form.Label>
             <Form.Control
               type="text"
               name="chassisNumber"
@@ -104,7 +105,7 @@ const AddCarStock = () => {
 
         <Col xs={12} sm={6} md={4}>
           <Form.Group controlId="engineNumber">
-            <Form.Label style={{ marginTop: '10px' }}>Engine Number</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Engine Number</Form.Label>
             <Form.Control
               type="text"
               name="engineNumber"
@@ -116,7 +117,7 @@ const AddCarStock = () => {
 
         <Col xs={6} sm={6} md={4}>
           <Form.Group controlId="manufacturerDate">
-            <Form.Label style={{ marginTop: '10px' }}>Manufacturer Date</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Manufacturer Date</Form.Label>
             <Form.Control
               type="date"
               name="manufacturerDate"
@@ -130,7 +131,7 @@ const AddCarStock = () => {
 
         <Col xs={6} sm={6} md={4}>
           <Form.Group controlId="dateIn">
-            <Form.Label style={{ marginTop: '10px' }}>Date In</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Date In</Form.Label>
             <Form.Control
               type="date"
               name="dateIn"
@@ -144,14 +145,13 @@ const AddCarStock = () => {
 
         <Col xs={12} sm={6} md={4}>
           <Form.Group controlId="fuelType">
-            <Form.Label style={{ marginTop: '10px' }}>Fuel Type</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Fuel Type</Form.Label>
             <Form.Select
               name="fuelType"
               value={formData.fuelType}
               onChange={handleInputChange}
             >
-              <option value="">Select Fuel Type</option>
-              {fuelOptions.map((fuel, index) => (
+               {fuelOptions.map((fuel, index) => (
                 <option key={index} value={fuel}>
                   {fuel}
                 </option>
@@ -162,7 +162,7 @@ const AddCarStock = () => {
 
         <Col xs={12} sm={6} md={4}>
           <Form.Group controlId="model">
-            <Form.Label style={{ marginTop: '10px' }}>Model</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Model</Form.Label>
             <Form.Control
               type="text"
               name="model"
@@ -176,7 +176,7 @@ const AddCarStock = () => {
 
         <Col xs={12} sm={6} md={4}>
           <Form.Group controlId="version">
-            <Form.Label style={{ marginTop: '10px' }}>Version</Form.Label>
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Version</Form.Label>
             <Form.Control
               type="text"
               name="version"
@@ -188,8 +188,8 @@ const AddCarStock = () => {
 
         <Col xs={12} sm={6} md={4}>
           <Form.Group controlId="color">
-            <Form.Label style={{ marginTop: '10px' }}>Color</Form.Label>
-            <Form.Control
+            <Form.Label style={{ marginTop: '10px',    fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden',textOverflow: 'ellipsis'}}>Color</Form.Label>
+          <Form.Control
               type="text"
               name="color"
               value={formData.color}
@@ -199,11 +199,12 @@ const AddCarStock = () => {
         </Col>
       </Row>
 
-      <div className="d-flex justify-content-center">
+      <div className="d-flex justify-content-center justify-content-md-end">
         <Button variant="primary" size="sm" type="submit">
           Submit
         </Button>
       </div>
+
     </Form>
   );
 };

@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Table } from "react-bootstrap";
+import "./scss/CarStockShow.scss"; // Make sure SCSS file is correctly imported
 
 const CarStockShow = () => {
-  // Sample hardcoded data for the table
+  const [searchQuery, setSearchQuery] = useState("");
+
   const carStocks = [
     {
       vin: "1HGCM82633A123456",
@@ -28,9 +30,26 @@ const CarStockShow = () => {
     },
   ];
 
+  const filteredCarStocks = carStocks.filter((stock) =>
+    Object.values(stock).some((value) =>
+      value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
   return (
-    <div className="car-stock-show">
-      <h4 className="text-center my-4">Car Stock Details</h4>
+    <>
+      <h4 className="text-center my-4"> CAR STOCK DETAILS</h4>
+      <div className="d-flex justify-content-center justify-content-md-start">
+        <div className="mb-4 input-container">
+          <span className="search-icon">&#128269;</span>
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
       <Table striped bordered hover responsive>
         <thead>
           <tr>
@@ -47,7 +66,7 @@ const CarStockShow = () => {
           </tr>
         </thead>
         <tbody>
-          {carStocks.map((stock, index) => (
+          {filteredCarStocks.map((stock, index) => (
             <tr key={index}>
               <td>{index + 1}</td>
               <td>{stock.vin}</td>
@@ -63,7 +82,7 @@ const CarStockShow = () => {
           ))}
         </tbody>
       </Table>
-    </div>
+    </>
   );
 };
 

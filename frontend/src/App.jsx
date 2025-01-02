@@ -11,6 +11,7 @@ import CashierApp from "./cashier/CashierApp";
 import PaymentDetails from "./cashier/PaymentDetails";
 import PaymentSuccessful from "./cashier/PaymentSuccessful";
 import Car from "./carStocks/car";
+import './App.css'; 
 
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
   
   return (
     < >
-     <div className="main-layout">
+     <div className="main-layout noto-sans">
      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
      <TopNavbar toggleSidebar={toggleSidebar} />
       <main className="main-content">
@@ -34,7 +35,6 @@ function App() {
               <Route path="/PaymentDetails" element={<PaymentDetails />} />
               <Route path="/PaymentSuccessful" element={<PaymentSuccessful />} />
               <Route path = "/car" element = {<Car/>}/>
-            
           </Routes>
         </div>
       </main>
