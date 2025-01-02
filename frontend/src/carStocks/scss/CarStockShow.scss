@@ -59,3 +59,18 @@
 
   
   
+  @media (max-width: 576px) {
+    .hide-desktop {
+      display: table-cell !important;
+    }
+  }
+  
+  @media (min-width: 577px) {
+    .hide-desktop {
+      display: none !important;
+    }
+  }
+  
+
+   
+  

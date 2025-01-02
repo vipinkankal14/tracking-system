@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table } from "react-bootstrap";
+import { Badge, Table } from "react-bootstrap";
 import "./scss/CarStockShow.scss"; // Make sure SCSS file is correctly imported
 
 const CarStockShow = () => {
@@ -50,34 +50,36 @@ const CarStockShow = () => {
           />
         </div>
       </div>
-      <Table striped bordered hover responsive>
-        <thead>
+      <Table striped  hover responsive>
+        <thead className="">
           <tr>
-            <th>#</th>
-            <th>VIN</th>
-            <th>Chassis Number</th>
-            <th>Engine Number</th>
-            <th>Manufacturer Date</th>
-            <th>Date In</th>
-            <th>Model</th>
-            <th>Version</th>
-            <th>Color</th>
-            <th>Fuel Type</th>
+             <th>VIN</th>
+            <th className="d-none d-sm-table-cell">Chassis Number</th>
+            <th className="d-none d-sm-table-cell">Engine Number</th>
+            <th className="d-none d-sm-table-cell">Manufacturer Date</th>
+            <th className="d-none d-sm-table-cell">Date In</th>
+            <th className="d-none d-sm-table-cell">Model</th>
+            <th className="d-none d-sm-table-cell">Version</th>
+            <th className="d-none d-sm-table-cell">Color</th>
+            <th className="d-none d-sm-table-cell">Fuel Type</th>
+            <th className="hide-desktop">details</th>
           </tr>
         </thead>
         <tbody>
           {filteredCarStocks.map((stock, index) => (
             <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{stock.vin}</td>
-              <td>{stock.chassisNumber}</td>
-              <td>{stock.engineNumber}</td>
-              <td>{stock.manufacturerDate}</td>
-              <td>{stock.dateIn}</td>
-              <td>{stock.model}</td>
-              <td>{stock.version}</td>
-              <td>{stock.color}</td>
-              <td>{stock.fuelType}</td>
+               <td>{stock.vin}</td>
+              <td className="d-none d-sm-table-cell">{stock.chassisNumber}</td>
+              <td className="d-none d-sm-table-cell">{stock.engineNumber}</td>
+              <td className="d-none d-sm-table-cell">{stock.manufacturerDate}</td>
+              <td className="d-none d-sm-table-cell">{stock.dateIn}</td>
+              <td className="d-none d-sm-table-cell">{stock.model}</td>
+              <td className="d-none d-sm-table-cell">{stock.version}</td>
+              <td className="d-none d-sm-table-cell">{stock.color}</td>
+              <td className="d-none d-sm-table-cell">{stock.fuelType}</td>
+              <td className="hide-desktop">
+                <Badge bg="primary">details</Badge>
+              </td>
             </tr>
           ))}
         </tbody>
