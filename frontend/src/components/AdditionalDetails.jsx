@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import { useNavigate } from 'react-router-dom';
 import './Customercss.css';
 
+
 export default function AdditionalDetails() {
 
   const navigate = useNavigate();
