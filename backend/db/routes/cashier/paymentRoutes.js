@@ -49,10 +49,6 @@ const handlePayment = async (req, res) => {
     res.status(500).json({ error: 'Error processing payment.' });
   }
 };
-
-
-
-
  
 // Function to fetch all customers
 const getAllCustomers = async (req, res) => {
@@ -68,8 +64,6 @@ const getAllCustomers = async (req, res) => {
     res.status(500).json({ error: 'Error fetching customers' });
   }
 };
-
-
  
 // Use async/await instead of callback functions
 const getAllCashierTransactions = async (req, res) => {
@@ -82,7 +76,6 @@ const getAllCashierTransactions = async (req, res) => {
     res.status(500).json({ error: 'Error fetching cashier transactions' });
   }
 };
-
 
 // Function to fetch a specific customer by ID
 const getCustomerById = async (req, res) => {
