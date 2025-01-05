@@ -15,6 +15,7 @@ app.use(express.json());
 // Import the payment function from the paymentRoutes file
 const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
 const { addCarStock } = require('./db/routes/carStocks/addcar');
+const { ShowCarStock } = require('./db/routes/carStocks/showcar');
   
  
 // Use the payment routes
@@ -29,6 +30,8 @@ app.get("/api/customers/:id", getCustomerById);
 
 
 app.use('/api/CarStock', addCarStock);
+
+app.get('/api/showAllCarStocks', ShowCarStock);
  
 
 
