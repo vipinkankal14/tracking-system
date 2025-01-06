@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Badge, Table, Spinner, Modal, Button, Dropdown } from "react-bootstrap";
 import axios from "axios";
- import NoCrashIcon from '@mui/icons-material/NoCrash';
+import NoCrashIcon from '@mui/icons-material/NoCrash';
 import DeleteIcon from '@mui/icons-material/Delete';
-
 import "./scss/CarStockShow.scss";
+import { useNavigate } from "react-router-dom";
 
 const CarStockShow = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,6 +13,7 @@ const CarStockShow = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState(null);
+  const navigate = useNavigate(); // Create navigate instance
 
   // Fetch car stock data from backend
   useEffect(() => {
@@ -52,6 +53,10 @@ const CarStockShow = () => {
   // Helper function to format date (removes time part)
   const formatDate = (dateString) => {
     return dateString ? dateString.slice(0, 10) : "N/A"; // Slices "YYYY-MM-DD"
+  };
+
+  const handleCarAllotment = (vin) => {
+    navigate(`/car-allotment/${vin}`); // Navigate to Car Allotment page with VIN
   };
 
   return (
@@ -129,7 +134,7 @@ const CarStockShow = () => {
                       <i className="bi bi-three-dots-vertical"></i>
                     </Dropdown.Toggle>
                     <Dropdown.Menu style={{fontSize:'9px',textAlign:'center'}}>
-                      <Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleCarAllotment(stock.vin)}>
                         <div style={{ display: 'flex', alignItems: 'center',fontWeight:'bold'}}>
                           <NoCrashIcon style={{ fontSize: '14px', color:'blue',marginRight:'8px'}} />Car Allotment
                         </div>
@@ -191,6 +196,9 @@ const CarStockShow = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+
+
     </div>
   );
 };

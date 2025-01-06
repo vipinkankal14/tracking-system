@@ -12,6 +12,7 @@ import PaymentDetails from "./cashier/PaymentDetails";
 import PaymentSuccessful from "./cashier/PaymentSuccessful";
 import Car from "./carStocks/car";
 import './App.css'; 
+import CarAllotment from "./carStocks/CarAllotment";
 
 
 function App() {
@@ -34,7 +35,9 @@ function App() {
               <Route path="/CashierApp" element={<CashierApp />} />
               <Route path="/PaymentDetails" element={<PaymentDetails />} />
               <Route path="/PaymentSuccessful" element={<PaymentSuccessful />} />
-              <Route path = "/car" element = {<Car/>}/>
+              <Route path="/car" element={<Car />} />
+           
+              <Route path="//car-allotment/:vin" element={<CarAllotment />} />
           </Routes>
         </div>
       </main>
