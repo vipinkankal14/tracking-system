@@ -32,13 +32,58 @@ app.get('/api/showAllCarStocks', ShowCarStock);
  // API to get customer details
 app.get('/api/customer/:customerId', (req, res) => {
   const { customerId } = req.params;
-  const query = 'SELECT * FROM customers WHERE customerId = ?';
+  const query = 'SELECT * FROM customer WHERE customerId = ?';
   pool.query(query, [customerId], (err, result) => {
     if (err) return res.status(500).send(err);
     if (result.length === 0) return res.status(404).send('Customer not found');
     res.json(result[0]);
   });
 });
+
+// API endpoint to get car data by VIN
+app.get('/api/car/:vin', (req, res) => {
+  const { vin } = req.params;
+
+  const query = 'SELECT * FROM carstocks WHERE vin = ?';
+  pool.query(query, [vin], (err, results) => {
+    if (err) {
+      console.error('Error fetching car data: ', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    res.json(results[0]);  // Return the first (and only) result
+  });
+});
+
+ 
+
+// Express route to update car allotment status
+app.put('/api/car/update/:vin', (req, res) => {
+  const { vin } = req.params;
+  const { customerId, allotmentCarStatus } = req.body;  // Get both customerId and allotmentCarStatus from request body
+
+  // SQL query to update both customerId and allotmentCarStatus
+  const query = 'UPDATE carstocks SET customerId = ?, allotmentCarStatus = ? WHERE vin = ?';
+
+  pool.query(query, [customerId, allotmentCarStatus, vin], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error updating car stock' });
+    }
+
+    if (result.affectedRows > 0) {
+      res.status(200).json({ message: 'Car stock updated successfully' });
+    } else {
+      res.status(404).json({ message: 'Car not found' });
+    }
+  });
+});
+
+
+
+
+
 
 
 app.listen(port, () => {

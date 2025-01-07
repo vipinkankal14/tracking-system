@@ -99,6 +99,7 @@ const CarStockShow = () => {
           <thead>
             <tr>
               <th>VIN</th>
+              <th className="d-none d-sm-table-cell">customerId</th>
               <th className="d-none d-sm-table-cell">Chassis Number</th>
               <th className="d-none d-sm-table-cell">Engine Number</th>
               <th className="d-none d-sm-table-cell">Manufacturer Date</th>
@@ -116,6 +117,7 @@ const CarStockShow = () => {
               filteredCarStocks.map((stock, index) => (
                 <tr key={index}>
                   <td>{stock.vin}</td>
+                  <td className="d-none d-sm-table-cell">{stock.customerId}</td>
                   <td className="d-none d-sm-table-cell">{stock.chassisNumber}</td>
                   <td className="d-none d-sm-table-cell">{stock.engineNumber}</td>
                   <td className="d-none d-sm-table-cell">{formatDate(stock.manufacturerDate)}</td>
@@ -133,7 +135,8 @@ const CarStockShow = () => {
                     >
                       <i className="bi bi-three-dots-vertical"></i>
                     </Dropdown.Toggle>
-                    <Dropdown.Menu style={{fontSize:'9px',textAlign:'center'}}>
+                      <Dropdown.Menu style={{ fontSize: '9px', textAlign: 'center' }}>
+                        
                       <Dropdown.Item onClick={() => handleCarAllotment(stock.vin)}>
                         <div style={{ display: 'flex', alignItems: 'center',fontWeight:'bold'}}>
                           <NoCrashIcon style={{ fontSize: '14px', color:'blue',marginRight:'8px'}} />Car Allotment

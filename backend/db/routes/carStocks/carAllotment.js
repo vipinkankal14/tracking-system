@@ -7,7 +7,7 @@ const pool = require('../../databaseConnection/mysqlConnection');
 // Function to fetch customer by customerId
 const fetchCustomer = (customerId) => {
     return new Promise((resolve, reject) => {
-      pool.query('SELECT * FROM customers WHERE customerId = ?', [customerId], (err, results) => {
+      pool.query('SELECT * FROM customer WHERE customerId = ?', [customerId], (err, results) => {
         if (err) {
           console.error('Error fetching customer data:', err);
           reject(err);  // Reject if there's an error

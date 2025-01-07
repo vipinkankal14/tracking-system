@@ -21,7 +21,7 @@ const handlePayment = async (req, res) => {
 
       // Update the customer account balance for debit
       const updateDebitedBalanceQuery = `
-        UPDATE customers 
+        UPDATE customer 
         SET accountBalance = accountBalance - ? 
         WHERE id = ?`;
       await pool.query(updateDebitedBalanceQuery, [debitedAmount, userId]);
@@ -37,7 +37,7 @@ const handlePayment = async (req, res) => {
 
       // Update the customer account balance for credit
       const updateCreditedBalanceQuery = `
-        UPDATE customers 
+        UPDATE customer 
         SET accountBalance = accountBalance + ? 
         WHERE id = ?`;
       await pool.query(updateCreditedBalanceQuery, [creditedAmount, userId]);
@@ -52,7 +52,7 @@ const handlePayment = async (req, res) => {
  
 // Function to fetch all customers
 const getAllCustomers = async (req, res) => {
-  const query = 'SELECT * FROM customers';
+  const query = 'SELECT * FROM customer';
 
   try {
     // Use await to get the results of the query
@@ -80,7 +80,7 @@ const getAllCashierTransactions = async (req, res) => {
 // Function to fetch a specific customer by ID
 const getCustomerById = async (req, res) => {
   const { id } = req.params;
-  const query = 'SELECT * FROM customers WHERE id = ?';
+  const query = 'SELECT * FROM customer WHERE id = ?';
 
   try {
     const [result] = await pool.query(query, [id]);
