@@ -17,7 +17,7 @@ app.use(express.json());
 // Import the payment function from the paymentRoutes file
 const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
 const { addCarStock } = require('./db/routes/carStocks/addcar');
-const { ShowCarStock } = require('./db/routes/carStocks/showcar');
+const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { pool } = require('./db/databaseConnection/mysqlConnection');
     
  
@@ -28,6 +28,10 @@ app.get('/api/cashier/all', getAllCashierTransactions);
 app.get("/api/customers/:id", getCustomerById);
 app.use('/api/CarStock', addCarStock);
 app.get('/api/showAllCarStocks', ShowCarStock);
+
+app.get('/api/ShowCarStockWithCustomers', ShowCarStockWithCustomers);
+
+ 
 
  // API to get customer details
 app.get('/api/customer/:customerId', (req, res) => {

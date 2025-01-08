@@ -98,3 +98,33 @@
     margin-right: 90px; /* Adjust spacing */
   }
   
+
+
+  
+  .dropdown-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  
+    select {
+      width: calc(100% - 2px); /* Adjust to make space for the icon */
+    }
+  
+    svg {
+      position: absolute;
+      right: 8px;
+      pointer-events: none;
+    }
+  }
+  
+  input[type="number"] {
+    appearance: none; // Removes arrows in most browsers
+    -moz-appearance: textfield; // Removes arrows in Firefox
+  
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      appearance: none;
+      margin: 0; // Prevent layout shift
+    }
+  }
+  

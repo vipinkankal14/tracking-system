@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Badge, Table, Spinner, Modal, Button, Dropdown } from "react-bootstrap";
 import axios from "axios";
-import NoCrashIcon from '@mui/icons-material/NoCrash';
-import DeleteIcon from '@mui/icons-material/Delete';
+import CarRentalOutlinedIcon from '@mui/icons-material/CarRentalOutlined';
+ import DeleteIcon from '@mui/icons-material/Delete';
 import "./scss/CarStockShow.scss";
 import { useNavigate } from "react-router-dom";
 
@@ -139,7 +139,7 @@ const CarStockShow = () => {
                         
                       <Dropdown.Item onClick={() => handleCarAllotment(stock.vin)}>
                         <div style={{ display: 'flex', alignItems: 'center',fontWeight:'bold'}}>
-                          <NoCrashIcon style={{ fontSize: '14px', color:'blue',marginRight:'8px'}} />Car Allotment
+                          <CarRentalOutlinedIcon style={{ fontSize: '14px', color:'blue',marginRight:'8px'}} />Car Allotment
                         </div>
                       </Dropdown.Item>
                      

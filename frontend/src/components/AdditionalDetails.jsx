@@ -1,16 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check } from 'lucide-react'
 import './MultiStepForm.scss'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { useNavigate } from 'react-router-dom';
 import './Customercss.css';
+ import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 
 
-export default function AdditionalDetails() {
 
+function AdditionalDetails() {
   const navigate = useNavigate();
 
-   const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     personalInfo: {
       firstName: '',
       middleName: '',
@@ -30,10 +32,10 @@ export default function AdditionalDetails() {
     },
     CarInfo: {
       model: '',
-      variant: '',
+      version: '',
       color: '',
-      rmName: '',
-      srmName: '',
+      teamLeader: '',
+      teamMemder: '',
       exShowroomPrice: '',
       bookingAmount: ''
     },
@@ -63,9 +65,18 @@ export default function AdditionalDetails() {
   });
 
   const [step, setStep] = useState(1);
+  const [carStocks, setCarStocks] = useState([]);
+
+  // Fetch car stocks data
+  useEffect(() => {
+    // Replace with your API call to fetch car stocks
+    fetch('http://localhost:5000/api/showAllCarStocks') // Example API endpoint
+      .then(response => response.json())
+      .then(data => setCarStocks(data));
+  }, []);
 
   const handleInputChange = (step, field, value) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [step]: {
         ...prev[step],
@@ -74,27 +85,37 @@ export default function AdditionalDetails() {
     }));
   };
 
+  const handleCarDetailsChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      CarInfo: {
+        ...prev.CarInfo,
+        [field]: value
+      }
+    }));
+  };
+
   const handleNext = () => {
-    setStep((prev) => Math.min(prev + 1, 5));
+    setStep(prev => Math.min(prev + 1, 5));
   };
 
   const handlePrev = () => {
-    setStep((prev) => Math.max(prev - 1, 1));
+    setStep(prev => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     // Log form data to the console
     console.log('Form submitted:', formData);
-  
+
     // Show success message
     alert("Form submitted successfully!");
-  
+
     // Navigate to another page (e.g., confirmation or home page)
     navigate('/success');  // Replace '/success' with your desired path
   };
-  
+
   const additionalFields = [
     { name: 'exchange', label: 'Exchange' },
     { name: 'finance', label: 'Finance' },
@@ -106,6 +127,21 @@ export default function AdditionalDetails() {
     { name: 'fast_tag', label: 'Fast Tag' },
     { name: 'insurance', label: 'Insurance' },
   ];
+
+  const [dropdownState, setDropdownState] = useState({
+    teamLeader: false,
+    teamMember: false,
+    model: false,
+    version: false,
+    color: false,
+  });
+
+  const toggleDropdown = (key) => {
+    setDropdownState((prevState) => ({
+      ...prevState,
+      [key]: !prevState[key],
+    }));
+  };
 
   return (
     <div className="container">
@@ -136,323 +172,434 @@ export default function AdditionalDetails() {
               </div>
             ))}
           </div>
-          <h6 style={{color:'black'}}><hr /></h6>
+          <h6 style={{ color: 'black' }}><hr /></h6>
 
    
 
           {/* Form Steps */}
           <form onSubmit={handleSubmit}>
           
-          {step === 1 && (
+            {step === 1 && (
               
                 
-                <div className="row g-4">
+              <div className="row g-4">
                 <h6>CUSTOMER DETAILS</h6>
-                  <div className="col-md-3">
-                    <label htmlFor="firstName">First Name</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin input-underline input-margin"
-                      id="firstName"
-                      value={formData.personalInfo.firstName}
-                      onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
-                      required
-                    />
-                  </div>
 
-                  <div className="col-md-3">
-                    <label htmlFor="middleName">Middle Name</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin input-underline input-margin"
-                      id="middleName"
-                      value={formData.personalInfo.middleName}
-                      onChange={(e) => handleInputChange('personalInfo', 'middleName', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="col-md-3">
-                    <label htmlFor="lastName">Last Name</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin input-underline input-margin"
-                      id="lastName"
-                      value={formData.personalInfo.lastName}
-                      onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
-                      required
-                    />
-                    </div>
-                    
-                    <div className="col-md-3">
-                    <label htmlFor="customerType">Customer Type</label>
-                    <select
-                      className="form-control input-underline input-margin input-underline input-margin"
-                      id="customerType"
-                      value={formData.personalInfo.customerType}
-                      onChange={(e) => handleInputChange('personalInfo', 'customerType', e.target.value)}
-                    >
-                      <option value="">Select Customer Type </option>
-                      <option value="individual">Individual</option>
-                      <option value="corporate">Corporate</option>
-                      <option value="government">Government</option>
-                      <option value="business">Business</option>
-                      <option value="non-profit">Non-Profit</option>
-                      <option value="farmer">Farmer</option>
-                    </select>
-                    </div>
-                    
-                    <div className="col-md-2">
-                    <label htmlFor="birthDate">Birth Date</label>
-                    <input
-                      type="date"
-                      className="form-control input-underline input-margin"
-                      id="birthDate"
-                      value={formData.personalInfo.birthDate}
-                      onChange={(e) => handleInputChange('personalInfo', 'birthDate', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-3">
-                    <label htmlFor="mobileNumber1">Mobile Number</label>
-                    <input
-                      type="tel"
-                      className="form-control input-underline input-margin"
-                      id="mobileNumber1"
-                      value={formData.personalInfo.mobileNumber1}
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
-                        handleInputChange('personalInfo', 'mobileNumber1', numericValue);
-                      }}
-                      placeholder="Enter first  mobile number"
-                    />
-                  </div>
-
-                    
-
-                  <div className="col-md-3">
-                    <label htmlFor="mobileNumber2">Mobile Number</label>
-                    <input
-                      type="tel"
-                      className="form-control input-underline input-margin"
-                      id="mobileNumber2"
-                      value={formData.personalInfo.mobileNumber2}
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
-                        handleInputChange('personalInfo', 'mobileNumber2', numericValue);
-                      }}
-                      placeholder="Enter secondary mobile number"
-                    />
-                  </div>
-
-
-                  
-
-                  <div className="col-md-4">
-                    <label htmlFor="email">Email ID</label>
-                    <input
-                      type="email"
-                      className="form-control input-underline input-margin"
-                      id="email"
-                      value={formData.personalInfo.email}
-                      onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  
-
-                  <div className="col-md-2">
-    <label htmlFor="aadhaarNumber">Aadhaar Number</label>
-    <input
-      type="text"
-      className="form-control input-underline input-margin"
-      id="aadhaarNumber"
-      value={formData.personalInfo.aadhaarNumber}
-      onChange={(e) => {
-        // Remove non-numeric characters
-        let input = e.target.value.replace(/\D/g, '');
-        // Format the input as ----/----/----/----
-        input = input
-          .match(/.{1,4}/g) // Break into groups of 4
-          ?.join('/') // Join with '/'
-          .slice(0, 14); // Limit to 19 characters (16 digits + 3 slashes)
-        handleInputChange('personalInfo', 'aadhaarNumber', input || '');
-      }}
-      placeholder="1234/5678/9123"
-      maxLength="14"
-      required
-    />
-  </div>
-
-
-  <div className="col-md-2">
-    <label htmlFor="panNumber">Pan Card</label>
-    <input
-      type="text"
-      className="form-control input-underline input-margin"
-      id="panNumber"
-      value={formData.personalInfo.panNumber}
-      onChange={(e) => handleInputChange('personalInfo', 'panNumber', e.target.value)}
-      required
-      maxLength="16"
-      style={{ textTransform: 'uppercase' }}
-    />
-  </div>
-
-
-                  <div className="col-md-2">
-                    <label htmlFor="street">Street</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin"
-                      id="street"
-                      value={formData.personalInfo.street}
-                      onChange={(e) => handleInputChange('personalInfo', 'street', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-2">
-                    <label htmlFor="city">City</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin"
-                      id="city"
-                      value={formData.personalInfo.city}
-                      onChange={(e) => handleInputChange('personalInfo', 'city', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-2">
-                    <label htmlFor="state">State</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin"
-                      id="state"
-                      value={formData.personalInfo.state}
-                      onChange={(e) => handleInputChange('personalInfo', 'state', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-2">
-                    <label htmlFor="country">Country</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin"
-                      id="country"
-                      value={formData.personalInfo.country}
-                      onChange={(e) => handleInputChange('personalInfo', 'country', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-8">
-                    <label htmlFor="address">Address/Apartment/Unit/Suite</label>
-                    <input
-                      type="text"
-                      className="form-control input-underline input-margin"
-                      id="address"
-                      value={formData.personalInfo.address}
-                      onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <hr />
+                <div className="col-md-3">
+                  <label htmlFor="firstName">First Name</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin input-underline input-margin"
+                    id="firstName"
+                    value={formData.personalInfo.firstName}
+                    onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
+                    required
+                  />
                 </div>
+
+                <div className="col-md-3">
+                  <label htmlFor="middleName">Middle Name</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin input-underline input-margin"
+                    id="middleName"
+                    value={formData.personalInfo.middleName}
+                    onChange={(e) => handleInputChange('personalInfo', 'middleName', e.target.value)}
+                  />
+                </div>
+
+                <div className="col-md-3">
+                  <label htmlFor="lastName">Last Name</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin input-underline input-margin"
+                    id="lastName"
+                    value={formData.personalInfo.lastName}
+                    onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
+                    required
+                  />
+                </div>
+                    
+                <div className="col-md-3">
+                  <label htmlFor="customerType">Customer Type</label>
+                  <select
+                    className="form-control input-underline input-margin input-underline input-margin"
+                    id="customerType"
+                    value={formData.personalInfo.customerType}
+                    onChange={(e) => handleInputChange('personalInfo', 'customerType', e.target.value)}
+                  >
+                    <option value="">Select Customer Type </option>
+                    <option value="individual">Individual</option>
+                    <option value="corporate">Corporate</option>
+                    <option value="government">Government</option>
+                    <option value="business">Business</option>
+                    <option value="non-profit">Non-Profit</option>
+                    <option value="farmer">Farmer</option>
+                  </select>
+                </div>
+                    
+                <div className="col-md-2">
+                  <label htmlFor="birthDate">Birth Date</label>
+                  <input
+                    type="date"
+                    className="form-control input-underline input-margin"
+                    id="birthDate"
+                    value={formData.personalInfo.birthDate}
+                    onChange={(e) => handleInputChange('personalInfo', 'birthDate', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="col-md-3">
+                  <label htmlFor="mobileNumber1">Mobile Number</label>
+                  <input
+                    type="tel"
+                    className="form-control input-underline input-margin"
+                    id="mobileNumber1"
+                    value={formData.personalInfo.mobileNumber1}
+                    onChange={(e) => {
+                      const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
+                      handleInputChange('personalInfo', 'mobileNumber1', numericValue);
+                    }}
+                    placeholder="Enter first  mobile number"
+                  />
+                </div>
+
+                    
+
+                <div className="col-md-3">
+                  <label htmlFor="mobileNumber2">Mobile Number</label>
+                  <input
+                    type="tel"
+                    className="form-control input-underline input-margin"
+                    id="mobileNumber2"
+                    value={formData.personalInfo.mobileNumber2}
+                    onChange={(e) => {
+                      const numericValue = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
+                      handleInputChange('personalInfo', 'mobileNumber2', numericValue);
+                    }}
+                    placeholder="Enter secondary mobile number"
+                  />
+                </div>
+
+
+                  
+
+                <div className="col-md-4">
+                  <label htmlFor="email">Email ID</label>
+                  <input
+                    type="email"
+                    className="form-control input-underline input-margin"
+                    id="email"
+                    value={formData.personalInfo.email}
+                    onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
+                    required
+                  />
+                </div>
+
+                  
+
+                <div className="col-md-2">
+                  <label htmlFor="aadhaarNumber">Aadhaar Number</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin"
+                    id="aadhaarNumber"
+                    value={formData.personalInfo.aadhaarNumber}
+                    onChange={(e) => {
+                      // Remove non-numeric characters
+                      let input = e.target.value.replace(/\D/g, '');
+                      // Format the input as ----/----/----/----
+                      input = input
+                        .match(/.{1,4}/g) // Break into groups of 4
+                        ?.join('/') // Join with '/'
+                        .slice(0, 14); // Limit to 19 characters (16 digits + 3 slashes)
+                      handleInputChange('personalInfo', 'aadhaarNumber', input || '');
+                    }}
+                    placeholder="1234/5678/9123"
+                    maxLength="14"
+                    required
+                  />
+                </div>
+
+
+                <div className="col-md-2">
+                  <label htmlFor="panNumber">Pan Card</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin"
+                    id="panNumber"
+                    value={formData.personalInfo.panNumber}
+                    onChange={(e) => handleInputChange('personalInfo', 'panNumber', e.target.value)}
+                    required
+                    maxLength="16"
+                    style={{ textTransform: 'uppercase' }}
+                  />
+                </div>
+
+
+                <div className="col-md-2">
+                  <label htmlFor="street">Street</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin"
+                    id="street"
+                    value={formData.personalInfo.street}
+                    onChange={(e) => handleInputChange('personalInfo', 'street', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="col-md-2">
+                  <label htmlFor="city">City</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin"
+                    id="city"
+                    value={formData.personalInfo.city}
+                    onChange={(e) => handleInputChange('personalInfo', 'city', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="col-md-2">
+                  <label htmlFor="state">State</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin"
+                    id="state"
+                    value={formData.personalInfo.state}
+                    onChange={(e) => handleInputChange('personalInfo', 'state', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="col-md-2">
+                  <label htmlFor="country">Country</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin"
+                    id="country"
+                    value={formData.personalInfo.country}
+                    onChange={(e) => handleInputChange('personalInfo', 'country', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="col-md-8">
+                  <label htmlFor="address">Address/Apartment/Unit/Suite</label>
+                  <input
+                    type="text"
+                    className="form-control input-underline input-margin"
+                    id="address"
+                    value={formData.personalInfo.address}
+                    onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <hr />
+              </div>
                 
             
-          )}
-
-
+            )}
 
             {step === 2 && (
-              <div className="step-content">
-                <h6>Car Details</h6>
-                
-                {/* Model */}
-                <input
-                  type="text"
-                  placeholder="Model"
-                  value={formData.CarInfo.model}
-                  onChange={(e) =>
-                    handleInputChange('CarInfo', 'model', e.target.value)
-                  }
+        <div className="row g-2">
+          {/* Dealership Advisor */}
+          <div className="row g-3">
+            <h6>Dealership Advisor</h6>
+            {/* Team Leader */}
+            <div className="col-md-3">
+              <label htmlFor="teamLeader">Team Leader</label>
+              <div className="dropdown-wrapper">
+                <select
+                  className="form-control input-underline input-margin"
+                  id="teamLeader"
+                  value={formData.CarInfo.teamLeader}
+                  onChange={(e) => handleInputChange('CarInfo', 'teamLeader', e.target.value)}
+                  onClick={() => toggleDropdown('teamLeader')}
                   required
-                />
-
-                {/* Variant */}
-                <input
-                  type="text"
-                  placeholder="Variant"
-                  value={formData.CarInfo.variant}
-                  onChange={(e) =>
-                    handleInputChange('CarInfo', 'variant', e.target.value)
-                  }
-                  required
-                />
-
-                {/* Color */}
-                <input
-                  type="text"
-                  placeholder="Color"
-                  value={formData.CarInfo.color}
-                  onChange={(e) =>
-                    handleInputChange('CarInfo', 'color', e.target.value)
-                  }
-                  required
-                />
-
-                {/* RM Name */}
-                <input
-                  type="text"
-                  placeholder="Relationship Manager Name"
-                  value={formData.CarInfo.rmName}
-                  onChange={(e) =>
-                    handleInputChange('CarInfo', 'rmName', e.target.value)
-                  }
-                  required
-                />
-
-                {/* SRM Name */}
-                <input
-                  type="text"
-                  placeholder="Senior Relationship Manager Name"
-                  value={formData.CarInfo.srmName}
-                  onChange={(e) =>
-                    handleInputChange('CarInfo', 'srmName', e.target.value)
-                  }
-                  required
-                />
-
-                {/* Ex-Showroom Price */}
-                <input
-                  type="number"
-                  placeholder="Ex-Showroom Price"
-                  value={formData.CarInfo.exShowroomPrice}
-                  onChange={(e) =>
-                    handleInputChange('CarInfo', 'exShowroomPrice', e.target.value)
-                  }
-                  required
-                />
-
-                {/* Booking Amount */}
-                <input
-                  type="number"
-                  placeholder="Booking Amount"
-                  value={formData.CarInfo.bookingAmount}
-                  onChange={(e) =>
-                    handleInputChange('CarInfo', 'bookingAmount', e.target.value)
-                  }
-                  required
-                />
-
-              <hr />
+                >
+                  <option value="">Select Team Leader</option>
+                  <option value="leader1">Leader 1</option>
+                  <option value="leader2">Leader 2</option>
+                  <option value="leader3">Leader 3</option>
+                </select>
+                {dropdownState.teamLeader ? (
+                  <KeyboardArrowUpOutlinedIcon />
+                ) : (
+                  <KeyboardArrowDownOutlinedIcon />
+                )}
               </div>
-            )}
+            </div>
+
+            {/* Team Member */}
+            <div className="col-md-3">
+              <label htmlFor="teamMember">Team Member</label>
+              <div className="dropdown-wrapper">
+                <select
+                  className="form-control input-underline input-margin"
+                  id="teamMember"
+                  value={formData.CarInfo.teamMember}
+                  onChange={(e) => handleInputChange('CarInfo', 'teamMember', e.target.value)}
+                  onClick={() => toggleDropdown('teamMember')}
+                  required
+                >
+                  <option value="">Select Team Member</option>
+                  <option value="member1">Member 1</option>
+                  <option value="member2">Member 2</option>
+                  <option value="member3">Member 3</option>
+                </select>
+                {dropdownState.teamMember ? (
+                  <KeyboardArrowUpOutlinedIcon />
+                ) : (
+                  <KeyboardArrowDownOutlinedIcon />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Car Details */}
+          <div className="row g-3">
+            <h6>Choose Your Car</h6>
+
+            {/* Model */}
+            <div className="col-md-3">
+              <label htmlFor="model">Model</label>
+              <div className="dropdown-wrapper">
+                <select
+                  className="form-control input-underline input-margin"
+                  id="model"
+                  value={formData.CarInfo.model}
+                  onChange={(e) => handleInputChange('CarInfo', 'model', e.target.value)}
+                  onClick={() => toggleDropdown('model')}
+                  required
+                >
+                  <option value="">Select Model</option>
+                  {[...new Set(carStocks.map((stock) => stock.model))].map((model, index) => (
+                    <option key={index} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                </select>
+                {dropdownState.model ? (
+                  <KeyboardArrowUpOutlinedIcon />
+                ) : (
+                  <KeyboardArrowDownOutlinedIcon />
+                )}
+              </div>
+            </div>
+
+            {/* Version */}
+            <div className="col-md-3">
+              <label htmlFor="version">Version</label>
+              <div className="dropdown-wrapper">
+                <select
+                  className="form-control input-underline input-margin"
+                  id="version"
+                  value={formData.CarInfo.version}
+                  onChange={(e) => handleInputChange('CarInfo', 'version', e.target.value)}
+                  onClick={() => toggleDropdown('version')}
+                  required
+                  disabled={!formData.CarInfo.model}
+                >
+                  <option value="">Select Version</option>
+                  {carStocks
+                    .filter((stock) => stock.model === formData.CarInfo.model)
+                    .map((filteredStock, index) => (
+                      <option key={index} value={filteredStock.version}>
+                        {filteredStock.version}
+                      </option>
+                    ))}
+                </select>
+                {dropdownState.version ? (
+                  <KeyboardArrowUpOutlinedIcon />
+                ) : (
+                  <KeyboardArrowDownOutlinedIcon />
+                )}
+              </div>
+            </div>
+
+            {/* Color */}
+            <div className="col-md-3">
+              <label htmlFor="color">Color</label>
+              <div className="dropdown-wrapper">
+                <select
+                  className="form-control input-underline input-margin"
+                  id="color"
+                  value={formData.CarInfo.color}
+                  onChange={(e) => handleInputChange('CarInfo', 'color', e.target.value)}
+                  onClick={() => toggleDropdown('color')}
+                  required
+                  disabled={!formData.CarInfo.version}
+                >
+                  <option value="">Select Color</option>
+                  {carStocks
+                    .filter(
+                      (stock) =>
+                        stock.model === formData.CarInfo.model &&
+                        stock.version === formData.CarInfo.version
+                    )
+                    .map((filteredStock, index) => (
+                      <option key={index} value={filteredStock.color}>
+                        {filteredStock.color}
+                      </option>
+                    ))}
+                </select>
+                {dropdownState.color ? (
+                  <KeyboardArrowUpOutlinedIcon />
+                ) : (
+                  <KeyboardArrowDownOutlinedIcon />
+                )}
+              </div>
+            </div>
+                </div>
+                
+                <div className="row g-4">
+  {/* Ex-Showroom Price */}
+  <h6>Your Chosen Car Price</h6>
+
+  <div className="col-md-3">
+    <label htmlFor="exShowroomPrice">Ex-Showroom Price</label>
+    <input
+      type="number"
+      className="form-control input-underline input-margin"
+      id="exShowroomPrice"
+      placeholder="Ex-Showroom Price"
+      value={formData.CarInfo.exShowroomPrice}
+      onChange={(e) => handleInputChange('CarInfo', 'exShowroomPrice', e.target.value)}
+      required
+    />
+  </div>
+
+  {/* Booking Amount */}
+  <div className="col-md-3">
+    <label htmlFor="bookingAmount">Booking Amount</label>
+    <input
+      type="number"
+      className="form-control input-underline input-margin"
+      id="bookingAmount"
+      placeholder="Booking Amount"
+      value={formData.CarInfo.bookingAmount}
+      onChange={(e) => handleInputChange('CarInfo', 'bookingAmount', e.target.value)}
+      required
+    />
+  </div>
+</div>
+
+                
+
+        </div>
+      )}
+
+
+
+
+
+
+
+           
 
 
 
@@ -678,35 +825,35 @@ export default function AdditionalDetails() {
             )}
 
             <div className="d-flex justify-content-between mt-4">
-  {step > 1 && (
-    <button
-      type="button"
-      className="btn btn-outline-secondary"
-      onClick={handlePrev}
-      disabled={step === 1}
-    >
-      Previous
-    </button>
-  )}
+              {step > 1 && (
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={handlePrev}
+                  disabled={step === 1}
+                >
+                  Previous
+                </button>
+              )}
 
-  {step < 5 ? (
-    <button
-      type="button"
-      className="btn btn-primary"
-      onClick={handleNext}
-    >
-      Next
-    </button>
-  ) : (
-    <button
-      type="submit"
-      className="btn btn-success"
-      disabled={!formData.confirmation.terms}  // Disable the Submit button if terms are not checked
-    >
-      Submit
-    </button>
-  )}
-</div>
+              {step < 5 ? (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleNext}
+                >
+                  Next
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="btn btn-success"
+                  disabled={!formData.confirmation.terms}  // Disable the Submit button if terms are not checked
+                >
+                  Submit
+                </button>
+              )}
+            </div>
 
 
             
@@ -715,6 +862,7 @@ export default function AdditionalDetails() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
+export default AdditionalDetails

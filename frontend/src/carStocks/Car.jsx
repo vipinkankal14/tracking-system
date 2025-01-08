@@ -2,6 +2,7 @@ import React from 'react'
 import AddCarStock from './AddCarStock'
 import CarStockShow from './CarStockShow'
 import '../App.css'
+import CarAllotmentByCustomer from './CarAllotmentByCustomer'
 
 const Car = () => {
   
@@ -9,6 +10,7 @@ const Car = () => {
     <div className='noto-sans'>
       <AddCarStock />
       <CarStockShow />
+      <CarAllotmentByCustomer />
     </div>
   )
 }
