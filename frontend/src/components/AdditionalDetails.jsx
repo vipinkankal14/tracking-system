@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Check } from 'lucide-react'
-import './MultiStepForm.scss'
+import './scss/MultiStepForm.scss'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { useNavigate } from 'react-router-dom';
-import './Customercss.css';
- import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import './scss/Customercss.css';
+import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 
 
@@ -24,7 +24,6 @@ function AdditionalDetails() {
       email: '',
       aadhaarNumber: '',
       panNumber: '',
-      street: '',
       city: '',
       state: '',
       country: '',
@@ -52,12 +51,13 @@ function AdditionalDetails() {
       exchange: 'No',
       finance: 'No',
       accessories: 'No',
+      insurance: 'No',
+      
       coating: 'No',
       auto_card: 'No',
       extended_warranty: 'No',
       rto_tax: 'No',
-      fast_tag: 'No',
-      insurance: 'No'
+      fast_tag: 'No'
     },
     confirmation: {
       terms: false
@@ -105,16 +105,11 @@ function AdditionalDetails() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Log form data to the console
     console.log('Form submitted:', formData);
-
-    // Show success message
-    alert("Form submitted successfully!");
-
-    // Navigate to another page (e.g., confirmation or home page)
-    navigate('/success');  // Replace '/success' with your desired path
+    alert('Form submitted successfully!');
+    navigate('/SuccessPage', { state: { formData } }); // Pass formData to SuccessPage
   };
+  
 
   const additionalFields = [
     { name: 'exchange', label: 'Exchange' },
@@ -173,15 +168,9 @@ function AdditionalDetails() {
             ))}
           </div>
           <h6 style={{ color: 'black' }}><hr /></h6>
+           <form onSubmit={handleSubmit}>
 
-   
-
-          {/* Form Steps */}
-          <form onSubmit={handleSubmit}>
-          
             {step === 1 && (
-              
-                
               <div className="row g-4">
                 <h6>CUSTOMER DETAILS</h6>
 
@@ -219,7 +208,7 @@ function AdditionalDetails() {
                     required
                   />
                 </div>
-                    
+
                 <div className="col-md-3">
                   <label htmlFor="customerType">Customer Type</label>
                   <select
@@ -237,7 +226,7 @@ function AdditionalDetails() {
                     <option value="farmer">Farmer</option>
                   </select>
                 </div>
-                    
+
                 <div className="col-md-2">
                   <label htmlFor="birthDate">Birth Date</label>
                   <input
@@ -265,7 +254,7 @@ function AdditionalDetails() {
                   />
                 </div>
 
-                    
+
 
                 <div className="col-md-3">
                   <label htmlFor="mobileNumber2">Mobile Number</label>
@@ -283,7 +272,7 @@ function AdditionalDetails() {
                 </div>
 
 
-                  
+
 
                 <div className="col-md-4">
                   <label htmlFor="email">Email ID</label>
@@ -297,7 +286,7 @@ function AdditionalDetails() {
                   />
                 </div>
 
-                  
+
 
                 <div className="col-md-2">
                   <label htmlFor="aadhaarNumber">Aadhaar Number</label>
@@ -338,19 +327,9 @@ function AdditionalDetails() {
                 </div>
 
 
-                <div className="col-md-2">
-                  <label htmlFor="street">Street</label>
-                  <input
-                    type="text"
-                    className="form-control input-underline input-margin"
-                    id="street"
-                    value={formData.personalInfo.street}
-                    onChange={(e) => handleInputChange('personalInfo', 'street', e.target.value)}
-                    required
-                  />
-                </div>
+               
 
-                <div className="col-md-2">
+                <div className="col-md-3">
                   <label htmlFor="city">City</label>
                   <input
                     type="text"
@@ -362,7 +341,7 @@ function AdditionalDetails() {
                   />
                 </div>
 
-                <div className="col-md-2">
+                <div className="col-md-3">
                   <label htmlFor="state">State</label>
                   <input
                     type="text"
@@ -386,7 +365,7 @@ function AdditionalDetails() {
                   />
                 </div>
 
-                <div className="col-md-8">
+                <div className="col-md-12">
                   <label htmlFor="address">Address/Apartment/Unit/Suite</label>
                   <input
                     type="text"
@@ -398,215 +377,200 @@ function AdditionalDetails() {
                   />
                 </div>
 
-                <hr />
+             
               </div>
-                
-            
             )}
 
             {step === 2 && (
-        <div className="row g-2">
-          {/* Dealership Advisor */}
-          <div className="row g-3">
-            <h6>Dealership Advisor</h6>
-            {/* Team Leader */}
-            <div className="col-md-3">
-              <label htmlFor="teamLeader">Team Leader</label>
-              <div className="dropdown-wrapper">
-                <select
-                  className="form-control input-underline input-margin"
-                  id="teamLeader"
-                  value={formData.CarInfo.teamLeader}
-                  onChange={(e) => handleInputChange('CarInfo', 'teamLeader', e.target.value)}
-                  onClick={() => toggleDropdown('teamLeader')}
-                  required
-                >
-                  <option value="">Select Team Leader</option>
-                  <option value="leader1">Leader 1</option>
-                  <option value="leader2">Leader 2</option>
-                  <option value="leader3">Leader 3</option>
-                </select>
-                {dropdownState.teamLeader ? (
-                  <KeyboardArrowUpOutlinedIcon />
-                ) : (
-                  <KeyboardArrowDownOutlinedIcon />
-                )}
-              </div>
-            </div>
+              <div className="row g-2">
+                {/* Dealership Advisor */}
+                <div className="row g-3">
+                  <h6>Dealership Advisor</h6>
+                  {/* Team Leader */}
+                  <div className="col-md-3">
+                    <label htmlFor="teamLeader">Team Leader</label>
+                    <div className="dropdown-wrapper">
+                      <select
+                        className="form-control input-underline input-margin"
+                        id="teamLeader"
+                        value={formData.CarInfo.teamLeader}
+                        onChange={(e) => handleInputChange('CarInfo', 'teamLeader', e.target.value)}
+                        onClick={() => toggleDropdown('teamLeader')}
+                        required
+                      >
+                        <option value="">Select Team Leader</option>
+                        <option value="leader1">Leader 1</option>
+                        <option value="leader2">Leader 2</option>
+                        <option value="leader3">Leader 3</option>
+                      </select>
+                      {dropdownState.teamLeader ? (
+                        <KeyboardArrowUpOutlinedIcon />
+                      ) : (
+                        <KeyboardArrowDownOutlinedIcon />
+                      )}
+                    </div>
+                  </div>
 
-            {/* Team Member */}
-            <div className="col-md-3">
-              <label htmlFor="teamMember">Team Member</label>
-              <div className="dropdown-wrapper">
-                <select
-                  className="form-control input-underline input-margin"
-                  id="teamMember"
-                  value={formData.CarInfo.teamMember}
-                  onChange={(e) => handleInputChange('CarInfo', 'teamMember', e.target.value)}
-                  onClick={() => toggleDropdown('teamMember')}
-                  required
-                >
-                  <option value="">Select Team Member</option>
-                  <option value="member1">Member 1</option>
-                  <option value="member2">Member 2</option>
-                  <option value="member3">Member 3</option>
-                </select>
-                {dropdownState.teamMember ? (
-                  <KeyboardArrowUpOutlinedIcon />
-                ) : (
-                  <KeyboardArrowDownOutlinedIcon />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Car Details */}
-          <div className="row g-3">
-            <h6>Choose Your Car</h6>
-
-            {/* Model */}
-            <div className="col-md-3">
-              <label htmlFor="model">Model</label>
-              <div className="dropdown-wrapper">
-                <select
-                  className="form-control input-underline input-margin"
-                  id="model"
-                  value={formData.CarInfo.model}
-                  onChange={(e) => handleInputChange('CarInfo', 'model', e.target.value)}
-                  onClick={() => toggleDropdown('model')}
-                  required
-                >
-                  <option value="">Select Model</option>
-                  {[...new Set(carStocks.map((stock) => stock.model))].map((model, index) => (
-                    <option key={index} value={model}>
-                      {model}
-                    </option>
-                  ))}
-                </select>
-                {dropdownState.model ? (
-                  <KeyboardArrowUpOutlinedIcon />
-                ) : (
-                  <KeyboardArrowDownOutlinedIcon />
-                )}
-              </div>
-            </div>
-
-            {/* Version */}
-            <div className="col-md-3">
-              <label htmlFor="version">Version</label>
-              <div className="dropdown-wrapper">
-                <select
-                  className="form-control input-underline input-margin"
-                  id="version"
-                  value={formData.CarInfo.version}
-                  onChange={(e) => handleInputChange('CarInfo', 'version', e.target.value)}
-                  onClick={() => toggleDropdown('version')}
-                  required
-                  disabled={!formData.CarInfo.model}
-                >
-                  <option value="">Select Version</option>
-                  {carStocks
-                    .filter((stock) => stock.model === formData.CarInfo.model)
-                    .map((filteredStock, index) => (
-                      <option key={index} value={filteredStock.version}>
-                        {filteredStock.version}
-                      </option>
-                    ))}
-                </select>
-                {dropdownState.version ? (
-                  <KeyboardArrowUpOutlinedIcon />
-                ) : (
-                  <KeyboardArrowDownOutlinedIcon />
-                )}
-              </div>
-            </div>
-
-            {/* Color */}
-            <div className="col-md-3">
-              <label htmlFor="color">Color</label>
-              <div className="dropdown-wrapper">
-                <select
-                  className="form-control input-underline input-margin"
-                  id="color"
-                  value={formData.CarInfo.color}
-                  onChange={(e) => handleInputChange('CarInfo', 'color', e.target.value)}
-                  onClick={() => toggleDropdown('color')}
-                  required
-                  disabled={!formData.CarInfo.version}
-                >
-                  <option value="">Select Color</option>
-                  {carStocks
-                    .filter(
-                      (stock) =>
-                        stock.model === formData.CarInfo.model &&
-                        stock.version === formData.CarInfo.version
-                    )
-                    .map((filteredStock, index) => (
-                      <option key={index} value={filteredStock.color}>
-                        {filteredStock.color}
-                      </option>
-                    ))}
-                </select>
-                {dropdownState.color ? (
-                  <KeyboardArrowUpOutlinedIcon />
-                ) : (
-                  <KeyboardArrowDownOutlinedIcon />
-                )}
-              </div>
-            </div>
+                  {/* Team Member */}
+                  <div className="col-md-3">
+                    <label htmlFor="teamMember">Team Member</label>
+                    <div className="dropdown-wrapper">
+                      <select
+                        className="form-control input-underline input-margin"
+                        id="teamMember"
+                        value={formData.CarInfo.teamMember}
+                        onChange={(e) => handleInputChange('CarInfo', 'teamMember', e.target.value)}
+                        onClick={() => toggleDropdown('teamMember')}
+                        required
+                      >
+                        <option value="">Select Team Member</option>
+                        <option value="member1">Member 1</option>
+                        <option value="member2">Member 2</option>
+                        <option value="member3">Member 3</option>
+                      </select>
+                      {dropdownState.teamMember ? (
+                        <KeyboardArrowUpOutlinedIcon />
+                      ) : (
+                        <KeyboardArrowDownOutlinedIcon />
+                      )}
+                    </div>
+                  </div>
                 </div>
-                
+
+                {/* Car Details */}
+                <div className="row g-3">
+                  <h6>Choose Your Car</h6>
+
+                  {/* Model */}
+                  <div className="col-md-3">
+                    <label htmlFor="model">Model</label>
+                    <div className="dropdown-wrapper">
+                      <select
+                        className="form-control input-underline input-margin"
+                        id="model"
+                        value={formData.CarInfo.model}
+                        onChange={(e) => handleInputChange('CarInfo', 'model', e.target.value)}
+                        onClick={() => toggleDropdown('model')}
+                        required
+                      >
+                        <option value="">Select Model</option>
+                        {[...new Set(carStocks.map((stock) => stock.model))].map((model, index) => (
+                          <option key={index} value={model}>
+                            {model}
+                          </option>
+                        ))}
+                      </select>
+                      {dropdownState.model ? (
+                        <KeyboardArrowUpOutlinedIcon />
+                      ) : (
+                        <KeyboardArrowDownOutlinedIcon />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Version */}
+                  <div className="col-md-3">
+                    <label htmlFor="version">Version</label>
+                    <div className="dropdown-wrapper">
+                      <select
+                        className="form-control input-underline input-margin"
+                        id="version"
+                        value={formData.CarInfo.version}
+                        onChange={(e) => handleInputChange('CarInfo', 'version', e.target.value)}
+                        onClick={() => toggleDropdown('version')}
+                        required
+                        disabled={!formData.CarInfo.model}
+                      >
+                        <option value="">Select Version</option>
+                        {carStocks
+                          .filter((stock) => stock.model === formData.CarInfo.model)
+                          .map((filteredStock, index) => (
+                            <option key={index} value={filteredStock.version}>
+                              {filteredStock.version}
+                            </option>
+                          ))}
+                      </select>
+                      {dropdownState.version ? (
+                        <KeyboardArrowUpOutlinedIcon />
+                      ) : (
+                        <KeyboardArrowDownOutlinedIcon />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Color */}
+                  <div className="col-md-3">
+                    <label htmlFor="color">Color</label>
+                    <div className="dropdown-wrapper">
+                      <select
+                        className="form-control input-underline input-margin"
+                        id="color"
+                        value={formData.CarInfo.color}
+                        onChange={(e) => handleInputChange('CarInfo', 'color', e.target.value)}
+                        onClick={() => toggleDropdown('color')}
+                        required
+                        disabled={!formData.CarInfo.version}
+                      >
+                        <option value="">Select Color</option>
+                        {carStocks
+                          .filter(
+                            (stock) =>
+                              stock.model === formData.CarInfo.model &&
+                              stock.version === formData.CarInfo.version
+                          )
+                          .map((filteredStock, index) => (
+                            <option key={index} value={filteredStock.color}>
+                              {filteredStock.color}
+                            </option>
+                          ))}
+                      </select>
+                      {dropdownState.color ? (
+                        <KeyboardArrowUpOutlinedIcon />
+                      ) : (
+                        <KeyboardArrowDownOutlinedIcon />
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="row g-4">
-  {/* Ex-Showroom Price */}
-  <h6>Your Chosen Car Price</h6>
+                  {/* Ex-Showroom Price */}
+                  <h6>Your Chosen Car Price</h6>
 
-  <div className="col-md-3">
-    <label htmlFor="exShowroomPrice">Ex-Showroom Price</label>
-    <input
-      type="number"
-      className="form-control input-underline input-margin"
-      id="exShowroomPrice"
-      placeholder="Ex-Showroom Price"
-      value={formData.CarInfo.exShowroomPrice}
-      onChange={(e) => handleInputChange('CarInfo', 'exShowroomPrice', e.target.value)}
-      required
-    />
-  </div>
+                  <div className="col-md-3">
+                    <label htmlFor="exShowroomPrice">Ex-Showroom Price</label>
+                    <input
+                      type="number"
+                      className="form-control input-underline input-margin"
+                      id="exShowroomPrice"
+                      placeholder="Ex-Showroom Price"
+                      value={formData.CarInfo.exShowroomPrice}
+                      onChange={(e) => handleInputChange('CarInfo', 'exShowroomPrice', e.target.value)}
+                      required
+                    />
+                  </div>
 
-  {/* Booking Amount */}
-  <div className="col-md-3">
-    <label htmlFor="bookingAmount">Booking Amount</label>
-    <input
-      type="number"
-      className="form-control input-underline input-margin"
-      id="bookingAmount"
-      placeholder="Booking Amount"
-      value={formData.CarInfo.bookingAmount}
-      onChange={(e) => handleInputChange('CarInfo', 'bookingAmount', e.target.value)}
-      required
-    />
-  </div>
-</div>
-
-                
-
-        </div>
-      )}
-
-
-
-
-
-
-
-           
-
-
+                  {/* Booking Amount */}
+                  <div className="col-md-3">
+                    <label htmlFor="bookingAmount">Booking Amount</label>
+                    <input
+                      type="number"
+                      className="form-control input-underline input-margin"
+                      id="bookingAmount"
+                      placeholder="Booking Amount"
+                      value={formData.CarInfo.bookingAmount}
+                      onChange={(e) => handleInputChange('CarInfo', 'bookingAmount', e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {step === 3 && (
               <div className="row g-3">
                 <h6>ORDER DETAILS</h6>
-                 
+
                 {/* Order Date Question */}
                 <div className="col-md-6">
                   <label htmlFor="orderDate" style={{ whiteSpace: 'pre' }}>Order Date: </label>
@@ -747,12 +711,10 @@ function AdditionalDetails() {
               </div>
             )}
 
-
- 
             {step === 4 && (
               <div className="row g-3">
                 <h6>ADDITIONAL DETAILS</h6>
-              
+
                 {additionalFields.map((field) => (
                   <div className="col-md-4" key={field.name}>
                     <label htmlFor={field.name} style={{ whiteSpace: 'pre' }}>{field.label}: </label>
@@ -788,9 +750,8 @@ function AdditionalDetails() {
                 ))}
                 <hr />
               </div>
-              
-            )}
 
+            )}
 
             {step === 5 && (
               <div className="step-content">
@@ -817,7 +778,7 @@ function AdditionalDetails() {
                     <div className="card-body">
                       <p className="mb-1"><strong>Name:</strong> {formData.personalInfo.firstName} {formData.personalInfo.lastName}</p>
                       <p className="mb-1"><strong>Email:</strong> {formData.personalInfo.email}</p>
-                     
+
                     </div>
                   </div>
                 </div>
@@ -855,10 +816,8 @@ function AdditionalDetails() {
               )}
             </div>
 
-
-            
           </form>
-
+          
         </div>
       </div>
     </div>

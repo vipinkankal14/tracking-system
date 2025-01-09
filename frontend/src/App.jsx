@@ -13,6 +13,7 @@ import PaymentSuccessful from "./cashier/PaymentSuccessful";
 import Car from "./carStocks/car";
 import './App.css'; 
 import CarAllotment from "./carStocks/CarAllotment";
+import SuccessPage from "./components/SuccessPage";
 
 
 function App() {
@@ -32,12 +33,13 @@ function App() {
           <Routes>
             <Route path="/" element={<PaymentForm />} />
               <Route path="/AdditionalDetails" element={<AdditionalDetails />} />
+              <Route path="/SuccessPage" element={<SuccessPage />} />
+              
               <Route path="/CashierApp" element={<CashierApp />} />
               <Route path="/PaymentDetails" element={<PaymentDetails />} />
               <Route path="/PaymentSuccessful" element={<PaymentSuccessful />} />
               <Route path="/car" element={<Car />} />
-           
-              <Route path="//car-allotment/:vin" element={<CarAllotment />} />
+              <Route path="/car-allotment/:vin" element={<CarAllotment />} />
           </Routes>
         </div>
       </main>
