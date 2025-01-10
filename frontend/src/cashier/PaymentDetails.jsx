@@ -59,7 +59,7 @@ const PaymentDetails = () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: customerId,
+        customerId: customerId,
         debitedAmount: isDebit ? parsedAmount : null,
         creditedAmount: !isDebit ? parsedAmount : null,
       }),

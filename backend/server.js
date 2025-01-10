@@ -36,7 +36,7 @@ app.get('/api/ShowCarStockWithCustomers', ShowCarStockWithCustomers);
  // API to get customer details
 app.get('/api/customer/:customerId', (req, res) => {
   const { customerId } = req.params;
-  const query = 'SELECT * FROM customer WHERE customerId = ?';
+  const query = 'SELECT * FROM customers WHERE customerId = ?';
   pool.query(query, [customerId], (err, result) => {
     if (err) return res.status(500).send(err);
     if (result.length === 0) return res.status(404).send('Customer not found');

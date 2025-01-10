@@ -40,7 +40,7 @@ const ShowCarStockWithCustomers = async (req, res) => {
             s.version,
             s.allotmentCarStatus
         FROM 
-            customer c
+            customers c
         LEFT JOIN 
             carstocks s
         ON 
