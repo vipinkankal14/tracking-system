@@ -42,7 +42,7 @@ const CarAllotmentByCustomer = () => {
   return (
     <>
       <div className="car-stock-show">
-        <h4 className="text-center my-4">CAR STOCK DETAILS</h4>
+        <h4 className="text-center my-4">Car Allotment By Customer</h4>
 
         {/* Car Stocks Table */}
         <Table striped hover responsive>

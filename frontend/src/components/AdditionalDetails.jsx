@@ -51,12 +51,7 @@ function AdditionalDetails() {
       exchange: 'No',
       finance: 'No',
       accessories: 'No',
-      insurance: 'No',
-      
       coating: 'No',
-      auto_card: 'No',
-      extended_warranty: 'No',
-      rto_tax: 'No',
       fast_tag: 'No'
     },
     confirmation: {
@@ -116,12 +111,8 @@ function AdditionalDetails() {
     { name: 'finance', label: 'Finance' },
     { name: 'accessories', label: 'Accessories' },
     { name: 'coating', label: 'Coating' },
-    { name: 'auto_card', label: 'Auto Card' },
-    { name: 'extended_warranty', label: 'Extended Warranty' },
-    { name: 'rto_tax', label: 'RTO Tax' },
-    { name: 'fast_tag', label: 'Fast Tag' },
-    { name: 'insurance', label: 'Insurance' },
-  ];
+    { name: 'fast_tag', label: 'Fast Tag' }
+   ];
 
   const [dropdownState, setDropdownState] = useState({
     teamLeader: false,
@@ -763,27 +754,140 @@ function AdditionalDetails() {
                       className="form-check-input"
                       id="terms"
                       checked={formData.confirmation.terms}
-                      onChange={(e) => handleInputChange('confirmation', 'terms', e.target.checked)}
+                      onChange={(e) =>
+                        handleInputChange('confirmation', 'terms', e.target.checked)
+                      }
                       required
                     />
                     <label className="form-check-label" htmlFor="terms">
-                      please confirm that all the details are correct
+                      Please confirm that all the details are correct.
                     </label>
                   </div>
                 </div>
 
                 <div className="summary">
                   <h4 className="h5 mb-3">Summary</h4>
-                  <div className="card bg-light">
+                  <div className="card bg-light mb-3">
                     <div className="card-body">
-                      <p className="mb-1"><strong>Name:</strong> {formData.personalInfo.firstName} {formData.personalInfo.lastName}</p>
-                      <p className="mb-1"><strong>Email:</strong> {formData.personalInfo.email}</p>
-
+                      <p className="mb-1">
+                        <strong>Name:</strong> {formData.personalInfo.firstName}{" "}
+                        {formData.personalInfo.lastName}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Email:</strong> {formData.personalInfo.email}
+                      </p>
                     </div>
                   </div>
+
+                  <h5 className="h5 mb-3">Buyer Details</h5>
+                  <div className="card bg-light mb-3">
+                    <div className="card-body">
+                      <p className="mb-1">
+                        <strong>Name:</strong> Mr. Raj Sharma
+                      </p>
+                      <p className="mb-1">
+                        <strong>Address:</strong> 123 Green Avenue, New Delhi
+                      </p>
+                      <p className="mb-1">
+                        <strong>Contact:</strong> +91-9876543210
+                      </p>
+                      <p className="mb-1">
+                        <strong>PAN:</strong> AAOPS1234A
+                      </p>
+                    </div>
+                  </div>
+
+                  <h5 className="h5 mb-3">Invoice Summary</h5>
+                  <div className="card bg-light">
+                  <div className="card-body">
+                    <table className="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Description</th>
+                          <th>Amount (₹)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Ex-showroom Price</td>
+                          <td>10,00,000.00</td>
+                        </tr>
+                        <tr>
+                          <td>Accessories</td>
+                          <td>20,000.00</td>
+                        </tr>
+                        <tr>
+                          <td>Discount</td>
+                          <td>-10,000.00</td>
+                        </tr>
+                        <tr>
+                          <td>Subtotal</td>
+                          <td>10,10,000.00</td>
+                        </tr>
+                        <tr>
+                          <td>GST (28%)</td>
+                          <td>2,82,800.00</td>
+                        </tr>
+                        <tr>
+                          <td>Cess (20%)</td>
+                          <td>2,02,000.00</td>
+                        </tr>
+                        <tr>
+                          <td>Road Tax</td>
+                          <td>1,20,000.00</td>
+                        </tr>
+                        <tr>
+                          <td>Registration Charges</td>
+                          <td>15,000.00</td>
+                        </tr>
+                        <tr>
+                          <td>Insurance</td>
+                          <td>40,000.00</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Total On-Road Price</strong></td>
+                          <td><strong>16,69,800.00</strong></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>
+                  </div>
+                    
+                    
+
+                  <h5 className="mt-4 mb-3">Payment Details</h5>    
+                  <div className="card bg-light"> 
+                    <div className="card-body">
+                      <form>
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label htmlFor="paymentType" className="form-label">Payment Type</label>
+                            <select id="paymentType" className="form-select" required>
+                              <option value="">Select Payment Type</option>
+                              <option value="cash">Cash</option>
+                              <option value="creditCard">Credit Card</option>
+                              <option value="debitCard">Debit Card</option>
+                              <option value="bankTransfer">Bank Transfer</option>
+                            </select>
+                          </div>
+
+                          <div className="col-md-6 mb-3">
+                            <label htmlFor="paymentAmount" className="form-label">Amount (₹)</label>
+                            <input type="number" id="paymentAmount" className="form-control" required />
+                          </div>
+                        </div>
+
+                        <button type="submit" className="btn btn-primary">Submit Payment</button>
+                      </form>
+                    </div>
+                  </div>
+
+
+
                 </div>
               </div>
             )}
+
 
             <div className="d-flex justify-content-between mt-4">
               {step > 1 && (
