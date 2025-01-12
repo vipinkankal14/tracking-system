@@ -118,7 +118,9 @@ const AddCarStock = () => {
       });
     }
     setShowModal(false);
-  };
+  }; 
+   
+  
 
   return (
     <>

@@ -1,0 +1,18 @@
+.discount-car-additional {
+    .table-container {
+      overflow-x: auto; // Ensure table scrolls on small screens
+    }
+  
+    .g-2 {
+      margin-bottom: 1rem;
+    }
+  
+    @media (max-width: 576px) {
+      .table-container {
+        table {
+          font-size: 0.9rem; // Adjust table font size for better readability
+        }
+      }
+    }
+  }
+  

@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-  
+const { pool } = require('./db/databaseConnection/mysqlConnection');
+
  
 
 require('dotenv').config();  // Load environment variables from .env
@@ -18,8 +19,8 @@ app.use(express.json());
 const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
-const { pool } = require('./db/databaseConnection/mysqlConnection');
-    
+const { updateDiscount } = require('./db/routes/carStocks/discount');
+      
  
 // Use the payment routes
 app.post('/api/payments', handlePayment);
@@ -28,8 +29,8 @@ app.get('/api/cashier/all', getAllCashierTransactions);
 app.get("/api/customers/:id", getCustomerById);
 app.use('/api/CarStock', addCarStock);
 app.get('/api/showAllCarStocks', ShowCarStock);
-
 app.get('/api/ShowCarStockWithCustomers', ShowCarStockWithCustomers);
+app.post('/api/updateDiscount', updateDiscount);
 
  
 

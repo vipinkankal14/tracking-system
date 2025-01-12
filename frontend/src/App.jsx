@@ -5,15 +5,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Nav/sidebar/Sidebar.scss';
 import { useState, Suspense, lazy } from "react";
 import './App.css'; 
+ 
 
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./components/AdditionalDetails"));
+const DiscountMain = lazy(() => import("./discount/DiscountMain"));
 const PaymentForm = lazy(() => import("./PaymentForm"));
 const CashierApp = lazy(() => import("./cashier/CashierApp"));
 const PaymentDetails = lazy(() => import("./cashier/PaymentDetails"));
 const PaymentSuccessful = lazy(() => import("./cashier/PaymentSuccessful"));
 const Car = lazy(() => import("./carStocks/Car"));
-
 const CarAllotment = lazy(() => import("./carStocks/CarAllotment"));
 const SuccessPage = lazy(() => import("./components/SuccessPage"));
 
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/PaymentSuccessful" element={<PaymentSuccessful />} />
                 <Route path="/car" element={<Car />} />
                 <Route path="/car-allotment/:vin" element={<CarAllotment />} />
+                <Route path="/DiscountMain" element={<DiscountMain />} />
               </Routes>
             </Suspense>
           </div>
