@@ -19,7 +19,7 @@ app.use(express.json());
 const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
-const { updateDiscount } = require('./db/routes/carStocks/discount');
+const { updateDiscount, updateDiscountForCriteria } = require('./db/routes/carStocks/discount');
       
  
 // Use the payment routes
@@ -31,6 +31,8 @@ app.use('/api/CarStock', addCarStock);
 app.get('/api/showAllCarStocks', ShowCarStock);
 app.get('/api/ShowCarStockWithCustomers', ShowCarStockWithCustomers);
 app.post('/api/updateDiscount', updateDiscount);
+app.post('/api/discountForCriteria', updateDiscountForCriteria);
+
 
  
 

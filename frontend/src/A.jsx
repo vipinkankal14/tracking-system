@@ -1,202 +1,234 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Print, Email, Done } from '@mui/icons-material';
-import './scss/SuccessPage.scss'
+import React, { useState, useEffect } from "react";
+import { Table, Row, Col, Button, Spinner, Alert } from "react-bootstrap";
+import { Select, MenuItem, Checkbox } from "@mui/material";
+import axios from "axios";
+import "./scss/DiscountForCarAndAdditional.scss";
 
-function SuccessPage() {
-  const location = useLocation();
-  const formData = location.state?.formData; 
-  const [isPrinting, setIsPrinting] = useState(false);
+const DiscountForCarAndAdditional = () => {
+  const [selectAll, setSelectAll] = useState(false);
+  const [carType, setCarType] = useState("");
+  const [model, setModel] = useState("");
+  const [color, setColor] = useState("");
+  const [version, setVersion] = useState("");
+  const [selectedCars, setSelectedCars] = useState([]);
+  const [discount, setDiscount] = useState("");
+  const [cars, setCars] = useState([]); // State for cars
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(""); // Error message
 
-  const id = 'CUST123456'; // Replace with actual logic to generate or fetch the Customer ID
-
-  const handlePrint = () => {
-    setIsPrinting(true);
-
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    const printDocument = iframe.contentWindow.document;
-
-    // Write the content to the iframe
-    printDocument.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <base href="${window.location.origin}" />
-          <title>Car Booking Receipt</title>
-          <style>
-            body {
-              padding: 20px;
-              max-width: 800px;
-              margin: 0 auto;
-            }
-            .receipt-header {
-              text-align: center;
-              margin-bottom: 30px;
-              border-bottom: 2px solid #333;
-              padding-bottom: 20px;
-            }
-            .section {
-              margin: 20px 0;
-              border-bottom: 1px solid #eee;
-              padding-bottom: 15px;
-            }
-            .section-title {
-              font-size: 1.2em;
-              font-weight: bold;
-              margin-bottom: 15px;
-              color: #333;
-            }
-            .receipt-footer {
-              margin-top: 30px;
-              text-align: center;
-              border-top: 2px solid #333;
-              padding-top: 20px;
-            }
-            .receipt-row {
-              display: flex;
-              justify-content: space-between;
-              padding: 4px 0;
-            }
-            .receipt-label {
-              font-weight: bold;
-              color: #555;
-            }
-            .receipt-value {
-              text-align: right;
-            }
-            @media print {
-              body {
-                padding: 0;
-                margin: 0;
-              }
-              .section {
-                page-break-inside: avoid;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="receipt-header">
-            <div class="company-details">
-              <p><strong>Company Name:</strong> Your Company Name</p>
-              <p><strong>Address:</strong> 123 Main Street, City, State, Country</p>
-              <p><strong>Phone:</strong> +1 234 567 890</p>
-              <p><strong>Email:</strong> support@company.com</p>
-              <p><strong>Website:</strong> www.companywebsite.com</p>
-            </div>
-          </div>
-          <div class="section">
-            <div class="section-title">Personal Information</div>
-            <div class="receipt-row">
-              <span class="receipt-label">Name:</span>
-              <span class="receipt-value">${formData.personalInfo.firstName} ${formData.personalInfo.middleName} ${formData.personalInfo.lastName}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Mobile:</span>
-              <span class="receipt-value">${formData.personalInfo.mobileNumber1}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Email:</span>
-              <span class="receipt-value">${formData.personalInfo.email}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Address:</span>
-              <span class="receipt-value">${formData.personalInfo.address}, ${formData.personalInfo.city}, ${formData.personalInfo.state}, ${formData.personalInfo.country}</span>
-            </div>
-          </div>
-          <div class="section">
-            <div class="section-title">Car Information</div>
-            <div class="receipt-row">
-              <span class="receipt-label">Model:</span>
-              <span class="receipt-value">${formData.CarInfo.model}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Version:</span>
-              <span class="receipt-value">${formData.CarInfo.version}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Color:</span>
-              <span class="receipt-value">${formData.CarInfo.color}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Ex-Showroom Price:</span>
-              <span class="receipt-value">₹${formData.CarInfo.exShowroomPrice}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Booking Amount:</span>
-              <span class="receipt-value">₹${formData.CarInfo.bookingAmount}</span>
-            </div>
-          </div>
-          <div class="section">
-            <div class="section-title">Additional Services</div>
-            <div class="receipt-row">
-              <span class="receipt-label">Exchange:</span>
-              <span class="receipt-value">${formData.AdditionalInfo.exchange}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Finance:</span>
-              <span class="receipt-value">${formData.AdditionalInfo.finance}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Accessories:</span>
-              <span class="receipt-value">${formData.AdditionalInfo.accessories}</span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Insurance:</span>
-              <span class="receipt-value">${formData.AdditionalInfo.insurance}</span>
-            </div>
-          </div>
-          <div class="receipt-footer">
-            <p>Thank you for your booking!</p>
-            <p>This is an official receipt of your transaction.</p>
-            <p>Customer ID: ${id}</p>
-          </div>
-        </body>
-      </html>
-    `);
-
-    printDocument.close();
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-    iframe.contentWindow.onafterprint = () => {
-      document.body.removeChild(iframe);
-      setIsPrinting(false);
-    };
+  // Fetch cars from API on component mount
+  const fetchCars = async () => {
+    setLoading(true); // Start loading
+    try {
+      const response = await axios.get('http://localhost:5000/api/showAllCarStocks'); // Fetch data from API
+      setCars(response.data);
+      setError(""); // Clear any previous errors
+    } catch (error) {
+      console.error('Error fetching car data:', error);
+      setError("Failed to load car data. Please try again."); // Set error message
+    } finally {
+      setLoading(false); // End loading
+    }
   };
 
-  const handleSendEmail = () => {
-    alert(`An email has been sent to ${formData?.personalInfo?.email || 'the registered email address'}.`);
+  useEffect(() => {
+    fetchCars(); // Call fetchCars when component mounts
+  }, []); // Fetch cars on component mount
+
+  const uniqueValues = (key) => [...new Set(cars.map((car) => car[key]))];
+
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    setSelectedCars(selectAll ? [] : cars.map((car) => car.id));
   };
 
+  const handleFilterChange = (setter) => (event) => {
+    setter(event.target.value);
+    setSelectAll(false);
+  };
+
+  const handleSelectCar = (vin) => {
+    setSelectedCars((prevSelected) => 
+      prevSelected.includes(vin) 
+        ? prevSelected.filter((item) => item !== vin) // Deselect if already selected
+        : [...prevSelected, vin] // Add to selection
+    );
+  };
+  
+  const filteredCars = cars.filter(
+    (car) =>
+      (carType ? car.type === carType : true) &&
+      (model ? car.model === model : true) &&
+      (color ? car.color === color : true) &&
+      (version ? car.version === version : true)
+  );
+
+  const filteredModels = uniqueValues("model").filter(model =>
+    cars.some(car => car.model === model && (carType ? car.type === carType : true))
+  );
+
+  const filteredVersions = uniqueValues("version").filter(version =>
+    cars.some(car => car.version === version && (model ? car.model === model : true))
+  );
+
+  const filteredColors = uniqueValues("color").filter(color =>
+    cars.some(car => car.color === color && (version ? car.version === version : true))
+  );
+
+  const selectedCount = filteredCars.reduce(
+    (count, car) => (selectedCars.includes(car.id) ? count + 1 : count),
+    0
+  );
+
+  const applyChanges = async () => {
+    if (!discount || isNaN(discount)) {
+      alert("Please enter a valid discount amount.");
+      return;
+    }
+  
+    try {
+      const response = await axios.post("http://localhost:5000/api/updateDiscount", {
+        selectedCars, // Make sure this is an array of VINs
+        discount,
+      });
+  
+      if (response.status === 200) {
+        alert(`Applied a discount of ₹${discount} to ${selectedCars.length} cars.`);
+        setDiscount("");
+        setSelectedCars([]);
+        fetchCars(); // Refresh the car list if necessary
+      }
+    } catch (error) {
+      console.error("Error applying discount:", error);
+      alert("Failed to apply discount. Please try again.");
+    }
+  };
+  
   return (
-     <div className="success-page">
-          <h2>Success!</h2>
-          <p>Car booked successfully, Mr. {formData.personalInfo.firstName || 'Guest'}!</p>
-          <p>
-            <strong>Customer ID:</strong> {id}
-          </p>
-    
-          <div className="options">
-            <button
-              className="btn btn-primary m-2"
-              onClick={handlePrint}
-              disabled={isPrinting}
+    <div className="discount-car-additional">
+      {error && <Alert variant="danger">{error}</Alert>} {/* Display error message */}
+      {loading && <Spinner animation="border" />} {/* Show loading spinner */}
+      <Row className="g-2 align-items-center">
+        <Col xs={12} sm={4} md={4} className="d-flex align-items-center">
+          <Checkbox
+            checked={selectAll}
+            onChange={handleSelectAll}
+            color="primary"
+          />
+          <span className="ms-2">Selected Cars: {selectedCount}</span>
+        </Col>
+        <Col xs={6} sm={2}>
+          <Select
+            value={carType}
+            onChange={handleFilterChange(setCarType)}
+            displayEmpty
+            fullWidth
+          >
+            <MenuItem value="">All Car Types</MenuItem>
+            {uniqueValues("type").map((type) => (
+              <MenuItem key={type} value={type}>
+                {type}
+              </MenuItem>
+            ))}
+          </Select>
+        </Col>
+        <Col xs={6} sm={2}>
+          <Select
+            value={model}
+            onChange={handleFilterChange(setModel)}
+            displayEmpty
+            fullWidth
+          >
+            <MenuItem value="">All Models</MenuItem>
+            {filteredModels.map((model) => (
+              <MenuItem key={model} value={model}>
+                {model}
+              </MenuItem>
+            ))}
+          </Select>
+        </Col>
+        <Col xs={6} sm={2}>
+          <Select
+            value={version}
+            onChange={handleFilterChange(setVersion)}
+            displayEmpty
+            fullWidth
+          >
+            <MenuItem value="">All Versions</MenuItem>
+            {filteredVersions.map((version) => (
+              <MenuItem key={version} value={version}>
+                {version}
+              </MenuItem>
+            ))}
+          </Select>
+        </Col>
+        <Col xs={6} sm={2}>
+          <Select
+            value={color}
+            onChange={handleFilterChange(setColor)}
+            displayEmpty
+            fullWidth
+          >
+            <MenuItem value="">All Colors</MenuItem>
+            {filteredColors.map((color) => (
+              <MenuItem key={color} value={color}>
+                {color}
+              </MenuItem>
+            ))}
+          </Select>
+        </Col>
+      </Row>
+
+      {filteredCars.length > 0 && (
+        <div className="table-container mt-4">
+          <Table bordered responsive hover>
+            <thead>
+              <tr>
+                <th>Car Type</th>
+                <th>Model</th>
+                <th>Color</th>
+                <th>Version</th>
+                <th>Select</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCars.map((car) => (
+                <tr key={car.id}>
+                  <td>{car.type}</td>
+                  <td>{car.model}</td>
+                  <td>{car.color}</td>
+                  <td>{car.version}</td>
+                  <td>
+                    <Checkbox
+                      checked={selectedCars.includes(car.id)}
+                      onChange={() => handleSelectCar(car.id)}
+                      color="primary"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <div className="mt-3">
+            <input
+              type="number"
+              placeholder="Discount Amount"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+            />
+            <Button
+              variant="primary"
+              onClick={applyChanges}
+              disabled={selectedCars.length === 0}
+              className="ms-2"
             >
-              <Print className="icon" />
-              {isPrinting ? 'Printing...' : 'Print'}
-            </button>
-            <button className="btn btn-info m-2" onClick={handleSendEmail}>
-              <Email className="icon" /> Send via Email
-            </button>
-            <button className="btn btn-success m-2">
-              <Done className="icon" /> Done
-            </button>
+              Apply Discount
+            </Button>
           </div>
         </div>
+      )}
+    </div>
   );
-}
+};
 
-export default SuccessPage;
+export default DiscountForCarAndAdditional;
