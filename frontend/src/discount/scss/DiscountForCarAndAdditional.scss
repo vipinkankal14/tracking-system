@@ -1,12 +1,13 @@
 .container {
   display: flex;
   gap: 16px;
-  padding: 16px;
+  padding: 1px;
   width: 100%; /* Ensure container uses full width */
 
   @media (max-width: 768px) {
     flex-direction: column; /* Stack panels vertically */
-    gap: 12px;
+    gap: 16px;
+    
     overflow-x: hidden; /* Prevent unwanted horizontal scroll */
   }
 }
@@ -16,29 +17,38 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: 100%; /* Full width for mobile */
+  width: 100%;
+  background: #ffffff; 
+  padding: 10px;
+  height: 626px;
+  margin-top: -16px;
 
   .MuiFormControl-root {
     width: 100%; /* Ensure dropdowns take full width */
   }
+
+  
+
+  
 }
 
 .right-panel {
   flex: 2; /* Allocate more space for the right panel */
   max-width: 100%; /* Prevent overflow */
-  
-
-  .panel{
-    overflow-x: auto; /* Allow horizontal scroll for wide tables */
-    overflow-y: auto;
-  }
+  background: #ffffff;
+  padding: 10px;
+  margin-top: -16px;
+  height: 100%;
+ 
+   
 
  
 
   @media (max-width: 768px) {
     flex: none;
-    width: 100%; /* Full width on mobile */
+    max-width: 100%; /* Full width on mobile */
     overflow-x: auto; /* Ensure table scrolls horizontally */
+    margin-top: 2px;
   }
 }
 
@@ -61,5 +71,25 @@
 
 
 
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 60px; /* Adjust height as needed */
+  background-color: #d9d9d9; /* Optional: Add background color */
+  margin-bottom: 20px; /* Optional: Add spacing between header and content */
+}
 
- 
+.header-container h2 {
+  margin: 0;
+  font-size: 24px; /* Adjust font size as needed */
+  font-weight: bold;
+}
+
+@media (min-width: 768px) {
+  .header-container {
+    margin-bottom: 30px; /* Spacing between header and content */
+    margin-top: -24px;  /* Adjusted top margin */
+  }
+}

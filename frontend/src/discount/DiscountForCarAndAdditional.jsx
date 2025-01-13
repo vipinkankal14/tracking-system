@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FormControl,
   InputLabel,
@@ -17,42 +17,44 @@ import {
   InputAdornment,
   Button,
 } from '@mui/material';
-
+import axios from 'axios';
 import './scss/DiscountForCarAndAdditional.scss';
 
-const carData = {
-  models: {
-    swift: {
-      carType: 'Hatchback',
-      versions: {
-        vxi: ['Red', 'Blue', 'White'],
-        zxi: ['Black', 'Silver'],
-      },
-    },
-    baleno: {
-      carType: 'Hatchback',
-      versions: {
-        sigma: ['Blue', 'Grey'],
-        alpha: ['White', 'Red'],
-      },
-    },
-    ciaz: {
-      carType: 'Sedan',
-      versions: {
-        sigma: ['Black', 'Brown'],
-        alpha: ['White', 'Silver'],
-      },
-    },
-  },
-};
-
-export default function CascadingDropdownWithTable() {
+export default function DiscountForCarAndAdditional() {
   const [selectedModel, setSelectedModel] = useState('');
   const [selectedVersion, setSelectedVersion] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedCarType, setSelectedCarType] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
   const [discountAmount, setDiscountAmount] = useState('');
+  const [allRows, setAllRows] = useState([]);
+
+  useEffect(() => {
+    const fetchCars = async (filters) => {
+      const { model, version, color, carType } = filters;
+      const queryParams = new URLSearchParams({
+        ...(model && { model }),
+        ...(version && { version }),
+        ...(color && { color }),
+        ...(carType && { carType }),
+      });
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/cars?${queryParams}`);
+        setAllRows(response.data);
+      } catch (error) {
+        console.error('Error fetching cars:', error);
+        setAllRows([]);
+      }
+    };
+
+    fetchCars({
+      model: selectedModel,
+      version: selectedVersion,
+      color: selectedColor,
+      carType: selectedCarType,
+    });
+  }, [selectedModel, selectedVersion, selectedColor, selectedCarType]);
 
   const handleModelChange = (event) => {
     setSelectedModel(event.target.value);
@@ -77,41 +79,14 @@ export default function CascadingDropdownWithTable() {
     setDiscountAmount(event.target.value);
   };
 
-  const handleDiscountAmountChangeMobile = (event) => {
-    setDiscountAmount(event.target.value);
-  };
-
   const handleApplyDiscount = () => {
     const updatedRows = selectedRows.map((index) => ({
       ...filteredRows[index],
       discountAmount: discountAmount,
     }));
-    // Update your state or API here with the updatedRows
     console.log('Updated Rows with Discounts:', updatedRows);
   };
 
-  const handleApplyDiscountMobile = () => {
-    const updatedRows = selectedRows.map((index) => ({
-      ...filteredRows[index],
-      discountAmount: discountAmount,
-    }));
-    // Update your state or API here with the updatedRows
-    console.log('Updated Rows with Discounts:', updatedRows);
-  };
-
-  // Add `carType` to allRows
-  const allRows = Object.entries(carData.models).flatMap(([model, modelData]) =>
-    Object.entries(modelData.versions).flatMap(([version, colors]) =>
-      colors.map((color) => ({
-        model,
-        version,
-        color,
-        carType: modelData.carType, // Include carType here
-      }))
-    )
-  );
-
-  // Filter rows based on selected criteria
   const filteredRows = allRows.filter(
     (row) =>
       (!selectedModel || row.model === selectedModel) &&
@@ -127,56 +102,59 @@ export default function CascadingDropdownWithTable() {
   };
 
   return (
-    <div className="container">
-      <div className="left-panel">
+    <>
+     <div className="header-container">
+      <h2>DiscountForCar</h2>
+    </div>
 
-        <Typography variant="h6" gutterBottom style={{ marginTop: '16px' }}>
-          Select Car Details
-        </Typography>
+      <div className="container">
+       <div className="left-panel">
+        <Typography variant="h6" gutterBottom style={{ marginTop: '28px' }}>Select Car Details</Typography>
 
-        {/* Dropdown for Car Model */}
         <FormControl fullWidth>
           <InputLabel id="model-label">Model</InputLabel>
           <Select labelId="model-label" value={selectedModel} onChange={handleModelChange} label="Model">
             <MenuItem value="">All</MenuItem>
-            {Object.keys(carData.models).map((model) => (
+            {[...new Set(allRows.map((row) => row.model))].map((model) => (
               <MenuItem key={model} value={model}>
                 {model.charAt(0).toUpperCase() + model.slice(1)}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-
-        {/* Dropdown for Car Version */}
         <FormControl fullWidth disabled={!selectedModel}>
           <InputLabel id="version-label">Version</InputLabel>
           <Select labelId="version-label" value={selectedVersion} onChange={handleVersionChange} label="Version">
             <MenuItem value="">All</MenuItem>
-            {selectedModel &&
-              Object.keys(carData.models[selectedModel].versions).map((version) => (
+            {[...new Set(allRows.filter((row) => row.model === selectedModel).map((row) => row.version))].map(
+              (version) => (
                 <MenuItem key={version} value={version}>
                   {version.toUpperCase()}
                 </MenuItem>
-              ))}
+              )
+            )}
           </Select>
         </FormControl>
-
-        {/* Dropdown for Car Color */}
         <FormControl fullWidth disabled={!selectedVersion}>
           <InputLabel id="color-label">Color</InputLabel>
           <Select labelId="color-label" value={selectedColor} onChange={handleColorChange} label="Color">
             <MenuItem value="">All</MenuItem>
-            {selectedModel &&
-              selectedVersion &&
-              carData.models[selectedModel].versions[selectedVersion].map((color) => (
-                <MenuItem key={color} value={color}>
-                  {color}
-                </MenuItem>
-              ))}
+            {[
+              ...new Set(
+                allRows
+                  .filter((row) => row.model === selectedModel && row.version === selectedVersion)
+                  .map((row) => row.color)
+              ),
+            ].map((color) => (
+              <MenuItem key={color} value={color}>
+                {color}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
-
-        {/* Dropdown for Car Type */}
+        <Typography variant="h6">
+          Select Car Type
+        </Typography>
         <FormControl fullWidth>
           <InputLabel id="car-type-label">Car Type</InputLabel>
           <Select labelId="car-type-label" value={selectedCarType} onChange={handleCarTypeChange} label="Car Type">
@@ -188,8 +166,8 @@ export default function CascadingDropdownWithTable() {
             ))}
           </Select>
         </FormControl>
-
-        <div className="discount-amount-section" style={{ marginTop: '16px' }}>
+        <br />
+        <div className="discount-amount-section" style={{ marginTop: '-36px' }}>
           <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
           <FormControl fullWidth>
             <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
@@ -206,15 +184,17 @@ export default function CascadingDropdownWithTable() {
           </div>
         </div>
 
-
-
       </div>
 
       <div className="right-panel">
-        <div className='panel'>
-          <Typography variant="h6" gutterBottom>
+
+        <>
+
+
+          <Typography variant="h6" gutterBottom style={{ marginTop: '16px' }}>
             Available Cars
           </Typography>
+          <br />
           {filteredRows.length > 0 ? (
             <TableContainer component={Paper}>
               <Table>
@@ -259,8 +239,8 @@ export default function CascadingDropdownWithTable() {
           ) : (
             <Typography>No cars available for the selected criteria.</Typography>
           )}
-        </div>
 
+        </>
         <>
           <div className="discount-amount-section-mobile" style={{ marginTop: '16px' }}>
             <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
@@ -269,20 +249,20 @@ export default function CascadingDropdownWithTable() {
               <OutlinedInput
                 id="outlined-adornment-amount-mobile"
                 value={discountAmount}
-                onChange={handleDiscountAmountChangeMobile}
+                onChange={handleApplyDiscount}
                 startAdornment={<InputAdornment position="start">₹</InputAdornment>}
                 label="Amount"
               />
             </FormControl>
             <div style={{ marginTop: '16px' }}>
-              <Button variant="contained" onClick={handleApplyDiscountMobile}>Submit</Button>
+              <Button variant="contained" onClick={handleApplyDiscount}>Submit</Button>
             </div>
           </div>
+          <br />
         </>
-
       </div>
     </div>
+    </>
+    
   );
-
-
 }

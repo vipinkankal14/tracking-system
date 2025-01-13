@@ -90,6 +90,62 @@ app.put('/api/car/update/:vin', (req, res) => {
 
 
 
+// Get all cars with filters
+app.get('/api/cars', (req, res) => {
+  const { model, version, color, carType } = req.query;
+
+  let query = 'SELECT * FROM carstocks WHERE 1=1';
+  const params = [];
+
+  if (model) {
+      query += ' AND model = ?';
+      params.push(model);
+  }
+  if (version) {
+      query += ' AND version = ?';
+      params.push(version);
+  }
+  if (color) {
+      query += ' AND color = ?';
+      params.push(color);
+  }
+  if (carType) {
+      query += ' AND carType = ?';
+      params.push(carType);
+  }
+
+  pool.query(query, params, (err, results) => {
+      if (err) {
+          console.error('Database query failed:', err);
+          res.status(500).json({ error: 'Database query failed' });
+          return;
+      }
+      res.json(results);
+  });
+});
+
+// Update discount for selected cars
+app.post('/api/apply-discount', (req, res) => {
+  const { selectedCars, discountAmount } = req.body;
+
+  if (!selectedCars || !discountAmount) {
+      return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const vins = selectedCars.map((car) => car.vin).map(() => '?').join(',');
+  const query = `UPDATE cars SET discount = ? WHERE vin IN (${vins})`;
+  const params = [discountAmount, ...selectedCars.map((car) => car.vin)];
+
+  pool.query(query, params, (err, result) => {
+      if (err) {
+          console.error('Failed to update discounts:', err);
+          res.status(500).json({ error: 'Failed to update discounts' });
+          return;
+      }
+      res.json({ message: 'Discounts applied successfully', result });
+  });
+});
+
 
 
 
