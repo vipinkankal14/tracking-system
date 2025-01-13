@@ -1,18 +1,65 @@
-.discount-car-additional {
-    .table-container {
-      overflow-x: auto; // Ensure table scrolls on small screens
-    }
-  
-    .g-2 {
-      margin-bottom: 1rem;
-    }
-  
-    @media (max-width: 576px) {
-      .table-container {
-        table {
-          font-size: 0.9rem; // Adjust table font size for better readability
-        }
-      }
-    }
+.container {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  width: 100%; /* Ensure container uses full width */
+
+  @media (max-width: 768px) {
+    flex-direction: column; /* Stack panels vertically */
+    gap: 12px;
+    overflow-x: hidden; /* Prevent unwanted horizontal scroll */
   }
+}
+
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%; /* Full width for mobile */
+
+  .MuiFormControl-root {
+    width: 100%; /* Ensure dropdowns take full width */
+  }
+}
+
+.right-panel {
+  flex: 2; /* Allocate more space for the right panel */
+  max-width: 100%; /* Prevent overflow */
   
+
+  .panel{
+    overflow-x: auto; /* Allow horizontal scroll for wide tables */
+    overflow-y: auto;
+  }
+
+ 
+
+  @media (max-width: 768px) {
+    flex: none;
+    width: 100%; /* Full width on mobile */
+    overflow-x: auto; /* Ensure table scrolls horizontally */
+  }
+}
+
+
+.discount-amount-section {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.discount-amount-section-mobile {
+  display: block;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+
+
+
+ 

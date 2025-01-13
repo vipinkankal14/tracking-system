@@ -1,70 +1,288 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Checkbox,
+  Paper,
+  OutlinedInput,
+  InputAdornment,
+  Button,
+} from '@mui/material';
 
-const DiscountForCarAndAdditional = () => {
-  const [model, setModel] = useState('');
-  const [color, setColor] = useState('');
-  const [version, setVersion] = useState('');
-  const [discount, setDiscount] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+import './scss/DiscountForCarAndAdditional.scss';
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    
-    // Reset messages
-    setMessage('');
-    setError('');
+const carData = {
+  models: {
+    swift: {
+      carType: 'Hatchback',
+      versions: {
+        vxi: ['Red', 'Blue', 'White'],
+        zxi: ['Black', 'Silver'],
+      },
+    },
+    baleno: {
+      carType: 'Hatchback',
+      versions: {
+        sigma: ['Blue', 'Grey'],
+        alpha: ['White', 'Red'],
+      },
+    },
+    ciaz: {
+      carType: 'Sedan',
+      versions: {
+        sigma: ['Black', 'Brown'],
+        alpha: ['White', 'Silver'],
+      },
+    },
+  },
+};
 
-    // Validate inputs
-    if (!model || !color || !version || isNaN(discount)) {
-      setError('All fields are required, and discount must be a number.');
-      return;
-    }
+export default function CascadingDropdownWithTable() {
+  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedVersion, setSelectedVersion] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedCarType, setSelectedCarType] = useState('');
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [discountAmount, setDiscountAmount] = useState('');
 
-    // Prepare the data to send
-    const data = {
-      model,
-      color,
-      version,
-      discount: parseInt(discount), // Ensure discount is a number
-    };
+  const handleModelChange = (event) => {
+    setSelectedModel(event.target.value);
+    setSelectedVersion('');
+    setSelectedColor('');
+  };
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/discountForCriteria', data);
-      setMessage(response.data.message);
-    } catch (err) {
-      console.error('Error:', err.response ? err.response.data : err.message);
-      setError(err.response ? err.response.data.error : 'An error occurred while updating the discount.');
-    }
+  const handleVersionChange = (event) => {
+    setSelectedVersion(event.target.value);
+    setSelectedColor('');
+  };
+
+  const handleColorChange = (event) => {
+    setSelectedColor(event.target.value);
+  };
+
+  const handleCarTypeChange = (event) => {
+    setSelectedCarType(event.target.value);
+  };
+
+  const handleDiscountAmountChange = (event) => {
+    setDiscountAmount(event.target.value);
+  };
+
+  const handleDiscountAmountChangeMobile = (event) => {
+    setDiscountAmount(event.target.value);
+  };
+
+  const handleApplyDiscount = () => {
+    const updatedRows = selectedRows.map((index) => ({
+      ...filteredRows[index],
+      discountAmount: discountAmount,
+    }));
+    // Update your state or API here with the updatedRows
+    console.log('Updated Rows with Discounts:', updatedRows);
+  };
+
+  const handleApplyDiscountMobile = () => {
+    const updatedRows = selectedRows.map((index) => ({
+      ...filteredRows[index],
+      discountAmount: discountAmount,
+    }));
+    // Update your state or API here with the updatedRows
+    console.log('Updated Rows with Discounts:', updatedRows);
+  };
+
+  // Add `carType` to allRows
+  const allRows = Object.entries(carData.models).flatMap(([model, modelData]) =>
+    Object.entries(modelData.versions).flatMap(([version, colors]) =>
+      colors.map((color) => ({
+        model,
+        version,
+        color,
+        carType: modelData.carType, // Include carType here
+      }))
+    )
+  );
+
+  // Filter rows based on selected criteria
+  const filteredRows = allRows.filter(
+    (row) =>
+      (!selectedModel || row.model === selectedModel) &&
+      (!selectedVersion || row.version === selectedVersion) &&
+      (!selectedColor || row.color === selectedColor) &&
+      (!selectedCarType || row.carType === selectedCarType)
+  );
+
+  const handleCheckboxChange = (id) => {
+    setSelectedRows((prev) =>
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+    );
   };
 
   return (
-    <div>
-      <h2>Update Car Discount</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Model:</label>
-          <input type="text" value={model} onChange={(e) => setModel(e.target.value)} required />
+    <div className="container">
+      <div className="left-panel">
+
+        <Typography variant="h6" gutterBottom style={{ marginTop: '16px' }}>
+          Select Car Details
+        </Typography>
+
+        {/* Dropdown for Car Model */}
+        <FormControl fullWidth>
+          <InputLabel id="model-label">Model</InputLabel>
+          <Select labelId="model-label" value={selectedModel} onChange={handleModelChange} label="Model">
+            <MenuItem value="">All</MenuItem>
+            {Object.keys(carData.models).map((model) => (
+              <MenuItem key={model} value={model}>
+                {model.charAt(0).toUpperCase() + model.slice(1)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Dropdown for Car Version */}
+        <FormControl fullWidth disabled={!selectedModel}>
+          <InputLabel id="version-label">Version</InputLabel>
+          <Select labelId="version-label" value={selectedVersion} onChange={handleVersionChange} label="Version">
+            <MenuItem value="">All</MenuItem>
+            {selectedModel &&
+              Object.keys(carData.models[selectedModel].versions).map((version) => (
+                <MenuItem key={version} value={version}>
+                  {version.toUpperCase()}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+
+        {/* Dropdown for Car Color */}
+        <FormControl fullWidth disabled={!selectedVersion}>
+          <InputLabel id="color-label">Color</InputLabel>
+          <Select labelId="color-label" value={selectedColor} onChange={handleColorChange} label="Color">
+            <MenuItem value="">All</MenuItem>
+            {selectedModel &&
+              selectedVersion &&
+              carData.models[selectedModel].versions[selectedVersion].map((color) => (
+                <MenuItem key={color} value={color}>
+                  {color}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+
+        {/* Dropdown for Car Type */}
+        <FormControl fullWidth>
+          <InputLabel id="car-type-label">Car Type</InputLabel>
+          <Select labelId="car-type-label" value={selectedCarType} onChange={handleCarTypeChange} label="Car Type">
+            <MenuItem value="">All</MenuItem>
+            {[...new Set(allRows.map((row) => row.carType))].map((carType) => (
+              <MenuItem key={carType} value={carType}>
+                {carType}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <div className="discount-amount-section" style={{ marginTop: '16px' }}>
+          <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
+          <FormControl fullWidth>
+            <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-amount"
+              value={discountAmount}
+              onChange={handleDiscountAmountChange}
+              startAdornment={<InputAdornment position="start">₹</InputAdornment>}
+              label="Amount"
+            />
+          </FormControl>
+          <div style={{ marginTop: '16px' }}>
+            <Button variant="contained" onClick={handleApplyDiscount}>Submit</Button>
+          </div>
         </div>
-        <div>
-          <label>Color:</label>
-          <input type="text" value={color} onChange={(e) => setColor(e.target.value)} required />
+
+
+
+      </div>
+
+      <div className="right-panel">
+        <div className='panel'>
+          <Typography variant="h6" gutterBottom>
+            Available Cars
+          </Typography>
+          {filteredRows.length > 0 ? (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={filteredRows.every((_, index) => selectedRows.includes(index))}
+                        onChange={() => {
+                          if (filteredRows.every((_, index) => selectedRows.includes(index))) {
+                            setSelectedRows([]);
+                          } else {
+                            setSelectedRows(filteredRows.map((_, index) => index));
+                          }
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>Model</TableCell>
+                    <TableCell>Version</TableCell>
+                    <TableCell>Color</TableCell>
+                    <TableCell>Car Type</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredRows.map((row, index) => (
+                    <TableRow key={index} hover>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedRows.includes(index)}
+                          onChange={() => handleCheckboxChange(index)}
+                        />
+                      </TableCell>
+                      <TableCell>{row.model.charAt(0).toUpperCase() + row.model.slice(1)}</TableCell>
+                      <TableCell>{row.version.toUpperCase()}</TableCell>
+                      <TableCell>{row.color}</TableCell>
+                      <TableCell>{row.carType}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Typography>No cars available for the selected criteria.</Typography>
+          )}
         </div>
-        <div>
-          <label>Version:</label>
-          <input type="text" value={version} onChange={(e) => setVersion(e.target.value)} required />
-        </div>
-        <div>
-          <label>Discount:</label>
-          <input type="number" value={discount} onChange={(e) => setDiscount(e.target.value)} required />
-        </div>
-        <button type="submit">Update Discount</button>
-      </form>
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+        <>
+          <div className="discount-amount-section-mobile" style={{ marginTop: '16px' }}>
+            <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
+            <FormControl fullWidth>
+              <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-amount-mobile"
+                value={discountAmount}
+                onChange={handleDiscountAmountChangeMobile}
+                startAdornment={<InputAdornment position="start">₹</InputAdornment>}
+                label="Amount"
+              />
+            </FormControl>
+            <div style={{ marginTop: '16px' }}>
+              <Button variant="contained" onClick={handleApplyDiscountMobile}>Submit</Button>
+            </div>
+          </div>
+        </>
+
+      </div>
     </div>
   );
-};
 
-export default DiscountForCarAndAdditional;
+
+}
