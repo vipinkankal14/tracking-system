@@ -1,124 +1,196 @@
-import React, { useState, useEffect } from "react";
-import "./css/CashierApp.scss";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
+import { DirectionsCar, Block, AccountBalance } from '@mui/icons-material';
 
-const CashierApp = () => {
-  const navigate = useNavigate();
+import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
 
-  const [customerId, setCustomerId] = useState("");
-  const [customerDetails, setCustomerDetails] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+const Container = styled.div`
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: auto;
+`;
 
-  const handleCustomerIdChange = (e) => {
-    setCustomerId(e.target.value.trim());
-    setError(""); // Clear error when typing
-  };
-
-  useEffect(() => {
-    const fetchCustomerDetails = async () => {
-      if (!customerId) {
-        setCustomerDetails(null);
-        setError("Customer ID cannot be empty.");
-        return;
-      }
-
-      setLoading(true);
-      setError("");
-      try {
-        const response = await fetch(`http://localhost:5000/api/customers/${customerId}`);
-        if (!response.ok) {
-          throw new Error("Customer not found");
-        }
-        const data = await response.json();
-        setCustomerDetails(data);
-        setError("");
-      } catch (err) {
-        setCustomerDetails(null);
-        setError("No record found for the given Customer ID.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (customerId) {
-      fetchCustomerDetails();
-    }
-  }, [customerId]);
-
-  const handlePayment = () => {
-    if (customerDetails) {
-      navigate("/PaymentDetails", {
-        state: {
-          customerId,
-          customerName: `${customerDetails.firstName} ${customerDetails.middleName} ${customerDetails.lastName}`,
-          accountBalance: customerDetails.accountBalance,
-        },
-      });
-    } else {
-      alert("Please enter a valid Customer ID.");
-    }
-  };
+const Title = styled.h1`
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #1f2937;
+  font-size: 2rem;
+  font-weight: 700;
   
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+`;
+const Subtitle = styled.h2`
+  margin-bottom: 1rem;
+  text-align: center;
+  color: #4b5563;
+  font-size: 1.5rem;
+  font-weight: 600;
 
-  return (
-    <div className="customer-details-container">
-      <h6>Search Customer</h6>
-      <div className="customer-id-card">
-        <input
-          id="customer-id-input"
-          type="text"
-          placeholder="Enter Customer ID or Full Name"
-          value={customerId}
-          onChange={handleCustomerIdChange}
-          className="customer-id-input"
-        />
-        {loading && <p className="loading-message">Loading...</p>}
-      </div>
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+`;
 
-      {error && <p className="error-message">{error}</p>}
+const Grid = styled.div`
+  display: grid;
+  gap: 2.5rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+`;
 
-      {customerDetails && (
-        <>
-          <div className="customer-info">
-            <p>
-              <strong>Name:</strong> {customerDetails.firstName} {customerDetails.middleName} {customerDetails.lastName}
-            </p>
-            <p>
-              <strong>Number:</strong> {customerDetails.mobileNumber1}
-            </p>
-            <p>
-              <strong>Email:</strong> {customerDetails.email}
-            </p>
-            <p>
-              <strong>Account Balance:</strong> {customerDetails.accountBalance}
-            </p>
-          </div>
+const Card = styled.div`
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
 
-          <div className="car-details">
-            <p>
-              <strong>Car Model:</strong> {customerDetails.model}
-            </p>
-            <p>
-              <strong>Car Color:</strong> {customerDetails.color}
-            </p>
-            <p>
-              <strong>Car Variant:</strong> {customerDetails.variant}
-            </p>
-            <p>
-              <strong>Car Price:</strong> {customerDetails.exShowroomPrice}
-            </p>
-          </div>
+  &:hover {
+    transform: translateY(-4px);
+  }
+`;
 
-          <div className="payment-button-container">
-            <button className="payment-button" onClick={handlePayment}>
-              Proceed to Payment
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
+const CardContent = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+`;
+
+const getIconStyles = (type) => {
+  const styles = {
+    primary: { background: '#e0f2fe', color: '#0284c7' },
+    danger: { background: '#fee2e2', color: '#dc2626' },
+    success: { background: '#dcfce7', color: '#16a34a' },
+    warning: { background: '#fef3c7', color: '#d97706' }
+  };
+  return styles[type] || styles.primary;
 };
 
-export default CashierApp;
+const IconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  margin-right: 1.5rem;
+  background: ${props => getIconStyles(props.iconType).background};
+  color: ${props => getIconStyles(props.iconType).color};
+`;
+
+const CardInfo = styled.div`
+  flex: 1;
+`;
+
+const CardTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+`;
+
+const CardNumber = styled.div`
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+`;
+
+const CardStatus = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+`;
+
+function StackedStatusPage() {
+  const navigate = useNavigate();
+
+  const [statusCards] = useState([
+    {
+      id: 'car-booking',
+      title: 'Car Booking',
+      count: 80,
+      status: 'Booked',
+      icon: DirectionsCar,
+      iconType: 'primary',
+      path: '/car-Booking'
+    },
+    {
+      id: 'booking-cancel',
+      title: 'Booking Cancel',
+      count: 80,
+      status: 'Cancelled',
+      icon: Block,
+      iconType: 'danger',
+      path: '/car-booking-cancel'
+    },
+    {
+      id: 'payment-credit',
+      title: 'Customer Payment Details',
+      count: 80,
+      status: 'Credited / Debited',
+      icon: AccountBalance,
+      iconType: 'success',
+      path: '/customer-payment-details'
+    },
+    {
+      id: 'payment',
+      title: 'Payment Clear',
+      count: 80,
+      status: 'All Payments Clear',
+      icon: AssuredWorkloadRoundedIcon,
+      iconType: 'warning',
+      path: '/Payment-Clear',
+     
+    },
+    {
+      id: 'pending',
+      title: 'Payment',
+      count: 80,
+      status: 'Panding Amount',
+      icon: AssuredWorkloadRoundedIcon,
+      iconType: 'warning',
+      path: '/Payment',
+     
+    }
+  ]);
+
+  const handleCardClick = (path) => {
+    navigate(path);
+  };
+
+  return (
+    <Container>
+      <Title>Status Overview</Title>
+      <Grid>
+        {statusCards.map((card) => (
+          <Card 
+            key={card.id}
+            onClick={() => handleCardClick(card.path)}
+          >
+            <CardContent>
+              <IconWrapper iconType={card.iconType}>
+                <card.icon sx={{ fontSize: 32 }} />
+              </IconWrapper>
+              <CardInfo>
+                <CardTitle>{card.title}</CardTitle>
+                <CardNumber>{card.count}</CardNumber>
+                <CardStatus>Status: {card.status}</CardStatus>
+              </CardInfo>
+            </CardContent>
+          </Card>
+        ))}
+      </Grid>
+    </Container>
+  );
+}
+
+export default StackedStatusPage;

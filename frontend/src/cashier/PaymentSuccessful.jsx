@@ -8,7 +8,7 @@ const PaymentSuccessful = () => {
   const { transactionType = 'N/A', amount = 0, updatedBalance = 0 } = location.state || {};
 
   if (!transactionType || !amount || updatedBalance === undefined) {
-    navigate("/CashierApp");
+    navigate("/cashier-app");
     return null;
   }
 
@@ -132,7 +132,7 @@ const PaymentSuccessful = () => {
           <button onClick={handlePrint} className="print-button">
             Print Transaction Details
           </button>
-          <button onClick={() => navigate("/CashierApp")} className="back-button">
+          <button onClick={() => navigate("/cashier-app")} className="back-button">
             Back to Cashier App
           </button>
         </div>

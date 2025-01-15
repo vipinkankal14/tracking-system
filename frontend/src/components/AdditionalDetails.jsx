@@ -54,6 +54,12 @@ function AdditionalDetails() {
       coating: 'No',
       fast_tag: 'No'
     },
+    PaymentDetails: {
+      
+    },
+    InvoiceSummary: {
+
+    },
     confirmation: {
       terms: false
     }

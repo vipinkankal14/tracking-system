@@ -1,78 +1,125 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import "./css/Payment.scss";
+import { useNavigate } from "react-router-dom";
 
-const UpdateDiscountForm = () => {
-  const [selectedCars, setSelectedCars] = useState([]);
-  const [discount, setDiscount] = useState('');
-  const [responseMessage, setResponseMessage] = useState('');
+const Payment = () => {
+  const navigate = useNavigate();
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [customerId, setCustomerId] = useState("");
+  const [customerDetails, setCustomerDetails] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
 
-    // Validate input
-    if (selectedCars.length === 0 || !discount) {
-      setResponseMessage('Please provide valid car VINs and discount.');
-      return;
+  const handleCustomerIdChange = (e) => {
+    setCustomerId(e.target.value.trim());
+    setError(""); // Clear error when typing
+  };
+
+  useEffect(() => {
+    const fetchCustomerDetails = async () => {
+      if (!customerId) {
+        setCustomerDetails(null);
+        setError("Customer ID cannot be empty.");
+        return;
+      }
+
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetch(`http://localhost:5000/api/customers/${customerId}`);
+        if (!response.ok) {
+          throw new Error("Customer not found");
+        }
+        const data = await response.json();
+        setCustomerDetails(data);
+        setError("");
+      } catch (err) {
+        setCustomerDetails(null);
+        setError("No record found for the given Customer ID.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (customerId) {
+      fetchCustomerDetails();
     }
+  }, [customerId]);
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/updateDiscount', {
-        selectedCars,
-        discount: parseInt(discount, 10),
+  const handlePayment = () => {
+    if (customerDetails) {
+      navigate("/PaymentDetails", {
+        state: {
+          customerId,
+          customerName: `${customerDetails.firstName} ${customerDetails.middleName} ${customerDetails.lastName}`,
+          accountBalance: customerDetails.accountBalance,
+        },
       });
-
-      setResponseMessage(response.data.message);
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.error || 'An error occurred. Please try again.';
-      setResponseMessage(errorMessage);
+    } else {
+      alert("Please enter a valid Customer ID.");
     }
   };
-
-  // Handle input changes
-  const handleVINChange = (e) => {
-    const vins = e.target.value.split(',').map((vin) => vin.trim());
-    setSelectedCars(vins);
-  };
-
-  const handleDiscountChange = (e) => {
-    setDiscount(e.target.value);
-  };
+  
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
-      <h3>Update Car Discounts</h3>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="vins">Car VINs (comma-separated):</label>
-          <input
-            type="text"
-            id="vins"
-            placeholder="Enter VINs"
-            onChange={handleVINChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="discount">Discount Amount:</label>
-          <input
-            type="number"
-            id="discount"
-            placeholder="Enter discount"
-            onChange={handleDiscountChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-        <button type="submit" style={{ padding: '10px 20px', background: '#007BFF', color: '#FFF', border: 'none', cursor: 'pointer' }}>
-          Update Discount
-        </button>
-      </form>
-      {responseMessage && (
-        <p style={{ marginTop: '20px', color: 'green' }}>{responseMessage}</p>
+    <div className="customer-details-container">
+      <h6>Search Customer</h6>
+      <div className="customer-id-card">
+        <input
+          id="customer-id-input"
+          type="text"
+          placeholder="Enter Customer ID or Full Name"
+          value={customerId}
+          onChange={handleCustomerIdChange}
+          className="customer-id-input"
+        />
+        {loading && <p className="loading-message">Loading...</p>}
+      </div>
+
+      {error && <p className="error-message">{error}</p>}
+
+      {customerDetails && (
+        <>
+          <div className="customer-info">
+            <p>
+              <strong>Name:</strong> {customerDetails.firstName} {customerDetails.middleName} {customerDetails.lastName}
+            </p>
+            <p>
+              <strong>Number:</strong> {customerDetails.mobileNumber1}
+            </p>
+            <p>
+              <strong>Email:</strong> {customerDetails.email}
+            </p>
+            <p>
+              <strong>Account Balance:</strong> {customerDetails.accountBalance}
+            </p>
+          </div>
+
+          <div className="car-details">
+            <p>
+              <strong>Car Model:</strong> {customerDetails.model}
+            </p>
+            <p>
+              <strong>Car Color:</strong> {customerDetails.color}
+            </p>
+            <p>
+              <strong>Car Variant:</strong> {customerDetails.variant}
+            </p>
+            <p>
+              <strong>Car Price:</strong> {customerDetails.exShowroomPrice}
+            </p>
+          </div>
+
+          <div className="payment-button-container">
+            <button className="payment-button" onClick={handlePayment}>
+              Proceed to Payment
+            </button>
+          </div>
+        </>
       )}
+          
     </div>
   );
 };
 
-export default UpdateDiscountForm;
+export default Payment;

@@ -7,10 +7,10 @@ import './sidebar.scss'
 export default function Sidebar({ isOpen, setIsOpen }) {
   const navItems = [
     { icon: <Home size={20} />, label: 'Home', path: '/' },
-    { icon: <GitPullRequest size={20} />, label: 'Customers', path: '/AdditionalDetails' },
-    { icon: <CircuitBoard size={20} />, label: 'CashierApp', path: '/CashierApp' },
-    { icon: <MessageSquare size={20} />, label: 'car', path: '/Car' },
-    { icon: <Code2 size={20} />, label: 'DiscountMain', path: '/DiscountMain' },
+    { icon: <GitPullRequest size={20} />, label: 'Customers', path: '/additional-details' },
+    { icon: <CircuitBoard size={20} />, label: 'CashierApp', path: '/cashier-app' },
+    { icon: <MessageSquare size={20} />, label: 'car', path: '/car' },
+    { icon: <Code2 size={20} />, label: 'DiscountMain', path: '/discount-main' },
     { icon: <Cpu size={20} />, label: 'Copilot', path: '/copilot' },
     { icon: <Compass size={20} />, label: 'Explore', path: '/explore' },
     { icon: <ShoppingBag size={20} />, label: 'Marketplace', path: '/marketplace' },
@@ -18,7 +18,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
   return (
     <nav className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <div className="d-flex flex-column h-100">
+      <div className="d-flex flex-column h-100" style={{ overflowY: 'auto' }}>
         {navItems.map((item) => (
           <NavLink
             key={item.path}

@@ -5,12 +5,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Nav/sidebar/Sidebar.scss';
 import { useState, Suspense, lazy } from "react";
 import './App.css'; 
- 
+import { Home } from "lucide-react";
+import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails";
 
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./components/AdditionalDetails"));
 const DiscountMain = lazy(() => import("./discount/DiscountMain"));
-const PaymentForm = lazy(() => import("./PaymentForm"));
+const CarBookings = lazy(() => import("./cashier/CarBookings"));
+const PaymentClear = lazy(() => import("./cashier/PaymentClear"));
+const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel"));
+const Payment = lazy(() => import("./cashier/Payment"));
 const CashierApp = lazy(() => import("./cashier/CashierApp"));
 const PaymentDetails = lazy(() => import("./cashier/PaymentDetails"));
 const PaymentSuccessful = lazy(() => import("./cashier/PaymentSuccessful"));
@@ -26,23 +30,28 @@ function App() {
   };
 
   return (
-    <>
+    <> 
       <div className="main-layout noto-sans">
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
         <TopNavbar toggleSidebar={toggleSidebar} />
-        <main className="main-content">
+        <main className="main-content" style={{ overflow: 'hidden' }}>
           <div className="container-fluid px-0">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
-                <Route path="/" element={<PaymentForm />} />
-                <Route path="/AdditionalDetails" element={<AdditionalDetails />} />
-                <Route path="/SuccessPage" element={<SuccessPage />} />
-                <Route path="/CashierApp" element={<CashierApp />} />
-                <Route path="/PaymentDetails" element={<PaymentDetails />} />
-                <Route path="/PaymentSuccessful" element={<PaymentSuccessful />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/additional-details" element={<AdditionalDetails />} />
+                <Route path="/success-page" element={<SuccessPage />} />
+                <Route path="/payment-successful" element={<PaymentSuccessful />} />
                 <Route path="/car" element={<Car />} />
                 <Route path="/car-allotment/:vin" element={<CarAllotment />} />
-                <Route path="/DiscountMain" element={<DiscountMain />} />
+                <Route path="/discount-main" element={<DiscountMain />} />
+                <Route path="/cashier-app" element={<CashierApp />} /> 
+                <Route path="/payment-details" element={<PaymentDetails />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/payment-clear" element={<PaymentClear />} />
+                <Route path="/car-Booking" element={<CarBookings/>} />
+                <Route path="/car-booking-cancel" element={<CarBookingCancel />} />
+                <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
               </Routes>
             </Suspense>
           </div>

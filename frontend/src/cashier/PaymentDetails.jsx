@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./css/PaymentDetails.scss";
+import { Button } from "@mui/material";
+import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 
 const PaymentDetails = () => {
   const navigate = useNavigate();
@@ -34,88 +36,99 @@ const PaymentDetails = () => {
     setSuccess("");
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const { transactionType, amount } = formData;
-  const parsedAmount = parseFloat(amount);
+    const { transactionType, amount } = formData;
+    const parsedAmount = parseFloat(amount);
 
-  // Validate inputs
-  if (!parsedAmount || parsedAmount <= 0) {
-    setError("Please enter a valid positive amount.");
-    return;
-  }
-
-  const isDebit = transactionType === "debit";
-
-  if (isDebit && parsedAmount > newBalance) {
-    setError("Insufficient balance for the debit transaction.");
-    return;
-  }
-
-  try {
-    // Call API to process the payment
-    const response = await fetch("http://localhost:5000/api/payments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerId: customerId,
-        debitedAmount: isDebit ? parsedAmount : null,
-        creditedAmount: !isDebit ? parsedAmount : null,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to process payment.");
+    // Validate inputs
+    if (!parsedAmount || parsedAmount <= 0) {
+      setError("Please enter a valid positive amount.");
+      return;
     }
-    const result = await response.json(); // Use this only if response is JSON
-    console.log("API response:", result);
 
-    console.log("newBalance before transaction:", typeof newBalance, newBalance);
-    console.log("Parsed amount:", typeof parsedAmount, parsedAmount);
-    
-    const updatedBalance = isDebit
-      ? parseFloat(newBalance) - parsedAmount
-      : parseFloat(newBalance) + parsedAmount;
-    
-    console.log("updatedBalance after transaction:", typeof updatedBalance, updatedBalance);
-    
-    setNewBalance(updatedBalance);
-    
+    const isDebit = transactionType === "debit";
 
-    setFormData({ transactionType: "debit", amount: "" });
-    setError("");
-    setSuccess(`Payment of ₹${parsedAmount} ${isDebit ? "debited" : "credited"} successfully.`);
+    if (isDebit && parsedAmount > newBalance) {
+      setError("Insufficient balance for the debit transaction.");
+      return;
+    }
 
-    // Navigate to PaymentSuccessful with correct data
-    setTimeout(() => {
-      navigate("/PaymentSuccessful", {
-        state: {
-          transactionType: isDebit ? "Debit" : "Credit",
-          amount: parsedAmount,
-          updatedBalance: updatedBalance.toFixed(2),
-          customerId,
-          customerName,
-        },
+    try {
+      // Call API to process the payment
+      const response = await fetch("http://localhost:5000/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: customerId,
+          debitedAmount: isDebit ? parsedAmount : null,
+          creditedAmount: !isDebit ? parsedAmount : null,
+        }),
       });
-    }, 2000);
-  } catch (error) {
-    console.error("Error processing payment:", error);
-    setError(error.message || "An error occurred while processing the payment.");
-  }
-};
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to process payment.");
+      }
+      const result = await response.json(); // Use this only if response is JSON
+      console.log("API response:", result);
+
+      console.log("newBalance before transaction:", typeof newBalance, newBalance);
+      console.log("Parsed amount:", typeof parsedAmount, parsedAmount);
+
+      const updatedBalance = isDebit
+        ? parseFloat(newBalance) - parsedAmount
+        : parseFloat(newBalance) + parsedAmount;
+
+      console.log("updatedBalance after transaction:", typeof updatedBalance, updatedBalance);
+
+      setNewBalance(updatedBalance);
+
+
+      setFormData({ transactionType: "debit", amount: "" });
+      setError("");
+      setSuccess(`Payment of ₹${parsedAmount} ${isDebit ? "debited" : "credited"} successfully.`);
+
+      // Navigate to PaymentSuccessful with correct data
+      setTimeout(() => {
+        navigate("/payment-successful", {
+          state: {
+            transactionType: isDebit ? "Debit" : "Credit",
+            amount: parsedAmount,
+            updatedBalance: updatedBalance.toFixed(2),
+            customerId,
+            customerName,
+          },
+        });
+      }, 2000);
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      setError(error.message || "An error occurred while processing the payment.");
+    }
+  };
 
 
   return (
-    <div className="payment-details-container">
-      <h4>Payment Details</h4>
-      <p><strong>Customer ID:</strong> {customerId}</p>
-      <p><strong>Name:</strong> {customerName} </p>
+    <div className="payment-details-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'center' }}>
+      <p style={{ color: '' }}>Payment Details</p>
+      <p
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '5px',
+        }}
+      >
+        <strong>Customer ID: {customerId}</strong>
+        {customerId && (
+          <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px' }} />
+        )}
+      </p>      <p><strong>Name:</strong> {customerName} </p>
       <p><strong>Account Balance:</strong> ₹{Number(newBalance).toFixed(2)}</p>
 
-      <form className="payment-form" onSubmit={handleSubmit}>
-        <div className="mb-3">
+      <form className="payment-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="mb-1">
           <label htmlFor="transactionType" className="form-label">
             Transaction Type
           </label>
@@ -131,7 +144,7 @@ const PaymentDetails = () => {
           </select>
         </div>
 
-        <div className="form-group mb-3">
+        <div className="form-group mb-1">
           <label htmlFor="amount" className="form-label">
             Amount
           </label>
@@ -147,15 +160,25 @@ const PaymentDetails = () => {
             step="0.01"
           />
         </div>
-
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">{success}</p>}
-
-        <button type="submit" className="payment-button">
-          Submit Payment
-        </button>
+        <div className="form-group mb-3" style={{ display: 'flex', gap: '10px' }}>
+          <Button type="submit" variant="contained">Submit Payment</Button>
+          <Button
+  onClick={() => {
+    setFormData({ transactionType: "debit", amount: "" }); // Clear form data
+    setError(""); // Clear error messages
+    setSuccess(""); // Clear success messages
+    navigate("/Payment"); // Navigate to the desired route
+  }}
+  variant="outlined"
+>
+  Cancel
+</Button>
+        </div>
+        <div style={{ color: '#d4000e', fontSize: '14px', marginTop: '-20px' }}>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
+        </div>
       </form>
-
     </div>
   );
 };

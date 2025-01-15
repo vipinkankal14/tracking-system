@@ -79,13 +79,23 @@ export default function DiscountForCarAndAdditional() {
     setDiscountAmount(event.target.value);
   };
 
-  const handleApplyDiscount = () => {
-    const updatedRows = selectedRows.map((index) => ({
-      ...filteredRows[index],
-      discountAmount: discountAmount,
-    }));
-    console.log('Updated Rows with Discounts:', updatedRows);
-  };
+
+  const handleApplyDiscount = async () => {
+    const selectedCars = selectedRows.map((index) => filteredRows[index]);
+    try {
+        const response = await axios.post('http://localhost:5000/api/apply-discount', {
+            selectedCars,
+            discountAmount,
+        });
+      console.log('Discounts applied:', response.data);
+      console.log(`Discounts applied to ${selectedCars.length} cars.`);
+      alert(`Successfully applied discount to ${selectedCars.length} cars!`);
+        // Optionally, refetch data or update state
+    } catch (error) {
+        console.error('Error applying discount:', error);
+    }
+};
+
 
   const filteredRows = allRows.filter(
     (row) =>
@@ -104,7 +114,7 @@ export default function DiscountForCarAndAdditional() {
   return (
     <>
      <div className="header-container">
-      <h2>DiscountForCar</h2>
+      <h6>DISCOUNT FOR CAR</h6>
     </div>
 
       <div className="container">
@@ -199,7 +209,7 @@ export default function DiscountForCarAndAdditional() {
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
-                  <TableRow>
+                  <TableRow style={{backgroundColor:'#dbdbdb'}}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={filteredRows.every((_, index) => selectedRows.includes(index))}
@@ -216,7 +226,9 @@ export default function DiscountForCarAndAdditional() {
                     <TableCell>Version</TableCell>
                     <TableCell>Color</TableCell>
                     <TableCell>Car Type</TableCell>
-                  </TableRow>
+                    <TableCell>car discount</TableCell>
+                    <TableCell>Showroom Price</TableCell>
+                </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredRows.map((row, index) => (
@@ -231,6 +243,8 @@ export default function DiscountForCarAndAdditional() {
                       <TableCell>{row.version.toUpperCase()}</TableCell>
                       <TableCell>{row.color}</TableCell>
                       <TableCell>{row.carType}</TableCell>
+                      <TableCell>{row.cardiscount}</TableCell>
+                      <TableCell>{row.exShowroomPrice}</TableCell>                      
                     </TableRow>
                   ))}
                 </TableBody>
@@ -245,14 +259,14 @@ export default function DiscountForCarAndAdditional() {
           <div className="discount-amount-section-mobile" style={{ marginTop: '16px' }}>
             <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
             <FormControl fullWidth>
-              <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
-              <OutlinedInput
-                id="outlined-adornment-amount-mobile"
-                value={discountAmount}
-                onChange={handleApplyDiscount}
-                startAdornment={<InputAdornment position="start">₹</InputAdornment>}
-                label="Amount"
-              />
+            <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-amount"
+              value={discountAmount}
+              onChange={handleDiscountAmountChange}
+              startAdornment={<InputAdornment position="start">₹</InputAdornment>}
+              label="Amount"
+            />
             </FormControl>
             <div style={{ marginTop: '16px' }}>
               <Button variant="contained" onClick={handleApplyDiscount}>Submit</Button>

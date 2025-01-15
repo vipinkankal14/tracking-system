@@ -133,7 +133,7 @@ app.post('/api/apply-discount', (req, res) => {
   }
 
   const vins = selectedCars.map((car) => car.vin).map(() => '?').join(',');
-  const query = `UPDATE cars SET discount = ? WHERE vin IN (${vins})`;
+  const query = `UPDATE carstocks SET cardiscount = ? WHERE vin IN (${vins})`;
   const params = [discountAmount, ...selectedCars.map((car) => car.vin)];
 
   pool.query(query, params, (err, result) => {
