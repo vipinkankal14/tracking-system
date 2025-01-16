@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Row, Col, Modal } from "react-bootstrap";
-import "./scss/AddCarStock.scss";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+ import "./scss/AddCarStock.scss";
 
 const AddCarStock = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,17 @@ const AddCarStock = () => {
   const [modalVariant, setModalVariant] = useState(""); // Type of modal ("success" or "error")
   const [showModal, setShowModal] = useState(false); // Show/hide modal
   const [isLoading, setIsLoading] = useState(false); // Loading indicator
-
+// Add this to your existing state declarations
+  const [selectedFile, setSelectedFile] = useState(null);
+  
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // You can add file validation here if needed
+      // For example, check file type, size, etc.
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -121,14 +132,17 @@ const AddCarStock = () => {
   }; 
    
   
+  
+  
 
   return (
     <>
 
+      
       <Form onSubmit={handleSubmit} className="input-form" noValidate autoComplete="off">
         <h6 className="text-center">ADD CAR STOCK</h6>
 
-        <p className="mb-3 noto-sans">
+        <div className="mb-3 noto-sans">
 
           <Row>
             <Col xs={12} sm={6} md={4}>
@@ -442,7 +456,7 @@ const AddCarStock = () => {
 
 
 
-        </p>
+        </div>
 
         <Row>
           <div className="d-flex justify-content-center justify-content-md-end">

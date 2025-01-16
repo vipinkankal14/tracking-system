@@ -3,6 +3,7 @@ import './scss/CarAllotment.scss';
 import { Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+ 
 
 const CarAllotment = () => {
   const { vin } = useParams(); // Get VIN from the URL
@@ -106,9 +107,13 @@ const CarAllotment = () => {
   // Handle modal close
   const handleClose = () => setShowModal(false);
 
+
   return (
     <>
       <p className="car-allotment-title">CAR ALLOTMENT</p>
+     
+ 
+ 
       <div className="car-allotment form-output">
         <div className="form-data">
           <p>

@@ -15,6 +15,7 @@ const PaymentDetails = () => {
   const [formData, setFormData] = useState({
     transactionType: "debit",
     amount: "",
+    paymentType:"cash",
   });
 
   console.log("Initial accountBalance type:", typeof accountBalance, accountBalance);
@@ -31,15 +32,20 @@ const PaymentDetails = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    console.log(`Field changed: ${name}, New Value: ${value}`); // Log only name and value
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
     setError("");
     setSuccess("");
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { transactionType, amount } = formData;
+    const { transactionType, amount, paymentType } = formData;
     const parsedAmount = parseFloat(amount);
 
     // Validate inputs
@@ -64,6 +70,7 @@ const PaymentDetails = () => {
           customerId: customerId,
           debitedAmount: isDebit ? parsedAmount : null,
           creditedAmount: !isDebit ? parsedAmount : null,
+          paymentType: paymentType,
         }),
       });
 
@@ -86,7 +93,7 @@ const PaymentDetails = () => {
       setNewBalance(updatedBalance);
 
 
-      setFormData({ transactionType: "debit", amount: "" });
+      setFormData({ transactionType: "debit",paymentType:"cash",amount: "" });
       setError("");
       setSuccess(`Payment of ₹${parsedAmount} ${isDebit ? "debited" : "credited"} successfully.`);
 
@@ -99,6 +106,7 @@ const PaymentDetails = () => {
             updatedBalance: updatedBalance.toFixed(2),
             customerId,
             customerName,
+
           },
         });
       }, 2000);
@@ -128,7 +136,27 @@ const PaymentDetails = () => {
       <p><strong>Account Balance:</strong> ₹{Number(newBalance).toFixed(2)}</p>
 
       <form className="payment-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        
         <div className="mb-1">
+          
+        <div className="mb-1">
+          <label htmlFor="paymentType" className="form-label">
+            Payment Type
+          </label>
+          <select
+            id="paymentType"
+            name="paymentType"
+            value={formData.paymentType}
+            onChange={handleChange}
+            className="form-select"
+          >
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="online">Online</option>
+          </select>
+        </div>
+
+
           <label htmlFor="transactionType" className="form-label">
             Transaction Type
           </label>

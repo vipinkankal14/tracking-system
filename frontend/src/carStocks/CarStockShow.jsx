@@ -5,6 +5,9 @@ import CarRentalOutlinedIcon from '@mui/icons-material/CarRentalOutlined';
  import DeleteIcon from '@mui/icons-material/Delete';
 import "./scss/CarStockShow.scss";
 import { useNavigate } from "react-router-dom";
+import AddTaskRoundedIcon from '@mui/icons-material/AddTaskRounded';
+import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { SearchIcon } from "lucide-react";
 
 const CarStockShow = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,11 +42,7 @@ const CarStockShow = () => {
       stock.engineNumber?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Handle opening and closing the modal
-  const handleShowDetails = (stock) => {
-    setSelectedStock(stock);
-    setShowModal(true);
-  };
+ 
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -56,27 +55,33 @@ const CarStockShow = () => {
   };
 
   const handleCarAllotment = (vin) => {
-    navigate(`/car-allotment/${vin}`); // Navigate to Car Allotment page with VIN
+    navigate(`/car-allotment/${vin}`);
   };
 
   return (
-    <div className="car-stock-show">
-      <h4 className="text-center my-4">CAR STOCK DETAILS</h4>
-
-      {/* Search Input */}
+    <>
+<div style={{ marginTop: '-36px',color :'#071947'}}>
+  <p className="text-md-start my-4">CAR ALLOTMENT</p>
+</div>
+      
       <div className="d-flex justify-content-center justify-content-md-start">
-        <div className="mb-4 input-container">
-          <span className="search-icon">&#128269;</span>
-          <input
-            type="text"
-            placeholder="Search by VIN, Chassis Number, or Engine Number"
-            aria-label="Search Car Stocks"
+        <div className="mb-4">
+          <TextField
+            variant="outlined"
+            placeholder="Search..."  
+            label="Search Car Stocks"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
           />
         </div>
       </div>
-
       {/* Loading Spinner */}
       {loading && (
         <div className="text-center">
@@ -93,116 +98,74 @@ const CarStockShow = () => {
         </div>
       )}
 
-      {/* Car Stocks Table */}
+      {/* Car Stock Table */}
       {!loading && !error && (
-        <Table striped hover responsive>
-          <thead>
-            <tr>
-              <th>VIN</th>
-              <th className="d-none d-sm-table-cell">customerId</th>
-              <th className="d-none d-sm-table-cell">Chassis Number</th>
-              <th className="d-none d-sm-table-cell">Engine Number</th>
-              <th className="d-none d-sm-table-cell">Manufacturer Date</th>
-              <th className="d-none d-sm-table-cell">Date In</th>
-              <th className="d-none d-sm-table-cell">Model</th>
-              <th className="d-none d-sm-table-cell">Version</th>
-              <th className="d-none d-sm-table-cell">Color</th>
-              <th className="d-none d-sm-table-cell">Fuel Type</th>
-              <th className="d-none d-sm-table-cell"></th>
-              <th className="hide-desktop">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCarStocks.length > 0 ? (
-              filteredCarStocks.map((stock, index) => (
-                <tr key={index}>
-                  <td>{stock.vin}</td>
-                  <td className="d-none d-sm-table-cell">{stock.customerId}</td>
-                  <td className="d-none d-sm-table-cell">{stock.chassisNumber}</td>
-                  <td className="d-none d-sm-table-cell">{stock.engineNumber}</td>
-                  <td className="d-none d-sm-table-cell">{formatDate(stock.manufacturerDate)}</td>
-                  <td className="d-none d-sm-table-cell">{formatDate(stock.dateIn)}</td>
-                  <td className="d-none d-sm-table-cell">{stock.model}</td>
-                  <td className="d-none d-sm-table-cell">{stock.version}</td>
-                  <td className="d-none d-sm-table-cell">{stock.color}</td>
-                  <td className="d-none d-sm-table-cell">{stock.fuelType}</td>
-                  <td className="d-none d-sm-table-cell" style={{padding:'0px'}}>
-                  <Dropdown>
-                    <Dropdown.Toggle
-                      as="div"
-                      bsPrefix="dropdown-toggle-custom"
-                      id={`dropdown-${stock.id}`}
-                    >
-                      <i className="bi bi-three-dots-vertical"></i>
-                    </Dropdown.Toggle>
-                      <Dropdown.Menu style={{ fontSize: '9px', textAlign: 'center' }}>
-                        
-                      <Dropdown.Item onClick={() => handleCarAllotment(stock.vin)}>
-                        <div style={{ display: 'flex', alignItems: 'center',fontWeight:'bold'}}>
-                          <CarRentalOutlinedIcon style={{ fontSize: '14px', color:'blue',marginRight:'8px'}} />Car Allotment
-                        </div>
-                      </Dropdown.Item>
-                     
-                      <Dropdown.Item>
-                      <div style={{ display: 'flex', alignItems: 'center', fontWeight:'bold' }}>
-                        <DeleteIcon style={{ fontSize: '14px', color: 'red', marginRight: '8px' }} />
-                        Delete
-                      </div>
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </td>
-                  <td className="hide-desktop">
-                    <Badge bg="primary" onClick={() => handleShowDetails(stock)} style={{ cursor: "pointer" }}>
-                      Details
-                    </Badge>
-                  </td>
-                 
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="10" className="text-center">
-                  No records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ padding: '10px' }}>VIN</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Chassis Number</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Engine Number</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Manufacturer Date</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Date In</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Model</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Version</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Color</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Fuel Type</TableCell>
+                <TableCell style={{ padding: '10px' }}>Details</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredCarStocks.length > 0 ? (
+                filteredCarStocks.map((stock, index) => (
+                  !stock.customerId && (
+                    <TableRow key={index}>
+                      <TableCell style={{ padding: '10px' }}>{stock.vin}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.chassisNumber}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.engineNumber}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{formatDate(stock.manufacturerDate)}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{formatDate(stock.dateIn)}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.model}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.version}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.fuelType}</TableCell>
+                      <TableCell className="" style={{ padding: '10px' }}>
+                        <>
+                          <Dropdown.Toggle
+                            id={`dropdown-${stock.id}`}
+                            variant="secondary"
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: 0,
+                              boxShadow: 'none',
+                              color: 'green'
+                            }}
+                            onClick={() => handleCarAllotment(stock.vin)}
+                            bsPrefix="custom-dropdown-toggle"
+                          >
+                            <AddTaskRoundedIcon style={{ fontSize: '24px', color: 'inherit' }} />
+                          
+                          </Dropdown.Toggle>
+                          
+                        </>
+                      </TableCell>
+                    </TableRow>
+                  )
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan="10" className="text-center">
+                    No records found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
-
-      {/* Details Modal */}
-      <Modal show={showModal} onHide={handleCloseModal} centered backdrop="static" keyboard={false} animation={false}>
-        <Modal.Header closeButton>
-          <Modal.Title>Car Stock Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedStock ? (
-            <div>
-              <p><strong>VIN:</strong> {selectedStock.vin}</p>
-              <p><strong>Chassis Number:</strong> {selectedStock.chassisNumber}</p>
-              <p><strong>Engine Number:</strong> {selectedStock.engineNumber}</p>
-              <p><strong>Manufacturer Date:</strong> {formatDate(selectedStock.manufacturerDate)}</p>
-              <p><strong>Date In:</strong> {formatDate(selectedStock.dateIn)}</p>
-              <p><strong>Model:</strong> {selectedStock.model}</p>
-              <p><strong>Version:</strong> {selectedStock.version}</p>
-              <p><strong>Color:</strong> {selectedStock.color}</p>
-              <p><strong>Fuel Type:</strong> {selectedStock.fuelType}</p>
-            </div>
-          ) : (
-            <p>No details available.</p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-
-
-    </div>
+    </>
   );
 };
 

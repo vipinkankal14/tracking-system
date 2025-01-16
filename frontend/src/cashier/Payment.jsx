@@ -56,7 +56,7 @@ const CustomerDetails = () => {
         state: {
           customerId,
           customerName: `${customerDetails.firstName} ${customerDetails.middleName} ${customerDetails.lastName}`,
-          accountBalance: customerDetails.accountBalance,
+          accountBalance: customerDetails.customer_account_balance,
         },
       });
     } else {
@@ -90,16 +90,16 @@ const CustomerDetails = () => {
   {customerDetails?.customerId && (
     <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px', marginLeft: '5px' }} />
   )}
-</p>          <p>Name: {customerDetails?.firstName} {customerDetails?.middleName} {customerDetails?.lastName}</p>
+          </p>
+          <p>Name: {customerDetails?.firstName} {customerDetails?.middleName} {customerDetails?.lastName}</p>
           <p>Number: {customerDetails?.mobileNumber1} {customerDetails?.mobileNumber2}</p>
           <p>Email: {customerDetails?.email}</p>
         </div>
 
         <div className="info-box">
           <h4>Payment Details</h4>
-          <p>Total On-Road Price: 35000.00</p>
-          <p>Paid Balance Of "company name" Account: 34000.00</p>
-          <p>The Customer paid this amount: 34000.00</p>
+          <p>Total On-Road Price: {customerDetails?.total_onroad_price}</p>
+          <p>Amount Paid by Customer: {customerDetails?.customer_account_balance}</p>
         </div>
 
         <div className="info-box">

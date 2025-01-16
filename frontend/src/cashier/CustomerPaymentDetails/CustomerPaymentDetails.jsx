@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TextField, InputAdornment } from "@mui/material";
-import './css/CustomerPaymentDetails.scss';
+import '../css/CustomerPaymentDetails.scss';
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 import {

@@ -6,7 +6,11 @@ import './Nav/sidebar/Sidebar.scss';
 import { useState, Suspense, lazy } from "react";
 import './App.css'; 
 import { Home } from "lucide-react";
-import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails";
+import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails/CustomerPaymentDetails";
+import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
+import AddCarStock from "./carStocks/AddCarStock";
+import CarAllotmentByCustomer from "./carStocks/CarAllotmentByCustomer";
+import CarStockShow from "./carStocks/CarStockShow";
 
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./components/AdditionalDetails"));
@@ -52,7 +56,11 @@ function App() {
                 <Route path="/car-Booking" element={<CarBookings/>} />
                 <Route path="/car-booking-cancel" element={<CarBookingCancel />} />
                 <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
-              </Routes>
+                <Route path="/payment-history/:payment" element={<PaymentHistory />} />
+                <Route path="/car-stock-show" element={<CarStockShow />} />
+                 <Route path="/car-allotment-by-customer" element={<CarAllotmentByCustomer />} />
+                <Route path="/Add-Car-Stock" element={<AddCarStock />}/>
+               </Routes>
             </Suspense>
           </div>
         </main>

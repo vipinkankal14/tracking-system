@@ -5,7 +5,7 @@ const pool = require('../../databaseConnection/mysqlConnection');
 
 // Function to handle payment insertion and balance update
 const handlePayment = async (req, res) => {
-  const { debitedAmount, creditedAmount, customerId } = req.body;
+  const { debitedAmount, creditedAmount, customerId, paymentType } = req.body;
   const paymentDate = new Date(); // Automatically sets the current date and time
   const paymentTypeDebit = "Debit"; // Payment type for debit transactions
   const paymentTypeCredit = "Credit"; // Payment type for credit transactions
@@ -22,13 +22,13 @@ const handlePayment = async (req, res) => {
     // If debitedAmount is provided, process a debit transaction
     if (debitedAmount) {
       const debitPaymentQuery = `
-        INSERT INTO cashier (debitedAmount, userpayment_id, paymentDate, paymentType) 
-        VALUES (?, ?, ?, ?)`; 
-      await pool.query(debitPaymentQuery, [debitedAmount, customerId, paymentDate, paymentTypeDebit]);
-
+        INSERT INTO cashier (debitedAmount, userpayment_id, paymentDate,transactionType ,paymentType) 
+        VALUES (?, ?, ?, ?, ?)`; 
+      await pool.query(debitPaymentQuery, [debitedAmount, customerId, paymentDate,paymentTypeDebit,paymentType]);
+ 
       const updateDebitedBalanceQuery = `
         UPDATE customers 
-        SET accountBalance = accountBalance - ? 
+        SET customer_account_balance = customer_account_balance - ? 
         WHERE customerId = ?`;
       await pool.query(updateDebitedBalanceQuery, [debitedAmount, customerId]);
     }
@@ -36,13 +36,13 @@ const handlePayment = async (req, res) => {
     // If creditedAmount is provided, process a credit transaction
     if (creditedAmount) {
       const creditPaymentQuery = `
-        INSERT INTO cashier (creditedAmount, userpayment_id, paymentDate, paymentType) 
-        VALUES (?, ?, ?, ?)`;
-      await pool.query(creditPaymentQuery, [creditedAmount, customerId, paymentDate, paymentTypeCredit]);
+        INSERT INTO cashier (creditedAmount, userpayment_id, paymentDate,transactionType,paymentType) 
+        VALUES (?, ?, ?, ?, ?)`;
+      await pool.query(creditPaymentQuery, [creditedAmount, customerId, paymentDate , paymentTypeCredit,paymentType]);
 
       const updateCreditedBalanceQuery = `
         UPDATE customers 
-        SET accountBalance = accountBalance + ? 
+        SET customer_account_balance = customer_account_balance + ? 
         WHERE customerId = ?`;
       await pool.query(updateCreditedBalanceQuery, [creditedAmount, customerId]);
     }
