@@ -153,3 +153,117 @@ const CarAllotmentByCustomer = () => {
 };
 
 export default CarAllotmentByCustomer;
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+
+function PaymentHistory() {
+  const { customerId } = useParams();
+  const [customerData, setCustomerData] = useState(null);
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const formatAmount = (amount) => {
+      return (typeof amount === 'number' && !isNaN(amount)) ? amount.toFixed(2) : '0.00';
+  };
+
+  const fetchCustomerData = async () => {
+    if (!customerId) {
+      setError("Customer ID is undefined.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/customer/${customerId}`);
+      if (!response.ok) {
+        throw new Error(`Error fetching customer data: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data); // Log the data to inspect
+
+      if (data.length > 0) {
+        setCustomerData(data[0]);
+        setPayments(data.map(item => ({
+          id: item.PaymentID,
+          debitedAmount: Number(item.debitedAmount), // Convert to number
+          creditedAmount: Number(item.creditedAmount), // Convert to number
+          paymentDate: item.paymentDate,
+          transactionType: item.transactionType,
+          paymentType: item.paymentType,
+        }))); // Map payments from results
+        
+      } else {
+        setError("No payments found for this customer.");
+      }
+    } catch (err) {
+      console.error("Error fetching customer data:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomerData();
+  }, [customerId]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error fetching customer data: {error}</div>;
+  }
+
+  const {
+    firstName = "N/A",
+    lastName = "N/A",
+  } = customerData || {};
+
+  return (
+    <div>
+      <h2>Payment History for {firstName} {lastName}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Payment ID</th>
+            <th>Debited Amount</th>
+            <th>Credited Amount</th>
+            <th>Payment Date</th>
+            <th>Transaction Type</th>
+            <th>Payment Type</th>
+          </tr>
+        </thead>
+        <tbody>
+  {payments.length > 0 ? (
+    payments.map(payment => (
+      <tr key={payment.id}>
+        <td>{payment.id}</td>
+        <td>{payment.debitedAmount ? payment.debitedAmount.toFixed(2) : '0.00'}</td>
+        <td>{payment.creditedAmount ? payment.creditedAmount.toFixed(2) : '0.00'}</td>
+        <td>{new Date(payment.paymentDate).toLocaleString()}</td>
+        <td>{payment.transactionType}</td>
+        <td>{payment.paymentType}</td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={6}>No payments found</td>
+    </tr>
+  )}
+</tbody>
+      </table>
+    </div>
+  );
+}
+
+export default PaymentHistory;

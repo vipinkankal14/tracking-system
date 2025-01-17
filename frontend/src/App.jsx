@@ -56,7 +56,7 @@ function App() {
                 <Route path="/car-Booking" element={<CarBookings/>} />
                 <Route path="/car-booking-cancel" element={<CarBookingCancel />} />
                 <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
-                <Route path="/payment-history/:payment" element={<PaymentHistory />} />
+                <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
                 <Route path="/car-stock-show" element={<CarStockShow />} />
                  <Route path="/car-allotment-by-customer" element={<CarAllotmentByCustomer />} />
                 <Route path="/Add-Car-Stock" element={<AddCarStock />}/>

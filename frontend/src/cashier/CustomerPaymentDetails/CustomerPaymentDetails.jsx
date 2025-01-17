@@ -13,10 +13,12 @@ import {
   Paper
 } from "@mui/material";
 import { Badge } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const CustomerPaymentDetails = () => {
   const [leads, setLeads] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -44,8 +46,15 @@ const CustomerPaymentDetails = () => {
       lead.date?.toLowerCase().includes(searchQuery)
   );
 
+  const handleCarAllotment = (customerId) => {
+    navigate(`/payment-history/${customerId}`);
+  };
+
   return (
     <>
+      
+    
+      
       <div style={{ marginLeft: "14px", marginTop: "-1%", marginBottom: "-1%" }}>
         <p>Customer Payment Details</p>
       </div>
@@ -89,7 +98,7 @@ const CustomerPaymentDetails = () => {
                   <TableCell>{lead.model},{lead.variant},{lead.color}</TableCell>
                   <TableCell>{lead.booking_amount}</TableCell>
                   <TableCell style={{ textAlign: "center", cursor: "pointer" }}>
-                    <Badge bg='info'> view </Badge>
+                    <Badge bg='info'  onClick={() => handleCarAllotment(lead.customerId)} > view </Badge>
                   </TableCell>
                 </TableRow>
               ))}

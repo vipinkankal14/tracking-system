@@ -1,125 +1,79 @@
-import React, { useState, useEffect } from "react";
-import "./css/Payment.scss";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
+import '../css/PaymentHistory.scss';
 
-const Payment = () => {
-  const navigate = useNavigate();
-
-  const [customerId, setCustomerId] = useState("");
-  const [customerDetails, setCustomerDetails] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
-
-  const handleCustomerIdChange = (e) => {
-    setCustomerId(e.target.value.trim());
-    setError(""); // Clear error when typing
+const PaymentHistory = () => {
+  const paymentDetails = {
+    method: 'Cash',
+    referenceId: 'CASH_20210615T1510188823Z325254',
+    transactionId: 'RECT-2021-10006',
+    receiptDate: '6/15/21',
+    amountDue: 300.00,
+    amountPaid: 405.88,
+    currency: 'USD',
+    lines: [
+      { classification: 'PMT', recordType: 'PMTQACONTEST', recordId: 'ZPER-FEN-2021-00101', description: 'Application Fee', amount: 300.00, currency: 'USD' },
+    ],
+    drawerLines: [
+      { lineNumber: 1, receiptNumber: 'RECT-2021-10006', method: 'Cash', amount: 50.00 },
+      { lineNumber: 2, receiptNumber: 'RECT-2021-10006', method: 'Personal Check', amount: 100.00 },
+      { lineNumber: 3, receiptNumber: 'RECT-2021-10006', method: 'Personal Check', amount: 255.88 },
+    ],
   };
-
-  useEffect(() => {
-    const fetchCustomerDetails = async () => {
-      if (!customerId) {
-        setCustomerDetails(null);
-        setError("Customer ID cannot be empty.");
-        return;
-      }
-
-      setLoading(true);
-      setError("");
-      try {
-        const response = await fetch(`http://localhost:5000/api/customers/${customerId}`);
-        if (!response.ok) {
-          throw new Error("Customer not found");
-        }
-        const data = await response.json();
-        setCustomerDetails(data);
-        setError("");
-      } catch (err) {
-        setCustomerDetails(null);
-        setError("No record found for the given Customer ID.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (customerId) {
-      fetchCustomerDetails();
-    }
-  }, [customerId]);
-
-  const handlePayment = () => {
-    if (customerDetails) {
-      navigate("/PaymentDetails", {
-        state: {
-          customerId,
-          customerName: `${customerDetails.firstName} ${customerDetails.middleName} ${customerDetails.lastName}`,
-          accountBalance: customerDetails.accountBalance,
-        },
-      });
-    } else {
-      alert("Please enter a valid Customer ID.");
-    }
-  };
-  
 
   return (
-    <div className="customer-details-container">
-      <h6>Search Customer</h6>
-      <div className="customer-id-card">
-        <input
-          id="customer-id-input"
-          type="text"
-          placeholder="Enter Customer ID or Full Name"
-          value={customerId}
-          onChange={handleCustomerIdChange}
-          className="customer-id-input"
-        />
-        {loading && <p className="loading-message">Loading...</p>}
+    <div className="payment-history">
+      <div className="header">
+        <Typography variant="h5">Payment History Details</Typography>
+        <Button variant="outlined" className="cancel-button">Cancel</Button>
       </div>
 
-      {error && <p className="error-message">{error}</p>}
+      {/* Payment Details */}
+      <Paper className="details">
+        <Typography variant="h6">Payment Details</Typography>
+        <Typography>Payment Method: {paymentDetails.method}</Typography>
+        <Typography>Reference ID: {paymentDetails.referenceId}</Typography>
+        <Typography>Transaction ID: {paymentDetails.transactionId}</Typography>
+        <Typography>Receipt Date: {paymentDetails.receiptDate}</Typography>
+        <Typography>Amount Due: ${paymentDetails.amountDue.toFixed(2)}</Typography>
+        <Typography>Amount Paid: ${paymentDetails.amountPaid.toFixed(2)}</Typography>
+        <Typography>Currency: {paymentDetails.currency}</Typography>
+      </Paper>
 
-      {customerDetails && (
-        <>
-          <div className="customer-info">
-            <p>
-              <strong>Name:</strong> {customerDetails.firstName} {customerDetails.middleName} {customerDetails.lastName}
-            </p>
-            <p>
-              <strong>Number:</strong> {customerDetails.mobileNumber1}
-            </p>
-            <p>
-              <strong>Email:</strong> {customerDetails.email}
-            </p>
-            <p>
-              <strong>Account Balance:</strong> {customerDetails.accountBalance}
-            </p>
-          </div>
+      {/* Payment History Lines */}
+      <Paper className="lines">
+        <Typography variant="h6">Payment History Lines</Typography>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Classification</TableCell>
+                <TableCell>Record Type</TableCell>
+                <TableCell>Record ID</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Currency</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paymentDetails.lines.map((line, index) => (
+                <TableRow key={index}>
+                  <TableCell>{line.classification}</TableCell>
+                  <TableCell>{line.recordType}</TableCell>
+                  <TableCell>{line.recordId}</TableCell>
+                  <TableCell>{line.description}</TableCell>
+                  <TableCell>${line.amount.toFixed(2)}</TableCell>
+                  <TableCell>{line.currency}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
-          <div className="car-details">
-            <p>
-              <strong>Car Model:</strong> {customerDetails.model}
-            </p>
-            <p>
-              <strong>Car Color:</strong> {customerDetails.color}
-            </p>
-            <p>
-              <strong>Car Variant:</strong> {customerDetails.variant}
-            </p>
-            <p>
-              <strong>Car Price:</strong> {customerDetails.exShowroomPrice}
-            </p>
-          </div>
-
-          <div className="payment-button-container">
-            <button className="payment-button" onClick={handlePayment}>
-              Proceed to Payment
-            </button>
-          </div>
-        </>
-      )}
-          
+    
     </div>
   );
 };
 
-export default Payment;
+export default PaymentHistory;

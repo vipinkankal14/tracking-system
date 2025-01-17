@@ -35,9 +35,57 @@ app.post('/api/discountForCriteria', updateDiscountForCriteria);
 
 
  
-
- // API to get customer details
 app.get('/api/customer/:customerId', (req, res) => {
+  const { customerId } = req.params;
+  console.log("Received customerId:", customerId);
+
+  // SQL query to fetch customer and payment details
+  const query = `
+      SELECT 
+          c.id AS CustomerID,
+          c.firstName,
+          c.middleName,
+          c.lastName,
+          c.mobileNumber1,
+          c.mobileNumber2,
+          c.customerType,
+          c.birthDate,
+          c.email,
+          c.customerId,
+          p.id AS PaymentID,
+          p.debitedAmount,
+          p.creditedAmount,
+          p.paymentDate,
+          p.transactionType,
+          p.paymentType
+      FROM 
+          customers c
+      LEFT JOIN 
+          cashier p
+      ON 
+          c.customerId = p.customerId
+      WHERE 
+          c.customerId = ?;  -- Filter by customerId
+  `;
+
+  pool.query(query, [customerId], (err, results) => {
+      if (err) {
+          console.error('Error fetching customer data:', err);
+          res.status(500).json({ error: 'Error fetching customer data' });
+      } else if (results.length === 0) {
+          console.log("No record found for customerId:", customerId);
+          res.status(404).json({ error: 'Customer not found' });
+      } else {    
+        res.json(results); 
+    }
+  });
+});
+
+
+
+ // API to get customer details by customerId
+/*
+app.get('/api/customers/:customerId', (req, res) => {
   const { customerId } = req.params;
   const query = 'SELECT * FROM customers WHERE customerId = ?';
   pool.query(query, [customerId], (err, result) => {
@@ -46,6 +94,10 @@ app.get('/api/customer/:customerId', (req, res) => {
     res.json(result[0]);
   });
 });
+*/
+
+
+
 
 // API endpoint to get car data by VIN
 app.get('/api/car/:vin', (req, res) => {
