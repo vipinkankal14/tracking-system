@@ -1,0 +1,138 @@
+import React, { useState, useEffect } from "react";
+import { Table, Spinner, Dropdown, Badge } from "react-bootstrap";
+import axios from "axios";
+ import { useNavigate } from "react-router-dom";
+ import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { SearchIcon } from "lucide-react";
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import '../css/CarBookings.scss';
+
+const CarBookings = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [carStocks, setCarStocks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+   
+  const navigate = useNavigate(); // Create navigate instance
+
+  // Fetch car stock data from backend
+  useEffect(() => {
+    const fetchCarStocks = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/customers"); // API endpoint
+        setCarStocks(response.data);
+      } catch (err) {
+        setError("Failed to load car stock data.");
+        console.error("Error fetching car stocks:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCarStocks();
+  }, []);
+
+  // Filter car stocks based on search query (specific fields only)
+  const filteredCarStocks = carStocks.filter(
+    (stock) =>
+      stock.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.mobileNumber2?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.mobileNumber1?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+ 
+
+ 
+  const handleCancelClick = (vin) => {
+    navigate(`/order-cancel/${vin}`);
+  };
+
+  return (
+    <>
+<div style={{ marginTop: '-36px',color :'#071947'}}>
+  <p className="text-md-start my-4">CAR BOOKINGS</p>
+</div>
+      
+      <div className="d-flex justify-content-center justify-content-md-start">
+        <div className="mb-4">
+          <TextField
+            variant="outlined"
+            placeholder="Search..."  
+            label="Search Car Bookings"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </div>
+      </div>
+      {/* Loading Spinner */}
+      {loading && (
+        <div className="text-center">
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="text-center text-danger">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Car Stock Table */}
+      {!loading && !error && (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ padding: '10px' }} className="d-none d-sm-table-cell" >Customer Id</TableCell>
+                <TableCell>Full Name</TableCell>
+                 <TableCell className="d-none d-sm-table-cell">Phone</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Email</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Model</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Version</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Color</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Booking Amount</TableCell>
+                 <TableCell style={{ padding: '10px' }}>Details</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredCarStocks.length > 0 ? (
+                filteredCarStocks.map((stock, index) => (
+                  
+                    <TableRow key={index}>
+                      <TableCell className="d-none d-sm-table-cell" style={{ padding: '10px' }}>{stock.customerId}</TableCell>
+                      <TableCell >{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
+                       <TableCell className="d-none d-sm-table-cell" >{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell" >{stock.email}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell" >{stock.model}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell" >{stock.variant}</TableCell>
+                    <TableCell className="d-none d-sm-table-cell" >{stock.color}</TableCell>
+                    <TableCell className="d-none d-sm-table-cell" >{stock.booking_amount}</TableCell>
+                      <TableCell style={{ padding: '10px'}}><Badge bg="success">{stock.status}</Badge><CancelRoundedIcon   onClick={() => handleCancelClick(stock.customerId)} style={{marginLeft:"12px",color:'#f2210a',cursor:'pointer'}} /></TableCell>
+                    </TableRow>
+                  
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan="10" className="text-center">
+                    No records found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </>
+  );
+};
+
+export default CarBookings;

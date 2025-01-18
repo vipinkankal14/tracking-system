@@ -11,11 +11,12 @@ import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
 import AddCarStock from "./carStocks/AddCarStock";
 import CarAllotmentByCustomer from "./carStocks/CarAllotmentByCustomer";
 import CarStockShow from "./carStocks/CarStockShow";
-
+import { OrderEditAndCancel } from "./cashier/CarBooking/OrderEditAndCancel";
+ 
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./components/AdditionalDetails"));
 const DiscountMain = lazy(() => import("./discount/DiscountMain"));
-const CarBookings = lazy(() => import("./cashier/CarBookings"));
+const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
 const PaymentClear = lazy(() => import("./cashier/PaymentClear"));
 const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel"));
 const Payment = lazy(() => import("./cashier/Payment"));
@@ -58,8 +59,9 @@ function App() {
                 <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
                 <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
                 <Route path="/car-stock-show" element={<CarStockShow />} />
-                 <Route path="/car-allotment-by-customer" element={<CarAllotmentByCustomer />} />
-                <Route path="/Add-Car-Stock" element={<AddCarStock />}/>
+                <Route path="/car-allotment-by-customer" element={<CarAllotmentByCustomer />} />
+                <Route path="/Add-Car-Stock" element={<AddCarStock />} />
+                <Route path="/order-cancel/:customerId" element={<OrderEditAndCancel />} />
                </Routes>
             </Suspense>
           </div>

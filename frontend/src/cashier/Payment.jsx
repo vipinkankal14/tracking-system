@@ -86,10 +86,10 @@ const CustomerDetails = () => {
         <div className="info-box">
           <h4>Customer Info</h4>
           <p>
-  Customer ID: {customerDetails?.customerId}
-  {customerDetails?.customerId && (
-    <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px', marginLeft: '5px' }} />
-  )}
+            Customer ID: {customerDetails?.customerId}
+            {customerDetails?.customerId && (
+              <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px', marginLeft: '5px' }} />
+            )}
           </p>
           <p>Name: {customerDetails?.firstName} {customerDetails?.middleName} {customerDetails?.lastName}</p>
           <p>Number: {customerDetails?.mobileNumber1} {customerDetails?.mobileNumber2}</p>

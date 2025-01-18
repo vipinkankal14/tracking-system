@@ -33,6 +33,20 @@ app.get('/api/ShowCarStockWithCustomers', ShowCarStockWithCustomers);
 app.post('/api/updateDiscount', updateDiscount);
 app.post('/api/discountForCriteria', updateDiscountForCriteria);
 
+// Route to check the current pool status
+app.get('/api/pool-status', (req, res) => {
+  // Get the total number of connections
+  const totalConnections = pool._allConnections.length; // Total connections created
+  const freeConnections = pool._freeConnections.length; // Free connections available
+  const inUseConnections = totalConnections - freeConnections; // In-use connections
+
+  res.json({
+      totalConnections,
+      freeConnections,
+      inUseConnections,
+  });
+}); 
+
 
  
 app.get('/api/customer/:customerId', (req, res) => {
@@ -52,6 +66,28 @@ app.get('/api/customer/:customerId', (req, res) => {
           c.birthDate,
           c.email,
           c.customerId,
+          c.address,
+          c.city,
+          c.state,
+          c.country,
+          c.model,
+          c.variant,
+          c.color,
+          c.team_Member,
+          c.team_Leader,
+          c.booking_amount,
+          c.total_onroad_price,
+          c.orderDate,
+          c.prebooking,
+          c.exchange,
+          c.finance,
+          c.accessories,
+          c.coating,
+          c.auto_card,
+          c.extended_warranty,
+          c.rto_tax,
+          c.fast_tag,
+          c.insurance,
           p.id AS PaymentID,
           p.debitedAmount,
           p.creditedAmount,

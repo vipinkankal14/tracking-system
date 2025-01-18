@@ -1,4 +1,6 @@
 .payment-history {
+  margin-top: -10px;
+
       table {
         width: 100%;
         border-collapse: collapse;
@@ -18,9 +20,7 @@
     @media (max-width: 768px) {
       .header {
         flex-direction: column;
-        align-items: flex-start;
-  
-       
+        align-items: flex-start;       
       }
       
       table {
@@ -39,9 +39,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-  
-      
+      margin-bottom: 10px;
     }
   
     .details-container {
@@ -55,17 +53,11 @@
     }
   
     .details {
-      padding: 20px;
+      padding: 12px;
       border-radius: 2px;
       box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   
-      &.customer-details {
-        background-color: #ffffff; // Light gray background
-      }
-  
-      &.car-details {
-        background-color: #ffffff; // Light blue background
-      }
+      
   
      
   
@@ -76,6 +68,16 @@
       p {
         margin: 2px 0;
       }
+    }
+  }
+  
+
+  @media (max-width: 768px) {
+    .lines {
+      overflow-x: auto; /* Add horizontal scrolling for small screens */
+    }
+    table {
+      width: 100%; /* Ensure table scales properly */
     }
   }
   
