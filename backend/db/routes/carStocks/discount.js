@@ -60,6 +60,10 @@ const updateDiscountForCriteria = async (req, res) => {
 };
 
 
+
+ 
+
+
   
   
   // Export the updateDiscount function

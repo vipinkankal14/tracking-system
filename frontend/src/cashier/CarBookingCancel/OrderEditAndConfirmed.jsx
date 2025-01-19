@@ -6,20 +6,14 @@ import { useEffect, useState } from 'react';
 import '../css/CarBookings.scss';
 import EditIcon from '@mui/icons-material/Edit';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
-import { Modal } from 'react-bootstrap';
-import TextareaAutosize from '@mui/material/TextareaAutosize';
  
 
-export const OrderEditAndCancel = () => {
+export const OrderEditAndConfirmed = () => {
   const { customerId } = useParams();
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [cancellationReason, setCancellationReason] = useState('');
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
+   
 
   const navigate = useNavigate();
 
@@ -93,37 +87,29 @@ export const OrderEditAndCancel = () => {
   // Cancel Order Handler
  
 
-  const handleCancelOrder = async () => {
-    if (!isConfirmed) {
-      alert('Please confirm the cancellation before proceeding.');
-      return;
-    }
-
+const handleConfirmedOrder = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/cancel-order', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerId,
-          cancellationReason,
-          isConfirmed: true,
-        }),
-      });
+        const response = await fetch('http://localhost:5000/api/confirmed-order', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                customerId
+            }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to cancel the order.');
-      }
+        if (!response.ok) {
+            throw new Error('Failed to cancel the order.');
+        }
 
-      const data = await response.json();
-      alert(data.message);
-      navigate('/car-Booking');
-      closeModal();
+        const data = await response.json();
+        alert(data.message);
+        navigate('/car-booking-cancel');
     } catch (error) {
-      console.error('Error:', error.message);
-     }
-  };
+        console.error('Error:', error.message);
+    }
+};
 
 
   const handleBack = () => window.history.back();
@@ -255,47 +241,15 @@ export const OrderEditAndCancel = () => {
 
       <div className="button-container">
         <Stack direction="row" spacing={2}>
-          <Button variant="contained" onClick={openModal} className="action-btn" size="small">
-            Cancel Order
-          </Button>
+        <Button style={{ color: 'blue', border: '1px solid blue', marginLeft: '10px' }} onClick={handleConfirmedOrder} size="small">Confirmed Order</Button>
+
           <Button variant="contained" onClick={handleBack} className="action-btn" size="small">
             Back
           </Button>
         </Stack>
       </div>
 
-      {/* Modal for Cancel Order */}
-      <Modal show={isModalOpen} onHide={closeModal} centered backdrop="static" keyboard={false} animation={false} >
-        <Modal.Header closeButton>
-        <Typography>
-            <strong>Cancel Order for:</strong> {customerId || 'N/A'}{' '}
-            {customerId && <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px', marginTop: '-3px', marginRight: '-4px' }} />}
-          </Typography>
-         </Modal.Header>
-         <Modal.Body>
-          <Typography>Are you sure you want to cancel the order?</Typography>
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Reason for cancellation (optional)"
-            style={{ width: '100%', marginTop: '10px' }}
-            value={cancellationReason}
-            onChange={(e) => setCancellationReason(e.target.value)}
-          />
-          <div style={{ marginTop: '10px' }}>
-          <input
-            type="checkbox"
-            id="confirmCheckbox"
-            checked={isConfirmed}
-            onChange={(e) => setIsConfirmed(e.target.checked)}
-            />
-            <label htmlFor="confirmCheckbox" style={{ marginLeft: '5px' }}>I confirm the cancellation</label>
-          </div>
-        </Modal.Body>
-        <Modal.Footer style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Button style={{ color: 'red', border: '1px solid red', marginLeft: '10px' }} onClick={handleCancelOrder} size="small">Cancel Order</Button>
-          <Button onClick={closeModal} style={{ color: 'blue', border: '1px solid blue', marginLeft: '10px' }}  size="small"> Back</Button>
-        </Modal.Footer>
-      </Modal>
+    
 
 
     </div>

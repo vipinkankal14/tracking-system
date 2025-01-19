@@ -12,13 +12,14 @@ import AddCarStock from "./carStocks/AddCarStock";
 import CarAllotmentByCustomer from "./carStocks/CarAllotmentByCustomer";
 import CarStockShow from "./carStocks/CarStockShow";
 import { OrderEditAndCancel } from "./cashier/CarBooking/OrderEditAndCancel";
- 
+import { OrderEditAndConfirmed } from "./cashier/CarBookingCancel/OrderEditAndConfirmed";
+  
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./components/AdditionalDetails"));
 const DiscountMain = lazy(() => import("./discount/DiscountMain"));
 const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
 const PaymentClear = lazy(() => import("./cashier/PaymentClear"));
-const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel"));
+const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel/CarBookingCancel"));
 const Payment = lazy(() => import("./cashier/Payment"));
 const CashierApp = lazy(() => import("./cashier/CashierApp"));
 const PaymentDetails = lazy(() => import("./cashier/PaymentDetails"));
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/car-allotment-by-customer" element={<CarAllotmentByCustomer />} />
                 <Route path="/Add-Car-Stock" element={<AddCarStock />} />
                 <Route path="/order-cancel/:customerId" element={<OrderEditAndCancel />} />
+                <Route path="/order-edit-and-confirmed/:customerId" element={<OrderEditAndConfirmed />} />
                </Routes>
             </Suspense>
           </div>

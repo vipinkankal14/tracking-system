@@ -20,7 +20,7 @@ const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerBy
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { updateDiscount, updateDiscountForCriteria } = require('./db/routes/carStocks/discount');
-      
+        
  
 // Use the payment routes
 app.post('/api/payments', handlePayment);
@@ -48,7 +48,76 @@ app.get('/api/pool-status', (req, res) => {
 }); 
 
 
+
  
+app.put('/api/cancel-order', (req, res) => {
+  const { customerId, cancellationReason, isConfirmed } = req.body;
+
+  // Determine the new values based on the status
+  const status = 'cancel';
+  const newCancellationReason = 'confirmed' === status ? null : cancellationReason; // Clear if status is 'confirmed'
+  const newIsConfirmed = 'confirmed' === status ? false : isConfirmed; // Clear if status is 'confirmed'
+
+  const query = `
+    UPDATE customers
+    SET 
+      status = ?,
+      cancellationReason = ?,
+      isConfirmed = ?
+    WHERE customerId = ?;
+  `;
+
+  pool.execute(query, [status, newCancellationReason, newIsConfirmed, customerId], (err, results) => {
+    if (err) {
+      res.status(500).send({ error: 'Failed to cancel the order.' });
+      return;
+    }
+
+    // Check if any rows were affected
+    if (results.affectedRows === 0) {
+      res.status(404).send({ message: 'Customer not found.' });
+      return;
+    }
+
+    res.send({ message: 'Order canceled successfully.' });
+  });
+});
+
+app.put('/api/confirmed-order', (req, res) => {
+  const { customerId } = req.body;
+
+  // Define the new values
+  const status = 'confirmed';
+  const cancellationReason = null; // Set to NULL
+  const isConfirmed = false; // Set to FALSE
+
+  const query = `
+    UPDATE customers
+    SET 
+      status = ?,
+      cancellationReason = ?,
+      isConfirmed = ?
+    WHERE customerId = ?;
+  `;
+
+  pool.execute(query, [status, cancellationReason, isConfirmed, customerId], (err, results) => {
+    if (err) {
+      console.error('Error confirming the order:', err);
+      res.status(500).send({ error: 'Failed to confirm the order.' });
+      return;
+    }
+
+    // Check if any rows were affected
+    if (results.affectedRows === 0) {
+      res.status(404).send({ message: 'Customer not found.' });
+      return;
+    }
+
+    res.send({ message: 'Order confirmed successfully.' });
+  });
+});
+
+
 app.get('/api/customer/:customerId', (req, res) => {
   const { customerId } = req.params;
   console.log("Received customerId:", customerId);
@@ -88,6 +157,7 @@ app.get('/api/customer/:customerId', (req, res) => {
           c.rto_tax,
           c.fast_tag,
           c.insurance,
+          c.status,
           p.id AS PaymentID,
           p.debitedAmount,
           p.creditedAmount,
@@ -101,7 +171,7 @@ app.get('/api/customer/:customerId', (req, res) => {
       ON 
           c.customerId = p.customerId
       WHERE 
-          c.customerId = ?;  -- Filter by customerId
+          c.customerId = ?;
   `;
 
   pool.query(query, [customerId], (err, results) => {
@@ -116,67 +186,6 @@ app.get('/api/customer/:customerId', (req, res) => {
     }
   });
 });
-
-
-
- // API to get customer details by customerId
-/*
-app.get('/api/customers/:customerId', (req, res) => {
-  const { customerId } = req.params;
-  const query = 'SELECT * FROM customers WHERE customerId = ?';
-  pool.query(query, [customerId], (err, result) => {
-    if (err) return res.status(500).send(err);
-    if (result.length === 0) return res.status(404).send('Customer not found');
-    res.json(result[0]);
-  });
-});
-*/
-
-
-
-
-// API endpoint to get car data by VIN
-app.get('/api/car/:vin', (req, res) => {
-  const { vin } = req.params;
-
-  const query = 'SELECT * FROM carstocks WHERE vin = ?';
-  pool.query(query, [vin], (err, results) => {
-    if (err) {
-      console.error('Error fetching car data: ', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    res.json(results[0]);  // Return the first (and only) result
-  });
-});
-
- 
-
-// Express route to update car allotment status
-app.put('/api/car/update/:vin', (req, res) => {
-  const { vin } = req.params;
-  const { customerId, allotmentCarStatus } = req.body;  // Get both customerId and allotmentCarStatus from request body
-
-  // SQL query to update both customerId and allotmentCarStatus
-  const query = 'UPDATE carstocks SET customerId = ?, allotmentCarStatus = ? WHERE vin = ?';
-
-  pool.query(query, [customerId, allotmentCarStatus, vin], (err, result) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error updating car stock' });
-    }
-
-    if (result.affectedRows > 0) {
-      res.status(200).json({ message: 'Car stock updated successfully' });
-    } else {
-      res.status(404).json({ message: 'Car not found' });
-    }
-  });
-});
-
-
-
 
 // Get all cars with filters
 app.get('/api/cars', (req, res) => {
@@ -233,6 +242,27 @@ app.post('/api/apply-discount', (req, res) => {
       res.json({ message: 'Discounts applied successfully', result });
   });
 });
+
+
+
+
+
+ /*
+app.get('/api/customers/:customerId', (req, res) => {
+  const { customerId } = req.params;
+  const query = 'SELECT * FROM customers WHERE customerId = ?';
+  pool.query(query, [customerId], (err, result) => {
+    if (err) return res.status(500).send(err);
+    if (result.length === 0) return res.status(404).send('Customer not found');
+    res.json(result[0]);
+  });
+});
+*/
+
+ 
+
+
+
 
 
 

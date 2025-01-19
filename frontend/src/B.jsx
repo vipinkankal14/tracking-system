@@ -90,50 +90,20 @@ export const OrderEditAndCancel = () => {
   return (
     <div className="payment-history">
     
-        <div className="header">
-        <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', fontSize : '16px' }}>
-      Booking for 
-      <IconButton style={{ marginLeft: '4px', padding: 0 }}>
-        <AccountCircleRoundedIcon style={{height:'20px'}} />
-      </IconButton>
-      <span style={{ color: '#092e6b', marginLeft: '1px',fontSize : '16px' }}>
-        {`${customerData.firstName || ''} ${customerData.lastName || ''}`}
-      </span>
-    </Typography>
-        </div>
+        <div className="header"><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', fontSize : '16px' }}> Booking for <IconButton style={{ marginLeft: '4px', padding: 0 }}> <AccountCircleRoundedIcon style={{height:'20px'}} /></IconButton><span style={{ color: '#092e6b', marginLeft: '1px',fontSize : '16px' }}>{`${customerData.firstName || ''} ${customerData.lastName || ''}`}</span></Typography></div>
 
         <div className="details-container">
+        
             <Paper className="details customer-details" style={{ borderBottom: "1px solid #ccc", paddingBottom: "10px", marginBottom: "10px" }}>
             <Typography variant="h6" style={{ borderBottom: "1px solid #ccc", paddingBottom: "10px", marginBottom: "10px", color: "#030547" }}><strong>Customer Details</strong><IconButton aria-label="edit" style={{ color: '#1976d2' }}><EditIcon /></IconButton></Typography>
-            <Typography>
-                <strong>Customer ID:</strong> {customerId || 'N/A'}{' '}
-                {customerId && (
-                <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px',marginTop:'-3px',marginRight:'-4px'}} />
-                )}
-            </Typography>            
-            <Typography>
-                <strong>Customer Type:</strong> {customerType || 'N/A'}
-            </Typography>
-            <Typography>
-                <strong>Full Name:</strong>{' '}
-                {`${firstName || 'N/A'} ${middleName || ''} ${lastName || ''}`}
-            </Typography>
-            <Typography>
-                <strong>Birth Date:</strong> {birthDate || 'N/A'}
-            </Typography>
-            <Typography>
-                <strong>Email:</strong> {email || 'N/A'}
-            </Typography>
-            <Typography>
-                <strong>Phone:</strong> {mobileNumber1 || 'N/A'}, {mobileNumber2 || 'N/A'}
-            </Typography>
-            <Typography>
-                <strong>Address:</strong>{' '}
-                {`${address || 'N/A'}, ${city || 'N/A'}`}
-            </Typography>
-            <Typography>
-                <strong>State:</strong> {`${state || 'N/A'}, ${country || 'N/A'}`}
-            </Typography>
+            <Typography><strong>Customer ID:</strong> {customerId || 'N/A'}{' '} {customerId && ( <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px',marginTop:'-3px',marginRight:'-4px'}} />)}</Typography>            
+            <Typography><strong>Customer Type:</strong> {customerType || 'N/A'}</Typography>
+            <Typography><strong>Full Name:</strong>{' '}{`${firstName || 'N/A'} ${middleName || ''} ${lastName || ''}`}</Typography>
+            <Typography><strong>Birth Date:</strong> {birthDate || 'N/A'}</Typography>
+            <Typography><strong>Email:</strong> {email || 'N/A'}</Typography>
+            <Typography><strong>Phone:</strong> {mobileNumber1 || 'N/A'}, {mobileNumber2 || 'N/A'}</Typography>
+            <Typography><strong>Address:</strong>{' '}{`${address || 'N/A'}, ${city || 'N/A'}`}</Typography>
+            <Typography><strong>State:</strong> {`${state || 'N/A'}, ${country || 'N/A'}`}</Typography>
             </Paper>
         
             {/* Car Details */}
@@ -168,24 +138,8 @@ export const OrderEditAndCancel = () => {
       
         <div className="button-container">
             <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-            
-              onClick={handleCancelOrder}
-                className="action-btn"
-                size='small'
-            >
-              Cancel Order
-            </Button>
-            <Button
-              variant="contained"
-            
-              onClick={handleBack}
-                className="action-btn"
-                size='small'
-            >
-              Back
-            </Button>
+            <Button variant="contained" onClick={handleCancelOrder} className="action-btn" size='small'> Cancel Order </Button>
+            <Button variant="contained" onClick={handleBack} className="action-btn" size='small'> Back </Button>
           </Stack>
         </div>
     

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Badge, Table, Spinner, Modal, Button, Dropdown } from "react-bootstrap";
+import { Table, Spinner, Dropdown } from "react-bootstrap";
 import axios from "axios";
-import CarRentalOutlinedIcon from '@mui/icons-material/CarRentalOutlined';
- import DeleteIcon from '@mui/icons-material/Delete';
+ 
 import "./scss/CarStockShow.scss";
 import { useNavigate } from "react-router-dom";
 import AddTaskRoundedIcon from '@mui/icons-material/AddTaskRounded';

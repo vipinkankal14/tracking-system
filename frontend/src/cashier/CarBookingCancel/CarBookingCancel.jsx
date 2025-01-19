@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Dropdown, Badge } from "react-bootstrap";
+import { Table, Spinner, Badge } from "react-bootstrap";
 import axios from "axios";
  import { useNavigate } from "react-router-dom";
  import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
 import { SearchIcon } from "lucide-react";
- import '../css/CarBookings.scss';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import '../css/CarBookings.scss';
 
-const CarBookings = () => {
+const CarBookingCancel = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [carStocks, setCarStocks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,12 +43,12 @@ const CarBookings = () => {
 
  
   const handleCancelClick = (vin) => {
-    navigate(`/order-cancel/${vin}`);
+    navigate(`/order-edit-and-confirmed/${vin}`);
   };
 
   return (
     <>
-      <div style={{ marginTop: '-36px',color :'#071947'}}> <p className="text-md-start my-4">CAR BOOKINGS</p> </div>
+      <div style={{ marginTop: '-36px',color :'#071947'}}> <p className="text-md-start my-4">CAR BOOKING CANCEL</p> </div>
       <div className="d-flex justify-content-center justify-content-md-start"> <div className="mb-4"> <TextField variant="outlined" placeholder="Search..." label="Search Car Bookings" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} InputProps={{ startAdornment: ( <InputAdornment position="start"> <SearchIcon /> </InputAdornment> ), }} /> </div> </div>
  
       {loading && (<div className="text-center"> <Spinner animation="border" role="status"> <span className="visually-hidden">Loading...</span> </Spinner> </div>)}
@@ -74,7 +74,7 @@ const CarBookings = () => {
             <TableBody>
               {filteredCarStocks.length > 0 ? (
                 filteredCarStocks
-                  .filter(stock => stock.status !== 'cancel') // Filter out canceled orders
+                  .filter(stock => stock.status !== 'confirmed') // Filter out canceled orders
                   .map((stock, index) => (
                     <TableRow key={index}>
                       <TableCell className="d-none d-sm-table-cell" style={{ padding: '10px' }}>{stock.customerId}</TableCell>
@@ -85,7 +85,7 @@ const CarBookings = () => {
                       <TableCell className="d-none d-sm-table-cell">{stock.variant}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.booking_amount}</TableCell>
-                      <TableCell style={{ padding: '10px' }}><Badge bg="success">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
+                      <TableCell style={{ padding: '10px'}}><Badge bg="danger">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
                     </TableRow>
                   ))
               ) : (
@@ -95,9 +95,9 @@ const CarBookings = () => {
           </Table>
         </TableContainer>
       )}
-
+      
     </>
   );
 };
 
-export default CarBookings;
+export default CarBookingCancel;
