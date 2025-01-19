@@ -1,76 +1,56 @@
-// PaymentDetails.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./css/PaymentDetails.scss";
 import { Button } from "@mui/material";
-import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import "./css/PaymentDetails.scss";
 
 const PaymentDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Extract customer details passed via navigation
   const { customerId, customerName, accountBalance } = location.state || {};
 
   const [formData, setFormData] = useState({
     transactionType: "debit",
     amount: "",
-    paymentType:"cash",
+    paymentType: "cash",
   });
 
-  console.log("Initial accountBalance type:", typeof accountBalance, accountBalance);
   const [newBalance, setNewBalance] = useState(parseFloat(accountBalance) || 0);
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
     if (!customerId || !customerName) {
-      navigate("/CashierApp"); // Redirect if no customer data
+      navigate("/CashierApp");
     }
   }, [customerId, customerName, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Field changed: ${name}, New Value: ${value}`); // Log only name and value
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
     setSuccess("");
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { transactionType, amount, paymentType } = formData;
     const parsedAmount = parseFloat(amount);
 
-    // Validate inputs
     if (!parsedAmount || parsedAmount <= 0) {
       setError("Please enter a valid positive amount.");
       return;
     }
 
-    const isDebit = transactionType === "debit";
-
-    if (isDebit && parsedAmount > newBalance) {
-      setError("Insufficient balance for the debit transaction.");
-      return;
-    }
-
     try {
-      // Call API to process the payment
       const response = await fetch("http://localhost:5000/api/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerId: customerId,
-          debitedAmount: isDebit ? parsedAmount : null,
-          creditedAmount: !isDebit ? parsedAmount : null,
-          paymentType: paymentType,
+          customerId,
+          debitedAmount: transactionType === "debit" ? parsedAmount : null,
+          creditedAmount: transactionType === "credit" ? parsedAmount : null,
+          paymentType,
         }),
       });
 
@@ -78,44 +58,27 @@ const PaymentDetails = () => {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to process payment.");
       }
-      const result = await response.json(); // Use this only if response is JSON
-      console.log("API response:", result);
 
-      console.log("newBalance before transaction:", typeof newBalance, newBalance);
-      console.log("Parsed amount:", typeof parsedAmount, parsedAmount);
-
-      const updatedBalance = isDebit
-        ? parseFloat(newBalance) - parsedAmount
-        : parseFloat(newBalance) + parsedAmount;
-
-      console.log("updatedBalance after transaction:", typeof updatedBalance, updatedBalance);
+      const updatedBalance =
+        transactionType === "debit"
+          ? newBalance - parsedAmount
+          : newBalance + parsedAmount;
 
       setNewBalance(updatedBalance);
+      setFormData({ transactionType: "debit", paymentType: "cash", amount: "" });
+      setSuccess(
+        `Payment of ₹${parsedAmount} ${transactionType === "debit" ? "debited" : "credited"} successfully.`
+      );
 
-
-      setFormData({ transactionType: "debit",paymentType:"cash",amount: "" });
-      setError("");
-      setSuccess(`Payment of ₹${parsedAmount} ${isDebit ? "debited" : "credited"} successfully.`);
-
-      // Navigate to PaymentSuccessful with correct data
       setTimeout(() => {
         navigate("/payment-successful", {
-          state: {
-            transactionType: isDebit ? "Debit" : "Credit",
-            amount: parsedAmount,
-            updatedBalance: updatedBalance.toFixed(2),
-            customerId,
-            customerName,
-
-          },
+          state: { transactionType, amount: parsedAmount, updatedBalance, customerId, customerName },
         });
       }, 2000);
-    } catch (error) {
-      console.error("Error processing payment:", error);
-      setError(error.message || "An error occurred while processing the payment.");
+    } catch (err) {
+      setError(err.message || "An error occurred while processing the payment.");
     }
   };
-
 
   return (
     <div className="payment-details-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'center' }}>

@@ -6,26 +6,32 @@ const pool = require('../../databaseConnection/mysqlConnection');
 // Function to handle payment insertion and balance update
 const handlePayment = async (req, res) => {
   const { debitedAmount, creditedAmount, customerId, paymentType } = req.body;
-  const paymentDate = new Date(); // Automatically sets the current date and time
-  const paymentTypeDebit = "Debit"; // Payment type for debit transactions
-  const paymentTypeCredit = "Credit"; // Payment type for credit transactions
+  const paymentDate = new Date();
+  const paymentTypeDebit = "Debit";
+  const paymentTypeCredit = "Credit";
 
   try {
-    // Check if customerId exists
+    // Check if customer exists
     const customerExistsQuery = `SELECT customerId FROM customers WHERE customerId = ?`;
     const [customerExists] = await pool.query(customerExistsQuery, [customerId]);
 
     if (!customerExists.length) {
-      return res.status(404).json({ error: 'Customer does not exist.' });
+      return res.status(404).json({ error: "Customer does not exist." });
     }
 
-    // If debitedAmount is provided, process a debit transaction
     if (debitedAmount) {
+      // Handle debit
       const debitPaymentQuery = `
-        INSERT INTO cashier (debitedAmount, userpayment_id, paymentDate,transactionType ,paymentType) 
-        VALUES (?, ?, ?, ?, ?)`; 
-      await pool.query(debitPaymentQuery, [debitedAmount, customerId, paymentDate,paymentTypeDebit,paymentType]);
- 
+        INSERT INTO cashier (debitedAmount, customerId, paymentDate, transactionType, paymentType) 
+        VALUES (?, ?, ?, ?, ?)`;
+      await pool.query(debitPaymentQuery, [
+        debitedAmount,
+        customerId,
+        paymentDate,
+        paymentTypeDebit,
+        paymentType,
+      ]);
+
       const updateDebitedBalanceQuery = `
         UPDATE customers 
         SET customer_account_balance = customer_account_balance - ? 
@@ -33,26 +39,70 @@ const handlePayment = async (req, res) => {
       await pool.query(updateDebitedBalanceQuery, [debitedAmount, customerId]);
     }
 
-    // If creditedAmount is provided, process a credit transaction
     if (creditedAmount) {
+      // Handle credit
+      const fetchCustomerDetailsQuery = `
+        SELECT customer_account_balance, total_onroad_price 
+        FROM customers 
+        WHERE customerId = ?`;
+      
+      const [customerDetails] = await pool.query(fetchCustomerDetailsQuery, [customerId]);
+    
+      if (customerDetails.length === 0) {
+        return res.status(404).json({ error: "Customer not found." });
+      }
+    
+      const { customer_account_balance, total_onroad_price } = customerDetails[0];
+      const currentBalance = customer_account_balance; // current balance before credit
+      const requiredPayment = total_onroad_price - currentBalance; // remaining amount to reach total price
+    
+      // Check if any payment is required
+      if (requiredPayment <= 0) {
+        return res
+          .status(400)
+          .json({ error: "Total on-road price is already covered. Extra payment is not accepted." });
+      }
+    
+      // Calculate adjusted credited amount
+      const adjustedCreditedAmount = Math.min(creditedAmount, requiredPayment);
+    
+      // If adjusted credited amount is less than credited amount, inform the user
+      if (adjustedCreditedAmount < creditedAmount) {
+        return res.status(400).json({
+          error: `Only ${adjustedCreditedAmount} can be credited, as the total on-road price is already covered by the current balance.`,
+        });
+      }
+    
+      // Proceed with the credit operation
       const creditPaymentQuery = `
-        INSERT INTO cashier (creditedAmount, userpayment_id, paymentDate,transactionType,paymentType) 
+        INSERT INTO cashier (creditedAmount, customerId, paymentDate, transactionType, paymentType) 
         VALUES (?, ?, ?, ?, ?)`;
-      await pool.query(creditPaymentQuery, [creditedAmount, customerId, paymentDate , paymentTypeCredit,paymentType]);
-
+      
+      await pool.query(creditPaymentQuery, [
+        adjustedCreditedAmount,
+        customerId,
+        paymentDate,
+        paymentTypeCredit,
+        paymentType,
+      ]);
+    
       const updateCreditedBalanceQuery = `
         UPDATE customers 
         SET customer_account_balance = customer_account_balance + ? 
         WHERE customerId = ?`;
-      await pool.query(updateCreditedBalanceQuery, [creditedAmount, customerId]);
+      
+      await pool.query(updateCreditedBalanceQuery, [adjustedCreditedAmount, customerId]);
+    
+      return res.status(200).json({ message: `Successfully credited ${adjustedCreditedAmount}.` });
     }
-
-    res.status(200).json({ message: 'Payment processed successfully!' });
+    
+    res.status(200).json({ message: "Payment processed successfully!" });
   } catch (err) {
-    console.error('Error processing payment:', err.message);
-    res.status(500).json({ error: 'Error processing payment.' });
+    console.error("Error processing payment:", err.message);
+    res.status(500).json({ error: "Error processing payment." });
   }
 };
+
 
 // Function to fetch a specific customer by ID
 const getCustomerById = async (req, res) => {
