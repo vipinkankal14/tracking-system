@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import AddCarStock from './AddCarStock';
 import CarStockShow from './CarStockShow';
-import CarAllotmentByCustomer from './CarAllotmentByCustomer';
+import CarAllotmentByCustomer from './AllotmentAndNotAllotment/CarAllotmentByCustomer';
 import '../App.css';
 
 const Car = () => {

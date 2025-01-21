@@ -1,140 +1,211 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@mui/material";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-import "./css/PaymentDetails.scss";
+import React, { useState } from 'react';
+import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
+import { DirectionsCar} from '@mui/icons-material';
+import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
+ import GradingRoundedIcon from '@mui/icons-material/GradingRounded';
+import CarRentalIcon from '@mui/icons-material/CarRental';
+import NoCrashRoundedIcon from '@mui/icons-material/NoCrashRounded';
+import PercentIcon from '@mui/icons-material/Percent';
 
-const PaymentDetails = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { customerId, customerName, accountBalance } = location.state || {};
 
-  const [formData, setFormData] = useState({
-    transactionType: "debit",
-    amount: "",
-    paymentType: "cash",
-  });
+const Container = styled.div`
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: auto;
+`;
 
-  const [newBalance, setNewBalance] = useState(parseFloat(accountBalance) || 0);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+const Title = styled.h1`
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #1f2937;
+  font-size: 2rem;
+  font-weight: 700;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+`;
+const Subtitle = styled.h2`
+  margin-bottom: 1rem;
+  text-align: center;
+  color: #4b5563;
+  font-size: 1.5rem;
+  font-weight: 600;
 
-  useEffect(() => {
-    if (!customerId || !customerName) {
-      navigate("/CashierApp");
-    }
-  }, [customerId, customerName, navigate]);
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+`;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setError("");
-    setSuccess("");
+const Grid = styled.div`
+  display: grid;
+  gap: 2.2rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+`;
+
+const Card = styled.div`
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  &:hover {
+    transform: translateY(-4px);
+  }
+`;
+
+const CardContent = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+`;
+
+const getIconStyles = (type) => {
+  const styles = {
+    primary: { background: '#e0f2fe', color: '#0284c7' },
+    danger: { background: '#fee2e2', color: '#dc2626' },
+    success: { background: '#dcfce7', color: '#16a34a' },
+    warning: { background: '#fef3c7', color: '#d97706' }
   };
+  return styles[type] || styles.primary;
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { transactionType, amount, paymentType } = formData;
-    const parsedAmount = parseFloat(amount);
+const IconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  margin-right: 1.5rem;
+  background: ${props => getIconStyles(props.iconType).background};
+  color: ${props => getIconStyles(props.iconType).color};
+`;
 
-    if (!parsedAmount || parsedAmount <= 0) {
-      setError("Please enter a valid positive amount.");
-      return;
-    }
+const CardInfo = styled.div`
+  flex: 1;
+`;
 
-    try {
-      const response = await fetch("http://localhost:5000/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerId,
-          debitedAmount: transactionType === "debit" ? parsedAmount : null,
-          creditedAmount: transactionType === "credit" ? parsedAmount : null,
-          paymentType,
-        }),
-      });
+const CardTitle = styled.h3`
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+`;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to process payment.");
-      }
+const CardNumber = styled.div`
+  font-size: 2.5rem;
+  color: #111827;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+`;
 
-      const updatedBalance =
-        transactionType === "debit"
-          ? newBalance - parsedAmount
-          : newBalance + parsedAmount;
+const CardStatus = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+`;
 
-      setNewBalance(updatedBalance);
-      setFormData({ transactionType: "debit", paymentType: "cash", amount: "" });
-      setSuccess(
-        `Payment of ₹${parsedAmount} ${transactionType === "debit" ? "debited" : "credited"} successfully.`
-      );
 
-      setTimeout(() => {
-        navigate("/payment-successful", {
-          state: { transactionType, amount: parsedAmount, updatedBalance, customerId, customerName },
-        });
-      }, 2000);
-    } catch (err) {
-      setError(err.message || "An error occurred while processing the payment.");
-    }
+function StackedStatusPage() {
+  const navigate = useNavigate();
+
+  const [statusCards] = useState([
+   
+    
+    {
+      id: 'CarAllotment',
+      title: 'Car Allotment',
+      count: 80,
+      status: 'Status: All Payments Clear',
+      icon: CarRentalIcon,
+      iconType: 'success',
+      path: '/car-stock-show',
+     
+    },
+    {
+      id: 'CarAllotmentByCustomer',
+      title: 'Car Allotment By Customer',
+      count: 80,
+      status: 'Status: Allocated / Not Allocated',
+      icon: NoCrashRoundedIcon,
+      iconType: 'danger',
+      path: '/car-allotment-by-customer',
+     
+    },
+    {
+      id: 'car-booking',
+      title: 'Add Car Stock',  
+ 
+      icon: DirectionsCar,
+      iconType: 'secondary',
+      path: '/Add-Car-Stock'
+    },
+    {
+      id: 'CarAllotment',
+      title: 'UPDATE FOR BOOKING AMOUNT',
+ 
+      icon: PercentIcon,
+      iconType: 'danger',
+      path: '/booking-amount',
+     
+    },
+    {
+      id: 'CarAllotment',
+      title: 'DISCOUNT FOR CAR',
+      icon: PercentIcon,
+      iconType: 'danger',
+      path: '/discount-main',
+     
+    },
+    {
+      id: 'booking-cancel',
+      title: 'Uplosd Stock',
+      status: 'Status: ',
+      icon: CloudUploadRoundedIcon,
+      iconType: 'primary',
+      path: '/car-booking-cancel'
+    },
+  ]);
+
+  const handleCardClick = (path) => {
+    navigate(path);
   };
 
   return (
-    <div className="payment-details-container">
-      <h2>Payment Details</h2>
-      <p>
-        <strong>Customer ID:</strong> {customerId}{" "}
-        {customerId && <VerifiedRoundedIcon style={{ color: "#092e6b" }} />}
-      </p>
-      <p>
-        <strong>Name:</strong> {customerName}
-      </p>
-      <p>
-        <strong>Account Balance:</strong> ₹{newBalance.toFixed(2)}
-      </p>
-
-      <form onSubmit={handleSubmit}>
-        <label>Payment Type</label>
-        <select name="paymentType" value={formData.paymentType} onChange={handleChange}>
-          <option value="cash">Cash</option>
-          <option value="card">Card</option>
-          <option value="online">Online</option>
-        </select>
-
-        <label>Transaction Type</label>
-        <select name="transactionType" value={formData.transactionType} onChange={handleChange}>
-          <option value="debit">Debit</option>
-          <option value="credit">Credit</option>
-        </select>
-
-        <label>Amount</label>
-        <input
-          type="number"
-          name="amount"
-          value={formData.amount}
-          onChange={handleChange}
-          placeholder="Enter amount"
-          min="0"
-        />
-
-        <Button type="submit" variant="contained">
-          Submit Payment
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            navigate("/CashierApp");
-          }}
-        >
-          Cancel
-        </Button>
-
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">{success}</p>}
-      </form>
-    </div>
+    <Container>
+      <Title>Status Overview</Title>
+      <Grid>
+        {statusCards.map((card) => (
+          <Card 
+            key={card.id}
+            onClick={() => handleCardClick(card.path)}
+          >
+            <CardContent>
+              <IconWrapper iconType={card.iconType}>
+                <card.icon sx={{ fontSize: 32 }} />
+              </IconWrapper>
+              <CardInfo>
+                <CardTitle>{card.title}</CardTitle>
+                <CardNumber>{card.count}</CardNumber>
+                <CardStatus>{card.status}</CardStatus>
+              </CardInfo>
+            </CardContent>
+          </Card>
+        ))}
+      </Grid>
+    </Container>
   );
-};
+}
 
-export default PaymentDetails;
+export default StackedStatusPage;
+
+
+
+

@@ -8,7 +8,6 @@ import CarRentalIcon from '@mui/icons-material/CarRental';
 import NoCrashRoundedIcon from '@mui/icons-material/NoCrashRounded';
 import PercentIcon from '@mui/icons-material/Percent';
 
-
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -41,11 +40,11 @@ const Subtitle = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  gap: 2.5rem;
+  gap: 2.2rem;
   
   @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 900px;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
     margin: 0 auto;
   }
 `;
@@ -56,7 +55,6 @@ const Card = styled.div`
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
-
   &:hover {
     transform: translateY(-4px);
   }
@@ -95,7 +93,7 @@ const CardInfo = styled.div`
 `;
 
 const CardTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #1f2937;
   margin-bottom: 0.5rem;
@@ -103,7 +101,6 @@ const CardTitle = styled.h3`
 
 const CardNumber = styled.div`
   font-size: 2.5rem;
-  font-weight: 600;
   color: #111827;
   line-height: 1;
   margin-bottom: 0.5rem;
@@ -114,41 +111,44 @@ const CardStatus = styled.div`
   color: #6b7280;
 `;
 
+
 function StackedStatusPage() {
   const navigate = useNavigate();
 
   const [statusCards] = useState([
+    
     {
       id: 'car-booking',
-      title: 'Add Car Stock',
-      
-      status: 'Booked',
+      title: 'Add Car Stock',  
+ 
       icon: DirectionsCar,
       iconType: 'secondary',
       path: '/Add-Car-Stock'
+    },   
+    
+   
+    {
+      id: 'CarAllotment',
+      title: 'UPDATE FOR BOOKING AMOUNT',
+ 
+      icon: PercentIcon,
+      iconType: 'danger',
+      path: '/booking-amount',
+     
     },
     {
-      id: 'booking-cancel',
-      title: 'Uplosd Stock',
-      status: 'Cancelled',
-      icon: CloudUploadRoundedIcon,
-      iconType: 'primary',
-      path: '/car-booking-cancel'
-    },
-    {
-      id: 'Show Stock',
-      title: 'Total Stock Details',
-      count: 80,
-      status: 'Credited / Debited',
-      icon: GradingRoundedIcon,
-      iconType: 'info',
-      path: '/customer-payment-details'
+      id: 'CarAllotment',
+      title: 'DISCOUNT FOR CAR',
+      icon: PercentIcon,
+      iconType: 'danger',
+      path: '/discount-main',
+     
     },
     {
       id: 'CarAllotment',
       title: 'Car Allotment',
       count: 80,
-      status: 'All Payments Clear',
+      status: 'Status: All Payments Clear',
       icon: CarRentalIcon,
       iconType: 'success',
       path: '/car-stock-show',
@@ -158,27 +158,36 @@ function StackedStatusPage() {
       id: 'CarAllotmentByCustomer',
       title: 'Car Allotment By Customer',
       count: 80,
-      status: 'All Payments Clear',
+      status: 'Status: Allocated / Not Allocated',
       icon: NoCrashRoundedIcon,
       iconType: 'danger',
       path: '/car-allotment-by-customer',
      
     },
     {
-      id: 'CarAllotment',
-      title: 'DISCOUNT FOR CAR',
+      id: 'CarAllotmentByCustomer',
+      title: 'Car Allotment By Customer',
       count: 80,
-      status: 'All Payments Clear',
-      icon: PercentIcon,
+      status: 'Status: Allocated / Not Allocated',
+      icon: NoCrashRoundedIcon,
       iconType: 'danger',
-      path: '/discount-main',
+      path: '/car-allotment-by-customer',
      
-    }
+    },
+    {
+      id: 'booking-cancel',
+      title: 'Uplosd Stock',
+      status: 'Status: ',
+      icon: CloudUploadRoundedIcon,
+      iconType: 'primary',
+      path: '/car-booking-cancel'
+    },
   ]);
 
   const handleCardClick = (path) => {
     navigate(path);
   };
+
 
   return (
     <Container>
@@ -196,7 +205,7 @@ function StackedStatusPage() {
               <CardInfo>
                 <CardTitle>{card.title}</CardTitle>
                 <CardNumber>{card.count}</CardNumber>
-                <CardStatus>Status: {card.status}</CardStatus>
+                <CardStatus>{card.status}</CardStatus>
               </CardInfo>
             </CardContent>
           </Card>

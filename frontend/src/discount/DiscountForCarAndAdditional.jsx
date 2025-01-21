@@ -28,6 +28,7 @@ export default function DiscountForCarAndAdditional() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [discountAmount, setDiscountAmount] = useState('');
   const [allRows, setAllRows] = useState([]);
+  
 
   useEffect(() => {
     const fetchCars = async (filters) => {
@@ -81,21 +82,33 @@ export default function DiscountForCarAndAdditional() {
 
 
   const handleApplyDiscount = async () => {
+    // Check if any checkboxes are selected
+    if (selectedRows.length === 0) {
+      alert("Please select at least one car to apply the discount.");
+      return; // Exit the function early if no checkboxes are selected
+    }
+  
+    // Proceed with applying the discount
     const selectedCars = selectedRows.map((index) => filteredRows[index]);
+    
     try {
-        const response = await axios.post('http://localhost:5000/api/apply-discount', {
-            selectedCars,
-            discountAmount,
-        });
+      const response = await axios.post('http://localhost:5000/api/apply-discount', {
+        selectedCars,
+        discountAmount,
+      });
+      
       console.log('Discounts applied:', response.data);
       console.log(`Discounts applied to ${selectedCars.length} cars.`);
       alert(`Successfully applied discount to ${selectedCars.length} cars!`);
-        // Optionally, refetch data or update state
+      
+      // Navigate to the DiscountSuccessfully page
+      // You may want to use a routing library like React Router for this
+      window.location.href = '/discount-main';
     } catch (error) {
-        console.error('Error applying discount:', error);
+      console.error('Error applying discount:', error);
     }
-};
-
+  };
+  
 
   const filteredRows = allRows.filter(
     (row) =>
@@ -113,170 +126,173 @@ export default function DiscountForCarAndAdditional() {
 
   return (
     <>
-     <div className="header-container">
-      <h6>DISCOUNT FOR CAR</h6>
-    </div>
-
-      <div className="container">
-       <div className="left-panel">
-        <Typography variant="h6" gutterBottom style={{ marginTop: '28px' }}>Select Car Details</Typography>
-
-        <FormControl fullWidth>
-          <InputLabel id="model-label">Model</InputLabel>
-          <Select labelId="model-label" value={selectedModel} onChange={handleModelChange} label="Model">
-            <MenuItem value="">All</MenuItem>
-            {[...new Set(allRows.map((row) => row.model))].map((model) => (
-              <MenuItem key={model} value={model}>
-                {model.charAt(0).toUpperCase() + model.slice(1)}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth disabled={!selectedModel}>
-          <InputLabel id="version-label">Version</InputLabel>
-          <Select labelId="version-label" value={selectedVersion} onChange={handleVersionChange} label="Version">
-            <MenuItem value="">All</MenuItem>
-            {[...new Set(allRows.filter((row) => row.model === selectedModel).map((row) => row.version))].map(
-              (version) => (
-                <MenuItem key={version} value={version}>
-                  {version.toUpperCase()}
-                </MenuItem>
-              )
-            )}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth disabled={!selectedVersion}>
-          <InputLabel id="color-label">Color</InputLabel>
-          <Select labelId="color-label" value={selectedColor} onChange={handleColorChange} label="Color">
-            <MenuItem value="">All</MenuItem>
-            {[
-              ...new Set(
-                allRows
-                  .filter((row) => row.model === selectedModel && row.version === selectedVersion)
-                  .map((row) => row.color)
-              ),
-            ].map((color) => (
-              <MenuItem key={color} value={color}>
-                {color}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Typography variant="h6">
-          Select Car Type
-        </Typography>
-        <FormControl fullWidth>
-          <InputLabel id="car-type-label">Car Type</InputLabel>
-          <Select labelId="car-type-label" value={selectedCarType} onChange={handleCarTypeChange} label="Car Type">
-            <MenuItem value="">All</MenuItem>
-            {[...new Set(allRows.map((row) => row.carType))].map((carType) => (
-              <MenuItem key={carType} value={carType}>
-                {carType}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <br />
-        <div className="discount-amount-section" style={{ marginTop: '-36px' }}>
-          <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
-          <FormControl fullWidth>
-            <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-amount"
-              value={discountAmount}
-              onChange={handleDiscountAmountChange}
-              startAdornment={<InputAdornment position="start">₹</InputAdornment>}
-              label="Amount"
-            />
-          </FormControl>
-          <div style={{ marginTop: '16px' }}>
-            <Button variant="contained" onClick={handleApplyDiscount}>Submit</Button>
-          </div>
-        </div>
-
+      <div className="header-container">
+        <h6>DISCOUNT FOR CAR</h6>
+      
       </div>
+     
+      <div className="container" style={{ marginTop: '0px' }}>
+        <div className="left-panel">
+          <Typography variant="h6" gutterBottom style={{ marginTop: '0' }}>Select Car Details</Typography>
 
-      <div className="right-panel">
-
-        <>
-
-
-          <Typography variant="h6" gutterBottom style={{ marginTop: '16px' }}>
-            Available Cars
+          <FormControl fullWidth>
+            <InputLabel id="model-label">Model</InputLabel>
+            <Select labelId="model-label" value={selectedModel} onChange={handleModelChange} label="Model">
+              <MenuItem value="">All</MenuItem>
+              {[...new Set(allRows.map((row) => row.model))].map((model) => (
+                <MenuItem key={model} value={model}>
+                  {model.charAt(0).toUpperCase() + model.slice(1)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth disabled={!selectedModel}>
+            <InputLabel id="version-label">Version</InputLabel>
+            <Select labelId="version-label" value={selectedVersion} onChange={handleVersionChange} label="Version">
+              <MenuItem value="">All</MenuItem>
+              {[...new Set(allRows.filter((row) => row.model === selectedModel).map((row) => row.version))].map(
+                (version) => (
+                  <MenuItem key={version} value={version}>
+                    {version.toUpperCase()}
+                  </MenuItem>
+                )
+              )}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth disabled={!selectedVersion}>
+            <InputLabel id="color-label">Color</InputLabel>
+            <Select labelId="color-label" value={selectedColor} onChange={handleColorChange} label="Color">
+              <MenuItem value="">All</MenuItem>
+              {[
+                ...new Set(
+                  allRows
+                    .filter((row) => row.model === selectedModel && row.version === selectedVersion)
+                    .map((row) => row.color)
+                ),
+              ].map((color) => (
+                <MenuItem key={color} value={color}>
+                  {color}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Typography variant="h6">
+            Select Car Type
           </Typography>
+          <FormControl fullWidth>
+            <InputLabel id="car-type-label">Car Type</InputLabel>
+            <Select labelId="car-type-label" value={selectedCarType} onChange={handleCarTypeChange} label="Car Type">
+              <MenuItem value="">All</MenuItem>
+              {[...new Set(allRows.map((row) => row.carType))].map((carType) => (
+                <MenuItem key={carType} value={carType}>
+                  {carType}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <br />
-          {filteredRows.length > 0 ? (
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow style={{backgroundColor:'#dbdbdb'}}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={filteredRows.every((_, index) => selectedRows.includes(index))}
-                        onChange={() => {
-                          if (filteredRows.every((_, index) => selectedRows.includes(index))) {
-                            setSelectedRows([]);
-                          } else {
-                            setSelectedRows(filteredRows.map((_, index) => index));
-                          }
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>Model</TableCell>
-                    <TableCell>Version</TableCell>
-                    <TableCell>Color</TableCell>
-                    <TableCell>Car Type</TableCell>
-                    <TableCell>car discount</TableCell>
-                    <TableCell>Showroom Price</TableCell>
-                </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredRows.map((row, index) => (
-                    <TableRow key={index} hover>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={selectedRows.includes(index)}
-                          onChange={() => handleCheckboxChange(index)}
-                        />
-                      </TableCell>
-                      <TableCell>{row.model.charAt(0).toUpperCase() + row.model.slice(1)}</TableCell>
-                      <TableCell>{row.version.toUpperCase()}</TableCell>
-                      <TableCell>{row.color}</TableCell>
-                      <TableCell>{row.carType}</TableCell>
-                      <TableCell>{row.cardiscount}</TableCell>
-                      <TableCell>{row.exShowroomPrice}</TableCell>                      
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Typography>No cars available for the selected criteria.</Typography>
-          )}
-
-        </>
-        <>
-          <div className="discount-amount-section-mobile" style={{ marginTop: '16px' }}>
+          <div className="discount-amount-section" style={{ marginTop: '-36px' }}>
             <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
             <FormControl fullWidth>
-            <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-amount"
-              value={discountAmount}
-              onChange={handleDiscountAmountChange}
-              startAdornment={<InputAdornment position="start">₹</InputAdornment>}
-              label="Amount"
-            />
+              <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-amount"
+                value={discountAmount}
+                onChange={handleDiscountAmountChange}
+                startAdornment={<InputAdornment position="start">₹</InputAdornment>}
+                label="Amount"
+              />
             </FormControl>
             <div style={{ marginTop: '16px' }}>
               <Button variant="contained" onClick={handleApplyDiscount}>Submit</Button>
             </div>
           </div>
-          <br />
-        </>
+
+        </div>
+
+        <div className="right-panel">
+
+          <>
+            <Typography variant="h6" gutterBottom >
+              Available Cars
+            </Typography>
+             {filteredRows.length > 0 ? (
+              <TableContainer component={Paper} style={{ marginTop: '20px' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow style={{ backgroundColor: '#dbdbdb' }}>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={filteredRows.every((_, index) => selectedRows.includes(index))}
+                          onChange={() => {
+                            if (filteredRows.every((_, index) => selectedRows.includes(index))) {
+                              setSelectedRows([]);
+                            } else {
+                              setSelectedRows(filteredRows.map((_, index) => index));
+                            }
+                          }}
+                        /> 
+                      </TableCell>
+                      <TableCell>Model</TableCell>
+                      <TableCell>Version</TableCell>
+                      <TableCell>Color</TableCell>
+                      <TableCell>Car Type</TableCell>
+                      <TableCell>car discount</TableCell>
+                      <TableCell>Showroom Price</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredRows.map((row, index) => (
+                      <TableRow key={index} hover>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={selectedRows.includes(index)}
+                            onChange={() => handleCheckboxChange(index)}
+                          />
+                        </TableCell>
+                        <TableCell>{row.model.charAt(0).toUpperCase() + row.model.slice(1)}</TableCell>
+                        <TableCell>{row.version.toUpperCase()}</TableCell>
+                        <TableCell>{row.color}</TableCell>
+                        <TableCell>{row.carType}</TableCell>
+                        <TableCell>{row.cardiscount}</TableCell>
+                        <TableCell>{row.exShowroomPrice}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Typography>No cars available for the selected criteria.</Typography>
+            )}
+     
+          </>
+          <>
+            <div className="discount-amount-section-mobile" style={{ marginTop: '16px' }}>
+              <Typography variant="h6" gutterBottom>DISCOUNT AMOUNT</Typography><br />
+              <FormControl fullWidth>
+                <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+                <OutlinedInput
+                  id="outlined-adornment-amount"
+                  value={discountAmount}
+                  onChange={handleDiscountAmountChange}
+                  startAdornment={<InputAdornment position="start">₹</InputAdornment>}
+                  label="Amount"
+                />
+              </FormControl>
+              <div style={{ marginTop: '16px' }}>
+                <Button variant="contained" onClick={handleApplyDiscount}>Submit</Button>
+              </div>
+            </div>
+            <br />
+          </>
+        </div>
       </div>
-    </div>
+           <div style={{ display: 'flex', justifyContent: 'flex-end',marginTop:'-19px' , marginRight:'9px'}}>
+  <Button variant="contained" onClick={() => window.history.back()}>
+    Back
+  </Button>
+</div>
     </>
-    
+
   );
 }

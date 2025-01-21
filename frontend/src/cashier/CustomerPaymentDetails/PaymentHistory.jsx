@@ -32,7 +32,7 @@ function PaymentHistory() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/customer/${customerId}`);
+      const response = await fetch(`http://localhost:5000/api/PaymentHistory/${customerId}`);
       if (!response.ok) {
         throw new Error(`Error fetching customer data: ${response.status}`);
       }
@@ -99,6 +99,7 @@ function PaymentHistory() {
     rto_tax = 'N/A',
     fast_tag = 'N/A',
     insurance = 'N/A',
+    customer_account_balance = 'N/A',
   } = customerData || {};
 
   return (
@@ -303,6 +304,31 @@ function PaymentHistory() {
       </Table>
     </TableContainer>
   </Paper>
+        
+        <Paper className="lines" style={{ flex: 1 }}>
+          <Typography
+            style={{
+              borderBottom: '1px solid #ccc',
+              paddingBottom: '10px',
+              marginBottom: '10px',
+              color: '#030547',
+              padding: '10px',
+            }}
+          >
+            <>Upadted Amount</>
+          </Typography>
+
+          <Typography
+           style={{
+               paddingBottom: '10px',
+              marginBottom: '10px',
+              color: '#030547',
+              padding: '10px',
+            }}
+          ><strong>Customer Account Balance: {customer_account_balance || 'N/A'} </strong></Typography>
+        </Paper>
+        
+
 </div>
 
 

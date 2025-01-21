@@ -29,7 +29,7 @@ const CarAllotment = () => {
   useEffect(() => {
     if (formData.customerId) {
       axios
-        .get(`http://localhost:5000/api/customer/${formData.customerId}`)
+        .get(`http://localhost:5000/api/api/customer/${formData.customerId}`)
         .then((response) => {
           setCustomerData(response.data);
           setError('');
@@ -175,7 +175,7 @@ const CarAllotment = () => {
           <Button
             variant="success"
             size="sm"
-            onClick={() => handleShowModal('Allotment')}
+            onClick={() => handleShowModal('Allocated')}
           >
             Allotment
           </Button>

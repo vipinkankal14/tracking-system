@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
 import { DirectionsCar, Block, AccountBalance } from '@mui/icons-material';
-
+import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
+import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
+import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
+import CurrencyRupeeRoundedIcon from '@mui/icons-material/CurrencyRupeeRounded';
+
 
 const Container = styled.div`
   padding: 2rem 1rem;
@@ -37,11 +41,11 @@ const Subtitle = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  gap: 2.5rem;
+  gap: 2.2rem;
   
   @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 900px;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1300px;
     margin: 0 auto;
   }
 `;
@@ -52,7 +56,6 @@ const Card = styled.div`
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
-
   &:hover {
     transform: translateY(-4px);
   }
@@ -66,10 +69,13 @@ const CardContent = styled.div`
 
 const getIconStyles = (type) => {
   const styles = {
+    CashierMhanaement: { background: '#f0f9ff', color: '#0e7490' },
+    Payment: {background: '#e6e6e8', color: '#2c02fa'},
+    CustomerDetails: { background: '#eddcfa', color: '#9302fa' },
     primary: { background: '#e0f2fe', color: '#0284c7' },
     danger: { background: '#fee2e2', color: '#dc2626' },
     success: { background: '#dcfce7', color: '#16a34a' },
-    warning: { background: '#fef3c7', color: '#d97706' }
+    warning: { background: '#fcfcd7', color: '#f0f046' }
   };
   return styles[type] || styles.primary;
 };
@@ -91,7 +97,7 @@ const CardInfo = styled.div`
 `;
 
 const CardTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #1f2937;
   margin-bottom: 0.5rem;
@@ -99,7 +105,6 @@ const CardTitle = styled.h3`
 
 const CardNumber = styled.div`
   font-size: 2.5rem;
-  font-weight: 600;
   color: #111827;
   line-height: 1;
   margin-bottom: 0.5rem;
@@ -115,10 +120,19 @@ function StackedStatusPage() {
 
   const [statusCards] = useState([
     {
+      id: 'CashierMhanaement',
+      title: 'Cashier Mhanaement',
+      count: 80,
+      status: 'Approved / Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'CashierMhanaement',
+      path: '/file-tracking',
+    },
+    {
       id: 'car-booking',
       title: 'Car Booking',
       count: 80,
-      status: 'Booked',
+      status: 'Confirmed Booking',
       icon: DirectionsCar,
       iconType: 'primary',
       path: '/car-Booking'
@@ -136,9 +150,9 @@ function StackedStatusPage() {
       id: 'payment-credit',
       title: 'Customer Payment Details',
       count: 80,
-      status: 'Credited / Debited',
-      icon: AccountBalance,
-      iconType: 'success',
+      status: 'Payment History',
+      icon: PersonSearchRoundedIcon,
+      iconType: 'CustomerDetails',
       path: '/customer-payment-details'
     },
     {
@@ -147,20 +161,30 @@ function StackedStatusPage() {
       count: 80,
       status: 'All Payments Clear',
       icon: AssuredWorkloadRoundedIcon,
-      iconType: 'warning',
+      iconType: 'success',
       path: '/Payment-Clear',
      
     },
+
+    {
+      id: 'pending',
+      title: 'Payment pending',
+      count: 80,
+      status: 'All Payments pending',
+      icon: PendingOutlinedIcon,
+      iconType: 'warning',
+      path: '/Payment-pending',
+     
+    }, 
     {
       id: 'pending',
       title: 'Payment',
-      count: 80,
-      status: 'Panding Amount',
-      icon: AssuredWorkloadRoundedIcon,
-      iconType: 'warning',
+      status: 'Credit / Debit',
+      icon: CurrencyRupeeRoundedIcon,
+      iconType: 'Payment',
       path: '/Payment',
-     
-    }
+    }, 
+    
   ]);
 
   const handleCardClick = (path) => {

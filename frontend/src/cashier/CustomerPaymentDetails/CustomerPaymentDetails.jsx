@@ -1,111 +1,97 @@
 import React, { useState, useEffect } from "react";
-import { TextField, InputAdornment } from "@mui/material";
-import '../css/CustomerPaymentDetails.scss';
-import SearchIcon from "@mui/icons-material/Search";
+import { Table, Spinner, Dropdown, Badge } from "react-bootstrap";
 import axios from "axios";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper
-} from "@mui/material";
-import { Badge } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+ import { useNavigate } from "react-router-dom";
+ import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { SearchIcon } from "lucide-react";
+ import '../css/CarBookings.scss';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 const CustomerPaymentDetails = () => {
-  const [leads, setLeads] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate(); 
+  const [carStocks, setCarStocks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+   
+  const navigate = useNavigate(); // Create navigate instance
 
+  // Fetch car stock data from backend
   useEffect(() => {
-    const fetchLeads = async () => {
+    const fetchCarStocks = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/customers");
-        setLeads(response.data);
-      } catch (error) {
-        console.error("Error fetching leads:", error);
+        const response = await axios.get("http://localhost:5000/api/customers"); // API endpoint
+        setCarStocks(response.data);
+      } catch (err) {
+        setError("Failed to load car stock data.");
+        console.error("Error fetching car stocks:", err);
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchLeads();
+    fetchCarStocks();
   }, []);
 
-  const handleSearch = (event) => {
-    setSearchQuery(event.target.value.toLowerCase());
-  };
-
-  const filteredLeads = leads.filter(
-    (lead) =>
-      lead.firstName?.toLowerCase().includes(searchQuery) ||
-      lead.company?.toLowerCase().includes(searchQuery) ||
-      lead.deal?.toLowerCase().includes(searchQuery) ||
-      lead.status?.toLowerCase().includes(searchQuery) ||
-      lead.date?.toLowerCase().includes(searchQuery)
+  // Filter car stocks based on search query (specific fields only)
+  const filteredCarStocks = carStocks.filter(
+    (stock) =>
+      stock.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.mobileNumber2?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.mobileNumber1?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCarAllotment = (customerId) => {
-    navigate(`/payment-history/${customerId}`);
+  const handleCancelClick = (vin) => {
+    navigate(`/payment-history/${vin}`);
   };
+
 
   return (
     <>
-      
-    
-      
-      <div style={{ marginLeft: "14px", marginTop: "-1%", marginBottom: "-1%" }}>
-        <p>Customer Payment Details</p>
-      </div>
+      <div style={{ marginTop: '-36px',color :'#071947'}}> <p className="text-md-start my-4"> CUSTOMER PAYMENT DETAILS</p> </div>
+      <div className="d-flex justify-content-center justify-content-md-start"> <div className="mb-4"> <TextField variant="outlined" placeholder="Search..." label="Search Car Bookings" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} InputProps={{ startAdornment: ( <InputAdornment position="start"> <SearchIcon /> </InputAdornment> ), }} /> </div> </div>
+ 
+      {loading && (<div className="text-center"> <Spinner animation="border" role="status"> <span className="visually-hidden">Loading...</span> </Spinner> </div>)}
 
-      <div className="leads-table">
-        <div className="leads-header">
-          <TextField
-            id="search"
-            placeholder="Search"
-            variant="outlined"
-            size="small"
-            onChange={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </div>
+      {error && ( <div className="text-center text-danger"><p>{error}</p></div> )}
 
+      {!loading && !error && (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell style={{ padding: '10px' }} className="d-none d-sm-table-cell" >Customer Id</TableCell>
                 <TableCell>Full Name</TableCell>
-                <TableCell>Mobile Number</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Car Details</TableCell>
-                <TableCell>Booking Amount</TableCell>
-                <TableCell>Payment Details</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Phone</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Email</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Model</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Version</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Color</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Booking Amount</TableCell>
+                <TableCell style={{ padding: '10px' }}>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredLeads.map((lead) => (
-                <TableRow key={lead.id}>
-                  <TableCell>{`${lead.firstName} ${lead.middleName} ${lead.lastName}`}</TableCell>
-                  <TableCell>{lead.mobileNumber1} {lead.mobileNumber2}</TableCell>
-                  <TableCell>{lead.email}</TableCell>
-                  <TableCell>{lead.model},{lead.variant},{lead.color}</TableCell>
-                  <TableCell>{lead.booking_amount}</TableCell>
-                  <TableCell style={{ textAlign: "center", cursor: "pointer" }}>
-                    <Badge bg='info'  onClick={() => handleCarAllotment(lead.customerId)} > view </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredCarStocks.length > 0 ? (
+                filteredCarStocks.map((stock, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="d-none d-sm-table-cell" style={{ padding: '10px' }}>{stock.customerId}</TableCell>
+                      <TableCell>{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.email}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.model}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.variant}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.booking_amount}</TableCell>
+                      <TableCell style={{ padding: '10px' }}><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
+                    </TableRow>
+                  ))
+              ) : (
+                <TableRow><TableCell colSpan="10" className="text-center"> No records found.</TableCell> </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
-      </div>
+      )}
+
     </>
   );
 };

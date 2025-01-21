@@ -16,22 +16,19 @@ app.use(express.json());
 
 
 // Import the payment function from the paymentRoutes file
-const { handlePayment, getAllCashierTransactions, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
+const { handlePayment, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
 const { addCarStock } = require('./db/routes/carStocks/addcar');
-const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
-const { updateDiscount, updateDiscountForCriteria } = require('./db/routes/carStocks/discount');
-        
+const { ShowCarStock } = require('./db/routes/carStocks/showcar');
+ 
+/* app.get('/api/cashier/all', getAllCashierTransactions); */ 
  
 // Use the payment routes
-app.post('/api/payments', handlePayment);
-app.get('/api/customers', getAllCustomers);
-app.get('/api/cashier/all', getAllCashierTransactions); 
-app.get("/api/customers/:id", getCustomerById);
-app.use('/api/CarStock', addCarStock);
-app.get('/api/showAllCarStocks', ShowCarStock);
-app.get('/api/ShowCarStockWithCustomers', ShowCarStockWithCustomers);
-app.post('/api/updateDiscount', updateDiscount);
-app.post('/api/discountForCriteria', updateDiscountForCriteria);
+app.post('/api/payments', handlePayment); // frontend\src\cashier\Payments\PaymentDetails.jsx
+app.get('/api/customers', getAllCustomers); //frontend\src\cashier\Payments\PaymentPending.jsx //frontend\src\cashier\CarBooking\CarBookings.jsx // frontend\src\cashier\CarBookingCancel\CarBookingCancel.jsx // frontend\src\cashier\CustomerPaymentDetails\CustomerPaymentDetails.jsx // frontend\src\cashier\Payments\PaymentClear.jsx
+app.get("/api/customers/:id", getCustomerById); // frontend\src\cashier\Payments\Payment.jsx
+app.use('/api/CarStock', addCarStock); //carStocks\AddCarStock.jsx
+app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
+ 
 
 // Route to check the current pool status
 app.get('/api/pool-status', (req, res) => {
@@ -49,7 +46,7 @@ app.get('/api/pool-status', (req, res) => {
 
 
 
- 
+//frontend\src\cashier\CarBooking\OrderEditAndCancel.jsx
 app.put('/api/cancel-order', (req, res) => {
   const { customerId, cancellationReason, isConfirmed } = req.body;
 
@@ -83,6 +80,7 @@ app.put('/api/cancel-order', (req, res) => {
   });
 });
 
+// frontend\src\cashier\CarBookingCancel\OrderEditAndConfirmed.jsx
 app.put('/api/confirmed-order', (req, res) => {
   const { customerId } = req.body;
 
@@ -117,8 +115,8 @@ app.put('/api/confirmed-order', (req, res) => {
   });
 });
 
-
-app.get('/api/customer/:customerId', (req, res) => {
+// frontend\src\cashier\CustomerPaymentDetails\PaymentHistory.jsx
+app.get('/api/PaymentHistory/:customerId', (req, res) => {
   const { customerId } = req.params;
   console.log("Received customerId:", customerId);
 
@@ -154,6 +152,7 @@ app.get('/api/customer/:customerId', (req, res) => {
           c.coating,
           c.auto_card,
           c.extended_warranty,
+          c.customer_account_balance,
           c.rto_tax,
           c.fast_tag,
           c.insurance,
@@ -187,7 +186,7 @@ app.get('/api/customer/:customerId', (req, res) => {
   });
 });
 
-// Get all cars with filters
+// Get all cars with filters // frontend\src\discount\DiscountForCarAndAdditional.jsx
 app.get('/api/cars', (req, res) => {
   const { model, version, color, carType } = req.query;
 
@@ -221,7 +220,7 @@ app.get('/api/cars', (req, res) => {
   });
 });
 
-// Update discount for selected cars
+// Update discount for selected cars // frontend\src\discount\DiscountForCarAndAdditional.jsx
 app.post('/api/apply-discount', (req, res) => {
   const { selectedCars, discountAmount } = req.body;
 
@@ -243,28 +242,62 @@ app.post('/api/apply-discount', (req, res) => {
   });
 });
 
-
-
-
-
- /*
-app.get('/api/customers/:customerId', (req, res) => {
+// API endpoint to get all car stocks // frontend\src\carStocks\CarAllotment.jsx
+app.get('/api/api/customer/:customerId', (req, res) => {
   const { customerId } = req.params;
   const query = 'SELECT * FROM customers WHERE customerId = ?';
-  pool.query(query, [customerId], (err, result) => {
-    if (err) return res.status(500).send(err);
-    if (result.length === 0) return res.status(404).send('Customer not found');
-    res.json(result[0]);
+
+  pool.query(query, [customerId], (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    res.status(200).json(results[0]);
   });
 });
-*/
 
- 
+// API endpoint to get car data by VIN  // frontend\src\carStocks\CarAllotment.jsx
+app.get('/api/car/:vin', (req, res) => {
+  const { vin } = req.params;
 
+  const query = 'SELECT * FROM carstocks WHERE vin = ?';
+  pool.query(query, [vin], (err, results) => {
+    if (err) {
+      console.error('Error fetching car data: ', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    res.json(results[0]);  // Return the first (and only) result
+  });
+});
 
+// Express route to update car allotment status // frontend\src\carStocks\CarAllotment.jsx
+app.put('/api/car/update/:vin', (req, res) => {
+  const { vin } = req.params;
+  const { customerId, allotmentCarStatus } = req.body;  // Get both customerId and allotmentCarStatus from request body
 
+  // SQL query to update both customerId and allotmentCarStatus
+  const query = 'UPDATE carstocks SET customerId = ?, allotmentCarStatus = ? WHERE vin = ?';
 
+  pool.query(query, [customerId, allotmentCarStatus, vin], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error updating car stock' });
+    }
 
+    if (result.affectedRows > 0) {
+      res.status(200).json({ message: 'Car stock updated successfully' });
+    } else {
+      res.status(404).json({ message: 'Car not found' });
+    }
+  });
+});
 
 
 app.listen(port, () => {

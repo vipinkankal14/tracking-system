@@ -21,6 +21,8 @@ const ShowCarStock = async (req, res) => {
 }
 
 
+
+/*
 // Controller to show car stocks with customer details
 const ShowCarStockWithCustomers = async (req, res) => {
     const query = `
@@ -59,5 +61,6 @@ const ShowCarStockWithCustomers = async (req, res) => {
     }
 };
 
+*/
 
-module.exports = { ShowCarStock, ShowCarStockWithCustomers };
+module.exports = { ShowCarStock };

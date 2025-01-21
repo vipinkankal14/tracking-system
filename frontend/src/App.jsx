@@ -9,21 +9,24 @@ import { Home } from "lucide-react";
 import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails/CustomerPaymentDetails";
 import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
 import AddCarStock from "./carStocks/AddCarStock";
-import CarAllotmentByCustomer from "./carStocks/CarAllotmentByCustomer";
+import CarAllotmentByCustomer from "./carStocks/AllotmentAndNotAllotment/CarAllotmentByCustomer";
 import CarStockShow from "./carStocks/CarStockShow";
 import { OrderEditAndCancel } from "./cashier/CarBooking/OrderEditAndCancel";
 import { OrderEditAndConfirmed } from "./cashier/CarBookingCancel/OrderEditAndConfirmed";
+import FileTracking from "./cashier/CashierMhanaement/FileTracking";
+import PaymentPending from "./cashier/Payments/PaymentPending";
+import BookingAmount from "./discount/BookingAmount";
   
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./components/AdditionalDetails"));
 const DiscountMain = lazy(() => import("./discount/DiscountMain"));
 const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
-const PaymentClear = lazy(() => import("./cashier/PaymentClear"));
+const PaymentClear = lazy(() => import("./cashier/Payments/PaymentClear"));
 const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel/CarBookingCancel"));
-const Payment = lazy(() => import("./cashier/Payment"));
+const Payment = lazy(() => import("./cashier/Payments/Payment"));
 const CashierApp = lazy(() => import("./cashier/CashierApp"));
-const PaymentDetails = lazy(() => import("./cashier/PaymentDetails"));
-const PaymentSuccessful = lazy(() => import("./cashier/PaymentSuccessful"));
+const PaymentDetails = lazy(() => import("./cashier/Payments/PaymentDetails"));
+const PaymentSuccessful = lazy(() => import("./cashier/Payments/PaymentSuccessful"));
 const Car = lazy(() => import("./carStocks/Car"));
 const CarAllotment = lazy(() => import("./carStocks/CarAllotment"));
 const SuccessPage = lazy(() => import("./components/SuccessPage"));
@@ -64,6 +67,9 @@ function App() {
                 <Route path="/Add-Car-Stock" element={<AddCarStock />} />
                 <Route path="/order-cancel/:customerId" element={<OrderEditAndCancel />} />
                 <Route path="/order-edit-and-confirmed/:customerId" element={<OrderEditAndConfirmed />} />
+                <Route path="/file-tracking" element={<FileTracking />} />
+                <Route path="/payment-pending" element={<PaymentPending />} />
+                <Route path="/booking-amount" element={<BookingAmount />}/>
                </Routes>
             </Suspense>
           </div>

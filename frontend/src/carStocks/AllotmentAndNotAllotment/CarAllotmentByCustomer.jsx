@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Table, Spinner, Dropdown } from "react-bootstrap";
 import axios from "axios";
- 
-import "./scss/CarStockShow.scss";
-import { useNavigate } from "react-router-dom";
+import "../scss/CarStockShow.scss";
+import { Link, useNavigate } from "react-router-dom";
 import AddTaskRoundedIcon from '@mui/icons-material/AddTaskRounded';
 import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
 import { SearchIcon } from "lucide-react";
 
-const CarStockShow = () => {
+const CarAllotmentByCustomer = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [carStocks, setCarStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Create navigate instance
-
+   
+ 
   // Fetch car stock data from backend
   useEffect(() => {
     const fetchCarStocks = async () => {
@@ -41,16 +40,14 @@ const CarStockShow = () => {
 
  
 
- 
+  
 
   // Helper function to format date (removes time part)
   const formatDate = (dateString) => {
     return dateString ? dateString.slice(0, 10) : "N/A"; // Slices "YYYY-MM-DD"
   };
 
-  const handleCarAllotment = (vin) => {
-    navigate(`/car-allotment/${vin}`);
-  };
+ 
 
   return (
     <>
@@ -76,6 +73,8 @@ const CarStockShow = () => {
           />
         </div>
       </div>
+
+      
       {/* Loading Spinner */}
       {loading && (
         <div className="text-center">
@@ -107,13 +106,13 @@ const CarStockShow = () => {
                 <TableCell className="d-none d-sm-table-cell">Version</TableCell>
                 <TableCell className="d-none d-sm-table-cell">Color</TableCell>
                 <TableCell className="d-none d-sm-table-cell">Fuel Type</TableCell>
-                <TableCell style={{ padding: '10px' }}>Details</TableCell>
+                 <TableCell style={{ padding: '10px' }}>Booking Id</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredCarStocks.length > 0 ? (
                 filteredCarStocks.map((stock, index) => (
-                  !stock.customerId && (
+                  stock.customerId && (  
                     <TableRow key={index}>
                       <TableCell style={{ padding: '10px' }}>{stock.vin}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.chassisNumber}</TableCell>
@@ -124,27 +123,7 @@ const CarStockShow = () => {
                       <TableCell className="d-none d-sm-table-cell">{stock.version}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.fuelType}</TableCell>
-                      <TableCell className="" style={{ padding: '10px' }}>
-                        <>
-                          <Dropdown.Toggle
-                            id={`dropdown-${stock.id}`}
-                            variant="secondary"
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              padding: 0,
-                              boxShadow: 'none',
-                              color: 'green'
-                            }}
-                            onClick={() => handleCarAllotment(stock.vin)}
-                            bsPrefix="custom-dropdown-toggle"
-                          >
-                            <AddTaskRoundedIcon style={{ fontSize: '24px', color: 'inherit' }} />
-                          
-                          </Dropdown.Toggle>
-                          
-                        </>
-                      </TableCell>
+                      <TableCell className="style={{ padding: '10px' }}"><Link to={`/customer/${stock.customerId}`}>{stock.customerId}</Link></TableCell>
                     </TableRow>
                   )
                 ))
@@ -163,4 +142,4 @@ const CarStockShow = () => {
   );
 };
 
-export default CarStockShow;
+export default CarAllotmentByCustomer;

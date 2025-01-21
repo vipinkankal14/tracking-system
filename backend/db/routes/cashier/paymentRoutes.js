@@ -19,6 +19,9 @@ const handlePayment = async (req, res) => {
       return res.status(404).json({ error: "Customer does not exist." });
     }
 
+    // Variable to store the payment status
+    let paymentStatus;
+
     if (debitedAmount) {
       // Handle debit
       const debitPaymentQuery = `
@@ -53,8 +56,8 @@ const handlePayment = async (req, res) => {
       }
     
       const { customer_account_balance, total_onroad_price } = customerDetails[0];
-      const currentBalance = customer_account_balance; // current balance before credit
-      const requiredPayment = total_onroad_price - currentBalance; // remaining amount to reach total price
+      const currentBalance = customer_account_balance; // Current balance before credit
+      const requiredPayment = total_onroad_price - currentBalance; // Remaining amount to reach total price
     
       // Check if any payment is required
       if (requiredPayment <= 0) {
@@ -92,11 +95,41 @@ const handlePayment = async (req, res) => {
         WHERE customerId = ?`;
       
       await pool.query(updateCreditedBalanceQuery, [adjustedCreditedAmount, customerId]);
-    
-      return res.status(200).json({ message: `Successfully credited ${adjustedCreditedAmount}.` });
     }
+
+    // Fetch updated customer details to check payment status
+    const updatedCustomerDetailsQuery = `
+      SELECT customer_account_balance, total_onroad_price 
+      FROM customers 
+      WHERE customerId = ?`;
     
-    res.status(200).json({ message: "Payment processed successfully!" });
+    const [updatedCustomerDetails] = await pool.query(updatedCustomerDetailsQuery, [customerId]);
+    const { customer_account_balance, total_onroad_price } = updatedCustomerDetails[0];
+
+    // Determine payment status
+    paymentStatus = (customer_account_balance >= total_onroad_price) ? "Clear" : "Pending";
+
+    // Update the payment_status in the database
+    const updatePaymentStatusQuery = `
+      UPDATE customers 
+      SET payment_status = ? 
+      WHERE customerId = ?`;
+    
+    await pool.query(updatePaymentStatusQuery, [paymentStatus, customerId]);
+
+    res.status(200).json({
+      message: "Payment processed successfully!",
+      payment_status: paymentStatus,
+      customer_details: {
+        customerId: customerId,
+        paymentDate: paymentDate,
+        debitedAmount: debitedAmount || 0,
+        creditedAmount: creditedAmount || 0,
+        customer_account_balance: customer_account_balance,
+        total_onroad_price: total_onroad_price,
+      }
+    });
+    
   } catch (err) {
     console.error("Error processing payment:", err.message);
     res.status(500).json({ error: "Error processing payment." });
@@ -150,8 +183,6 @@ const getAllCashierTransactions = async (req, res) => {
     res.status(500).json({ error: 'Error fetching cashier transactions' });
   }
 };
-
-
 
 
 // Export the function via module.exports

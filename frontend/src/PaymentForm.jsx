@@ -13,8 +13,7 @@ const PaymentForm = () => {
 
   return (
     <div>
-      <CustomersTable />
-      <CashierTransactionsTable />
+       <CashierTransactionsTable />
           
 
       
