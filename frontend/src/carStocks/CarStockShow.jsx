@@ -98,33 +98,33 @@ const CarStockShow = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ padding: '10px' }}>VIN</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Chassis Number</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Engine Number</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Manufacturer Date</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Date In</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Model</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Version</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Color</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Fuel Type</TableCell>
-                <TableCell style={{ padding: '10px' }}>Details</TableCell>
+                <TableCell style={{ fontSize: '10px' , padding:'10px' }} >VIN</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Chassis Number</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Engine Number</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Manufacturer Date</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Date In</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Model</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Version</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Color</TableCell>
+                <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Fuel Type</TableCell>
+                <TableCell style={{ fontSize: '10px',padding:'10px' }} >Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredCarStocks.length > 0 ? (
                 filteredCarStocks.map((stock, index) => (
                   !stock.customerId && (
-                    <TableRow key={index}>
-                      <TableCell style={{ padding: '10px' }}>{stock.vin}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.chassisNumber}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.engineNumber}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{formatDate(stock.manufacturerDate)}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{formatDate(stock.dateIn)}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.model}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.version}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.fuelType}</TableCell>
-                      <TableCell className="" style={{ padding: '10px' }}>
+                    <TableRow key={index} style={{ fontSize: '10px', padding:'10px', color: 'black', fontWeight: 'bold' }}>
+                      <TableCell  style={{ fontSize: '10px', padding:'10px' }}>{stock.vin}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.chassisNumber}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.engineNumber}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{formatDate(stock.manufacturerDate)}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{formatDate(stock.dateIn)}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.model}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.version}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.color}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.fuelType}</TableCell>
+                      <TableCell  style={{ fontSize: '10px' }} className="">
                         <>
                           <Dropdown.Toggle
                             id={`dropdown-${stock.id}`}

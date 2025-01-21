@@ -158,20 +158,20 @@ function StackedStatusPage() {
       id: 'CarAllotmentByCustomer',
       title: 'Car Allotment By Customer',
       count: 80,
-      status: 'Status: Allocated / Not Allocated',
+      status: 'Status:Not Allocated',
       icon: NoCrashRoundedIcon,
       iconType: 'danger',
       path: '/car-allotment-by-customer',
      
     },
     {
-      id: 'CarAllotmentByCustomer',
-      title: 'Car Allotment By Customer',
+      id: 'CarNotAllotmentByCustomer',
+      title: 'Car Not Allotment By Customer',
       count: 80,
-      status: 'Status: Allocated / Not Allocated',
+      status: 'Status: Not Allocated',
       icon: NoCrashRoundedIcon,
       iconType: 'danger',
-      path: '/car-allotment-by-customer',
+      path: '/car-notallotment-ByCustomer',
      
     },
     {

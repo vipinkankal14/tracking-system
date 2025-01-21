@@ -16,6 +16,7 @@ import { OrderEditAndConfirmed } from "./cashier/CarBookingCancel/OrderEditAndCo
 import FileTracking from "./cashier/CashierMhanaement/FileTracking";
 import PaymentPending from "./cashier/Payments/PaymentPending";
 import BookingAmount from "./discount/BookingAmount";
+import CarNotAllotmentByCustomer from "./carStocks/AllotmentAndNotAllotment/CarNotAllotmentByCustomer";
   
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./components/AdditionalDetails"));
@@ -69,7 +70,10 @@ function App() {
                 <Route path="/order-edit-and-confirmed/:customerId" element={<OrderEditAndConfirmed />} />
                 <Route path="/file-tracking" element={<FileTracking />} />
                 <Route path="/payment-pending" element={<PaymentPending />} />
-                <Route path="/booking-amount" element={<BookingAmount />}/>
+                <Route path="/booking-amount" element={<BookingAmount />} />
+                CarNotAllotmentByCustomer
+
+                <Route path="car-notallotment-ByCustomer" element={<CarNotAllotmentByCustomer />} />               
                </Routes>
             </Suspense>
           </div>

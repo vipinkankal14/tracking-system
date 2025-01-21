@@ -163,9 +163,7 @@ function StackedStatusPage() {
       icon: AssuredWorkloadRoundedIcon,
       iconType: 'success',
       path: '/Payment-Clear',
-     
     },
-
     {
       id: 'pending',
       title: 'Payment pending',
@@ -174,17 +172,15 @@ function StackedStatusPage() {
       icon: PendingOutlinedIcon,
       iconType: 'warning',
       path: '/Payment-pending',
-     
     }, 
     {
-      id: 'pending',
+      id: 'payment',
       title: 'Payment',
       status: 'Credit / Debit',
       icon: CurrencyRupeeRoundedIcon,
       iconType: 'Payment',
       path: '/Payment',
     }, 
-    
   ]);
 
   const handleCardClick = (path) => {
