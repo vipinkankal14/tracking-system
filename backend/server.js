@@ -1,18 +1,23 @@
 const express = require('express');
 const cors = require('cors');
-const app = express();
+const http = require('http'); // For creating the HTTP server
+const { Server } = require('socket.io'); // For real-time updates
+require('dotenv').config(); // Load environment variables from .env
 
 const { pool } = require('./db/databaseConnection/mysqlConnection');
-
  
+const app = express();
+const server = http.createServer(app); // Create an HTTP server
+const io = new Server(server, { cors: { origin: '*' } }); // Initialize Socket.IO
 
-require('dotenv').config();  // Load environment variables from .env
-
-const port = process.env.PORT || 5000; // Use the PORT from the .env file, default to 5000
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+ 
+
 
 
 // Import the payment function from the paymentRoutes file
@@ -31,6 +36,48 @@ app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAll
 app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers); 
 
 
+
+
+
+
+// API Route: Apply Booking
+app.post('/api/apply-booking', (req, res) => {
+  const { selectedCars, bookingAmount } = req.body;
+
+  // Validate request
+  if (!Array.isArray(selectedCars) || selectedCars.length === 0) {
+    return res.status(400).json({ error: 'Invalid or missing selectedCars array' });
+  }
+  if (!bookingAmount || typeof bookingAmount !== 'number') {
+    return res.status(400).json({ error: 'Invalid or missing bookingAmount' });
+  }
+
+  // Construct query
+  const vins = selectedCars.map((car) => car.vin).map(() => '?').join(',');
+  const query = `UPDATE carstocks SET bookingAmount = ? WHERE vin IN (${vins})`;
+  const params = [bookingAmount, ...selectedCars.map((car) => car.vin)];
+
+  // Execute query
+  pool.query(query, params, (err, result) => {
+    if (err) {
+      console.error('Failed to update booking amounts:', err);
+      return res.status(500).json({ error: 'Failed to update booking amounts' });
+    }
+
+    // Emit real-time updates to all connected clients
+    io.emit('bookingUpdated', {
+      message: 'Booking amounts updated successfully',
+      updatedCars: selectedCars,
+    });
+
+    res.json({ message: 'Booking amounts applied successfully', result });
+  });
+});
+
+
+
+
+
 // Route to check the current pool status
 app.get('/api/pool-status', (req, res) => {
   // Get the total number of connections
@@ -46,8 +93,76 @@ app.get('/api/pool-status', (req, res) => {
 }); 
 
 
+app.get('/api/customer/:customerId', (req, res) => {
+  const { customerId } = req.params;
+  console.log("Received customerId:", customerId);
 
-//frontend\src\cashier\CarBooking\OrderEditAndCancel.jsx
+  // SQL query to fetch customer and payment details
+  const query = `
+      SELECT 
+          c.id AS CustomerID,
+          c.firstName,
+          c.middleName,
+          c.lastName,
+          c.mobileNumber1,
+          c.mobileNumber2,
+          c.customerType,
+          c.birthDate,
+          c.email,
+          c.customerId,
+          c.address,
+          c.city,
+          c.state,
+          c.country,
+          c.model,
+          c.variant,
+          c.color,
+          c.team_Member,
+          c.team_Leader,
+          c.booking_amount,
+          c.total_onroad_price,
+          c.orderDate,
+          c.prebooking,
+          c.exchange,
+          c.finance,
+          c.accessories,
+          c.coating,
+          c.auto_card,
+          c.extended_warranty,
+          c.customer_account_balance,
+          c.rto_tax,
+          c.fast_tag,
+          c.insurance,
+          c.status,
+          p.id AS PaymentID,
+          p.debitedAmount,
+          p.creditedAmount,
+          p.paymentDate,
+          p.transactionType,
+          p.paymentType
+      FROM 
+          customers c
+      LEFT JOIN 
+          cashier p
+      ON 
+          c.customerId = p.customerId
+      WHERE 
+          c.customerId = ?;
+  `;
+
+  pool.query(query, [customerId], (err, results) => {
+      if (err) {
+          console.error('Error fetching customer data:', err);
+          res.status(500).json({ error: 'Error fetching customer data' });
+      } else if (results.length === 0) {
+          console.log("No record found for customerId:", customerId);
+          res.status(404).json({ error: 'Customer not found' });
+      } else {    
+        res.json(results); 
+    }
+  });
+});
+
 app.put('/api/cancel-order', (req, res) => {
   const { customerId, cancellationReason, isConfirmed } = req.body;
 
@@ -81,7 +196,6 @@ app.put('/api/cancel-order', (req, res) => {
   });
 });
 
-// frontend\src\cashier\CarBookingCancel\OrderEditAndConfirmed.jsx
 app.put('/api/confirmed-order', (req, res) => {
   const { customerId } = req.body;
 
@@ -187,7 +301,6 @@ app.get('/api/PaymentHistory/:customerId', (req, res) => {
   });
 });
 
-// Get all cars with filters // frontend\src\discount\DiscountForCarAndAdditional.jsx
 app.get('/api/cars', (req, res) => {
   const { model, version, color, carType } = req.query;
 
@@ -221,7 +334,6 @@ app.get('/api/cars', (req, res) => {
   });
 });
 
-// Update discount for selected cars // frontend\src\discount\DiscountForCarAndAdditional.jsx
 app.post('/api/apply-discount', (req, res) => {
   const { selectedCars, discountAmount } = req.body;
 
@@ -242,6 +354,7 @@ app.post('/api/apply-discount', (req, res) => {
       res.json({ message: 'Discounts applied successfully', result });
   });
 });
+
 
 // API endpoint to get all car stocks // frontend\src\carStocks\CarAllotment.jsx
 app.get('/api/api/customer/:customerId', (req, res) => {
@@ -301,6 +414,25 @@ app.put('/api/car/update/:vin', (req, res) => {
 });
 
 
-app.listen(port, () => {
+
+
+
+
+
+
+
+
+// Real-Time Connection with Socket.IO
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+
+  // Optional: Handle client disconnection
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+// Start Server
+server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
