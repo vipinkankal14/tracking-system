@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Nav/sidebar/Sidebar.scss';
 import { useState, Suspense, lazy } from "react";
 import './App.css'; 
-import { Home } from "lucide-react";
 import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails/CustomerPaymentDetails";
 import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
 import AddCarStock from "./carStocks/AddCarForUploadCarEXCEL/AddCarStock";
@@ -23,7 +22,14 @@ import DiscountApp from "./carStocks/discount/DiscountApp";
 import AllotmentStatusApp from "./carStocks/AllotmentStatus/AllotmentStatusApp";
 import CarManagement from "./carStocks/CarManagement/CarManagement";
 import PaymentApp from "./cashier/PaymentApp";
-  
+ import AdditionalInfo from "./CustomerAdd/AdditionalInfo";
+import CarInfo from "./CustomerAdd/CarInfo";
+import Confirmation from "./CustomerAdd/Confirmation";
+import OrderInfo from "./CustomerAdd/OrderInfo";
+import PersonalInfo from "./CustomerAdd/PersonalInfo";
+import { Home } from "./home/Home";
+import UpDocument from "./CustomerAdd/Document";
+   
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));
  const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
@@ -53,7 +59,7 @@ function App() {
           <div className="container-fluid px-0">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
                 <Route path="/additional-details" element={<AdditionalDetails />} />
                 <Route path="/success-page" element={<SuccessPage />} />
                 <Route path="/payment-successful" element={<PaymentSuccessful />} />
@@ -87,6 +93,14 @@ function App() {
                 <Route path="/discount-app" element={<DiscountApp />} />
                  
                 <Route path="/payment-app" element={<PaymentApp />} />
+
+                <Route path="AdditionalInfo" element={<AdditionalInfo />}/>
+                <Route path="CarInfo" element={<CarInfo />}/>
+                <Route path="Confirmation" element={<Confirmation />}/>
+                <Route path="OrderInfo" element={<OrderInfo />}/>
+                <Route path="PersonalInfo" element={<PersonalInfo />} />
+                <Route path="UploadDocument" element={<UpDocument />}/>
+
 
               </Routes>
             </Suspense>

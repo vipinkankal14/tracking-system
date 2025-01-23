@@ -1,57 +1,258 @@
-import React, { useState } from 'react'
-import NavbarUser from '../Nav/Topnav-bar/NavbarUser'
-import Sidebar from '../Nav/Customer/Sidebar'
+import React from "react";
+import clsx from "clsx";
+import PersonalInfo from "../CustomerAdd/PersonalInfo";
+import CarInfo from "../CustomerAdd/CarInfo";
+import OrderInfo from "../CustomerAdd/OrderInfo";
+import AdditionalInfo from "../CustomerAdd/AdditionalInfo";
+import Confirmation from "../CustomerAdd/Confirmation";
+import UpDocument from "../CustomerAdd/Document";
+import { Button } from "@mui/material"; // MUI components
+import { Check, ChevronRight } from "lucide-react"; // Replace with MUI Icons if needed
+import "../CustomerAdd/scss/MultiStepForm.scss";
+ 
+const steps = [
+  { id: 1, name: "Personal Info" },
+  { id: 2, name: "Car Info" },
+  { id: 3, name: "Order Info" },
+  { id: 4, name: "Additional Info" },
+  { id: 5, name: "Upload Document" },
+  { id: 6, name: "Confirmation" },
+];
 
-const Home = () => {
+export function Home() {
+  const [currentStep, setCurrentStep] = React.useState(1);
+  const [formData, setFormData] = React.useState({
+    personalInfo: {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      mobileNumber1: "",
+      mobileNumber2: "",
+      customerType: "",
+      birthDate: "",
+      email: "",
+      aadhaarNumber: "",
+      panNumber: "",
+      city: "",
+      state: "",
+      country: "",
+      address: "",
+    },
+    carInfo: {
+      model: "",
+      version: "",
+      color: "",
+      teamLeader: "",
+      teamMember: "",
+      exShowroomPrice: "",
+      bookingAmount: "",
+    },
+    orderInfo: {
+      orderDate: "",
+      tentativeDate: "",
+      preferredDate: "",
+      requestDate: "",
+      prebooking: "",
+      prebookingDate: "",
+      deliveryDate: "",
+    },
+    additionalInfo: {
+      exchange: "No",
+      finance: "No",
+      accessories: "No",
+      coating: "No",
+      fastTag: "No",
+    },
+    documentUpload: {
+      document: null, // Stores the uploaded document file
+    },
+    confirmation: {
+      terms: false,
+    },
+  });
 
-   const [sidebarOpen, setSidebarOpen] = useState(false)
-  
-    const toggleSidebar = () => {
-      setSidebarOpen(!sidebarOpen)
-  }
-  
-  return (
-    <>
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      <NavbarUser toggleSidebar={toggleSidebar} />
-       
-<div className="row g-4">
-    <div className="col-12">
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <h1 className="card-title h3 mb-4">Welcome to Dashboard</h1>
-          <div className="row g-4">
-            <div className="col-md-6 col-lg-4">
-              <div className="p-4 border rounded bg-light">
-                <h3 className="h5">Recent Activity</h3>
-                <p className="mb-0">Your recent activities will appear here</p>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="p-4 border rounded bg-light">
-                <h3 className="h5">Statistics</h3>
-                <p className="mb-0">View your statistics and analytics</p>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <div className="p-4 border rounded bg-light">
-                <h3 className="h5">Quick Actions</h3>
-                <p className="mb-0">Frequently used actions and shortcuts</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-      </div>  
+  const updateSection = React.useCallback((section, key, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [key]: value,
+      },
+    }));
+  }, []);
 
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
+
+  const handleSubmit = async () => {
+    try {
+      const formDataToSubmit = new FormData();
+      Object.keys(formData).forEach((section) => {
+        Object.entries(formData[section]).forEach(([key, value]) => {
+          formDataToSubmit.append(`${section}.${key}`, value);
+        });
+      });
+
+      const response = await fetch("https://example.com/api/submit", {
+        method: "POST",
+        body: formDataToSubmit,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit");
+      }
+
+      alert("Form submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred while submitting the form.");
+    }
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <PersonalInfo
+            data={formData.personalInfo}
+            updateData={(key, value) => updateSection("personalInfo", key, value)}
+          />
+        );
+      case 2:
+        return (
+          <CarInfo
+            data={formData.carInfo}
+            updateData={(key, value) => updateSection("carInfo", key, value)}
+          />
+        );
+      case 3:
+        return (
+          <OrderInfo
+            data={formData.orderInfo}
+            updateData={(key, value) => updateSection("orderInfo", key, value)}
+          />
+        );
+      case 4:
+        return (
+          <AdditionalInfo
+            data={formData.additionalInfo}
+            updateData={(key, value) => updateSection("additionalInfo", key, value)}
+          />
+        );
+      case 5:
+        return (
+          <UpDocument
+            data={formData.documentUpload}
+            updateData={(key, value) => updateSection("documentUpload", key, value)}
+          />
+        );
+      case 6:
+        return <Confirmation data={formData.confirmation} onSubmit={handleSubmit} />;
+      default:
+        return null;
+    }
+  };
 
    
-      
-    
-</>
-    
-  )
-}
+  
 
-export default Home
+  return (
+    <div className="flex-col items-center gap-2">
+       <header className="p-2">
+        <nav aria-label="Progress">
+          <ol className="flex justify-between md:space-x-2">
+            {steps.map((step) => (
+              <li key={step.id} className="flex-1">
+                <button
+                  className={clsx(
+                    "flex flex-col items-center gap-1",
+                    currentStep === step.id && "text-primary"
+                  )}
+                  style={{ color: currentStep === step.id ? '#040278' : 'inherit'}}
+                  onClick={() => setCurrentStep(step.id)}
+                >
+                  <div
+                    className={clsx(
+                      "h-6 w-6 flex items-center justify-center rounded-full border-2",
+                      currentStep === step.id
+                        ? "border-primary bg-#040278 text-white"
+                        : currentStep > step.id
+                          ? "border-primary bg-#040278 text-white"
+                          : "border-gray-300 text-gray-500"
+                    )}
+                  >
+                    {currentStep > step.id ? <Check /> : step.id}
+                  </div>
+                  <span
+                    className={clsx(
+                      "step-name text-sm font-medium",
+                        // Always show step name
+                      )}
+                      >
+                      {step.name}
+                      </span>
+                      {currentStep === step.id && <ChevronRight className="ml-auto h-4 w-4" />}
+                    </button>
+                    </li>
+                  ))}
+                  </ol>
+                </nav>
+                </header>
+
+      
+
+                <h6 style={{ display:'flex',margin:'10px',marginTop:'10px',justifyContent:'center' }}>{steps.find(step => step.id === currentStep)?.name}</h6>
+
+      
+                 <main className="flex p-4" style={{ height: '60vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none',justifyContent: 'center', alignItems: 'center', display: 'flex'}} >
+                <style>
+                  {`
+                  main::-webkit-scrollbar {
+                  display: none;
+                  }
+                  `}
+                </style>
+                <div style={{ display: 'flex'}}>
+                  {renderStep()}
+                </div>
+               </main>
+
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '1rem',
+        width: '100%',
+        paddingTop: '0.5rem',
+        marginTop: '10px',
+      }}>
+        <Button
+          onClick={prevStep}
+          disabled={currentStep === 1}
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: currentStep === 1 ? '#e0e0e0' : '#040278',
+            color: currentStep === 1 ? '#9e9e9e' : 'white'
+          }}
+          aria-disabled={currentStep === 1}
+          size="small"
+        >
+          Previous
+        </Button>
+        <Button
+          onClick={currentStep === steps.length ? handleSubmit : nextStep}
+          variant="contained"
+          color="primary"
+          style={{
+            backgroundColor: '#040278',
+            color: 'white'
+          }}
+          size="small"
+        >
+          {currentStep === steps.length ? "Submit" : "Next"}
+        </Button>
+      </div>
+    </div>
+  );
+}

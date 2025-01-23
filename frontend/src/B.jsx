@@ -220,3 +220,21 @@ export default StackedStatusPage;
 
 
 
+
+import React, { useState } from "react";
+
+
+"use client"
+
+
+
+const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));
+ const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
+const PaymentClear = lazy(() => import("./cashier/Payments/PaymentClear"));
+const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel/CarBookingCancel"));
+
+
+import 
+
+
+

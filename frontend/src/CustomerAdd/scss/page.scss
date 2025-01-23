@@ -1,0 +1,63 @@
+/* Add this to your CSS file */
+.desktop-only-margin {
+    margin-bottom: 100px;
+  }
+  
+  /* Media query to apply styles only on desktop (e.g., min-width: 768px) */
+  @media (max-width: 767px) {
+    .desktop-only-margin {
+      margin-bottom: -88vh; /* Reset margin for mobile and smaller devices */
+      margin-right: -12px;
+      margin-left: 12px;
+      padding: 0px;
+    }
+  }
+
+
+  /* Add this to your CSS file */
+.desktop-only-margin-CarInfo {
+    margin-bottom: 100px;
+  }
+  
+  /* Media query to apply styles only on desktop (e.g., min-width: 768px) */
+  @media (max-width: 767px) {
+    .desktop-only-margin-CarInfo {
+      margin-bottom: -24vh; /* Reset margin for mobile and smaller devices */
+      margin-right: -12px;
+      margin-left: 12px;
+      padding: 0px;
+    }
+  }
+
+
+    /* Add this to your CSS file */
+.desktop-only-margin-AdditionalInfo {
+    margin-bottom: 100px;
+  }
+  
+  /* Media query to apply styles only on desktop (e.g., min-width: 768px) */
+  @media (max-width: 767px) {
+    .desktop-only-margin-AdditionalInfo {
+      margin-bottom: -16vh; /* Reset margin for mobile and smaller devices */
+      margin-right: -12px;
+      margin-left: 12px;
+      padding: 0px;
+    }
+  }
+
+
+
+      /* Add this to your CSS file */
+.desktop-only-margin-OrderInfo {
+    margin-bottom: 100px;
+  }
+  
+  /* Media query to apply styles only on desktop (e.g., min-width: 768px) */
+  @media (max-width: 767px) {
+    .desktop-only-margin-OrderInfo {
+      margin-bottom: 0vh; /* Reset margin for mobile and smaller devices */
+      margin-right: -12px;
+      margin-left: 12px;
+      padding: 0px;
+    }
+  }
