@@ -1,17 +1,10 @@
 /* Add this to your CSS file */
 .desktop-only-margin {
-    margin-bottom: 100px;
-  }
+    margin-bottom: 10px;
+    padding: 24px;
+   }
   
-  /* Media query to apply styles only on desktop (e.g., min-width: 768px) */
-  @media (max-width: 767px) {
-    .desktop-only-margin {
-      margin-bottom: -88vh; /* Reset margin for mobile and smaller devices */
-      margin-right: -12px;
-      margin-left: 12px;
-      padding: 0px;
-    }
-  }
+ 
 
 
   /* Add this to your CSS file */
@@ -30,20 +23,8 @@
   }
 
 
-    /* Add this to your CSS file */
-.desktop-only-margin-AdditionalInfo {
-    margin-bottom: 100px;
-  }
+ 
   
-  /* Media query to apply styles only on desktop (e.g., min-width: 768px) */
-  @media (max-width: 767px) {
-    .desktop-only-margin-AdditionalInfo {
-      margin-bottom: -16vh; /* Reset margin for mobile and smaller devices */
-      margin-right: -12px;
-      margin-left: 12px;
-      padding: 0px;
-    }
-  }
 
 
 
@@ -61,3 +42,154 @@
       padding: 0px;
     }
   }
+
+
+
+  .checkbox-container {
+    padding: 0;
+    margin: 0;
+  }
+  
+
+
+
+
+
+// car
+
+  // General Styling
+ 
+// Dropdown Styling
+.dropdown-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+
+    &:disabled {
+      background-color: #f9f9f9;
+      cursor: not-allowed;
+    }
+  }
+
+  svg {
+    position: absolute;
+    right: 8px;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+
+    &.up {
+      transform: rotate(180deg);
+    }
+    &.down {
+      transform: rotate(0);
+    }
+  }
+}
+
+// Input Styling
+.input-underline {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  border-radius: 1;
+  background: transparent;
+
+  &:focus {
+    border-bottom: 1px solid #007bff;
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+// Heading and Label Styling
+ 
+
+label {
+  display: block;
+  font-size: 14px;
+   margin-bottom: 4px;
+}
+
+// Input Margins
+.input-margin {
+  margin-bottom: 16px;
+}
+
+
+
+
+
+
+
+.desktop-only-margin-AdditionalInfo {
+  // Add a default margin for desktop screens
+  margin: 2rem;
+
+  @media (max-width: 768px) {
+    // Adjust margin for mobile
+    margin: 1rem;
+  }
+
+  .MuiFormControl-root {
+ 
+
+    // Adjust the legend font size for better visibility
+    .MuiFormLabel-root {
+      font-size: 0.9rem;
+
+      @media (min-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .MuiRadioGroup-root {
+    display: flex;
+ 
+    .MuiFormControlLabel-root {
+      // Style labels
+      font-size: 0.85rem;
+
+      @media (min-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .MuiRadio-root {
+    // Adjust radio size for mobile
+    &.Mui-checked {
+      color: #1976d2; // Custom color for checked state
+    }
+
+    @media (max-width: 768px) {
+      transform: scale(0.8);
+    }
+  }
+}
+
+// Grid item styles
+.MuiGrid-item {
+  @media (max-width: 600px) {
+    // Adjust grid layout for smaller screens
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  @media (min-width: 601px) and (max-width: 960px) {
+    // For tablets, use a 50% layout
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}

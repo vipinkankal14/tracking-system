@@ -9,6 +9,7 @@ import UpDocument from "../CustomerAdd/Document";
 import { Button } from "@mui/material"; // MUI components
 import { Check, ChevronRight } from "lucide-react"; // Replace with MUI Icons if needed
 import "../CustomerAdd/scss/MultiStepForm.scss";
+import { useNavigate } from "react-router-dom";
  
 const steps = [
   { id: 1, name: "Personal Info" },
@@ -20,6 +21,7 @@ const steps = [
 ];
 
 export function Home() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = React.useState(1);
   const [formData, setFormData] = React.useState({
     personalInfo: {
@@ -48,11 +50,11 @@ export function Home() {
       bookingAmount: "",
     },
     orderInfo: {
-      orderDate: "",
+      orderDate: "NO",
       tentativeDate: "",
       preferredDate: "",
       requestDate: "",
-      prebooking: "",
+      prebooking: "NO",
       prebookingDate: "",
       deliveryDate: "",
     },
@@ -62,6 +64,7 @@ export function Home() {
       accessories: "No",
       coating: "No",
       fastTag: "No",
+      rto: "No",
     },
     documentUpload: {
       document: null, // Stores the uploaded document file
@@ -92,22 +95,25 @@ export function Home() {
           formDataToSubmit.append(`${section}.${key}`, value);
         });
       });
-
-      const response = await fetch("https://example.com/api/submit", {
-        method: "POST",
-        body: formDataToSubmit,
+  
+      // Log the form data for debugging
+      formDataToSubmit.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit");
-      }
-
+  
+      // Display success alert
       alert("Form submitted successfully!");
+  
+      // Pass formData to the SuccessPage
+      navigate("/success-page", { state: { formData } });
     } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("An error occurred while submitting the form.");
+      console.error("Error handling form submission:", error);
+      alert("An error occurred while handling the form submission.");
     }
   };
+  
+  
+  
 
   const renderStep = () => {
     switch (currentStep) {
@@ -147,7 +153,7 @@ export function Home() {
           />
         );
       case 6:
-        return <Confirmation data={formData.confirmation} onSubmit={handleSubmit} />;
+        return <Confirmation data={formData} onSubmit={handleSubmit} />;
       default:
         return null;
     }
@@ -204,7 +210,7 @@ export function Home() {
                 <h6 style={{ display:'flex',margin:'10px',marginTop:'10px',justifyContent:'center' }}>{steps.find(step => step.id === currentStep)?.name}</h6>
 
       
-                 <main className="flex p-4" style={{ height: '60vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none',justifyContent: 'center', alignItems: 'center', display: 'flex'}} >
+                <main style={{ height: '60vh', overflowY: 'auto',}} >
                 <style>
                   {`
                   main::-webkit-scrollbar {
@@ -212,7 +218,7 @@ export function Home() {
                   }
                   `}
                 </style>
-                <div style={{ display: 'flex'}}>
+                <div>
                   {renderStep()}
                 </div>
                </main>
