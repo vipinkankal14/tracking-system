@@ -29,6 +29,8 @@ import OrderInfo from "./CustomerAdd/OrderInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
 import { Home } from "./home/Home";
 import UpDocument from "./CustomerAdd/Document";
+import Accessories from "./CustomerAdd/Accessories/Accessories";
+import AddToCart from "./CustomerAdd/Accessories/AddToCart";
    
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));
@@ -94,14 +96,14 @@ function App() {
                  
                 <Route path="/payment-app" element={<PaymentApp />} />
 
-                <Route path="AdditionalInfo" element={<AdditionalInfo />}/>
-                <Route path="CarInfo" element={<CarInfo />}/>
-                <Route path="Confirmation" element={<Confirmation />}/>
-                <Route path="OrderInfo" element={<OrderInfo />}/>
-                <Route path="PersonalInfo" element={<PersonalInfo />} />
-                <Route path="UploadDocument" element={<UpDocument />}/>
-
-
+                <Route path="/additional-info" element={<AdditionalInfo />}/>
+                <Route path="/CarInfo" element={<CarInfo />}/>
+                <Route path="/Confirmation" element={<Confirmation />}/>
+                <Route path="/OrderInfo" element={<OrderInfo />}/>
+                <Route path="/PersonalInfo" element={<PersonalInfo />} />
+                <Route path="/UploadDocument" element={<UpDocument />}/>
+                <Route path="/accessories" element={<Accessories />}/>
+                <Route path="/add-to-cart" element={<AddToCart />}/>
               </Routes>
             </Suspense>
           </div>

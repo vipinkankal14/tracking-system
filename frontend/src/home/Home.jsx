@@ -10,7 +10,7 @@ import { Button } from "@mui/material"; // MUI components
 import { Check, ChevronRight } from "lucide-react"; // Replace with MUI Icons if needed
 import "../CustomerAdd/scss/MultiStepForm.scss";
 import { useNavigate } from "react-router-dom";
- 
+
 const steps = [
   { id: 1, name: "Personal Info" },
   { id: 2, name: "Car Info" },
@@ -25,6 +25,7 @@ export function Home() {
   const [currentStep, setCurrentStep] = React.useState(1);
   const [formData, setFormData] = React.useState({
     personalInfo: {
+      customerId: "",
       firstName: "",
       middleName: "",
       lastName: "",
@@ -48,6 +49,7 @@ export function Home() {
       teamMember: "",
       exShowroomPrice: "",
       bookingAmount: "",
+      cardiscount: "",
     },
     orderInfo: {
       orderDate: "NO",
@@ -65,23 +67,37 @@ export function Home() {
       coating: "No",
       fastTag: "No",
       rto: "No",
+      insurance: "No",
+      extendedWarranty: "No",
+      autoCard: "No",
+      fastTag: "No",
     },
     documentUpload: {
       document: null, // Stores the uploaded document file
     },
-    confirmation: {
-      terms: false,
-    },
   });
 
   const updateSection = React.useCallback((section, key, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: value,
-      },
-    }));
+    setFormData((prev) => {
+      const updatedData = {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [key]: value,
+        },
+      };
+
+      // If the section is personalInfo and the key is firstName, generate the customerId
+      if (section === "personalInfo" && key === "firstName") {
+        const firstName = value;
+        const randomDigits = Math.floor(100000 + Math.random() * 900000); // Generate a random 6-digit number
+        updatedData.personalInfo.customerId = `${firstName.substring(0, 4).toUpperCase()}${randomDigits}`;
+      }
+
+      
+
+      return updatedData;
+    });
   }, []);
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length));
@@ -95,15 +111,15 @@ export function Home() {
           formDataToSubmit.append(`${section}.${key}`, value);
         });
       });
-  
+
       // Log the form data for debugging
       formDataToSubmit.forEach((value, key) => {
         console.log(`${key}: ${value}`);
       });
-  
+
       // Display success alert
       alert("Form submitted successfully!");
-  
+
       // Pass formData to the SuccessPage
       navigate("/success-page", { state: { formData } });
     } catch (error) {
@@ -111,9 +127,6 @@ export function Home() {
       alert("An error occurred while handling the form submission.");
     }
   };
-  
-  
-  
 
   const renderStep = () => {
     switch (currentStep) {
@@ -141,7 +154,7 @@ export function Home() {
       case 4:
         return (
           <AdditionalInfo
-            data={formData.additionalInfo}
+            data={{ ...formData.additionalInfo, personalInfo: formData.personalInfo }}
             updateData={(key, value) => updateSection("additionalInfo", key, value)}
           />
         );
@@ -159,12 +172,9 @@ export function Home() {
     }
   };
 
-   
-  
-
   return (
     <div className="flex-col items-center gap-2">
-       <header className="p-2">
+      <header className="p-2">
         <nav aria-label="Progress">
           <ol className="flex justify-between md:space-x-2">
             {steps.map((step) => (
@@ -174,7 +184,7 @@ export function Home() {
                     "flex flex-col items-center gap-1",
                     currentStep === step.id && "text-primary"
                   )}
-                  style={{ color: currentStep === step.id ? '#040278' : 'inherit'}}
+                  style={{ color: currentStep === step.id ? '#040278' : 'inherit' }}
                   onClick={() => setCurrentStep(step.id)}
                 >
                   <div
@@ -192,37 +202,33 @@ export function Home() {
                   <span
                     className={clsx(
                       "step-name text-sm font-medium",
-                        // Always show step name
-                      )}
-                      >
-                      {step.name}
-                      </span>
-                      {currentStep === step.id && <ChevronRight className="ml-auto h-4 w-4" />}
-                    </button>
-                    </li>
-                  ))}
-                  </ol>
-                </nav>
-                </header>
+                      // Always show step name
+                    )}
+                  >
+                    {step.name}
+                  </span>
+                  {currentStep === step.id && <ChevronRight className="ml-auto h-4 w-4" />}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </header>
 
-      
+      <h6 style={{ display: 'flex', margin: '10px', marginTop: '10px', justifyContent: 'center' }}>
+        {steps.find(step => step.id === currentStep)?.name}
+      </h6>
 
-                <h6 style={{ display:'flex',margin:'10px',marginTop:'10px',justifyContent:'center' }}>{steps.find(step => step.id === currentStep)?.name}</h6>
-
-      
-                <main style={{ height: '60vh', overflowY: 'auto',}} >
-                <style>
-                  {`
-                  main::-webkit-scrollbar {
-                  display: none;
-                  }
-                  `}
-                </style>
-                <div>
-                  {renderStep()}
-                </div>
-               </main>
-
+      <main style={{ height: '60vh', overflowY: 'auto' }}>
+        <style>
+          {`
+            main::-webkit-scrollbar {
+              display: none;
+            }
+          `}
+        </style>
+        <div>{renderStep()}</div>
+      </main>
 
       <div style={{
         display: 'flex',

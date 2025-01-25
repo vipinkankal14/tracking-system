@@ -3,8 +3,7 @@ import React, { useState } from "react";
 export default function Confirmation({ data, onSubmit }) {
   const [formData, setFormData] = useState({
     payment: {
-      type: "",
-      amount: ""
+      type: ""
     }
   });
 
@@ -23,41 +22,25 @@ export default function Confirmation({ data, onSubmit }) {
     onSubmit(formData);
   };
 
- 
-
-  
-
   return (
     <div className="confirmation-container" style={{ padding: "2px" }}>
  
       <div className="step-content">
-      
         {/* Summary Section */}
-        <div className="summary">
-          <h4 className="h5 mb-3">Summary</h4>
-          <div className="card bg-light mb-3">
-            <div className="card-body">
-              <p className="mb-1">
-                <strong>Name:</strong> {data.personalInfo.firstName} {data.personalInfo.middleName} {data.personalInfo.lastName}
-              </p>
-              <p className="mb-1">
-                <strong>Email:</strong> {data.personalInfo.email}
-              </p>
-            </div>
-          </div>
+        <div className="summary">           
 
           {/* Buyer Details */}
           <h5 className="h5 mb-3">Buyer Details</h5>
           <div className="card bg-light mb-3">
             <div className="card-body">
               <p className="mb-1">
-                <strong>Name:</strong> Mr. Raj Sharma
+              <strong>Name:</strong> {data.personalInfo.firstName} {data.personalInfo.middleName} {data.personalInfo.lastName}
               </p>
               <p className="mb-1">
                 <strong>Address:</strong> 123 Green Avenue, New Delhi
               </p>
               <p className="mb-1">
-                <strong>Contact:</strong> +91-9876543210
+              <strong>Email:</strong> {data.personalInfo.email}
               </p>
               <p className="mb-1">
                 <strong>PAN:</strong> AAOPS1234A
@@ -79,7 +62,7 @@ export default function Confirmation({ data, onSubmit }) {
                 <tbody>
                   <tr>
                     <td>Ex-showroom Price</td>
-                    <td>10,00,000.00</td>
+                    <td>{data.carInfo.exShowroomPrice}</td>
                   </tr>
                   <tr>
                     <td>Accessories</td>
@@ -87,7 +70,7 @@ export default function Confirmation({ data, onSubmit }) {
                   </tr>
                   <tr>
                     <td>Discount</td>
-                    <td>-10,000.00</td>
+                    <td>cardiscount {data.carInfo.cardiscount}</td>
                   </tr>
                   <tr>
                     <td>Subtotal</td>
@@ -123,16 +106,11 @@ export default function Confirmation({ data, onSubmit }) {
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
+              <h5 className="mt-4 mb-3">Payment Details</h5>
 
-          {/* Payment Details */}
-          <h5 className="mt-4 mb-3">Payment Details</h5>
-          <div className="card bg-light">
-            <div className="card-body">
               <form onSubmit={handleFormSubmit}>
-                <div className="row">
-                  <div className="col-md-6 mb-3">
+                <div>
+                  <div className="col-md-3 mb-2">
                     <label htmlFor="paymentType" className="form-label">
                       Payment Type
                     </label>
@@ -153,20 +131,13 @@ export default function Confirmation({ data, onSubmit }) {
                     </select>
                   </div>
 
+                  
                   <div className="col-md-6 mb-3">
                     <label htmlFor="paymentAmount" className="form-label">
-                      Amount (₹)
+                      Booking Amount (₹)
                     </label>
-                    <input
-                      type="number"
-                      id="paymentAmount"
-                      className="form-control"
-                      value={formData.payment.amount}
-                      onChange={(e) =>
-                        handleInputChange('payment', 'amount', e.target.value)
-                      }
-                      required
-                    />
+                    <strong>{data.carInfo.bookingAmount}</strong> 
+
                   </div>
                 </div>
 
@@ -174,6 +145,13 @@ export default function Confirmation({ data, onSubmit }) {
                   Submit Payment
                 </button>
               </form>
+            </div>
+          </div>
+
+          {/* Payment Details */}
+          <div className="card bg-light">
+            <div className="card-body">
+             
             </div>
           </div>
         </div>

@@ -1,0 +1,98 @@
+.accessories {
+    padding: 16px;
+  
+    &__header {
+      text-align: end;
+      margin-bottom: 24px;
+     
+    }
+  
+    
+    .accessory-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+  
+      .MuiCardContent-root {
+        padding: 12px;
+  
+        
+  
+         
+      }
+  
+      .MuiCardActions-root {
+        padding: 14px;
+        justify-content: flex-end;
+  
+        .MuiButton-contained {
+          background-color: #007bff;
+          color: white;
+          font-size: 0.875rem;
+          padding: 8px 16px;
+          border-radius: 4px;
+  
+          &:hover {
+            background-color: #0056b3;
+          }
+        }
+      }
+    }
+  
+    // Responsive layout adjustments
+    @media (max-width: 600px) {
+      .accessory-card {
+        .MuiCardContent-root {
+          h2 {
+            font-size: 60%;
+          }
+  
+          p {
+            font-size: 0.5rem;
+          }
+        }
+  
+        .MuiCardActions-root {
+          .MuiButton-contained {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+          }
+        }
+      }
+  
+      &__header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  
+    @media (min-width: 1200px) {
+      .accessory-card {
+        .MuiCardContent-root {
+          h2 {
+            font-size: 1rem;
+          }
+  
+          p {
+            font-size: 1rem;
+          }
+        }
+  
+        .MuiCardActions-root {
+          .MuiButton-contained {
+            font-size: 0.9rem;
+            padding: 10px;
+          }
+        }
+      }
+    }
+  }
+  

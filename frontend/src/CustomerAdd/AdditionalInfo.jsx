@@ -8,12 +8,19 @@ import {
   Grid,
 } from "@mui/material";
 import "./scss/page.scss";
+import { useNavigate } from "react-router-dom";
 
 const AdditionalInfo = ({ data, updateData }) => {
+
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     updateData(name, value);
+  
+     
   };
+  
 
   return (
     <div className="desktop-only-margin-AdditionalInfo">

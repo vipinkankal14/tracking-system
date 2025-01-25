@@ -11,6 +11,7 @@ const CarInfo = ({ data, updateData }) => {
     model: false,
     version: false,
     color: false,
+    carType: false,
   });
 
   // Fetch car stocks data
@@ -28,12 +29,34 @@ const CarInfo = ({ data, updateData }) => {
     }));
   };
 
-  const handleChange = (section, name, value) => {
-    updateData(section, name, value);
+  const handleChange = (name, value) => {
+    updateData(name, value);
+
+    // Auto-populate prices when all selections are made
+    if (["carType", "model", "version", "color"].includes(name)) {
+      const selectedCar = carStocks.find(
+        (stock) =>
+          stock.carType === (name === "carType" ? value : data.carType) &&
+          stock.model === (name === "model" ? value : data.model) &&
+          stock.version === (name === "version" ? value : data.version) &&
+          stock.color === (name === "color" ? value : data.color)
+      );
+
+      if (selectedCar) {
+        updateData("exShowroomPrice", selectedCar.exShowroomPrice || "");
+        updateData("bookingAmount", selectedCar.bookingAmount || "");
+
+        updateData("cardiscount", selectedCar.cardiscount || "");
+      } else {
+        updateData("exShowroomPrice", "");
+        updateData("bookingAmount", "");
+        updateData("cardiscount", "");
+      }
+    }
   };
 
   return (
-    <div  style={{ padding: "10px" }}>
+    <div style={{ padding: "10px" }}>
       {/* Dealership Advisor */}
       <div className="row g-3">
         <h6>Dealership Advisor</h6>
@@ -45,9 +68,7 @@ const CarInfo = ({ data, updateData }) => {
               className="form-control input-underline input-margin"
               id="teamLeader"
               value={data.teamLeader}
-              onChange={(e) =>
-                handleChange( "teamLeader", e.target.value)
-              }
+              onChange={(e) => handleChange("teamLeader", e.target.value)}
               onClick={() => toggleDropdown("teamLeader")}
               required
             >
@@ -72,9 +93,7 @@ const CarInfo = ({ data, updateData }) => {
               className="form-control input-underline input-margin"
               id="teamMember"
               value={data.teamMember}
-              onChange={(e) =>
-                handleChange( "teamMember", e.target.value)
-              }
+              onChange={(e) => handleChange("teamMember", e.target.value)}
               onClick={() => toggleDropdown("teamMember")}
               required
             >
@@ -96,103 +115,100 @@ const CarInfo = ({ data, updateData }) => {
       <div className="row g-2">
         <h6>Choose Your Car</h6>
 
-        {/* Model */}
-        <div className="col-md-3">
-          <label htmlFor="model">Model</label>
-          <div className="dropdown-wrapper">
-            <select
-              className="form-control input-underline input-margin"
-              id="model"
-              value={data.model}
-              onChange={(e) =>
-                handleChange( "model", e.target.value)
-              }
-              onClick={() => toggleDropdown("model")}
-              required
-            >
-              <option value="">Select Model</option>
-              {[...new Set(carStocks.map((stock) => stock.model))].map(
-                (model, index) => (
-                  <option key={index} value={model}>
-                    {model}
-                  </option>
-                )
-              )}
-            </select>
-            {dropdownState.model ? (
-              <KeyboardArrowUpOutlinedIcon />
-            ) : (
-              <KeyboardArrowDownOutlinedIcon />
+        {/* Car Type */}
+        <div className="col-md-2">
+          <label htmlFor="carType">Car Type</label>
+          <select
+            className="form-control input-underline input-margin"
+            id="carType"
+            value={data.carType}
+            onChange={(e) => handleChange("carType", e.target.value)}
+            required
+          >
+            <option value="">Select Car Type</option>
+            {[...new Set(carStocks.map((stock) => stock.carType))].map(
+              (carType, index) => (
+                <option key={index} value={carType}>
+                  {carType}
+                </option>
+              )
             )}
-          </div>
+          </select>
+        </div>
+
+        {/* Model */}
+        <div className="col-md-2">
+          <label htmlFor="model">Model</label>
+          <select
+            className="form-control input-underline input-margin"
+            id="model"
+            value={data.model}
+            onChange={(e) => handleChange("model", e.target.value)}
+            required
+            disabled={!data.carType}
+          >
+            <option value="">Select Model</option>
+            {carStocks
+              .filter((stock) => stock.carType === data.carType)
+              .map((filteredStock, index) => (
+                <option key={index} value={filteredStock.model}>
+                  {filteredStock.model}
+                </option>
+              ))}
+          </select>
         </div>
 
         {/* Version */}
-        <div className="col-md-3">
+        <div className="col-md-2">
           <label htmlFor="version">Version</label>
-          <div className="dropdown-wrapper">
-            <select
-              className="form-control input-underline input-margin"
-              id="version"
-              value={data.version}
-              onChange={(e) =>
-                handleChange( "version", e.target.value)
-              }
-              onClick={() => toggleDropdown("version")}
-              required
-              disabled={!data.model}
-            >
-              <option value="">Select Version</option>
-              {carStocks
-                .filter((stock) => stock.model === data.model)
-                .map((filteredStock, index) => (
-                  <option key={index} value={filteredStock.version}>
-                    {filteredStock.version}
-                  </option>
-                ))}
-            </select>
-            {dropdownState.version ? (
-              <KeyboardArrowUpOutlinedIcon />
-            ) : (
-              <KeyboardArrowDownOutlinedIcon />
-            )}
-          </div>
+          <select
+            className="form-control input-underline input-margin"
+            id="version"
+            value={data.version}
+            onChange={(e) => handleChange("version", e.target.value)}
+            required
+            disabled={!data.model}
+          >
+            <option value="">Select Version</option>
+            {carStocks
+              .filter(
+                (stock) =>
+                  stock.carType === data.carType &&
+                  stock.model === data.model
+              )
+              .map((filteredStock, index) => (
+                <option key={index} value={filteredStock.version}>
+                  {filteredStock.version}
+                </option>
+              ))}
+          </select>
         </div>
 
         {/* Color */}
-        <div className="col-md-3">
+        <div className="col-md-2">
           <label htmlFor="color">Color</label>
-          <div className="dropdown-wrapper">
-            <select
-              className="form-control input-underline input-margin"
-              id="color"
-              value={data.color}
-              onChange={(e) =>
-                handleChange( "color", e.target.value)
-              }
-              onClick={() => toggleDropdown("color")}
-              required
-              disabled={!data.version}
-            >
-              <option value="">Select Color</option>
-              {carStocks
-                .filter(
-                  (stock) =>
-                    stock.model === data.model &&
-                    stock.version === data.version
-                )
-                .map((filteredStock, index) => (
-                  <option key={index} value={filteredStock.color}>
-                    {filteredStock.color}
-                  </option>
-                ))}
-            </select>
-            {dropdownState.color ? (
-              <KeyboardArrowUpOutlinedIcon />
-            ) : (
-              <KeyboardArrowDownOutlinedIcon />
-            )}
-          </div>
+          <select
+            className="form-control input-underline input-margin"
+            id="color"
+            value={data.color}
+            onChange={(e) => handleChange("color", e.target.value)}
+            required
+            disabled={!data.version}
+          >
+            <option value="">Select Color</option>
+            {carStocks
+              .filter(
+                (stock) =>
+                  stock.carType === data.carType &&
+                  stock.model === data.model &&
+                  stock.version === data.version
+              )
+              .map((filteredStock, index) => (
+                <option key={index} value={filteredStock.color}>
+                  {filteredStock.color}
+                </option>
+              ))}
+          </select>
         </div>
       </div>
 
@@ -200,35 +216,28 @@ const CarInfo = ({ data, updateData }) => {
       <div className="row g-2">
         <h6>Your Chosen Car Price</h6>
 
-        <div className="col-md-3">
+        <div className="col-md-2">
           <label htmlFor="exShowroomPrice">Ex-Showroom Price</label>
           <input
             type="number"
             className="form-control input-underline input-margin"
             id="exShowroomPrice"
-            placeholder="Ex-Showroom Price"
             value={data.exShowroomPrice}
-            onChange={(e) =>
-              handleChange( "exShowroomPrice", e.target.value)
-            }
-            required
+            readOnly
           />
         </div>
 
-        <div className="col-md-3">
+        <div className="col-md-2">
           <label htmlFor="bookingAmount">Booking Amount</label>
           <input
             type="number"
             className="form-control input-underline input-margin"
             id="bookingAmount"
-            placeholder="Booking Amount"
             value={data.bookingAmount}
-            onChange={(e) =>
-              handleChange( "bookingAmount", e.target.value)
-            }
-            required
+            readOnly
           />
         </div>
+
       </div>
     </div>
   );

@@ -5,14 +5,21 @@ import './scss/SuccessPage.scss';
 
 function SuccessPage() {
   const location = useLocation();
-  const formData = location.state?.formData;
+  const { formData } = location.state || {};
   
-  const id = 'CUST123456'; 
+  const { state } = useLocation();
+  const { customerId } = state || {};
+ 
 
   const handlePrint = () => {
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
+
+    if (!formData) {
+      alert('Form data is missing.');
+      return;
+    }
 
     const printDocument = iframe.contentWindow.document;
 
@@ -115,62 +122,62 @@ function SuccessPage() {
               <div class="section-title">Car Information</div>
               <div class="receipt-row">
                 <span class="receipt-label">Model:</span>
-                <span class="receipt-value">${formData.CarInfo.model}</span>
+                <span class="receipt-value">${formData?.CarInfo?.model || ''}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Version:</span>
-                <span class="receipt-value">${formData.CarInfo.version}</span>
+                <span class="receipt-value">${formData?.CarInfo?.version || ''}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Color:</span>
-                <span class="receipt-value">${formData.CarInfo.color}</span>
+                <span class="receipt-value">${formData?.CarInfo?.color || ''}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Ex-Showroom Price:</span>
-                <span class="receipt-value">₹${formData.CarInfo.exShowroomPrice}</span>
+                <span class="receipt-value">₹${formData?.CarInfo?.exShowroomPrice || ''}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Booking Amount:</span>
-                <span class="receipt-value">₹${formData.CarInfo.bookingAmount}</span>
+                <span class="receipt-value">₹${formData?.CarInfo?.bookingAmount || ''}</span>
               </div>
             </div>
             <div class="column">
               <div class="section-title">Additional Services</div>
               <div class="receipt-row">
                 <span class="receipt-label">Exchange:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.exchange}</span>
+                <span class="receipt-value">${formData.additionalInfo.exchange}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Finance:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.finance}</span>
+                <span class="receipt-value">${formData.additionalInfo.finance}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Accessories:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.accessories}</span>
+                <span class="receipt-value">${formData.additionalInfo.accessories}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Insurance:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.insurance}</span>
+                <span class="receipt-value">${formData.additionalInfo.insurance}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Coating:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.coating}</span>
+                <span class="receipt-value">${formData.additionalInfo.coating}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Auto Card:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.auto_card}</span>
+                <span class="receipt-value">${formData.additionalInfo.autoCard}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Extended Warranty:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.extended_warranty}</span>
+                <span class="receipt-value">${formData.additionalInfo.extendedWarranty}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Rto tax:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.rto_tax}</span>
+                <span class="receipt-value">${formData.additionalInfo.rto}</span>
               </div>
               <div class="receipt-row">
                 <span class="receipt-label">Fast Tag:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.fast_tag}</span>
+                <span class="receipt-value">${formData.additionalInfo.fastTag}</span>
               </div>
             </div>
           </div>
@@ -205,8 +212,9 @@ function SuccessPage() {
       <h2>Success!</h2>
       <p>Car booked successfully, {formData.personalInfo.firstName || 'Guest'}!</p>
       <p>
-        <strong>Customer ID:</strong> {id}
-      </p>
+      {customerId && (
+        <p>Your customer ID is: <strong>{customerId}</strong></p>
+      )}      </p>
 
       <div className="options">
         <button
