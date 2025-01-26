@@ -10,6 +10,8 @@ import { Button } from "@mui/material"; // MUI components
 import { Check, ChevronRight } from "lucide-react"; // Replace with MUI Icons if needed
 import "../CustomerAdd/scss/MultiStepForm.scss";
 import { useNavigate } from "react-router-dom";
+import Accessories from "../CustomerAdd/Accessories/Accessories";
+import AddToCart from "../CustomerAdd/Accessories/AddToCart";
 
 const steps = [
   { id: 1, name: "Personal Info" },
@@ -42,6 +44,7 @@ export function Home() {
       address: "",
     },
     carInfo: {
+      carType: "",
       model: "",
       version: "",
       color: "",
@@ -70,7 +73,6 @@ export function Home() {
       insurance: "No",
       extendedWarranty: "No",
       autoCard: "No",
-      fastTag: "No",
     },
     documentUpload: {
       document: null, // Stores the uploaded document file
@@ -151,13 +153,30 @@ export function Home() {
             updateData={(key, value) => updateSection("orderInfo", key, value)}
           />
         );
-      case 4:
-        return (
-          <AdditionalInfo
-            data={{ ...formData.additionalInfo, personalInfo: formData.personalInfo }}
-            updateData={(key, value) => updateSection("additionalInfo", key, value)}
-          />
-        );
+      
+        case 4:
+          return (
+            <>
+              {formData.additionalInfo.accessories === "Yes" ? (
+                <Accessories
+                  data={formData.additionalInfo}
+                  updateFormData={(section, key, value) => updateSection(section, key, value)}
+                  gocancel={() => updateSection("additionalInfo", "accessories", "No")}
+                  personalInfo={formData.personalInfo}
+                  carInfo={formData.carInfo}
+                />
+              ) : (
+                <AdditionalInfo
+                  data={{ ...formData.additionalInfo, personalInfo: formData.personalInfo }}
+                  updateData={(key, value) => updateSection("additionalInfo", key, value)}
+                />
+              )}
+            </>
+          );
+
+    
+        
+        
       case 5:
         return (
           <UpDocument
@@ -174,52 +193,57 @@ export function Home() {
 
   return (
     <div className="flex-col items-center gap-2">
-      <header className="p-2">
-        <nav aria-label="Progress">
-          <ol className="flex justify-between md:space-x-2">
-            {steps.map((step) => (
-              <li key={step.id} className="flex-1">
-                <button
-                  className={clsx(
-                    "flex flex-col items-center gap-1",
-                    currentStep === step.id && "text-primary"
-                  )}
-                  style={{ color: currentStep === step.id ? '#040278' : 'inherit' }}
-                  onClick={() => setCurrentStep(step.id)}
-                >
-                  <div
-                    className={clsx(
-                      "h-6 w-6 flex items-center justify-center rounded-full border-2",
-                      currentStep === step.id
-                        ? "border-primary bg-#040278 text-white"
-                        : currentStep > step.id
-                          ? "border-primary bg-#040278 text-white"
-                          : "border-gray-300 text-gray-500"
-                    )}
-                  >
-                    {currentStep > step.id ? <Check /> : step.id}
-                  </div>
-                  <span
-                    className={clsx(
-                      "step-name text-sm font-medium",
-                      // Always show step name
-                    )}
-                  >
-                    {step.name}
-                  </span>
-                  {currentStep === step.id && <ChevronRight className="ml-auto h-4 w-4" />}
-                </button>
-              </li>
-            ))}
-          </ol>
-        </nav>
-      </header>
+      
+      {formData.additionalInfo.accessories !== "Yes" && (
+  <header className="p-2">
+    <nav aria-label="Progress">
+      <ol className="flex justify-between md:space-x-2">
+        {steps.map((step) => (
+          <li key={step.id} className="flex-1">
+            <button
+              className={clsx(
+                "flex flex-col items-center gap-1",
+                currentStep === step.id && "text-primary"
+              )}
+              style={{ color: currentStep === step.id ? '#040278' : 'inherit' }}
+              onClick={() => setCurrentStep(step.id)}
+            >
+              <div
+                className={clsx(
+                  "h-6 w-6 flex items-center justify-center rounded-full border-2",
+                  currentStep === step.id
+                    ? "border-primary bg-#040278 text-white"
+                    : currentStep > step.id
+                      ? "border-primary bg-#040278 text-white"
+                      : "border-gray-300 text-gray-500"
+                )}
+              >
+                {currentStep > step.id ? <Check /> : step.id}
+              </div>
+              <span
+                className={clsx(
+                  "step-name text-sm font-medium",
+                  // Always show step name
+                )}
+              >
+                {step.name}
+              </span>
+              {currentStep === step.id && <ChevronRight className="ml-auto h-4 w-4" />}
+            </button>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </header>
+)}
 
+{formData.additionalInfo.accessories !== "Yes" && (
       <h6 style={{ display: 'flex', margin: '10px', marginTop: '10px', justifyContent: 'center' }}>
         {steps.find(step => step.id === currentStep)?.name}
       </h6>
+)}
 
-      <main style={{ height: '60vh', overflowY: 'auto' }}>
+      <main style={{ height: '100%', overflowY: 'auto' }}>
         <style>
           {`
             main::-webkit-scrollbar {
@@ -228,9 +252,10 @@ export function Home() {
           `}
         </style>
         <div>{renderStep()}</div>
-      </main>
 
-      <div style={{
+
+              {formData.additionalInfo.accessories !== "Yes" && (
+        <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         gap: '1rem',
@@ -238,33 +263,43 @@ export function Home() {
         paddingTop: '0.5rem',
         marginTop: '10px',
       }}>
-        <Button
-          onClick={prevStep}
-          disabled={currentStep === 1}
-          variant="contained"
-          color="primary"
-          style={{
-            backgroundColor: currentStep === 1 ? '#e0e0e0' : '#040278',
-            color: currentStep === 1 ? '#9e9e9e' : 'white'
-          }}
-          aria-disabled={currentStep === 1}
-          size="small"
-        >
-          Previous
-        </Button>
-        <Button
-          onClick={currentStep === steps.length ? handleSubmit : nextStep}
-          variant="contained"
-          color="primary"
-          style={{
-            backgroundColor: '#040278',
-            color: 'white'
-          }}
-          size="small"
-        >
-          {currentStep === steps.length ? "Submit" : "Next"}
-        </Button>
-      </div>
+    <>
+      <Button
+        onClick={prevStep}
+        disabled={currentStep === 1}
+        variant="contained"
+        color="primary"
+        style={{
+          backgroundColor: currentStep === 1 ? '#e0e0e0' : '#040278',
+          color: currentStep === 1 ? '#9e9e9e' : 'white',
+        }}
+        aria-disabled={currentStep === 1}
+        size="small"
+      >
+        Previous
+      </Button>
+      <Button
+        onClick={currentStep === steps.length ? handleSubmit : nextStep}
+        variant="contained"
+        color="primary"
+        style={{
+          backgroundColor: '#040278',
+          color: 'white',
+        }}
+        size="small"
+      >
+        {currentStep === steps.length ? "Submit" : "Next"}
+      </Button>
+          </>
+          </div>
+  )}
+      </main>
+
+
+
+
+
+      
     </div>
   );
 }
