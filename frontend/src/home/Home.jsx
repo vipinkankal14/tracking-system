@@ -119,6 +119,14 @@ export function Home() {
         console.log(`${key}: ${value}`);
       });
 
+
+       // Check if the accessories field is updated to "yes"
+       if (section === "additionalInfo" && key === "accessories" && value === "yes") {
+        // If yes, navigate to the Accessories page
+        navigate("/accessories");
+      }
+
+
       // Display success alert
       alert("Form submitted successfully!");
 
@@ -155,28 +163,16 @@ export function Home() {
         );
       
         case 4:
-          return (
-            <>
-              {formData.additionalInfo.accessories === "Yes" ? (
-                <Accessories
-                  data={formData.additionalInfo}
-                  updateFormData={(section, key, value) => updateSection(section, key, value)}
-                  gocancel={() => updateSection("additionalInfo", "accessories", "No")}
-                  personalInfo={formData.personalInfo}
-                  carInfo={formData.carInfo}
-                />
-              ) : (
-                <AdditionalInfo
-                  data={{ ...formData.additionalInfo, personalInfo: formData.personalInfo }}
-                  updateData={(key, value) => updateSection("additionalInfo", key, value)}
-                />
-              )}
-            </>
-          );
-
-    
-        
-        
+  return (
+    <AdditionalInfo
+      data={{ ...formData.additionalInfo, personalInfo: formData.personalInfo, carInfo: formData.carInfo, orderInfo: formData.orderInfo }}
+      updateData={(key, value) => updateSection("additionalInfo", key, value)}
+      personalInfo={formData.personalInfo}
+      carInfo={formData.carInfo}
+      orderInfo={formData.orderInfo}
+    />
+  );
+  
       case 5:
         return (
           <UpDocument
@@ -186,6 +182,7 @@ export function Home() {
         );
       case 6:
         return <Confirmation data={formData} onSubmit={handleSubmit} />;
+      
       default:
         return null;
     }
@@ -194,7 +191,7 @@ export function Home() {
   return (
     <div className="flex-col items-center gap-2">
       
-      {formData.additionalInfo.accessories !== "Yes" && (
+ 
   <header className="p-2">
     <nav aria-label="Progress">
       <ol className="flex justify-between md:space-x-2">
@@ -235,13 +232,13 @@ export function Home() {
       </ol>
     </nav>
   </header>
-)}
+ 
 
-{formData.additionalInfo.accessories !== "Yes" && (
+ 
       <h6 style={{ display: 'flex', margin: '10px', marginTop: '10px', justifyContent: 'center' }}>
         {steps.find(step => step.id === currentStep)?.name}
       </h6>
-)}
+ 
 
       <main style={{ height: '100%', overflowY: 'auto' }}>
         <style>
@@ -254,8 +251,7 @@ export function Home() {
         <div>{renderStep()}</div>
 
 
-              {formData.additionalInfo.accessories !== "Yes" && (
-        <div style={{
+         <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         gap: '1rem',
@@ -292,7 +288,7 @@ export function Home() {
       </Button>
           </>
           </div>
-  )}
+  
       </main>
 
 

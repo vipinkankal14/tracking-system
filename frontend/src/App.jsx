@@ -31,6 +31,7 @@ import { Home } from "./home/Home";
 import UpDocument from "./CustomerAdd/Document";
 import Accessories from "./CustomerAdd/Accessories/Accessories";
 import AddToCart from "./CustomerAdd/Accessories/AddToCart";
+import AdditionalApp from "./CustomerAdd/AdditionalInfoApp.jsx/AdditionalApp";
    
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));
@@ -103,7 +104,8 @@ function App() {
                 <Route path="/PersonalInfo" element={<PersonalInfo />} />
                 <Route path="/UploadDocument" element={<UpDocument />}/>
                 <Route path="/accessories" element={<Accessories />}/>
-                <Route path="/add-to-cart" element={<AddToCart />}/>
+                <Route path="/add-to-cart" element={<AddToCart />} />
+                <Route path="/additional-app" element={<AdditionalApp />} />
               </Routes>
             </Suspense>
           </div>

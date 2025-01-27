@@ -18,19 +18,19 @@ import {
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import '../scss/Accessories.scss';
-import AddToCart from "./AddToCart";
 
-export default function Accessories({ gocancel, personalInfo, carInfo,updateFormData }) {
-  const navigate = useNavigate();
+export default function Accessories() {
+  const location = useLocation();
+  const data = location.state?.data;  // Access the passed data
 
-  // State to manage added items
+  const { carInfo = {}, personalInfo = {} } = data || {}; // Destructure the carInfo and personalInfo objects with default values
+
   const [addedItems, setAddedItems] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
 
-  // Accessories data
   const accessoriesData = [
     { id: 1, name: "Wireless Earbuds Pro", price: 129.99 },
     { id: 2, name: "Premium Phone Case", price: 34.99 },
@@ -42,32 +42,17 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
     { id: 8, name: "Laptop Sleeve", price: 49.99 },
   ];
 
-  // Add item to cart
   const handleAddToCart = (item) => {
     if (!addedItems.includes(item.id)) {
       setAddedItems([...addedItems, item.id]);
     }
   };
 
-  const handleOpenAddToCart = () => {
-    setIsAddToCartOpen(true);
-  };
+  const navigate = useNavigate();
 
-  const handleCloseAddToCart = () => {
-    setIsAddToCartOpen(false);
+  const handleBack = () => {
+    navigate(-1); // Navigate back to the previous page
   };
-
-  if (isAddToCartOpen) {
-    return (
-      <AddToCart
-        addedItems={addedItems}
-        onBack={handleCloseAddToCart}
-        personalInfo={personalInfo}
-        carInfo={carInfo}
-        updateFormData={updateFormData}
-      />
-    );
-  }
 
   return (
     <div
@@ -77,11 +62,9 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
         height: "83vh", // Full viewport height
       }}
     >
-      {/* Fixed Header */}
       <header
         style={{
           flexShrink: 0, // Prevents the header from shrinking
-
         }}
       >
         <Typography
@@ -101,7 +84,6 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
             }}
           >
             <AddShoppingCartIcon
-              onClick={handleOpenAddToCart}
               style={{ color: "#110f52" }}
             />
           </Badge>
@@ -116,7 +98,7 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
           }}
         >
           <Typography style={{ fontSize: "12px" }}>
-            Customer ID: <strong>{personalInfo.customerId}</strong>
+            Customer ID: <strong>{personalInfo.customerId || "N/A"}</strong>
           </Typography>
           <Typography style={{ fontSize: "12px" }}>
             Full name:{" "}
@@ -135,8 +117,8 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
             Email: <strong>{personalInfo.email}</strong>
           </Typography>
           <Typography style={{ fontSize: "12px" }}>
-            Team Leader: <strong>{carInfo.teamLeader}</strong> | Team Member:{" "}
-            <strong>{carInfo.teamMember}</strong>
+            Team Leader: <strong>{carInfo.teamLeader || "N/A"}</strong> | Team Member:{" "}
+            <strong>{carInfo.teamMember || "N/A"}</strong>
           </Typography>
           <Typography style={{ fontSize: "12px" }}>
             Car Details:{" "}
@@ -147,10 +129,8 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
           </Typography>
           <Typography><br /></Typography>
         </Typography>
-
       </header>
 
-      {/* Scrollable Main Section */}
       <main
         style={{
           flexGrow: 1, // Allows the main section to grow and take up remaining space
@@ -229,7 +209,6 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
         )}
       </main>
 
-      {/* Footer Buttons */}
       <div
         style={{
           display: "flex",
@@ -237,17 +216,15 @@ export default function Accessories({ gocancel, personalInfo, carInfo,updateForm
         }}
       >
         <Button
-          onClick={gocancel}
           variant="contained"
           color="secondary"
           size="small"
-          style={{ backgroundColor: "#e0e0e0", color: "#000", marginTop: '0' }}
+          style={{ backgroundColor: "#e0e0e0", color: "#000", marginTop: "0" }}
+          onClick={handleBack} // On click, go back to the previous page
         >
-          cancel
+          Back
         </Button>
-
       </div>
     </div>
-
   );
 }
