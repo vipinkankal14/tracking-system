@@ -27,11 +27,12 @@ import CarInfo from "./CustomerAdd/CarInfo";
 import Confirmation from "./CustomerAdd/Confirmation";
 import OrderInfo from "./CustomerAdd/OrderInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
-import { Home } from "./home/Home";
-import UpDocument from "./CustomerAdd/Document";
+ import UpDocument from "./CustomerAdd/Document";
 import Accessories from "./CustomerAdd/Accessories/Accessories";
 import AddToCart from "./CustomerAdd/Accessories/AddToCart";
 import AdditionalApp from "./CustomerAdd/AdditionalInfoApp/AdditionalApp";
+import { Home } from "./home/Home";
+    
    
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));
