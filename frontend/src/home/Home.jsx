@@ -170,6 +170,8 @@ export function Home() {
       personalInfo={formData.personalInfo}
       carInfo={formData.carInfo}
       orderInfo={formData.orderInfo}
+    
+
     />
   );
   

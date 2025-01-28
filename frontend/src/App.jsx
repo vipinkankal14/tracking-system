@@ -31,7 +31,7 @@ import { Home } from "./home/Home";
 import UpDocument from "./CustomerAdd/Document";
 import Accessories from "./CustomerAdd/Accessories/Accessories";
 import AddToCart from "./CustomerAdd/Accessories/AddToCart";
-import AdditionalApp from "./CustomerAdd/AdditionalInfoApp.jsx/AdditionalApp";
+import AdditionalApp from "./CustomerAdd/AdditionalInfoApp/AdditionalApp";
    
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));

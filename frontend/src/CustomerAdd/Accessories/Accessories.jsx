@@ -18,18 +18,13 @@ import {
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
-import { useLocation, useNavigate } from "react-router-dom";
-import '../scss/Accessories.scss';
+ import "../scss/Accessories.scss";
+import AdditionalInfo from "../AdditionalInfo";
 
 export default function Accessories() {
-  const location = useLocation();
-  const data = location.state?.data;  // Access the passed data
-
-  const { carInfo = {}, personalInfo = {} } = data || {}; // Destructure the carInfo and personalInfo objects with default values
-
+  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false); // Toggle state for rendering AdditionalInfo
   const [addedItems, setAddedItems] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
 
   const accessoriesData = [
     { id: 1, name: "Wireless Earbuds Pro", price: 129.99 },
@@ -48,25 +43,21 @@ export default function Accessories() {
     }
   };
 
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    navigate(-1); // Navigate back to the previous page
-  };
+  if (showAdditionalInfo) {
+    return (
+      <AdditionalInfo
+        data={{}}
+        updateData={() => {}}
+        personalInfo={{}}
+        carInfo={{}}
+        orderInfo={{}}
+      />
+    );
+  }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "83vh", // Full viewport height
-      }}
-    >
-      <header
-        style={{
-          flexShrink: 0, // Prevents the header from shrinking
-        }}
-      >
+    <div style={{ display: "flex", flexDirection: "column", height: "83vh" }}>
+      <header style={{ flexShrink: 0 }}>
         <Typography
           style={{
             display: "flex",
@@ -79,62 +70,17 @@ export default function Accessories() {
           <Badge
             badgeContent={addedItems.length}
             color="error"
-            style={{
-              cursor: "pointer",
-            }}
+            style={{ cursor: "pointer" }}
           >
-            <AddShoppingCartIcon
-              style={{ color: "#110f52" }}
-            />
+            <AddShoppingCartIcon style={{ color: "#110f52" }} />
           </Badge>
-        </Typography>
-
-        <Typography
-          variant="body2"
-          style={{
-            textAlign: "left",
-            marginLeft: "10px",
-            marginTop: "-4px",
-          }}
-        >
-          <Typography style={{ fontSize: "12px" }}>
-            Customer ID: <strong>{personalInfo.customerId || "N/A"}</strong>
-          </Typography>
-          <Typography style={{ fontSize: "12px" }}>
-            Full name:{" "}
-            <strong>
-              {personalInfo.firstName} {personalInfo.middleName}{" "}
-              {personalInfo.lastName}
-            </strong>
-          </Typography>
-          <Typography style={{ fontSize: "12px" }}>
-            Mobile Number:{" "}
-            <strong>
-              {personalInfo.mobileNumber1} | {personalInfo.mobileNumber2}
-            </strong>
-          </Typography>
-          <Typography style={{ fontSize: "12px" }}>
-            Email: <strong>{personalInfo.email}</strong>
-          </Typography>
-          <Typography style={{ fontSize: "12px" }}>
-            Team Leader: <strong>{carInfo.teamLeader || "N/A"}</strong> | Team Member:{" "}
-            <strong>{carInfo.teamMember || "N/A"}</strong>
-          </Typography>
-          <Typography style={{ fontSize: "12px" }}>
-            Car Details:{" "}
-            <strong>
-              {carInfo.carType} | {carInfo.model} | {carInfo.color} |{" "}
-              {carInfo.version}
-            </strong>
-          </Typography>
-          <Typography><br /></Typography>
         </Typography>
       </header>
 
       <main
         style={{
-          flexGrow: 1, // Allows the main section to grow and take up remaining space
-          overflowY: "auto", // Enables vertical scrolling
+          flexGrow: 1,
+          overflowY: "auto",
           padding: "1rem",
         }}
         className="accessories"
@@ -209,18 +155,13 @@ export default function Accessories() {
         )}
       </main>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "end",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "end" }}>
         <Button
           variant="contained"
           color="secondary"
           size="small"
           style={{ backgroundColor: "#e0e0e0", color: "#000", marginTop: "0" }}
-          onClick={handleBack} // On click, go back to the previous page
+          onClick={() => setShowAdditionalInfo(true)} // Update state to show AdditionalInfo
         >
           Back
         </Button>
