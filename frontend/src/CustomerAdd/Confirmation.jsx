@@ -108,7 +108,7 @@ export default function Confirmation({ data, onSubmit }) {
               </table>
               <h5 className="mt-4 mb-3">Payment Details</h5>
 
-              <form onSubmit={handleFormSubmit}>
+              <>
                 <div>
                   <div className="col-md-3 mb-2">
                     <label htmlFor="paymentType" className="form-label">
@@ -130,30 +130,17 @@ export default function Confirmation({ data, onSubmit }) {
                       <option value="bankTransfer">Bank Transfer</option>
                     </select>
                   </div>
-
-                  
                   <div className="col-md-6 mb-3">
                     <label htmlFor="paymentAmount" className="form-label">
                       Booking Amount (₹)
                     </label>
                     <strong>{data.carInfo.bookingAmount}</strong> 
-
                   </div>
                 </div>
-
-                <button type="submit" className="btn btn-primary">
-                  Submit Payment
-                </button>
-              </form>
+              </>
             </div>
-          </div>
-
-          {/* Payment Details */}
-          <div className="card bg-light">
-            <div className="card-body">
-             
-            </div>
-          </div>
+          </div> 
+          
         </div>
       </div>
     </div>

@@ -4,7 +4,9 @@ import TopNavbar from "./Nav/Topnav-bar/Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Nav/sidebar/Sidebar.scss';
 import { useState, Suspense, lazy } from "react";
-import './App.css'; 
+import './App.css';
+
+
 import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails/CustomerPaymentDetails";
 import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
 import AddCarStock from "./carStocks/AddCarForUploadCarEXCEL/AddCarStock";
@@ -22,21 +24,32 @@ import DiscountApp from "./carStocks/discount/DiscountApp";
 import AllotmentStatusApp from "./carStocks/AllotmentStatus/AllotmentStatusApp";
 import CarManagement from "./carStocks/CarManagement/CarManagement";
 import PaymentApp from "./cashier/PaymentApp";
- import AdditionalInfo from "./CustomerAdd/AdditionalInfo";
+import AdditionalInfo from "./CustomerAdd/AdditionalInfo";
 import CarInfo from "./CustomerAdd/CarInfo";
 import Confirmation from "./CustomerAdd/Confirmation";
 import OrderInfo from "./CustomerAdd/OrderInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
- import UpDocument from "./CustomerAdd/Document";
+import UpDocument from "./CustomerAdd/Document";
 import Accessories from "./CustomerAdd/Accessories/Accessories";
 import AddToCart from "./CustomerAdd/Accessories/AddToCart";
 import AdditionalApp from "./CustomerAdd/AdditionalInfoApp/AdditionalApp";
 import { Home } from "./home/Home";
-    
-   
+import AccessorieApp from "./Accessories/AccessorieApp";
+import AddedUploadViewApp from "./Accessories/AddedUploadView/AddedUploadViewApp";
+import { AccessorieUpload } from "./Accessories/AddedUploadView/AccessorieUpload";
+import AddAccessories from "./Accessories/AddedUploadView/AddAccessories";
+import { AccessorieView } from "./Accessories/AddedUploadView/AccessorieView";
+import { AccessoriesDiscount } from "./Accessories/Discount/AccessoriesDiscount";
+import RequestByCustomer from "./Accessories/CustomerAccessories/RequestByCustomer";
+import { AccessoriesManagement } from "./Accessories/Management/AccessoriesManagement";
+import CancelAndModifyApp from "./Accessories/CancelAndModifyApp";
+import CancelByCustomer from "./Accessories/CustomerAccessories/CancelByCustomer";
+import { ModifyByCustomer } from "./Accessories/CustomerAccessories/ModifyByCustomer";
+
+
 // Lazy loaded components
 const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));
- const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
+const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
 const PaymentClear = lazy(() => import("./cashier/Payments/PaymentClear"));
 const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel/CarBookingCancel"));
 const Payment = lazy(() => import("./cashier/Payments/Payment"));
@@ -47,6 +60,11 @@ const Car = lazy(() => import("./carStocks/CarApp"));
 const CarAllotment = lazy(() => import("./carStocks/CarAllotment/CarAllotment"));
 const SuccessPage = lazy(() => import("./CustomerAdd/SuccessPage"));
 
+
+
+
+
+
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -55,7 +73,7 @@ function App() {
   };
 
   return (
-    <> 
+    <>
       <div className="main-layout noto-sans">
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
         <TopNavbar toggleSidebar={toggleSidebar} />
@@ -69,11 +87,11 @@ function App() {
                 <Route path="/payment-successful" element={<PaymentSuccessful />} />
                 <Route path="/car" element={<Car />} />
                 <Route path="/car-allotment/:vin" element={<CarAllotment />} />
-                 <Route path="/cashier-app" element={<CashierApp />} /> 
+                <Route path="/cashier-app" element={<CashierApp />} />
                 <Route path="/payment-details" element={<PaymentDetails />} />
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/payment-clear" element={<PaymentClear />} />
-                <Route path="/car-Booking" element={<CarBookings/>} />
+                <Route path="/car-Booking" element={<CarBookings />} />
                 <Route path="/car-booking-cancel" element={<CarBookingCancel />} />
                 <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
                 <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
@@ -85,28 +103,34 @@ function App() {
                 <Route path="/file-tracking" element={<FileTracking />} />
                 <Route path="/payment-pending" element={<PaymentPending />} />
                 <Route path="/booking-amount" element={<BookingAmount />} />
-                <Route path="/car-notallotment-ByCustomer" element={<CarNotAllotmentByCustomer />} />  
+                <Route path="/car-notallotment-ByCustomer" element={<CarNotAllotmentByCustomer />} />
                 <Route path="/discount-for-car-and-additional" element={<DiscountForCarAndAdditional />} />
                 <Route path="/upload-car-excel" element={<UploadCarEXCEL />} />
-                 
-                
                 <Route path="/car-management" element={<CarManagement />} />
-
                 <Route path="/allotment-status-app" element={<AllotmentStatusApp />} />
-                
                 <Route path="/discount-app" element={<DiscountApp />} />
-                 
                 <Route path="/payment-app" element={<PaymentApp />} />
-
-                <Route path="/additional-info" element={<AdditionalInfo />}/>
-                <Route path="/CarInfo" element={<CarInfo />}/>
-                <Route path="/Confirmation" element={<Confirmation />}/>
-                <Route path="/OrderInfo" element={<OrderInfo />}/>
+                <Route path="/additional-info" element={<AdditionalInfo />} />
+                <Route path="/CarInfo" element={<CarInfo />} />
+                <Route path="/Confirmation" element={<Confirmation />} />
+                <Route path="/OrderInfo" element={<OrderInfo />} />
                 <Route path="/PersonalInfo" element={<PersonalInfo />} />
-                <Route path="/UploadDocument" element={<UpDocument />}/>
-                <Route path="/accessories" element={<Accessories />}/>
+                <Route path="/UploadDocument" element={<UpDocument />} />
+                <Route path="/accessories" element={<Accessories />} />
                 <Route path="/add-to-cart" element={<AddToCart />} />
                 <Route path="/additional-app" element={<AdditionalApp />} />
+                <Route path="/accessorie-app" element={<AccessorieApp />} />
+                <Route path="/added-upload-viewapp" element={<AddedUploadViewApp />} />
+                <Route path="/accessorie-upload" element={<AccessorieUpload />} />
+                <Route path="/add-accessories" element={<AddAccessories />} />
+                <Route path="/accessorie-view" element={<AccessorieView />} />
+                <Route path="/accessories-discount-main" element={<AccessoriesDiscount />} />
+                <Route path="/request-by-customer" element={<RequestByCustomer />} />
+                <Route path="/accessories-management" element={<AccessoriesManagement />} /> 
+                <Route path="/CancelAnd-Modify-App" element={<CancelAndModifyApp />} />
+                <Route path="/Modify-By-Customer" element={<ModifyByCustomer />} /> 
+                <Route path="/Cancel-By-Customer" element={<CancelByCustomer />}/>
+                
               </Routes>
             </Suspense>
           </div>

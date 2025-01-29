@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {Grid, FormControl, FormLabel, RadioGroup, FormControlLabel,Radio,Button,Modal,Table,TableContainer,TableHead, TableRow,TableCell, TableBody,Badge,IconButton,Paper, Typography,} from "@mui/material";
+import {Grid, FormControl, FormLabel, RadioGroup, FormControlLabel,Radio,Button,Modal,Table,TableContainer,TableHead, TableRow,TableCell, TableBody,Badge,IconButton,Paper, Typography, TableFooter,} from "@mui/material";
 import { Add as AddIcon, Check as CheckIcon, ClearRounded as ClearRoundedIcon } from "@mui/icons-material";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 
@@ -26,7 +26,7 @@ const AdditionalApp = ({ data, updateData,personalInfo, carInfo, }) => {
   }, []);
 
   const handleClose = () => setShowAccessoriesModal(false);
-  const handleShowAccessories = () => setShowAccessoriesModal(true);
+   const handleShowAccessories = () => setShowAccessoriesModal(true);
   const handleShowCart = () => setCartModalOpen(true);
   const handleCloseCart = () => setCartModalOpen(false);
 
@@ -80,9 +80,9 @@ const AdditionalApp = ({ data, updateData,personalInfo, carInfo, }) => {
               <AddShoppingCartIcon style={{ color: "#110f52" }} />
             </Badge>
           </div>
-          <main style={{ flexGrow: 1, overflowY: "auto", padding: "1rem", height: "85vh" }}>
-            <TableContainer>
-              <Table>
+          <main style={{flexGrow: 1,padding: "1rem", height: "85vh"}}>
+            <TableContainer style={{ height: "80vh", overflow: "auto",overflowX: "hidden",}}>
+              <Table stickyHeader>
                 <TableHead>
                   <TableRow><TableCell>Product</TableCell><TableCell align="right">Price</TableCell><TableCell align="right">Actions</TableCell></TableRow>
                 </TableHead>
@@ -103,7 +103,7 @@ const AdditionalApp = ({ data, updateData,personalInfo, carInfo, }) => {
             </TableContainer>
           </main>
           <Button variant="contained" color="primary" onClick={handleClose} size="small">Close</Button>
-        </div>
+        </div> 
       </Modal>
 
       {/* Cart Modal */}
@@ -111,24 +111,25 @@ const AdditionalApp = ({ data, updateData,personalInfo, carInfo, }) => {
         <div style={{padding: "10px",background: "#fff", margin: "4px",maxWidth: "600px",borderRadius: "8px",height: "99vh",marginBottom: "4px",justifyContent: "end",alignItems: "end",}}>
           <div style={{justifyContent: "start", alignItems: "start" }}>
             <h6 style={{fontSize:'16px',textAlign:'center'}}>ADD TO CARD</h6>
-            <div style={{ padding: "0px",fontSize: "10px" }}><p>Customer ID: {personalInfo?.customerId}</p><p>Full Name: {personalInfo?.firstName} </p><p>Phone Numbers: {carInfo?.mobileNumber1}, {carInfo?.mobileNumber2}</p><p>Email: {personalInfo?.email}</p><p>Car Details: {carInfo?.carType}</p></div>      
+            <div><h6 style={{fontSize:'12px'}}>Customer ID: {personalInfo?.customerId}</h6><h6 style={{fontSize:'12px'}}>Full Name: {personalInfo?.firstName} </h6><h6 style={{fontSize:'12px'}}>Phone Numbers: {carInfo?.mobileNumber1}, {carInfo?.mobileNumber2}</h6><h6 style={{fontSize:'12px'}}>Email: {personalInfo?.email}</h6><h6 style={{fontSize:'12px'}}>Car Details: {carInfo?.carType} | {carInfo?.model} | {carInfo?.variant} | {carInfo?.color}</h6> </div><hr />
           </div>
-          <main style={{ flexGrow: 1, overflowY: "auto", padding: "1rem", height: "61vh", minWidth: "52vh" }}>
-            <TableContainer>
-              <Table>
+          <main style={{ flexGrow: 1, overflowY: "auto", padding: "1rem", height: "70vh", minWidth: "52vh",marginTop:'-32px'}}>
+            <TableContainer style={{ height: "55vh", overflow: "auto",overflowX: "hidden",}}>
+              <Table stickyHeader>
                 <TableHead>
-                  <TableRow><TableCell>Product</TableCell><TableCell align="right">Price (₹)</TableCell><TableCell align="right">Actions</TableCell></TableRow>
+                  <TableRow><TableCell style={{color:'purple'}}>Product</TableCell><TableCell style={{color:'purple'}}>Price(₹)</TableCell><TableCell style={{color:'purple'}}>Actions</TableCell></TableRow>
                 </TableHead>
                 <TableBody>
                   {selectedProducts.map((product) => ( <TableRow key={product.id}> <TableCell>{product.name}</TableCell><TableCell align="right">{product.price.toFixed(2)}</TableCell><TableCell align="right"><IconButton onClick={() => handleRemove(product.id)}><ClearRoundedIcon style={{ color: "red" }} /></IconButton></TableCell></TableRow>))}
-                  <TableRow>
-                    <TableCell><strong>Total</strong></TableCell><TableCell align="right"><strong>{totalAmount.toFixed(2)}</strong></TableCell><TableCell />
-                  </TableRow>
                 </TableBody>
+
+                
+
               </Table>
-              </TableContainer>
+            </TableContainer>
+            <strong style={{color:"red",fontSize:'20px'}}><strong style={{color:'black',fontFamily:'serif'}}>Total: </strong>{totalAmount.toFixed(2)}</strong>
           </main>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" , padding: "2px"}}><Button variant="contained" color="primary" size="small">Close</Button><Button variant="contained" color="primary" size="small">submit</Button></div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" , padding: "2px"}}><Button variant="contained" onClick={handleCloseCart} color="primary" size="small">Back</Button><Button variant="contained" color="primary" size="small">submit</Button></div>
         </div>
       </Modal>
     </div>

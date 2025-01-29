@@ -27,6 +27,7 @@ const steps = [
 export function Home() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = React.useState(1);
+
   const [formData, setFormData] = React.useState({
     personalInfo: {
       customerId: "",
@@ -76,6 +77,9 @@ export function Home() {
       extendedWarranty: "No",
       autoCard: "No",
     },
+    accessories: {
+      accessories: [],
+    },
     documentUpload: {
       document: null, // Stores the uploaded document file
     },
@@ -109,29 +113,28 @@ export function Home() {
 
   const handleSubmit = async () => {
     try {
+      // Check if the accessories field is updated to "yes"
+      if (formData.additionalInfo.accessories === "Yes") {
+        // If yes, navigate to the Accessories page
+        navigate("/accessories");
+        return; // Exit the function to avoid submitting the form
+      }
+  
       const formDataToSubmit = new FormData();
       Object.keys(formData).forEach((section) => {
         Object.entries(formData[section]).forEach(([key, value]) => {
           formDataToSubmit.append(`${section}.${key}`, value);
         });
       });
-
+  
       // Log the form data for debugging
       formDataToSubmit.forEach((value, key) => {
         console.log(`${key}: ${value}`);
       });
-
-
-       // Check if the accessories field is updated to "yes"
-       if (section === "additionalInfo" && key === "accessories" && value === "yes") {
-        // If yes, navigate to the Accessories page
-        navigate("/accessories");
-      }
-
-
+  
       // Display success alert
       alert("Form submitted successfully!");
-
+  
       // Pass formData to the SuccessPage
       navigate("/success-page", { state: { formData } });
     } catch (error) {
@@ -139,6 +142,7 @@ export function Home() {
       alert("An error occurred while handling the form submission.");
     }
   };
+  
 
   const renderStep = () => {
     switch (currentStep) {
@@ -294,12 +298,7 @@ export function Home() {
           </div>
   
       </main>
-
-
-
-
-
-      
+ 
     </div>
   );
 }
