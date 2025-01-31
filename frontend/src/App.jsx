@@ -38,13 +38,13 @@ import AccessorieApp from "./Accessories/AccessorieApp";
 import AddedUploadViewApp from "./Accessories/AddedUploadView/AddedUploadViewApp";
 import { AccessorieUpload } from "./Accessories/AddedUploadView/AccessorieUpload";
 import AddAccessories from "./Accessories/AddedUploadView/AddAccessories";
-import { AccessorieView } from "./Accessories/AddedUploadView/AccessorieView";
-import { AccessoriesDiscount } from "./Accessories/Discount/AccessoriesDiscount";
+ import { AccessoriesDiscount } from "./Accessories/Discount/AccessoriesDiscount";
 import RequestByCustomer from "./Accessories/CustomerAccessories/RequestByCustomer";
 import { AccessoriesManagement } from "./Accessories/Management/AccessoriesManagement";
 import CancelAndModifyApp from "./Accessories/CancelAndModifyApp";
 import CancelByCustomer from "./Accessories/CustomerAccessories/CancelByCustomer";
 import { ModifyByCustomer } from "./Accessories/CustomerAccessories/ModifyByCustomer";
+import AccessorieView from "./Accessories/AddedUploadView/AccessorieView";
 
 
 // Lazy loaded components
@@ -130,7 +130,7 @@ function App() {
                 <Route path="/CancelAnd-Modify-App" element={<CancelAndModifyApp />} />
                 <Route path="/Modify-By-Customer" element={<ModifyByCustomer />} /> 
                 <Route path="/Cancel-By-Customer" element={<CancelByCustomer />}/>
-                
+               
               </Routes>
             </Suspense>
           </div>
