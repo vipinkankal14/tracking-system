@@ -24,6 +24,7 @@ app.use(express.json());
 const { handlePayment, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
+const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */ 
  
@@ -34,9 +35,8 @@ app.get("/api/customers/:id", getCustomerById); // frontend\src\cashier\Payments
 app.use('/api/CarStock', addCarStock); //carStocks\AddCarStock.jsx
 app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers); 
-
-
-
+app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
+app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 
 
 
@@ -73,10 +73,6 @@ app.post('/api/apply-booking', (req, res) => {
     res.json({ message: 'Booking amounts applied successfully', result });
   });
 });
-
-
-
-
 
 // Route to check the current pool status
 app.get('/api/pool-status', (req, res) => {
