@@ -106,6 +106,45 @@ app.post('/api/submitCart', (req, res) => {
   });
 });
 
+app.post('/api/submitCoatingRequest', (req, res) => {
+  console.log("Request Body:", req.body);
+
+  const { customerId, coatingType, preferredDate, preferredTime, additionalNotes } = req.body;
+
+  if (!customerId) {
+    return res.status(400).json({ message: 'Customer ID is required' });
+  }
+
+  // First, check if a request with the same customerId already exists
+  const checkDuplicateQuery = 'SELECT * FROM coating_requests WHERE customerId = ?';
+  
+  pool.query(checkDuplicateQuery, [customerId], (err, results) => {
+    if (err) {
+      console.error('Error checking for duplicate coating request:', err);
+      return res.status(500).json({ message: 'Error checking for duplicate coating request' });
+    }
+
+    if (results.length > 0) {
+      // If a duplicate is found, return an error response
+      return res.status(409).json({ message: 'Duplicate coating request detected. A request with this Customer already exists.' });
+    }
+
+    // If no duplicate is found, proceed to insert the new request
+    const insertQuery = `
+      INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, additionalNotes)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    pool.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, additionalNotes], (err, results) => {
+      if (err) {
+        console.error('Error inserting coating request:', err);
+        return res.status(500).json({ message: 'Error submitting coating request' });
+      }
+      res.status(200).json({ message: 'Coating request submitted successfully', requestId: results.insertId });
+    });
+  });
+});
+
 
 // API Route: Apply Booking
 app.post('/api/apply-booking', (req, res) => {

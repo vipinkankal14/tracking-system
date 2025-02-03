@@ -15,10 +15,7 @@ const AdditionalInfo = ({ data, updateData, personalInfo, carInfo, orderInfo }) 
         orderInfo={orderInfo}
                 
       />
-
-      
-    
-
+  
     </div>
   )
 }

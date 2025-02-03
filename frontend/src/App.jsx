@@ -6,6 +6,10 @@ import './Nav/sidebar/Sidebar.scss';
 import { useState, Suspense, lazy } from "react";
 import './App.css';
 
+import "primereact/resources/themes/lara-light-blue/theme.css";  // or another theme
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+
 
 import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails/CustomerPaymentDetails";
 import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
@@ -45,6 +49,7 @@ import CancelAndModifyApp from "./Accessories/CancelAndModifyApp";
 import CancelByCustomer from "./Accessories/CustomerAccessories/CancelByCustomer";
 import { ModifyByCustomer } from "./Accessories/CustomerAccessories/ModifyByCustomer";
 import AccessorieView from "./Accessories/AddedUploadView/AccessorieView";
+import Demo from "./Demo";
 
 
 // Lazy loaded components
@@ -129,8 +134,12 @@ function App() {
                 <Route path="/accessories-management" element={<AccessoriesManagement />} /> 
                 <Route path="/CancelAnd-Modify-App" element={<CancelAndModifyApp />} />
                 <Route path="/Modify-By-Customer" element={<ModifyByCustomer />} /> 
-                <Route path="/Cancel-By-Customer" element={<CancelByCustomer />}/>
-               
+                <Route path="/Cancel-By-Customer" element={<CancelByCustomer />} />
+                
+                <Route path="/Demo" element={<Demo />} />
+
+              
+                
               </Routes>
             </Suspense>
           </div>
