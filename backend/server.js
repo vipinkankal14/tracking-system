@@ -40,6 +40,73 @@ app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\
 
 
 
+app.post('/api/submitCart', (req, res) => {
+  const { customerId, totalAmount, products } = req.body;
+
+  console.log("Received cart data:", req.body); // Log received data
+
+  if (!customerId || !Array.isArray(products)) {
+    return res.status(400).json({ message: "Invalid request data." });
+  }
+
+  // First, delete the products associated with the customer order
+  const deleteProductsQuery = `
+    DELETE FROM order_products WHERE orderId IN (
+      SELECT id FROM orders WHERE customerId = ?
+    );
+  `;
+
+  pool.query(deleteProductsQuery, [customerId], (err) => {
+    if (err) {
+      console.error("Error deleting old products:", err);
+      return res.status(500).json({ message: "Error deleting old products." });
+    }
+
+    // Then, delete the order itself
+    const deleteOrderQuery = `
+      DELETE FROM orders WHERE customerId = ?;
+    `;
+
+    pool.query(deleteOrderQuery, [customerId], (err) => {
+      if (err) {
+        console.error("Error deleting order:", err);
+        return res.status(500).json({ message: "Error deleting order." });
+      }
+
+      const insertOrderQuery = `INSERT INTO orders (customerId, totalAmount) VALUES (?, ?)`;
+      pool.query(insertOrderQuery, [customerId, totalAmount], (err, result) => {
+        if (err) {
+          console.error("Error inserting new order:", err);
+          return res.status(500).json({ message: "Database error while inserting new order." });
+        }
+
+        const orderId = result.insertId;
+        console.log("New Order ID:", orderId);
+
+        if (products.length > 0) {
+          const productValues = products.map((p) => [orderId, p.category, p.name, p.price]);
+
+          const insertProductsQuery = `
+            INSERT INTO order_products (orderId, category, name, price)
+            VALUES ?
+          `;
+
+          pool.query(insertProductsQuery, [productValues], (err) => {
+            if (err) {
+              console.error("Error inserting new products:", err);
+              return res.status(500).json({ message: "Error inserting new products." });
+            }
+            res.status(200).json({ message: "Order updated successfully with new products." });
+          });
+        } else {
+          res.status(200).json({ message: "Order updated but no products were added." });
+        }
+      });
+    });
+  });
+});
+
+
 // API Route: Apply Booking
 app.post('/api/apply-booking', (req, res) => {
   const { selectedCars, bookingAmount } = req.body;

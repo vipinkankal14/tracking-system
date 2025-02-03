@@ -32,7 +32,7 @@ const AccessoriesTable = ({ accessories = [] }) => {
   // Extract unique categories
   const categories = [
     'All',
-    ...new Set(accessories.map((accessory) => accessory.category).filter(Boolean)), // Filter out null/undefined
+    ...new Set(accessories.map((accessory) => accessory.category).filter(Boolean)), 
   ].sort();
 
   const handleCategoryChange = (event) => {
