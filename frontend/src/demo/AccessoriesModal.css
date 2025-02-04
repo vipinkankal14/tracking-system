@@ -1,0 +1,23 @@
+/* Customize the scrollbar width */
+::-webkit-scrollbar {
+    width: 4px; /* Horizontal scrollbar */
+    height: 10px; /* Vertical scrollbar */
+  }
+  
+  /* Customize the scrollbar track (background) */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  /* Customize the scrollbar thumb (the draggable part) */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+  
+  /* Change the thumb color when hovering */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
