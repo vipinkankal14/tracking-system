@@ -3,10 +3,13 @@ import { Card, RadioGroup, FormControlLabel, Radio, FormLabel, Grid, FormControl
 import { AccessoriesModal } from "../../demo/AccessoriesModal";
 import { CoatingModal } from "../../demo/CoatingModal";
 import { CartModal } from "../../demo/CartModal";
+import FinanceModal from "../../demo/FinanceModal";
 
 function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
   const [showAccessoriesModal, setShowAccessoriesModal] = useState(false);
   const [showCoatingModal, setShowCoatingModal] = useState(false);
+  const [showfinanceModal, setShowfinanceModal] = useState(false);
+
   const [showCartModal, setShowCartModal] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [addedItems, setAddedItems] = useState([]);
@@ -20,6 +23,10 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
 
     if (name === "coating" && value === "Yes") {
       setShowCoatingModal(true);
+    }
+
+    if (name === "finance" && value === "Yes") {
+      setShowfinanceModal(true);
     }
   };
 
@@ -57,6 +64,8 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
         ))}
       </Grid>
 
+      
+
       {showAccessoriesModal && (
         <AccessoriesModal
           open={showAccessoriesModal}
@@ -90,6 +99,19 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
           carInfo={carInfo}
         />
       )}
+
+      {showfinanceModal && (
+        <FinanceModal
+          open={showfinanceModal}
+          onClose={() => setShowfinanceModal(false)}
+          personalInfo={personalInfo}
+          carInfo={carInfo}
+        />
+      )}
+
+
+
+
     </div>
   );
 }

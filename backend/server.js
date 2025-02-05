@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 const http = require('http'); // For creating the HTTP server
 const { Server } = require('socket.io'); // For real-time updates
 require('dotenv').config(); // Load environment variables from .env
@@ -145,6 +147,43 @@ app.post('/api/submitCoatingRequest', (req, res) => {
   });
 });
 
+
+const upload = multer({ dest: 'uploads/' });
+
+// Endpoint to submit finance and upload documents
+app.post('/submit-finance', upload.array('documents'), (req, res) => {
+  const { customerId, employedType, loanAmount, interestRate, loanDuration, calculatedEMI } = req.body;
+  const files = req.files;
+
+  // Save loan details to the database
+  const loanQuery = `INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) VALUES (?, ?, ?, ?, ?)`;
+  
+  pool.query(loanQuery, [customerId, loanAmount, interestRate, loanDuration, calculatedEMI], (err, loanResults) => {
+    if (err) {
+      return res.status(500).json({ message: "Error saving loan details", error: err.message });
+    }
+
+    // Get the ID of the newly inserted loan
+    const loanId = loanResults.insertId;
+
+    // Save uploaded documents to the database
+    const documentQueries = files.map(file => {
+      const documentQuery = `INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file_name) VALUES (?, ?, ?, ?)`;
+      return new Promise((resolve, reject) => {
+        pool.query(documentQuery, [loanId, employedType, file.originalname, file.filename], (err) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve();
+        });
+      });
+    });
+
+    Promise.all(documentQueries)
+      .then(() => res.status(200).json({ message: 'Form submitted successfully' }))
+      .catch(err => res.status(500).json({ message: "Error saving documents", error: err.message }));
+  });
+});
 
 // API Route: Apply Booking
 app.post('/api/apply-booking', (req, res) => {
