@@ -95,50 +95,35 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
   };
 
   const handleSubmit = async () => {
-    // Validate inputs before submitting
-    if (!loanAmount || !interestRate || !loanDuration || !employedType || Object.keys(uploadedFiles).length === 0) {
-      alert("Please fill in all fields and upload the required documents.");
-      return;
-    }
-  
-    const formData = new FormData();
-    
-    // Append personal info and car info
-    formData.append("customerId", personalInfo.customerId);
-    formData.append("loanAmount", loanAmount);
-    formData.append("interestRate", interestRate);
-    formData.append("loanDuration", loanDuration);
-    formData.append("employedType", employedType);
-    formData.append("calculatedEMI", calculatedEMI); // Add if applicable
-  
-    // Append uploaded files
-    Object.keys(uploadedFiles).forEach((doc) => {
-      const inputElement = document.getElementById(`upload-${doc}`);
-      if (inputElement && inputElement.files.length > 0) {
-        formData.append(doc, inputElement.files[0]);
-      }
-    });
+    const loanData = {
+      customerId: personalInfo.customerId,
+      loanAmount,
+      interestRate,
+      loanDuration,
+      calculatedEMI,
+      employedType,
+      uploadedFiles
+    };
   
     try {
-      const response = await fetch("http://localhost:5000/submit-finance", {
-        method: "POST",
-        body: formData,
+      const response = await fetch('http://localhost:5000/api/loans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loanData),
       });
   
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      if (response.ok) {
+        console.log('Finance form submitted successfully');
+        onClose();
+      } else {
+        console.error('Failed to submit finance form');
       }
-  
-      const result = await response.json();
-      console.log("Form submitted successfully:", result);
-      alert("Finance form submitted successfully!");
-      onClose(); // Close the modal after submission
     } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("There was an error submitting the form. Please try again.");
+      console.error('Error submitting finance form:', error);
     }
   };
-  
 
   return (
     <Modal
