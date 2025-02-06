@@ -110,6 +110,7 @@ export function CartModal({
                         </TableContainer>
                     </Stack>
                 </Box>
+                
                 <Box
                     sx={{ 
                         position: "sticky",
@@ -151,6 +152,7 @@ export function CartModal({
                     <Button variant="contained" onClick={onClose} color="primary" size="small">Back</Button>
                     <Button variant="contained" color="primary" size="small" onClick={handleSubmitCart}>Submit</Button>
                 </Box>
+
             </Box>
         </Modal>
     );

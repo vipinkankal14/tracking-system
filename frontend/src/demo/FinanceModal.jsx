@@ -95,35 +95,49 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
   };
 
   const handleSubmit = async () => {
-    const loanData = {
-      customerId: personalInfo.customerId,
-      loanAmount,
-      interestRate,
-      loanDuration,
-      calculatedEMI,
-      employedType,
-      uploadedFiles
-    };
-  
-    try {
-      const response = await fetch('http://localhost:5000/api/loans', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(loanData),
-      });
-  
-      if (response.ok) {
-        console.log('Finance form submitted successfully');
-        onClose();
-      } else {
-        console.error('Failed to submit finance form');
-      }
-    } catch (error) {
-      console.error('Error submitting finance form:', error);
+    if (!personalInfo?.customerId) {
+        alert("Please fill in your personal information before submitting the cart.");
+        return;
     }
-  };
+
+    if (!loanAmount || !interestRate || !loanDuration) {
+        alert("Please fill in all required loan details.");
+        return;
+    }
+
+    const loanData = {
+        customerId: personalInfo.customerId,
+        loanAmount,
+        interestRate,
+        loanDuration,
+        calculatedEMI,
+        employedType,
+        uploadedFiles
+    };
+
+    try {
+        const response = await fetch('http://localhost:5000/api/loans', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loanData),
+        });
+
+        if (response.ok) {
+            console.log('Finance form submitted successfully');
+            onClose();
+        } else {
+            const errorMessage = await response.json();
+            console.error('Failed to submit finance form:', errorMessage);
+            alert(`Error: ${errorMessage.message || 'Something went wrong'}`);
+        }
+    } catch (error) {
+        console.error('Error submitting finance form:', error);
+        alert('An unexpected error occurred. Please try again.');
+    }
+};
+
 
   return (
     <Modal
@@ -236,27 +250,36 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
             </Box>
           </Box>
 
-          <Button variant="contained" onClick={handleCalculateEMI}>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Button size="small" variant="contained" onClick={handleCalculateEMI}>
             Calculate EMI
           </Button>
+          </Box>
 
           
           <Box
-  style={{
+  sx={{
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    display: "flex",
-    width: "100%",  
+    width: "100%",
   }}
 >
-  <FormControl sx={{ mt: 2, width: "100%" }} variant="outlined">
+  <FormControl
+    sx={{
+      mt: 2,
+      width: "100%",
+      maxWidth: 300, // Limits width for better UI on large screens
+    }}
+    variant="outlined"
+  >
     <InputLabel id="employed-type-label">Select Employed Type</InputLabel>
     <Select
       labelId="employed-type-label"
       value={employedType}
       onChange={(e) => setEmployedType(e.target.value)}
       label="Select Employed Type"
-      sx={{ maxWidth: 300}} // Ensures it takes full width on small screens
+      sx={{ width: "100%" }} // Ensures it remains responsive
     >
       {Object.keys(documentLists).map((type) => (
         <MenuItem key={type} value={type}>
@@ -266,6 +289,7 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
     </Select>
   </FormControl>
 </Box>
+
 
 
           {employedType && (

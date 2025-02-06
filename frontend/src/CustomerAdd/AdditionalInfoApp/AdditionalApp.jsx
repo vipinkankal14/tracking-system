@@ -1,18 +1,20 @@
 import React, { useState } from "react";
-import { Card, RadioGroup, FormControlLabel, Radio, FormLabel, Grid, FormControl } from "@mui/material";
+import { Button, Grid, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from "@mui/material";
 import { AccessoriesModal } from "../../demo/AccessoriesModal";
 import { CoatingModal } from "../../demo/CoatingModal";
 import { CartModal } from "../../demo/CartModal";
 import FinanceModal from "../../demo/FinanceModal";
+import AccessoriesModalView from "../../demo/AccessoriesModalView";
+import { Link } from "react-router-dom";
 
 function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
   const [showAccessoriesModal, setShowAccessoriesModal] = useState(false);
   const [showCoatingModal, setShowCoatingModal] = useState(false);
-  const [showfinanceModal, setShowfinanceModal] = useState(false);
-
+  const [showFinanceModal, setShowFinanceModal] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [addedItems, setAddedItems] = useState([]);
+  const [usershowCartModal, setUserShowCartModal] = useState(false);
 
   const handleChange = (name, value) => {
     updateData(name, value);
@@ -26,7 +28,7 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
     }
 
     if (name === "finance" && value === "Yes") {
-      setShowfinanceModal(true);
+      setShowFinanceModal(true);
     }
   };
 
@@ -44,27 +46,47 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <Grid container spacing={4} style={{ marginTop: "-1rem"}}>
+      <Grid container spacing={4} style={{ marginTop: "-1rem" }}>
         {services.map((service) => (
-          <Grid item xs={6} sm={6} md={3} key={service.name} style={{ marginBottom: "1rem"}}>
-            
-              <FormControl fullWidth>
-                <FormLabel component="legend">{service.label}</FormLabel>
-                <RadioGroup
-                  value={data[service.name] || "No"}
-                  onChange={(event) => handleChange(service.name, event.target.value)}
-                  row
-                >
-                  <FormControlLabel value="Yes" control={<Radio size="" />} label="Yes" />
-                  <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
-                </RadioGroup>
-              </FormControl>
-         
+          <Grid item xs={6} sm={6} md={3} key={service.name} style={{ marginBottom: "1rem" }}>
+            <FormControl fullWidth>
+              <FormLabel component="legend">
+                {service.label}
+                
+              </FormLabel>
+              <RadioGroup
+                value={data[service.name] || "No"}
+                onChange={(event) => handleChange(service.name, event.target.value)}
+                row
+              >
+                <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+                {service.name === "accessories" && data[service.name] === "Yes" && (
+                  <Link
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() => setUserShowCartModal(true)}
+                    style={{ marginLeft: "1rem" }}
+                  >
+                   View Cart
+                  </Link>
+                )}
+              </RadioGroup>
+            </FormControl>
           </Grid>
         ))}
       </Grid>
 
-      
+
+      {usershowCartModal && (
+        <AccessoriesModalView
+          open={usershowCartModal}
+          onClose={() => setUserShowCartModal(false)}
+          personalInfo={personalInfo}
+          carInfo={carInfo}
+        />
+      )}
 
       {showAccessoriesModal && (
         <AccessoriesModal
@@ -100,18 +122,14 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
         />
       )}
 
-      {showfinanceModal && (
+      {showFinanceModal && (
         <FinanceModal
-          open={showfinanceModal}
-          onClose={() => setShowfinanceModal(false)}
+          open={showFinanceModal}
+          onClose={() => setShowFinanceModal(false)}
           personalInfo={personalInfo}
           carInfo={carInfo}
         />
       )}
-
-
-
-
     </div>
   );
 }
