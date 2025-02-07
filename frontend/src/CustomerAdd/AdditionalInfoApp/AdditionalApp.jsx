@@ -6,6 +6,7 @@ import { CartModal } from "../../demo/CartModal";
 import FinanceModal from "../../demo/FinanceModal";
 import AccessoriesModalView from "../../demo/AccessoriesModalView";
 import { Link } from "react-router-dom";
+import FinanceModalView from "../../demo/FinanceModalView";
 
 function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
   const [showAccessoriesModal, setShowAccessoriesModal] = useState(false);
@@ -15,6 +16,7 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [addedItems, setAddedItems] = useState([]);
   const [usershowCartModal, setUserShowCartModal] = useState(false);
+  const [usershowFinanceModal, setUserShowFinanceModal] = useState(false);
 
   const handleChange = (name, value) => {
     updateData(name, value);
@@ -46,9 +48,9 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <Grid container spacing={4} style={{ marginTop: "-1rem" }}>
+      <Grid container spacing={2} style={{ marginTop: "-1rem" }}>
         {services.map((service) => (
-          <Grid item xs={6} sm={6} md={3} key={service.name} style={{ marginBottom: "1rem" }}>
+          <Grid item xs={8} sm={6} md={4} key={service.name} style={{ marginBottom: "1rem" }}>
             <FormControl fullWidth>
               <FormLabel component="legend">
                 {service.label}
@@ -61,17 +63,43 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
               >
                 <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
                 <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+
                 {service.name === "accessories" && data[service.name] === "Yes" && (
-                  <Link
-                    variant="contained"
+                  <Button
+               
                     color="primary"
                     size="small"
                     onClick={() => setUserShowCartModal(true)}
-                    style={{ marginLeft: "1rem" }}
+                    style={{ marginLeft: "1rem"}}
                   >
-                   View Cart
-                  </Link>
+                   View cart
+                  </Button>
+          
                 )}
+
+                
+                {service.name === "finance" && data[service.name] === "Yes" && (
+                  <Button
+                    color="primary"
+                    size="small"
+                    style={{ marginLeft: "1rem" }}
+                    onClick={() => setUserShowFinanceModal(true)}
+                  >
+                  finance Details
+                  </Button>
+                )}
+
+                {service.name === "coating" && data[service.name] === "Yes" && (
+                  <Button
+                    color="primary"
+                    size="small"
+                    style={{ marginLeft: "1rem"}}
+                  >
+                   View coating
+                  </Button>
+          
+                )}
+
               </RadioGroup>
             </FormControl>
           </Grid>
@@ -83,10 +111,22 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
         <AccessoriesModalView
           open={usershowCartModal}
           onClose={() => setUserShowCartModal(false)}
+          onShowCart={() => setShowAccessoriesModal(true)}
           personalInfo={personalInfo}
           carInfo={carInfo}
         />
       )}
+
+      {usershowFinanceModal && (
+        <FinanceModalView
+          open={usershowFinanceModal}
+          onClose={() => setUserShowFinanceModal(false)}
+          personalInfo={personalInfo}
+          carInfo={carInfo}
+        />
+      )}
+
+
 
       {showAccessoriesModal && (
         <AccessoriesModal

@@ -25,6 +25,7 @@ const { handlePayment, getAllCustomers, getCustomerById } = require('./db/routes
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
+const { getCustomerOrders } = require('./db/routes/userModal/user');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */ 
  
@@ -37,8 +38,7 @@ app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAll
 app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers); 
 app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
 app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
-
-
+app.get('/orders/:customerId', getCustomerOrders);
 
 app.post('/api/submitCart', (req, res) => {
   const { customerId, totalAmount, products } = req.body;
@@ -173,26 +173,6 @@ app.post('/api/loans', (req, res) => {
       .catch(err => res.status(500).send(err));
   });
 });
-
-
-app.get('/orders/:customerId', async (req, res) => {
-  const { customerId } = req.params;
-
-  try {
-      const [orders] = await pool.promise().query('SELECT * FROM orders WHERE customerId = ?', [customerId]);
-
-      for (let order of orders) {
-          const [products] = await pool.promise().query('SELECT * FROM order_products WHERE orderId = ?', [order.id]);
-          order.products = products;
-      }
-
-      res.json({ orders });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
-
 
 
 

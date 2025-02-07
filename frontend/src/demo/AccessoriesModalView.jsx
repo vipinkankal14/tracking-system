@@ -9,7 +9,7 @@ const fetchOrdersByCustomerId = async (customerId) => {
     return response.json();
 };
 
-function AccessoriesModalView({ open, onClose, personalInfo, carInfo }) {
+function AccessoriesModalView({ open, onClose, personalInfo, carInfo, onShowCart }) {
     const [orders, setOrders] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [totalAmount, setTotalAmount] = useState(0);
@@ -22,7 +22,7 @@ function AccessoriesModalView({ open, onClose, personalInfo, carInfo }) {
                     const allProducts = data.orders.flatMap(order => order.products);
                     setSelectedProducts(allProducts);
                     const total = allProducts.reduce((acc, product) => {
-                        return acc + (Number(product.price) || 0); // Ensure price is a number
+                        return acc + (Number(product.price) || 0);  
                     }, 0);
                     setTotalAmount(total);
                 })
@@ -100,7 +100,7 @@ function AccessoriesModalView({ open, onClose, personalInfo, carInfo }) {
                     }}
                 >
                     <Button variant="contained" onClick={onClose} color="primary" size="small">Back</Button>
-                    <Button variant="contained" onClick={onClose} color="primary" size="small">update</Button>   
+                    <Button variant="contained" onClick={onShowCart} color="primary" size="small">update</Button>   
                 </Box>
             </Box>
         </Modal>
