@@ -47,10 +47,10 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
   ];
 
   return (
-    <div style={{ padding: "1rem" }}>
+    <div style={{ padding: "1rem", marginTop: "1rem", marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "5px" , boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)"}}>
       <Grid container spacing={2} style={{ marginTop: "-1rem" }}>
         {services.map((service) => (
-          <Grid item xs={8} sm={6} md={4} key={service.name} style={{ marginBottom: "1rem" }}>
+          <Grid item xs={6} sm={6} md={4} key={service.name} style={{ marginBottom: "1rem" }}>
             <FormControl fullWidth>
               <FormLabel component="legend">
                 {service.label}

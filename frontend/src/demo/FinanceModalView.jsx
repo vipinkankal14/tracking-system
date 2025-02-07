@@ -17,6 +17,10 @@ import {
     TextField,
     Slider,
     InputAdornment,
+    Card,
+    CardActionArea,
+    CardMedia,
+    CardContent,
 } from "@mui/material";
 import {
     Person,
@@ -25,8 +29,8 @@ import {
     Delete as DeleteIcon,
 } from "@mui/icons-material";
 
- 
-
+import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
+import CreditScoreRoundedIcon from '@mui/icons-material/CreditScoreRounded';
 
 
 const FinanceModalView = ({ open, onClose, personalInfo, carInfo }) => {
@@ -88,35 +92,54 @@ const FinanceModalView = ({ open, onClose, personalInfo, carInfo }) => {
                         <Paper variant="outlined" sx={{ p: 2 }}>
                             <Stack spacing={2}>
                                 <Box display="flex" alignItems="center" gap={1}>
-                                    <DirectionsCar />
+                                    <CreditScoreRoundedIcon />
                                     <Typography variant="h6">Lons Information</Typography>
                                 </Box>
                                 <List dense>
-                                    <Typography variant="body2">Car Model: </Typography>
-                                    <Typography variant="body2">Car Version: </Typography>
-                                    <Typography variant="body2">Car Color: </Typography>
+                                    <Typography variant="body2">loan_amount: </Typography>
+                                    <Typography variant="body2">interest_rate: </Typography>
+                                    <Typography variant="body2">loan_duration: </Typography>
+                                    <Typography variant="body2">calculated_emi: </Typography>
+                                    <Typography variant="body2">employed type: </Typography>
                                 </List>
                             </Stack>
-                        </Paper>   
-
-
-
-
-
-                   
-
-                     
-
-                   
-
-                   
-
+                    </Paper>
                     
- 
+                    <Box display="grid" gap={3} gridTemplateColumns={{ xs: "1fr", md: "1fr" }}>
+                        <Paper variant="outlined" sx={{ p: 2 }}>
+                            <Stack spacing={2}>
+                            <Box display="flex" alignItems="center" gap={1}>
+                                <PictureAsPdfOutlinedIcon />
+                                <Typography variant="h6">Customer Documents </Typography>
+                            </Box>
+                            <List dense>
+                                <Box display="grid" gap={2} gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}>
+                                <Card sx={{ maxWidth: 300 }}>
+                                    <CardActionArea>
+                                    <CardMedia component="img" height="100" alt="Uploaded File" />
+                                    <CardContent>
+                                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                                        Document Name
+                                        </Typography>
+                                    </CardContent>
+                                    </CardActionArea>
+                                </Card>
 
-
-
-                    
+                                <Card sx={{ maxWidth: 300 }}>
+                                    <CardActionArea>
+                                    <CardMedia component="img" height="100" alt="Uploaded File" />
+                                    <CardContent>
+                                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                                        Document Name
+                                        </Typography>
+                                    </CardContent>
+                                    </CardActionArea>
+                                </Card>
+                                </Box>
+                            </List>
+                            </Stack>
+                        </Paper>
+                    </Box>    
                 </Stack>
 
                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
