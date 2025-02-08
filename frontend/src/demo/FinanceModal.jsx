@@ -23,6 +23,7 @@ import {
   DirectionsCar,
   UploadFile as UploadFileIcon,
   Delete as DeleteIcon,
+  Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 
 const documentLists = {
@@ -71,11 +72,13 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
 
   const handleFileUpload = (event, doc) => {
     const file = event.target.files[0];
-    if (file) {
+    if (file && file.type === "application/pdf") {
       setUploadedFiles((prevFiles) => ({
         ...prevFiles,
-        [doc]: file.name,
+        [doc]: file,
       }));
+    } else {
+      alert("Please upload a valid PDF file.");
     }
   };
 
@@ -95,59 +98,58 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
   };
 
   const handleSubmit = async () => {
-    if (!personalInfo?.customerId) {
-        alert("Please fill in your personal information before submitting the cart.");
-        return;
+    if (!personalInfo?.customerId || !loanAmount || !interestRate || !loanDuration) {
+      alert("Please fill in all required fields.");
+      return;
     }
-
-    if (!loanAmount || !interestRate || !loanDuration) {
-        alert("Please fill in all required loan details.");
-        return;
-    }
-
-    const loanData = {
-        customerId: personalInfo.customerId,
-        loanAmount,
-        interestRate,
-        loanDuration,
-        calculatedEMI,
-        employedType,
-        uploadedFiles
-    };
-
+  
+    const formData = new FormData();
+    formData.append("customerId", personalInfo.customerId);
+    formData.append("loanAmount", loanAmount);
+    formData.append("interestRate", interestRate);
+    formData.append("loanDuration", loanDuration);
+    formData.append("calculatedEMI", calculatedEMI);
+    formData.append("employedType", employedType);
+  
+    // Append uploaded documents
+    Object.values(uploadedFiles).forEach((file) => {
+      formData.append("documents", file);
+    });
+  
     try {
-        const response = await fetch('http://localhost:5000/api/loans', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(loanData),
-        });
-
-        if (response.ok) {
-            console.log('Finance form submitted successfully');
-            onClose();
-        } else {
-            const errorMessage = await response.json();
-            console.error('Failed to submit finance form:', errorMessage);
-            alert(`Error: ${errorMessage.message || 'Something went wrong'}`);
-        }
+      const response = await fetch("http://localhost:5000/api/loans", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (response.ok) {
+        console.log("Finance form submitted successfully");
+        onClose();
+      } else {
+        const errorMessage = await response.json();
+        console.error("Failed to submit finance form:", errorMessage);
+        alert(`Error: ${errorMessage.message || "Something went wrong"}`);
+      }
     } catch (error) {
-        console.error('Error submitting finance form:', error);
-        alert('An unexpected error occurred. Please try again.');
+      console.error("Error submitting finance form:", error);
+      alert("An unexpected error occurred. Please try again.");
     }
-};
+  };
+  
+ 
 
+  const handleFilePreview = (file) => {
+    if (file.type === "application/pdf") {
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL, "_blank");
+    } else {
+      alert("File is not a PDF.");
+    }
+  };
 
   return (
-    <Modal
-      open={open}
-      closeAfterTransition
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-      sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}
-    >
-      <Box component={Paper} sx={{ m: 0.5, height: "99vh", width: { xs: "100vw", sm: "85vh" }, p: 2 }}>
+    <Modal open={open} onClose={onClose}>
+      <Box component={Paper} sx={{ m: 0.5, height: "99vh", width: { xs: "100vw", sm: "85vh" }, p: 1 }}>
         <Box textAlign="center" sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <Typography id="modal-title" variant="h5">
             Car Finance Services
@@ -155,7 +157,8 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
         </Box>
 
         <Stack spacing={2} sx={{ p: 1, maxWidth: 600, height: "79vh", overflowY: "auto", borderRadius: 2 }}>
-          <Box display="grid" gap={3} gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}>
+          {/* Personal and Vehicle Information */}
+          <Box display="grid" gap={2} gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}>
             <Paper variant="outlined" sx={{ p: 2 }}>
               <Stack spacing={2}>
                 <Box display="flex" alignItems="center" gap={1}>
@@ -163,9 +166,7 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                   <Typography variant="h6">Personal Information</Typography>
                 </Box>
                 <List dense>
-                <Typography variant="body2">
-                customerId: {personalInfo?.customerId}
-                  </Typography>
+                  <Typography variant="body2">Customer ID: {personalInfo?.customerId}</Typography>
                   <Typography variant="body2">
                     Full Name: {personalInfo?.firstName} {personalInfo?.middleName} {personalInfo?.lastName}
                   </Typography>
@@ -192,14 +193,8 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
             </Paper>
           </Box>
 
-          <Box
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              display: "flex",
-              width: "100%", // Make Box take full width
-            }}
-          >
+          {/* Loan Amount Input */}
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
             <TextField
               label="Loan Amount"
               type="number"
@@ -209,19 +204,21 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                 startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
               }}
               variant="outlined"
-              fullWidth // Ensures the TextField is full width
-              sx={{ maxWidth: 300 }} // Optional: You can set a max width to avoid stretching too much on large screens
+              fullWidth
+              sx={{ maxWidth: 300 }}
             />
           </Box>
 
-          <Box style={{ justifyContent: "center", alignItems: "center", display: "flex", marginTop: "4px" }}>
-            {calculatedEMI && (
-              <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
+          {/* EMI Calculation Result */}
+          {calculatedEMI && (
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Typography variant="h6" color="primary">
                 Estimated Monthly EMI: ₹{calculatedEMI}
               </Typography>
-            )}
-          </Box>
+            </Box>
+          )}
 
+          {/* Interest Rate and Loan Duration Sliders */}
           <Box display="flex" flexDirection={{ xs: "column", sm: "row" }}>
             <Box sx={{ flex: 1, mb: { xs: 2, sm: 0 }, mr: { xs: 4, sm: 4 }, ml: 2 }}>
               <Typography gutterBottom>Interest Rate (%)</Typography>
@@ -250,48 +247,34 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
             </Box>
           </Box>
 
+          {/* Calculate EMI Button */}
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Button size="small" variant="contained" onClick={handleCalculateEMI}>
-            Calculate EMI
-          </Button>
+            <Button size="small" variant="contained" onClick={handleCalculateEMI}>
+              Calculate EMI
+            </Button>
           </Box>
 
-          
-          <Box
-  sx={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-  }}
->
-  <FormControl
-    sx={{
-      mt: 2,
-      width: "100%",
-      maxWidth: 300, // Limits width for better UI on large screens
-    }}
-    variant="outlined"
-  >
-    <InputLabel id="employed-type-label">Select Employed Type</InputLabel>
-    <Select
-      labelId="employed-type-label"
-      value={employedType}
-      onChange={(e) => setEmployedType(e.target.value)}
-      label="Select Employed Type"
-      sx={{ width: "100%" }} // Ensures it remains responsive
-    >
-      {Object.keys(documentLists).map((type) => (
-        <MenuItem key={type} value={type}>
-          {type}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Box>
+          {/* Employed Type Dropdown */}
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <FormControl sx={{ mt: 2, width: "100%", maxWidth: 300 }} variant="outlined">
+              <InputLabel id="employed-type-label">Select Employed Type</InputLabel>
+              <Select
+                labelId="employed-type-label"
+                value={employedType}
+                onChange={(e) => setEmployedType(e.target.value)}
+                label="Select Employed Type"
+                sx={{ width: "100%" }}
+              >
+                {Object.keys(documentLists).map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
 
-
-
+          {/* Document Upload Section */}
           {employedType && (
             <Box sx={{ mt: 4 }}>
               <Typography variant="h6" gutterBottom>
@@ -304,7 +287,7 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <input
                         type="file"
-                        accept=".pdf"
+                        accept="application/pdf"
                         id={`upload-${doc}`}
                         style={{ display: "none" }}
                         onChange={(event) => handleFileUpload(event, doc)}
@@ -317,8 +300,13 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                       {uploadedFiles[doc] && (
                         <>
                           <Typography variant="caption" sx={{ ml: 1 }}>
-                            {uploadedFiles[doc]}
+                            {uploadedFiles[doc].name}
                           </Typography>
+                          {uploadedFiles[doc].type === "application/pdf" && (
+                            <IconButton color="primary" onClick={() => handleFilePreview(uploadedFiles[doc])} sx={{ ml: 1 }}>
+                              <VisibilityIcon />
+                            </IconButton>
+                          )}
                           <IconButton color="error" onClick={() => handleFileRemove(doc)} sx={{ ml: 1 }}>
                             <DeleteIcon />
                           </IconButton>
@@ -332,7 +320,8 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
           )}
         </Stack>
 
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+        {/* Close and Submit Buttons */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
           <Button variant="contained" color="secondary" onClick={onClose}>
             Close
           </Button>

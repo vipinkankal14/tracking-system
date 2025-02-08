@@ -1,5 +1,10 @@
-const express = require('express');
+const express = require("express");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+const bodyParser = require("body-parser");
 const cors = require('cors');
+
 const http = require('http'); // For creating the HTTP server
 const { Server } = require('socket.io'); // For real-time updates
 require('dotenv').config(); // Load environment variables from .env
@@ -12,11 +17,10 @@ const io = new Server(server, { cors: { origin: '*' } }); // Initialize Socket.I
 
 const port = process.env.PORT || 5000;
 
-// Middleware
+// Enable CORS for all routes
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" })); // Increase limit for large file uploads
 
- 
 
 
 
@@ -146,31 +150,115 @@ app.post('/api/submitCoatingRequest', (req, res) => {
 });
 
 
-// Endpoint to save loan and document details
-app.post('/api/loans', (req, res) => {
-  const { customerId, loanAmount, interestRate, loanDuration, calculatedEMI, employedType, uploadedFiles } = req.body;
 
-  // Insert into loans table
-  const loanQuery = 'INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) VALUES (?, ?, ?, ?, ?)';
-  pool.query(loanQuery, [customerId, loanAmount, interestRate, loanDuration, calculatedEMI], (err, result) => {
-    if (err) throw err;
 
-    const loanId = result.insertId;
+// Increase payload size limits
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-    // Insert into customer_documents table
-    const documentQueries = Object.keys(uploadedFiles).map(doc => {
-      return new Promise((resolve, reject) => {
-        const docQuery = 'INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file_name) VALUES (?, ?, ?, ?)';
-        pool.query(docQuery, [loanId, employedType, doc, uploadedFiles[doc]], (err, result) => {
-          if (err) return reject(err);
-          resolve(result);
+
+// Set up Multer storage for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "uploads", req.body.customerId);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+
+app.post("/api/loans", upload.array("documents"), (req, res) => {
+  const { customerId, loanAmount, interestRate, loanDuration, calculatedEMI, employedType } = req.body;
+  const files = req.files; // Files uploaded via Multer
+
+  if (!customerId || !loanAmount || !interestRate || !loanDuration) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error("Error getting database connection:", err);
+      return res.status(500).json({ message: "Database connection error" });
+    }
+
+    connection.beginTransaction(async (err) => {
+      if (err) {
+        connection.release();
+        console.error("Error starting transaction:", err);
+        return res.status(500).json({ message: "Transaction error" });
+      }
+
+      try {
+        // Insert loan details
+        connection.query(
+          `INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) 
+           VALUES (?, ?, ?, ?, ?)`,
+          [customerId, loanAmount, interestRate, loanDuration, calculatedEMI],
+          (err, loanResult) => {
+            if (err) {
+              connection.rollback(() => {
+                connection.release();
+                console.error("Error inserting loan details:", err);
+                return res.status(500).json({ message: "Error inserting loan details" });
+              });
+            }
+
+            const loanId = loanResult.insertId;
+
+            // Insert documents
+            const documentPromises = files.map((file) => {
+              return new Promise((resolve, reject) => {
+                connection.query(
+                  `INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file)
+                   VALUES (?, ?, ?, ?)`,
+                  [loanId, employedType, file.originalname, file.path],
+                  (err) => {
+                    if (err) {
+                      return reject(err);
+                    }
+                    resolve();
+                  }
+                );
+              });
+            });
+
+            Promise.all(documentPromises)
+              .then(() => {
+                connection.commit((err) => {
+                  if (err) {
+                    connection.rollback(() => {
+                      connection.release();
+                      console.error("Error committing transaction:", err);
+                      return res.status(500).json({ message: "Transaction commit error" });
+                    });
+                  } else {
+                    connection.release();
+                    res.status(201).json({ message: "Loan application submitted successfully." });
+                  }
+                });
+              })
+              .catch((error) => {
+                connection.rollback(() => {
+                  connection.release();
+                  console.error("Error inserting documents:", error);
+                  res.status(500).json({ message: "Error inserting documents", error });
+                });
+              });
+          }
+        );
+      } catch (error) {
+        connection.rollback(() => {
+          connection.release();
+          console.error("Error submitting loan:", error);
+          res.status(500).json({ message: "Error submitting loan application", error });
         });
-      });
+      }
     });
-
-    Promise.all(documentQueries)
-      .then(() => res.status(200).send('Loan and documents saved successfully'))
-      .catch(err => res.status(500).send(err));
   });
 });
 

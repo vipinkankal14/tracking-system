@@ -6,17 +6,9 @@ import {
     Stack,
     Typography,
     List,
-    ListItem,
-    ListItemText,
+    
     Button,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    IconButton,
-    TextField,
-    Slider,
-    InputAdornment,
+ 
     Card,
     CardActionArea,
     CardMedia,
@@ -33,6 +25,15 @@ import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import CreditScoreRoundedIcon from '@mui/icons-material/CreditScoreRounded';
 
 
+const fetchOrdersByCustomerId = async (customerId) => {
+    const response = await fetch(`http://localhost:5000/orders/${customerId}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+    }
+    return response.json();
+};
+
+
 const FinanceModalView = ({ open, onClose, personalInfo, carInfo }) => {
     
  
@@ -44,14 +45,15 @@ const FinanceModalView = ({ open, onClose, personalInfo, carInfo }) => {
             aria-describedby="modal-description"
             sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}
         >
-            <Box component={Paper} sx={{ m: 0.5, height: "99vh", width: { xs: "100vw", sm: "85vh" }, p: 2 }}>
-                <Box textAlign="center" sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <Typography id="modal-title" variant="h5">
+            <Box component={Paper} sx={{ m: 0.5, width: { xs: "100vw", sm: "65vh" }, height: { xs: "146vw", sm: "99vh" }, p: 1 }}>
+                <Stack spacing={1} sx={{ p: 1, maxWidth: 600, height: { xs: "74vh", sm: "89vh" }, overflowY: "auto", borderRadius: 2, }}>
+             
+                   
+                       
+                    <p style={{ display: "flex", alignItems: "center",justifyContent:'center'}}>
                         Car Finance Services
-                    </Typography>
-                </Box>
-
-                <Stack spacing={2} sx={{ p: 1, maxWidth: 600, height: "79vh", overflowY: "auto", borderRadius: 2 }}>
+                    </p>
+              
                     <Box display="grid" gap={3} gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}>
                         <Paper variant="outlined" sx={{ p: 2 }}>
                             <Stack spacing={2}>
@@ -143,11 +145,11 @@ const FinanceModalView = ({ open, onClose, personalInfo, carInfo }) => {
                 </Stack>
 
                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
-                    <Button variant="contained" color="secondary" onClick={onClose}>
+                    <Button size="small"  variant="contained" color="secondary" onClick={onClose}>
                         Close
                     </Button>
-                    <Button variant="contained" color="primary" onClick={() => {}}>
-                        Submit
+                    <Button size="small"  variant="contained" color="primary">
+                        Update
                     </Button>
                 </Box>
             </Box>
