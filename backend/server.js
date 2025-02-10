@@ -29,7 +29,7 @@ const { handlePayment, getAllCustomers, getCustomerById } = require('./db/routes
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
-const { getCustomerOrders } = require('./db/routes/userModal/user');
+const { getCustomerOrders, getCustomerLoans } = require('./db/routes/userModal/user');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */ 
  
@@ -43,6 +43,11 @@ app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers);
 app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
 app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 app.get('/orders/:customerId', getCustomerOrders);
+
+// Serve static files from the "uploads" directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.get('/loans/:customerId', getCustomerLoans);
+
 
 app.post('/api/submitCart', (req, res) => {
   const { customerId, totalAmount, products } = req.body;
@@ -111,9 +116,9 @@ app.post('/api/submitCart', (req, res) => {
 });
 
 app.post('/api/submitCoatingRequest', (req, res) => {
-  console.log("Request Body:", req.body);
+  console.log("coating request received");
 
-  const { customerId, coatingType, preferredDate, preferredTime, additionalNotes } = req.body;
+  const { customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes } = req.body;
 
   if (!customerId) {
     return res.status(400).json({ message: 'Customer ID is required' });
@@ -135,11 +140,11 @@ app.post('/api/submitCoatingRequest', (req, res) => {
 
     // If no duplicate is found, proceed to insert the new request
     const insertQuery = `
-      INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, additionalNotes)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    pool.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, additionalNotes], (err, results) => {
+    pool.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes], (err, results) => {
       if (err) {
         console.error('Error inserting coating request:', err);
         return res.status(500).json({ message: 'Error submitting coating request' });
@@ -150,11 +155,10 @@ app.post('/api/submitCoatingRequest', (req, res) => {
 });
 
 
-
-
 // Increase payload size limits
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+
 
 
 // Set up Multer storage for file uploads
@@ -173,95 +177,101 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.post("/api/loans", upload.array("documents"), (req, res) => {
-  const { customerId, loanAmount, interestRate, loanDuration, calculatedEMI, employedType } = req.body;
-  const files = req.files; // Files uploaded via Multer
+  const { 
+    customerId, 
+    loanAmount, 
+    interestRate, 
+    loanDuration, 
+    calculatedEMI, 
+    employedType, 
+    requiredDocuments 
+  } = req.body;
+  const files = req.files;
 
-  if (!customerId || !loanAmount || !interestRate || !loanDuration) {
+  if (!customerId || !loanAmount || !interestRate || !loanDuration || !employedType || !requiredDocuments) {
     return res.status(400).json({ message: "All fields are required." });
+  }
+
+  const requiredDocsArray = JSON.parse(requiredDocuments);
+  if (files.length !== requiredDocsArray.length) {
+    return res.status(400).json({ message: `Please upload all required documents for ${employedType}.` });
   }
 
   pool.getConnection((err, connection) => {
     if (err) {
-      console.error("Error getting database connection:", err);
+      console.error("Database connection error:", err);
       return res.status(500).json({ message: "Database connection error" });
     }
 
-    connection.beginTransaction(async (err) => {
+    connection.beginTransaction((err) => {
       if (err) {
         connection.release();
-        console.error("Error starting transaction:", err);
+        console.error("Transaction error:", err);
         return res.status(500).json({ message: "Transaction error" });
       }
 
       try {
-        // Insert loan details
-        connection.query(
-          `INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) 
-           VALUES (?, ?, ?, ?, ?)`,
-          [customerId, loanAmount, interestRate, loanDuration, calculatedEMI],
-          (err, loanResult) => {
-            if (err) {
+        const loanQuery = `INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) VALUES (?, ?, ?, ?, ?)`;
+        connection.query(loanQuery, [customerId, loanAmount, interestRate, loanDuration, calculatedEMI], (err, loanResult) => {
+          if (err) {
+            connection.rollback(() => {
+              connection.release();
+              console.error("Error inserting loan details:", err);
+              return res.status(500).json({ message: "Error inserting loan details" });
+            });
+            return;
+          }
+
+          const loanId = loanResult.insertId;
+          const documentPromises = files.map((file, index) => {
+            const documentName = requiredDocsArray[index];
+            return new Promise((resolve, reject) => {
+              connection.query(
+                `INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file) VALUES (?, ?, ?, ?)`,
+                [loanId, employedType, documentName, file.path],
+                (err) => {
+                  if (err) {
+                    return reject(err);
+                  }
+                  resolve();
+                }
+              );
+            });
+          });
+
+          Promise.all(documentPromises)
+            .then(() => {
+              connection.commit((err) => {
+                if (err) {
+                  connection.rollback(() => {
+                    connection.release();
+                    console.error("Transaction commit error:", err);
+                    return res.status(500).json({ message: "Transaction commit error" });
+                  });
+                  return;
+                }
+                connection.release();
+                res.status(201).json({ message: "Loan application submitted successfully." });
+              });
+            })
+            .catch((error) => {
               connection.rollback(() => {
                 connection.release();
-                console.error("Error inserting loan details:", err);
-                return res.status(500).json({ message: "Error inserting loan details" });
-              });
-            }
-
-            const loanId = loanResult.insertId;
-
-            // Insert documents
-            const documentPromises = files.map((file) => {
-              return new Promise((resolve, reject) => {
-                connection.query(
-                  `INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file)
-                   VALUES (?, ?, ?, ?)`,
-                  [loanId, employedType, file.originalname, file.path],
-                  (err) => {
-                    if (err) {
-                      return reject(err);
-                    }
-                    resolve();
-                  }
-                );
+                console.error("Error inserting documents:", error);
+                res.status(500).json({ message: "Error inserting documents", error });
               });
             });
-
-            Promise.all(documentPromises)
-              .then(() => {
-                connection.commit((err) => {
-                  if (err) {
-                    connection.rollback(() => {
-                      connection.release();
-                      console.error("Error committing transaction:", err);
-                      return res.status(500).json({ message: "Transaction commit error" });
-                    });
-                  } else {
-                    connection.release();
-                    res.status(201).json({ message: "Loan application submitted successfully." });
-                  }
-                });
-              })
-              .catch((error) => {
-                connection.rollback(() => {
-                  connection.release();
-                  console.error("Error inserting documents:", error);
-                  res.status(500).json({ message: "Error inserting documents", error });
-                });
-              });
-          }
-        );
+        });
       } catch (error) {
         connection.rollback(() => {
           connection.release();
-          console.error("Error submitting loan:", error);
-          res.status(500).json({ message: "Error submitting loan application", error });
+          console.error("Error in loan submission:", error);
+          res.status(500).json({ message: "Error in loan submission", error });
         });
       }
     });
   });
 });
-
 
 
 // API Route: Apply Booking

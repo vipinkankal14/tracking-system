@@ -7,7 +7,7 @@ import './sidebar.scss'
 export default function Sidebar({ isOpen, setIsOpen }) {
   const navItems = [
     { icon: <Home size={20} />, label: 'Home', path: '/Home' },
-    { icon: <GitPullRequest size={20} />, label: 'Customers', path: '/additional-details' },
+    { icon: <GitPullRequest size={20} />, label: 'Customers', path: '/' },
     { icon: <CircuitBoard size={20} />, label: 'CashierApp', path: '/cashier-app' },
     { icon: <MessageSquare size={20} />, label: 'car', path: '/car' },
     { icon: <Code2 size={20} />, label: 'AccessorieApp', path: '/accessorie-app' },

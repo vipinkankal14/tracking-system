@@ -5,12 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Nav/sidebar/Sidebar.scss';
 import { useState, Suspense, lazy } from "react";
 import './App.css';
-
-import "primereact/resources/themes/lara-light-blue/theme.css";  // or another theme
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
-
-
+ 
 import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails/CustomerPaymentDetails";
 import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
 import AddCarStock from "./carStocks/AddCarForUploadCarEXCEL/AddCarStock";
@@ -28,16 +23,12 @@ import DiscountApp from "./carStocks/discount/DiscountApp";
 import AllotmentStatusApp from "./carStocks/AllotmentStatus/AllotmentStatusApp";
 import CarManagement from "./carStocks/CarManagement/CarManagement";
 import PaymentApp from "./cashier/PaymentApp";
-import AdditionalInfo from "./CustomerAdd/AdditionalInfo";
-import CarInfo from "./CustomerAdd/CarInfo";
+ import CarInfo from "./CustomerAdd/CarInfo";
 import Confirmation from "./CustomerAdd/Confirmation";
 import OrderInfo from "./CustomerAdd/OrderInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
 import UpDocument from "./CustomerAdd/Document";
-import Accessories from "./CustomerAdd/Accessories/Accessories";
-import AddToCart from "./CustomerAdd/Accessories/AddToCart";
-import AdditionalApp from "./CustomerAdd/AdditionalInfoApp/AdditionalApp";
-import { Home } from "./home/Home";
+ import { Home } from "./home/Home";
 import AccessorieApp from "./Accessories/AccessorieApp";
 import AddedUploadViewApp from "./Accessories/AddedUploadView/AddedUploadViewApp";
 import { AccessorieUpload } from "./Accessories/AddedUploadView/AccessorieUpload";
@@ -49,11 +40,12 @@ import CancelAndModifyApp from "./Accessories/CancelAndModifyApp";
 import CancelByCustomer from "./Accessories/CustomerAccessories/CancelByCustomer";
 import { ModifyByCustomer } from "./Accessories/CustomerAccessories/ModifyByCustomer";
 import AccessorieView from "./Accessories/AddedUploadView/AccessorieView";
-import Demo from "./Demo";
-
+import Demo from "./zekedemo/Demo";
+import AdditionalInfo from "./CustomerAdd/AdditionalInfoApp/AdditionalInfo";
+   
 
 // Lazy loaded components
-const AdditionalDetails = lazy(() => import("./CustomerAdd/AdditionalDetails"));
+const AdditionalDetails = lazy(() => import("./zekedemo/AdditionalDetails"));
 const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
 const PaymentClear = lazy(() => import("./cashier/Payments/PaymentClear"));
 const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel/CarBookingCancel"));
@@ -64,9 +56,6 @@ const PaymentSuccessful = lazy(() => import("./cashier/Payments/PaymentSuccessfu
 const Car = lazy(() => import("./carStocks/CarApp"));
 const CarAllotment = lazy(() => import("./carStocks/CarAllotment/CarAllotment"));
 const SuccessPage = lazy(() => import("./CustomerAdd/SuccessPage"));
-
-
-
 
 
 
@@ -121,10 +110,7 @@ function App() {
                 <Route path="/OrderInfo" element={<OrderInfo />} />
                 <Route path="/PersonalInfo" element={<PersonalInfo />} />
                 <Route path="/UploadDocument" element={<UpDocument />} />
-                <Route path="/accessories" element={<Accessories />} />
-                <Route path="/add-to-cart" element={<AddToCart />} />
-                <Route path="/additional-app" element={<AdditionalApp />} />
-                <Route path="/accessorie-app" element={<AccessorieApp />} />
+                 <Route path="/accessorie-app" element={<AccessorieApp />} />
                 <Route path="/added-upload-viewapp" element={<AddedUploadViewApp />} />
                 <Route path="/accessorie-upload" element={<AccessorieUpload />} />
                 <Route path="/add-accessories" element={<AddAccessories />} />
@@ -135,7 +121,6 @@ function App() {
                 <Route path="/CancelAnd-Modify-App" element={<CancelAndModifyApp />} />
                 <Route path="/Modify-By-Customer" element={<ModifyByCustomer />} /> 
                 <Route path="/Cancel-By-Customer" element={<CancelByCustomer />} />
-                
                 <Route path="/Demo" element={<Demo />} />
 
               

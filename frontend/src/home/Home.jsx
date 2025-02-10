@@ -5,16 +5,14 @@ import clsx from "clsx";
 import PersonalInfo from "../CustomerAdd/PersonalInfo";
 import CarInfo from "../CustomerAdd/CarInfo";
 import OrderInfo from "../CustomerAdd/OrderInfo";
-import AdditionalInfo from "../CustomerAdd/AdditionalInfo";
-import Confirmation from "../CustomerAdd/Confirmation";
+ import Confirmation from "../CustomerAdd/Confirmation";
 import UpDocument from "../CustomerAdd/Document";
 import { Button } from "@mui/material"; // MUI components
 import { Check, ChevronRight } from "lucide-react"; // Replace with MUI Icons if needed
 import "../CustomerAdd/scss/MultiStepForm.scss";
 import { useNavigate } from "react-router-dom";
-import Accessories from "../CustomerAdd/Accessories/Accessories";
-import AddToCart from "../CustomerAdd/Accessories/AddToCart";
-
+import AdditionalInfo from "../CustomerAdd/AdditionalInfoApp/AdditionalInfo";
+ 
 const steps = [
   { id: 1, name: "Personal Info" },
   { id: 2, name: "Car Info" },
@@ -176,8 +174,6 @@ export function Home() {
       personalInfo={formData.personalInfo}
       carInfo={formData.carInfo}
       orderInfo={formData.orderInfo}
-    
-
     />
   );
   
