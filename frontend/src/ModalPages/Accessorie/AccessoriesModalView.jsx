@@ -110,7 +110,7 @@ function AccessoriesModalView({ open, onClose, personalInfo, carInfo, onShowCart
                         }}
                     >
                         <Button variant="contained" onClick={onClose} color="primary" size="small">Back</Button>
-                        <Button variant="contained" onClick={onShowCart} color="primary" size="small">update</Button>
+                        <Button variant="contained" onClick={() => { onClose(); onShowCart(); }} color="primary" size="small">update</Button>
                     </Box>
                 </Stack>
             </Box>

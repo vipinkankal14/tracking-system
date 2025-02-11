@@ -188,8 +188,28 @@ app.post("/api/loans", upload.array("documents"), (req, res) => {
   } = req.body;
   const files = req.files;
 
+  // Validate required fields
   if (!customerId || !loanAmount || !interestRate || !loanDuration || !employedType || !requiredDocuments) {
     return res.status(400).json({ message: "All fields are required." });
+  }
+
+  if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(loanDuration)) {
+    return res.status(400).json({ message: "Invalid loan details provided." });
+  }
+
+  // Validate uploaded files
+  if (!files || files.length === 0) {
+    return res.status(400).json({ message: "No files uploaded." });
+  }
+
+  const allowedMimeTypes = ["application/pdf"];
+  for (const file of files) {
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return res.status(400).json({ message: "Only PDF files are allowed." });
+    }
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      return res.status(400).json({ message: "File size should not exceed 5MB." });
+    }
   }
 
   const requiredDocsArray = JSON.parse(requiredDocuments);
@@ -211,67 +231,68 @@ app.post("/api/loans", upload.array("documents"), (req, res) => {
       }
 
       try {
-        const loanQuery = `INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) VALUES (?, ?, ?, ?, ?)`;
-        connection.query(loanQuery, [customerId, loanAmount, interestRate, loanDuration, calculatedEMI], (err, loanResult) => {
+        // Delete old data
+        const deleteOldDataQuery = `DELETE FROM loans WHERE customerId = ?`;
+        connection.query(deleteOldDataQuery, [customerId], (err) => {
           if (err) {
-            connection.rollback(() => {
-              connection.release();
-              console.error("Error inserting loan details:", err);
-              return res.status(500).json({ message: "Error inserting loan details" });
-            });
-            return;
+            return handleDatabaseError(err, connection, res, "Error deleting old loan data");
           }
 
-          const loanId = loanResult.insertId;
-          const documentPromises = files.map((file, index) => {
-            const documentName = requiredDocsArray[index];
-            return new Promise((resolve, reject) => {
-              connection.query(
-                `INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file) VALUES (?, ?, ?, ?)`,
-                [loanId, employedType, documentName, file.path],
-                (err) => {
-                  if (err) {
-                    return reject(err);
-                  }
-                  resolve();
-                }
-              );
-            });
-          });
+          // Insert loan details
+          const loanQuery = `INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) VALUES (?, ?, ?, ?, ?)`;
+          connection.query(loanQuery, [customerId, loanAmount, interestRate, loanDuration, calculatedEMI], (err, loanResult) => {
+            if (err) {
+              return handleDatabaseError(err, connection, res, "Error inserting loan details");
+            }
 
-          Promise.all(documentPromises)
-            .then(() => {
-              connection.commit((err) => {
-                if (err) {
-                  connection.rollback(() => {
-                    connection.release();
-                    console.error("Transaction commit error:", err);
-                    return res.status(500).json({ message: "Transaction commit error" });
-                  });
-                  return;
-                }
-                connection.release();
-                res.status(201).json({ message: "Loan application submitted successfully." });
-              });
-            })
-            .catch((error) => {
-              connection.rollback(() => {
-                connection.release();
-                console.error("Error inserting documents:", error);
-                res.status(500).json({ message: "Error inserting documents", error });
+            const loanId = loanResult.insertId;
+
+            // Insert documents
+            const documentPromises = files.map((file, index) => {
+              const documentName = requiredDocsArray[index];
+              return new Promise((resolve, reject) => {
+                connection.query(
+                  `INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file) VALUES (?, ?, ?, ?)`,
+                  [loanId, employedType, documentName, file.path],
+                  (err) => {
+                    if (err) {
+                      return reject(err);
+                    }
+                    resolve();
+                  }
+                );
               });
             });
+
+            Promise.all(documentPromises)
+              .then(() => {
+                connection.commit((err) => {
+                  if (err) {
+                    return handleDatabaseError(err, connection, res, "Transaction commit error");
+                  }
+                  connection.release();
+                  res.status(201).json({ message: "Loan application submitted successfully." });
+                });
+              })
+              .catch((error) => {
+                handleDatabaseError(error, connection, res, "Error inserting documents");
+              });
+          });
         });
       } catch (error) {
-        connection.rollback(() => {
-          connection.release();
-          console.error("Error in loan submission:", error);
-          res.status(500).json({ message: "Error in loan submission", error });
-        });
+        handleDatabaseError(error, connection, res, "Error in loan submission");
       }
     });
   });
 });
+
+const handleDatabaseError = (err, connection, res, message) => {
+  connection.rollback(() => {
+    connection.release();
+    console.error(message, err);
+    res.status(500).json({ message, error: err.message });
+  });
+};
 
 
 // API Route: Apply Booking

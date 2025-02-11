@@ -9,16 +9,19 @@ import {
     Button,
     Card,
     CardActionArea,
-    CardMedia,
     CardContent,
+    Grid,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from "@mui/material";
 import {
     Person,
     DirectionsCar,
 } from "@mui/icons-material";
-
-import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
-import CreditScoreRoundedIcon from '@mui/icons-material/CreditScoreRounded';
+import CreditScoreRoundedIcon from '@mui/icons-material/CreditScoreRounded';    
+import '../Accessorie/AccessoriesModal.css'
 
 const fetchLoanAndDocuments = async (customerId) => {
     try {
@@ -33,133 +36,166 @@ const fetchLoanAndDocuments = async (customerId) => {
 
 const FinanceModalView = ({ open, onClose, personalInfo, carInfo, onShowFinance }) => {
     const [loanData, setLoanData] = useState([]);
-    const [documentData, setDocumentData] = useState([]);
+    const [showWarning, setShowWarning] = useState(false);
 
     useEffect(() => {
         if (personalInfo?.customerId) {
             fetchLoanAndDocuments(personalInfo.customerId).then(({ loans }) => {
-                if (loans.length > 0) {
-                    setLoanData(loans);
-                    setDocumentData(loans[0]?.products || []);
-                }
+                setLoanData(loans);
             });
         }
     }, [personalInfo?.customerId]);
 
+    const handleUpdateClick = () => {
+        setShowWarning(true);
+    };
+
+    const handleWarningClose = () => {
+        setShowWarning(false);
+        onShowFinance();
+    };
+
     return (
-        <Modal
-            open={open}
-            closeAfterTransition
-            aria-labelledby="modal-title"
-            aria-describedby="modal-description"
-            sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}
-        >
-            <Box component={Paper} sx={{ width: { xs: "100%", sm: "60vh" }, height: { xs: "100%", sm: "99%" }, marginBottom: { sm: "4px" } }}>
-                <Stack spacing={1} sx={{ p: 1, maxWidth: 600, height: { xs: "100%", sm: "100%" }, overflowY: "auto", borderRadius: 2 }}>
-                    
-                    <Box textAlign="center" sx={{ p: 2, display: "flex", justifyContent: "start", alignItems: "center" }}>
-                        <Typography variant="h5">Car Finance Services</Typography>
-                    </Box>
+        <>
+            <Modal
+                open={open}
+                closeAfterTransition
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description"
+                sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}
+            >
+                <Box component={Paper} sx={{ width: { xs: "100%", sm: "60vh" }, height: { xs: "100%", sm: "99%" }, marginBottom: { sm: "4px" } }}>
+                    <Stack spacing={1} sx={{ p: 1, maxWidth: 600, height: { xs: "100%", sm: "100%" }, overflowY: "auto", borderRadius: 2 }}>
+                        
+                        <Box textAlign="center" sx={{ p: 2, display: "flex", justifyContent: "start", alignItems: "center" }}>
+                            <Typography variant="h5">Car Finance Services</Typography>
+                        </Box>
 
-                    <Stack spacing={2} sx={{ p: 1, m: 0.6, maxWidth: 600, height: "79vh", overflowY: "auto", borderRadius: 2, bgcolor: "background.paper" }}>
-                        <Stack spacing={4}>
+                        <Stack spacing={2} sx={{ p: 1, m: 0.6, maxWidth: 600, height: "79vh", overflowY: "auto", borderRadius: 2, bgcolor: "background.paper" }}>
+                            <Stack spacing={4}>
 
-                            {/* Personal Information */}
-                            <Paper variant="outlined" sx={{ p: 2 }}>
-                                <Stack spacing={2}>
-                                    <Box display="flex" alignItems="center" gap={1}>
-                                        <Person />
-                                        <Typography variant="h6">Personal Information</Typography>
-                                    </Box>
-                                    <List dense>
-                                        <Typography variant="body2">Customer ID: {personalInfo?.customerId}</Typography>
-                                        <Typography variant="body2">Full Name: {personalInfo?.firstName} {personalInfo?.middleName} {personalInfo?.lastName}</Typography>
-                                        <Typography variant="body2">Email: {personalInfo?.email}</Typography>
-                                        <Typography variant="body2">Phone: {personalInfo?.mobileNumber1}, {personalInfo?.mobileNumber2}</Typography>
-                                    </List>
-                                </Stack>
-                            </Paper>
-
-                            {/* Vehicle Information */}
-                            <Paper variant="outlined" sx={{ p: 2 }}>
-                                <Stack spacing={2}>
-                                    <Box display="flex" alignItems="center" gap={1}>
-                                        <DirectionsCar />
-                                        <Typography variant="h6">Vehicle Information</Typography>
-                                    </Box>
-                                    <List dense>
-                                        <Typography variant="body2">Car Model: {carInfo?.model}</Typography>
-                                        <Typography variant="body2">Car Version: {carInfo?.version}</Typography>
-                                        <Typography variant="body2">Car Color: {carInfo?.color}</Typography>
-                                    </List>
-                                </Stack>
-                            </Paper>
-
-                            {/* Loan Information */}
-                            {loanData.length > 0 && (
+                                {/* Personal Information */}
                                 <Paper variant="outlined" sx={{ p: 2 }}>
                                     <Stack spacing={2}>
                                         <Box display="flex" alignItems="center" gap={1}>
-                                            <CreditScoreRoundedIcon />
-                                            <Typography variant="h6">Loan Information</Typography>
+                                            <Person />
+                                            <Typography variant="h6">Personal Information</Typography>
                                         </Box>
                                         <List dense>
-                                            {loanData.map((loan, index) => (
-                                                <Box key={index}>
-                                                    <Typography variant="body2">Loan Amount: {loan.loan_amount}</Typography>
-                                                    <Typography variant="body2">Interest Rate: {loan.interest_rate}%</Typography>
-                                                    <Typography variant="body2">Loan Duration: {loan.loan_duration} months</Typography>
-                                                    <Typography variant="body2">EMI: {loan.calculated_emi}</Typography>
-                                                    <Typography variant="body2">Employment Type: {loan.employment_type}</Typography>
-                                                </Box>
-                                            ))}
+                                            <Typography variant="body2">Customer ID: {personalInfo?.customerId}</Typography>
+                                            <Typography variant="body2">Full Name: {personalInfo?.firstName} {personalInfo?.middleName} {personalInfo?.lastName}</Typography>
+                                            <Typography variant="body2">Email: {personalInfo?.email}</Typography>
+                                            <Typography variant="body2">Phone: {personalInfo?.mobileNumber1}, {personalInfo?.mobileNumber2}</Typography>
                                         </List>
                                     </Stack>
                                 </Paper>
-                            )}
 
-                            {/* Customer Documents */}
-                            {documentData.length > 0 && (
+                                {/* Vehicle Information */}
                                 <Paper variant="outlined" sx={{ p: 2 }}>
                                     <Stack spacing={2}>
                                         <Box display="flex" alignItems="center" gap={1}>
-                                            <PictureAsPdfOutlinedIcon />
-                                            <Typography variant="h6">Customer Documents</Typography>
+                                            <DirectionsCar />
+                                            <Typography variant="h6">Vehicle Information</Typography>
                                         </Box>
-                                        <Box display="grid" gap={2} gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}>
-                                            {documentData.map((doc, index) => (
-                                                <Card key={index} sx={{ maxWidth: 300 }}>
-                                                    <CardActionArea>
-                                                        <CardMedia
-                                                            component="img"
-                                                            height="100"
-                                                            image={doc.file_url || "/default-document.png"}
-                                                            alt={doc.uploaded_file}
-                                                        />
-                                                        <CardContent>
-                                                            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                                                                {doc.document_name}
-                                                            </Typography>
-                                                        </CardContent>
-                                                    </CardActionArea>
-                                                </Card>
-                                            ))}
-                                        </Box>
+                                        <List dense>
+                                            <Typography variant="body2">Car Model: {carInfo?.model}</Typography>
+                                            <Typography variant="body2">Car Version: {carInfo?.version}</Typography>
+                                            <Typography variant="body2">Car Color: {carInfo?.color}</Typography>
+                                        </List>
                                     </Stack>
                                 </Paper>
-                            )}
+
+                                {/* Loan Information */}
+                                {loanData.length > 0 && (
+                                    <Paper variant="outlined" sx={{ p: 2 }}>
+                                        <Stack spacing={2}>
+                                            <Box display="flex" alignItems="center" gap={1}>
+                                                <CreditScoreRoundedIcon />
+                                                <Typography variant="h6">Loan Information</Typography>
+                                            </Box>
+                                            <List dense>
+                                                {loanData.map((loan, index) => (
+                                                    <Box key={index}>
+                                                        <Typography variant="body2">Loan Amount: {loan.loan_amount}</Typography>
+                                                        <Typography variant="body2">Interest Rate: {loan.interest_rate}%</Typography>
+                                                        <Typography variant="body2">Loan Duration: {loan.loan_duration} months</Typography>
+                                                        <Typography variant="body2">EMI: {loan.calculated_emi}</Typography>
+                                                    </Box>
+                                                ))}
+                                            </List>
+                                        </Stack>
+                                    </Paper>
+                                )}
+
+                                {/* Loan Documents */}
+                                <Grid container spacing={1}>
+
+                                    {loanData.map((loan, index) =>
+                                        loan.products.map((doc, docIndex) => {
+                                            const fullPath = doc.uploaded_file;
+                                            const pathParts = fullPath.split("\\");
+                                            const customerId = pathParts[pathParts.length - 2];
+                                            const fileName = pathParts[pathParts.length - 1];
+
+                                            return (
+                                                <Grid item xs={12} sm={6} key={`${index}-${docIndex}`}>
+                                                <Typography variant="body2">Employment Type: {doc.employment_type}</Typography>
+                                                    <Card sx={{ maxWidth: "100%", height: "35vh" }}>
+                                                        <CardActionArea>
+                                                            <CardContent>
+                                                                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                                                                    {doc.document_name}
+                                                                </Typography>
+                                                                
+                                                                <iframe
+                                                                    src={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(fileName)}`}
+                                                                    width="100%"
+                                                                    height="206px"
+                                                                    title={doc.document_name}
+                                                                  
+                                                                    onError={(e) => {
+                                                                        e.target.src = 'path/to/fallback/document_name_or_error_page.png';
+                                                                        console.error('Failed to load document:', doc.document_name);
+                                                                    }}
+                                                                 />
+                                                            </CardContent>
+                                                        </CardActionArea>
+                                                    </Card>
+                                                    
+                                                </Grid>
+                                            );
+                                        })
+                                    )}
+                                  
+                                </Grid>
+                                <br />
+                            </Stack>
                         </Stack>
+
+                        {/* Action Buttons */}
+                        <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "end" }}>
+                            <Button variant="contained" color="primary" onClick={onClose} size="small">Close</Button>
+                            <Button variant="contained" color="primary" onClick={handleUpdateClick} size="small">Update</Button>
+                        </Box>
                     </Stack>
+                </Box>
+            </Modal>
 
-                    {/* Action Buttons */}
-                    <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "end" }}>
-                        <Button variant="contained" color="primary" onClick={onClose} size="small">Close</Button>
-                        <Button variant="contained" color="primary" onClick={onShowFinance} size="small">Update</Button>
-                    </Box>
-
-                </Stack>
-            </Box>
-        </Modal>
+            <Dialog
+                open={showWarning}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Please re-enter your data"}</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2">All finest details need to be re-entered.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowWarning(false)} color="primary">Cancel</Button>
+                    <Button onClick={handleWarningClose} color="primary" autoFocus>OK</Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 };
 

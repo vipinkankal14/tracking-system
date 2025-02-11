@@ -47,6 +47,12 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
     { name: "autoCard", label: "Auto Card" },
   ];
 
+  const handleFinanceModalClose = () => {
+    setShowFinanceModal(false); // Close the modal
+  };
+
+
+
   return (
     <div style={{ padding: "1rem", marginTop: "1rem", marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "5px" , boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)"}}>
       <Grid container spacing={2} style={{ marginTop: "-1rem" }}>
@@ -176,15 +182,30 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
         />
       )}
 
+      
+      // This is the Finance Modal
+    
       {showFinanceModal && (
         <FinanceModal
           open={showFinanceModal}
-          onClose={() => setShowFinanceModal(false)}
+          onClose={handleFinanceModalClose}
           onShowFinance={() => setShowFinanceModal(true)}
           personalInfo={personalInfo}
           carInfo={carInfo}
         />
       )}
+
+      {usershowFinanceModal && (
+        <FinanceModalView
+          open={usershowFinanceModal}
+          onClose={() => setUserShowFinanceModal(false)}
+          onShowFinance={() => setShowFinanceModal(true)}
+          personalInfo={personalInfo}
+          carInfo={carInfo}
+        />
+      )}
+
+      
     </div>
   );
 }
