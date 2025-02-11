@@ -105,41 +105,38 @@ const FinanceModalView = ({ open, onClose, personalInfo, carInfo, onShowFinance 
                                     </Stack>
                                 </Paper>
 
-                                {/* Loan Information */}
-                                {loanData.length > 0 && (
-                                    <Paper variant="outlined" sx={{ p: 2 }}>
-                                        <Stack spacing={2}>
-                                            <Box display="flex" alignItems="center" gap={1}>
-                                                <CreditScoreRoundedIcon />
-                                                <Typography variant="h6">Loan Information</Typography>
-                                            </Box>
-                                            <List dense>
-                                                {loanData.map((loan, index) => (
-                                                    <Box key={index}>
-                                                        <Typography variant="body2">Loan Amount: {loan.loan_amount}</Typography>
-                                                        <Typography variant="body2">Interest Rate: {loan.interest_rate}%</Typography>
-                                                        <Typography variant="body2">Loan Duration: {loan.loan_duration} months</Typography>
-                                                        <Typography variant="body2">EMI: {loan.calculated_emi}</Typography>
-                                                    </Box>
-                                                ))}
-                                            </List>
-                                        </Stack>
-                                    </Paper>
-                                )}
+                                                                 {loanData.map((loan, index) => (
+                                                                    <Paper key={index} variant="outlined" sx={{ p: 2 }}>
+                                                                        <Stack spacing={2}>
+                                                                            <Box display="flex" alignItems="center" gap={1}>
+                                                                                <CreditScoreRoundedIcon />
+                                                                                <Typography variant="h6">Loan Information {index + 1}</Typography>
+                                                                            </Box>
+                                                                            <List dense>
+                                                                                <Typography variant="body2">Loan Amount: {loan.loan_amount}</Typography>
+                                                                                <Typography variant="body2">Interest Rate: {loan.interest_rate}%</Typography>
+                                                                                <Typography variant="body2">Loan Duration: {loan.loan_duration} year</Typography>
+                                                                                <Typography variant="body2">EMI: {loan.calculated_emi} months</Typography>
+                                                                                <Typography variant="body2">
+                                                                      Employment Type: {loan.documents[0]?.employment_type || 'N/A'}
+                                                                                 </Typography>
+                                                                             </List>
+                                                                        </Stack>
+                                                                    </Paper>
+                                                                ))}
 
-                                {/* Loan Documents */}
+                                                                {/* Loan Documents */}
                                 <Grid container spacing={1}>
-
                                     {loanData.map((loan, index) =>
-                                        loan.products.map((doc, docIndex) => {
-                                            const fullPath = doc.uploaded_file;
-                                            const pathParts = fullPath.split("\\");
+                                        loan.documents.map((doc, docIndex) => {
+                                            const fullPath = doc.uploaded_file?.replace(/\\/g, '/') || '';
+                                            const pathParts = fullPath.split('/');
                                             const customerId = pathParts[pathParts.length - 2];
                                             const fileName = pathParts[pathParts.length - 1];
 
                                             return (
-                                                <Grid item xs={12} sm={6} key={`${index}-${docIndex}`}>
-                                                <Typography variant="body2">Employment Type: {doc.employment_type}</Typography>
+                                                
+                                                 <Grid item xs={12} sm={6} key={`${index}-${docIndex}`}>
                                                     <Card sx={{ maxWidth: "100%", height: "35vh" }}>
                                                         <CardActionArea>
                                                             <CardContent>
@@ -152,7 +149,6 @@ const FinanceModalView = ({ open, onClose, personalInfo, carInfo, onShowFinance 
                                                                     width="100%"
                                                                     height="206px"
                                                                     title={doc.document_name}
-                                                                  
                                                                     onError={(e) => {
                                                                         e.target.src = 'path/to/fallback/document_name_or_error_page.png';
                                                                         console.error('Failed to load document:', doc.document_name);
@@ -161,12 +157,11 @@ const FinanceModalView = ({ open, onClose, personalInfo, carInfo, onShowFinance 
                                                             </CardContent>
                                                         </CardActionArea>
                                                     </Card>
-                                                    
                                                 </Grid>
+                                            
                                             );
                                         })
                                     )}
-                                  
                                 </Grid>
                                 <br />
                             </Stack>
