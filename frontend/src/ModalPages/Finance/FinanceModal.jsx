@@ -104,7 +104,12 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
   };
 
   const handleSubmit = async () => {
-    if (!personalInfo?.customerId || !loanAmount || !interestRate || !loanDuration) {
+    if (
+      !personalInfo?.customerId ||
+      !loanAmount ||
+      !interestRate ||
+      !loanDuration
+    ) {
       alert("Please fill in all required fields.");
       return;
     }
@@ -116,7 +121,10 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
     formData.append("loanDuration", loanDuration);
     formData.append("calculatedEMI", calculatedEMI);
     formData.append("employedType", employedType);
-    formData.append("requiredDocuments", JSON.stringify(Object.keys(uploadedFiles)));
+    formData.append(
+      "requiredDocuments",
+      JSON.stringify(Object.keys(uploadedFiles))
+    );
 
     // Append uploaded documents
     Object.values(uploadedFiles).forEach((file) => {
@@ -159,29 +167,82 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
 
   return (
     <>
-      <Modal open={open} onClose={onClose} sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
-        <Box component={Paper} sx={{ width: { xs: "100%", sm: "60vh" }, height: { xs: "100%", sm: "99%" }, marginBottom: { sm: "4px" } }}>
-          <Stack spacing={1} sx={{ p: 2, maxWidth: 600, height: { xs: "100%", sm: "100%" }, overflowY: "auto", borderRadius: 2 }}>
-            <Box textAlign="center" sx={{ p: 1, width: "55vh", justifyContent: "start", alignItems: "center", display: "flex" }}>
-              <Typography variant="h5" component="h1">Car Finance Services</Typography>
+      <Modal
+        open={open}
+        onClose={onClose}
+        sx={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Box
+          component={Paper}
+          sx={{
+            width: { xs: "100%", sm: "60vh" },
+            height: { xs: "100%", sm: "99%" },
+            marginBottom: { sm: "4px" },
+          }}
+        >
+          <Stack
+            spacing={1}
+            sx={{
+              p: 2,
+              maxWidth: 600,
+              height: { xs: "100%", sm: "100%" },
+              overflowY: "auto",
+              borderRadius: 2,
+            }}
+          >
+            <Box
+              textAlign="center"
+              sx={{
+                p: 1,
+                width: "55vh",
+                justifyContent: "start",
+                alignItems: "center",
+                display: "flex",
+              }}
+            >
+              <Typography variant="h5" component="h1">
+                Car Finance Services
+              </Typography>
             </Box>
-            <Stack spacing={1} sx={{  m: 0.5, maxWidth: 600, height: "79vh", overflowY: "auto", borderRadius: 2, bgcolor: "background.paper" }}>
+            <Stack
+              spacing={1}
+              sx={{
+                m: 0.5,
+                maxWidth: 600,
+                height: "79vh",
+                overflowY: "auto",
+                borderRadius: 2,
+                bgcolor: "background.paper",
+              }}
+            >
               <Stack spacing={4}>
                 <Box display="grid" gap={1} gridTemplateColumns={{ xs: "1fr" }}>
                   <Paper variant="outlined" sx={{ p: 2 }}>
                     <Stack spacing={2}>
                       <Box display="flex" alignItems="center" gap={1}>
                         <Person />
-                        <Typography variant="h6">Personal Information</Typography>
+                        <Typography variant="h6">
+                          Personal Information
+                        </Typography>
                       </Box>
                       <List dense>
-                        <Typography variant="body2">Customer ID: {personalInfo?.customerId}</Typography>
                         <Typography variant="body2">
-                          Full Name: {personalInfo?.firstName} {personalInfo?.middleName} {personalInfo?.lastName}
+                          Customer ID: {personalInfo?.customerId}
                         </Typography>
-                        <Typography variant="body2">Email: {personalInfo?.email}</Typography>
                         <Typography variant="body2">
-                          Phone Number: {personalInfo?.mobileNumber1}, {personalInfo?.mobileNumber2}
+                          Full Name: {personalInfo?.firstName}{" "}
+                          {personalInfo?.middleName} {personalInfo?.lastName}
+                        </Typography>
+                        <Typography variant="body2">
+                          Email: {personalInfo?.email}
+                        </Typography>
+                        <Typography variant="body2">
+                          Phone Number: {personalInfo?.mobileNumber1},{" "}
+                          {personalInfo?.mobileNumber2}
                         </Typography>
                       </List>
                     </Stack>
@@ -191,12 +252,20 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     <Stack spacing={2}>
                       <Box display="flex" alignItems="center" gap={1}>
                         <DirectionsCar />
-                        <Typography variant="h6">Vehicle Information</Typography>
+                        <Typography variant="h6">
+                          Vehicle Information
+                        </Typography>
                       </Box>
                       <List dense>
-                        <Typography variant="body2">Car Model: {carInfo?.model}</Typography>
-                        <Typography variant="body2">Car Version: {carInfo?.version}</Typography>
-                        <Typography variant="body2">Car Color: {carInfo?.color}</Typography>
+                        <Typography variant="body2">
+                          Car Model: {carInfo?.model}
+                        </Typography>
+                        <Typography variant="body2">
+                          Car Version: {carInfo?.version}
+                        </Typography>
+                        <Typography variant="body2">
+                          Car Color: {carInfo?.color}
+                        </Typography>
                       </List>
                     </Stack>
                   </Paper>
@@ -210,7 +279,9 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     value={loanAmount}
                     onChange={(e) => setLoanAmount(Number(e.target.value))}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">Rs</InputAdornment>
+                      ),
                     }}
                     variant="outlined"
                     fullWidth
@@ -229,7 +300,14 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
 
                 {/* Interest Rate and Loan Duration Sliders */}
                 <Box display="flex" flexDirection={{ xs: "column", sm: "row" }}>
-                  <Box sx={{ flex: 1, mb: { xs: 2, sm: 0 }, mr: { xs: 4, sm: 2 }, ml: 2 }}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      mb: { xs: 2, sm: 0 },
+                      mr: { xs: 4, sm: 2 },
+                      ml: 2,
+                    }}
+                  >
                     <Typography gutterBottom>Interest Rate (%)</Typography>
                     <Slider
                       value={interestRate}
@@ -242,7 +320,14 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     <Typography gutterBottom>{interestRate}%</Typography>
                   </Box>
 
-                  <Box sx={{ flex: 1, mb: { xs: 2, sm: 0 }, mr: { xs: 4, sm: 4 }, ml: 1 }}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      mb: { xs: 2, sm: 0 },
+                      mr: { xs: 4, sm: 4 },
+                      ml: 1,
+                    }}
+                  >
                     <Typography gutterBottom>Loan Duration (Years)</Typography>
                     <Slider
                       value={loanDuration}
@@ -258,15 +343,24 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
 
                 {/* Calculate EMI Button */}
                 <Box sx={{ display: "flex", justifyContent: "center" }}>
-                  <Button size="small" variant="contained" onClick={handleCalculateEMI}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={handleCalculateEMI}
+                  >
                     Calculate EMI
                   </Button>
                 </Box>
 
                 {/* Employed Type Dropdown */}
                 <Box sx={{ display: "flex", justifyContent: "center" }}>
-                  <FormControl sx={{ mt: 2, width: "100%", maxWidth: 300 }} variant="outlined">
-                    <InputLabel id="employed-type-label">Select Employed Type</InputLabel>
+                  <FormControl
+                    sx={{ mt: 2, width: "100%", maxWidth: 300 }}
+                    variant="outlined"
+                  >
+                    <InputLabel id="employed-type-label">
+                      Select Employed Type
+                    </InputLabel>
                     <Select
                       labelId="employed-type-label"
                       value={employedType}
@@ -289,11 +383,22 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     <Typography variant="h6" gutterBottom>
                       Documents Required for {employedType} Applicants
                     </Typography>
-                    <Box display="grid" size="small" gap={2} gridTemplateColumns={{ xs: "1fr"}}>
+                    <Box
+                      display="grid"
+                      size="small"
+                      gap={2}
+                      gridTemplateColumns={{ xs: "1fr" }}
+                    >
                       {documentLists[employedType].map((doc, index) => (
                         <Paper key={index} variant="outlined" sx={{ p: 2 }}>
                           <Typography variant="body2">{doc}</Typography>
-                          <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              mt: 1,
+                            }}
+                          >
                             <input
                               type="file"
                               accept=".pdf"
@@ -311,11 +416,27 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                                 <Typography variant="caption" sx={{ ml: 1 }}>
                                   {uploadedFiles[doc].name}
                                 </Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
-                                  <IconButton color="primary" onClick={() => handleFilePreview(uploadedFiles[doc])} sx={{ ml: 1 }}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    ml: "auto",
+                                  }}
+                                >
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() =>
+                                      handleFilePreview(uploadedFiles[doc])
+                                    }
+                                    sx={{ ml: 1 }}
+                                  >
                                     <VisibilityIcon />
                                   </IconButton>
-                                  <IconButton color="error" onClick={() => handleFileRemove(doc)} sx={{ ml: 1 }}>
+                                  <IconButton
+                                    color="error"
+                                    onClick={() => handleFileRemove(doc)}
+                                    sx={{ ml: 1 }}
+                                  >
                                     <DeleteIcon />
                                   </IconButton>
                                 </Box>
@@ -330,11 +451,24 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
               </Stack>
             </Stack>
 
-            <Box size="small" sx={{ p: 2, display: "flex", justifyContent: "space-between"}}>
-              <Button size="small" variant="contained" color="secondary" onClick={onClose}>
+            <Box
+              size="small"
+              sx={{ p: 2, display: "flex", justifyContent: "space-between" }}
+            >
+              <Button
+                size="small"
+                variant="contained"
+                color="secondary"
+                onClick={onClose}
+              >
                 Close
               </Button>
-              <Button size="small" variant="contained" color="primary" onClick={handleSubmit}>
+              <Button
+                size="small"
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+              >
                 Submit
               </Button>
             </Box>

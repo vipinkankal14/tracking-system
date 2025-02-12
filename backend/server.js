@@ -29,7 +29,7 @@ const { handlePayment, getAllCustomers, getCustomerById } = require('./db/routes
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
-const { getCustomerOrders, getCustomerLoans } = require('./db/routes/userModal/user');
+const { getCustomerOrders, getCustomerLoans, getCustomerCoatingRequests } = require('./db/routes/userModal/user');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */ 
  
@@ -43,6 +43,8 @@ app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers);
 app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
 app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 app.get('/orders/:customerId', getCustomerOrders);
+app.get('/api/coating-requests/:customerId', getCustomerCoatingRequests);
+
 
 // Serve static files from the "uploads" directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -115,8 +117,9 @@ app.post('/api/submitCart', (req, res) => {
   });
 });
 
+
 app.post('/api/submitCoatingRequest', (req, res) => {
-  console.log("coating request received");
+  console.log("Coating request received");
 
   const { customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes } = req.body;
 
@@ -124,35 +127,52 @@ app.post('/api/submitCoatingRequest', (req, res) => {
     return res.status(400).json({ message: 'Customer ID is required' });
   }
 
-  // First, check if a request with the same customerId already exists
-  const checkDuplicateQuery = 'SELECT * FROM coating_requests WHERE customerId = ?';
-  
-  pool.query(checkDuplicateQuery, [customerId], (err, results) => {
+  pool.getConnection((err, connection) => {
     if (err) {
-      console.error('Error checking for duplicate coating request:', err);
-      return res.status(500).json({ message: 'Error checking for duplicate coating request' });
+      console.error("Database connection error:", err);
+      return res.status(500).json({ message: "Database connection error" });
     }
 
-    if (results.length > 0) {
-      // If a duplicate is found, return an error response
-      return res.status(409).json({ message: 'Duplicate coating request detected. A request with this Customer already exists.' });
-    }
-
-    // If no duplicate is found, proceed to insert the new request
-    const insertQuery = `
-      INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    pool.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes], (err, results) => {
+    connection.beginTransaction((err) => {
       if (err) {
-        console.error('Error inserting coating request:', err);
-        return res.status(500).json({ message: 'Error submitting coating request' });
+        connection.release();
+        console.error("Transaction error:", err);
+        return res.status(500).json({ message: "Transaction error" });
       }
-      res.status(200).json({ message: 'Coating request submitted successfully', requestId: results.insertId });
+
+      // Insert the new request
+      const insertQuery = `
+        INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      connection.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes], (err, results) => {
+        if (err) {
+          return handleDatabaseError(err, connection, res, "Error inserting coating request");
+        }
+
+        const requestId = results.insertId;
+
+        // Delete old requests
+        const deleteQuery = `DELETE FROM coating_requests WHERE customerId = ? AND id != ?`;
+        connection.query(deleteQuery, [customerId, requestId], (err) => {
+          if (err) {
+            return handleDatabaseError(err, connection, res, "Error deleting old coating requests");
+          }
+
+          connection.commit((err) => {
+            if (err) {
+              return handleDatabaseError(err, connection, res, "Transaction commit error");
+            }
+            connection.release();
+            res.status(200).json({ message: 'Coating request submitted successfully', requestId });
+          });
+        });
+      });
     });
   });
 });
+
 
 
 // Increase payload size limits

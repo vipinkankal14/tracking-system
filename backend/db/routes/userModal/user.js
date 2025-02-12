@@ -25,7 +25,6 @@ const getCustomerOrders = async (req, res) => {
     }
 };
 
-
 const getCustomerLoans = async (req, res) => {
     try {
         const customerId = req.params.customerId;
@@ -101,4 +100,21 @@ const getCustomerLoans = async (req, res) => {
     }
 };
 
-module.exports = { getCustomerOrders, getCustomerLoans };
+const getCustomerCoatingRequests = async (req, res) => {
+    const { customerId } = req.params;
+
+    try {
+        const [coatingRequests] = await pool.query(
+            'SELECT * FROM coating_requests WHERE customerId = ?', 
+            [customerId]
+        );
+
+        res.status(200).json({ coatingRequests });
+    } catch (error) {
+        console.error('Error fetching coating requests:', error.message);
+        res.status(500).json({ error: 'Failed to fetch coating requests' });
+    }
+};
+
+
+module.exports = { getCustomerOrders, getCustomerLoans ,getCustomerCoatingRequests };
