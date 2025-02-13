@@ -139,8 +139,7 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
 
       
     
-      {/* This is the Exchange Modal */}
-      {/* This is the RTO Modal */}
+    {/* This is the RTO Modal */}
       {/* This is the insurance Modal */}
       {/* This is the FastTag Modal */}
       {/* This is the Extended Warranty Modal */}
