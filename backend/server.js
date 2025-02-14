@@ -349,19 +349,7 @@ app.post('/api/apply-booking', (req, res) => {
   });
 });
 
-// Route to check the current pool status
-app.get('/api/pool-status', (req, res) => {
-  // Get the total number of connections
-  const totalConnections = pool._allConnections.length; // Total connections created
-  const freeConnections = pool._freeConnections.length; // Free connections available
-  const inUseConnections = totalConnections - freeConnections; // In-use connections
 
-  res.json({
-      totalConnections,
-      freeConnections,
-      inUseConnections,
-  });
-}); 
 
 
 app.get('/api/customer/:customerId', (req, res) => {
@@ -689,9 +677,19 @@ app.put('/api/car/update/:vin', (req, res) => {
 
 
 
+// Route to check the current pool status
+app.get('/api/pool-status', (req, res) => {
+  // Get the total number of connections
+  const totalConnections = pool._allConnections.length; // Total connections created
+  const freeConnections = pool._freeConnections.length; // Free connections available
+  const inUseConnections = totalConnections - freeConnections; // In-use connections
 
-
-
+  res.json({
+      totalConnections,
+      freeConnections,
+      inUseConnections,
+  });
+}); 
 
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {

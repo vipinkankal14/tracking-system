@@ -6,8 +6,7 @@ import AccessoriesTable from './Store/AccessoriesTable';
 const AddAccessories = () => {
   const [accessories, setAccessories] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-
+ 
   // Fetch accessories from the backend when the component mounts
   useEffect(() => {
     const fetchAccessories = async () => {
@@ -23,8 +22,7 @@ const AddAccessories = () => {
         setAccessories(data);
       } catch (error) {
         console.error('Error fetching accessories:', error);
-        setSnackbarMessage('Failed to fetch accessories');
-        setOpenSnackbar(true);
+         setOpenSnackbar(true);
       }
     };
      
@@ -48,12 +46,10 @@ const AddAccessories = () => {
 
       const data = await response.json();
       setAccessories(prevAccessories => [...prevAccessories, data]);
-      setSnackbarMessage('Accessory added successfully!');
-      setOpenSnackbar(true);
+       setOpenSnackbar(true);
     } catch (error) {
       console.error('Error adding accessory:', error);
-      setSnackbarMessage('Failed to add accessory');
-      setOpenSnackbar(true);
+       setOpenSnackbar(true);
     }
   };
 
