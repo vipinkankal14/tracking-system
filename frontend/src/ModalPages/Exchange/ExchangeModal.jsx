@@ -15,6 +15,7 @@ import {
   IconButton,
   ListItem,
   ListItemText,
+  TextField,
 } from "@mui/material";
 import { DirectionsCar, Person, Visibility, Delete } from "@mui/icons-material";
 import { useFormik } from "formik";
@@ -29,9 +30,15 @@ const validationSchema = Yup.object().shape({
   addressProof: Yup.mixed().required("Address Proof is required"),
   loanClearance: Yup.mixed().nullable(),
   serviceHistory: Yup.mixed().nullable(),
+  carOwnerFullName: Yup.string().required("Car Owner Full Name is required"),
+  carMake: Yup.string().required("Car Make is required"),
+  carModel: Yup.string().required("Car Model is required"),
+  carColor: Yup.string().required("Car Color is required"),
+  carRegistration: Yup.string().required("Car Registration is required"),
+  carYear: Yup.date().required("Car Year is required"),
 });
 
-export function ExchangeModal({ open, onClose, personalInfo, }) {
+export function ExchangeModal({ open, onClose, personalInfo }) {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
 
@@ -44,36 +51,45 @@ export function ExchangeModal({ open, onClose, personalInfo, }) {
       addressProof: null,
       loanClearance: null,
       serviceHistory: null,
+      carOwnerFullName: "",
+      carMake: "",
+      carModel: "",
+      carColor: "",
+      carRegistration: "",
+      carYear: "",
     },
     validationSchema,
     onSubmit: async (values) => {
       if (!personalInfo?.customerId) {
-        alert(
-          "Please fill in your personal information before submitting the Car Exchange form."
-        );
+        alert("Please fill in your personal information before submitting the Car Exchange form.");
         return;
       }
 
-      const exchangeData = {
-        customerId: personalInfo.customerId,
-        rcDocument: values.rcDocument,
-        insurancePolicy: values.insurancePolicy,
-        pucCertificate: values.pucCertificate,
-        identityProof: values.identityProof,
-        addressProof: values.addressProof,
-        loanClearance: values.loanClearance,
-        serviceHistory: values.serviceHistory,
-      };
+      const formData = new FormData();
+
+      // Append text fields first
+      formData.append('customerId', personalInfo.customerId);
+      formData.append('carOwnerFullName', values.carOwnerFullName);
+      formData.append('carMake', values.carMake);
+      formData.append('carModel', values.carModel);
+      formData.append('carColor', values.carColor);
+      formData.append('carRegistration', values.carRegistration);
+      formData.append('carYear', values.carYear);
+
+      // Append files after text fields
+      formData.append('rcDocument', values.rcDocument);
+      formData.append('insurancePolicy', values.insurancePolicy);
+      formData.append('pucCertificate', values.pucCertificate);
+      formData.append('identityProof', values.identityProof);
+      formData.append('addressProof', values.addressProof);
+      if (values.loanClearance) formData.append('loanClearance', values.loanClearance);
+      if (values.serviceHistory) formData.append('serviceHistory', values.serviceHistory);
 
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/submitCarExchangeRequest",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(exchangeData),
-          }
-        );
+        const response = await fetch("http://localhost:5000/api/submitCarExchangeRequest", {
+          method: "POST",
+          body: formData, // FormData is sent as multipart/form-data
+        });
 
         const result = await response.json();
 
@@ -178,14 +194,16 @@ export function ExchangeModal({ open, onClose, personalInfo, }) {
                   <Box
                     display="grid"
                     gap={3}
-                    gridTemplateColumns={{ xs: "1fr" }}
+                    gridTemplateColumns={{ xs: "2fr" }}
                   >
                     {/* Personal Information */}
-                    <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Paper variant="outlined" sx={{ p: 2, width: "100%" }}>
                       <Stack spacing={2}>
                         <Box display="flex" alignItems="center" gap={1}>
                           <Person />
-                          <Typography variant="h6">Personal Information</Typography>
+                          <Typography variant="h6">
+                            Personal Information
+                          </Typography>
                         </Box>
                         <Box>
                           <Typography variant="subtitle2" gutterBottom>
@@ -193,10 +211,13 @@ export function ExchangeModal({ open, onClose, personalInfo, }) {
                           </Typography>
                           <List dense>
                             <Typography variant="body2">
-                              Full Name: {personalInfo?.firstName} {personalInfo?.middleName}{" "}
+                              Full Name: {personalInfo?.firstName}{" "}
+                              {personalInfo?.middleName}{" "}
                               {personalInfo?.lastName}
                             </Typography>
-                            <Typography variant="body2">Email: {personalInfo?.email}</Typography>
+                            <Typography variant="body2">
+                              Email: {personalInfo?.email}
+                            </Typography>
                             <Typography variant="body2">
                               Phone Number: {personalInfo?.mobileNumber1},{" "}
                               {personalInfo?.mobileNumber2}
@@ -206,8 +227,8 @@ export function ExchangeModal({ open, onClose, personalInfo, }) {
                       </Stack>
                     </Paper>
 
-                    <Paper variant="outlined" sx={{ p: 2 }}>
-                      <Stack spacing={2}>
+                    <Paper variant="outlined" sx={{ p: 2, width: "100%" }}>
+                      <Stack>
                         <Box display="flex" alignItems="center" gap={1}>
                           <DirectionsCar />
                           <Typography variant="h6">Car Information</Typography>
@@ -216,54 +237,122 @@ export function ExchangeModal({ open, onClose, personalInfo, }) {
                           <Typography variant="subtitle2" gutterBottom>
                             Required Information:
                           </Typography>
-                          <List dense>
+                          <List dense sx={{ width: "100%", maxWidth: 360 , bgcolor: "background.paper",gridTemplateColumns: "repeat(2, 1fr)"}}>
                             <ListItem>
-                              <ListItemText primary="Car Make" />
-                              <Typography variant="body2">
-                                <input
-                                  type="text"
-                                  name="carMake"
-                                  value={formik.values.carMake}
-                                  onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
-                                />
-                              </Typography>
+                              <TextField
+                                id="carOwnerFullName"
+                                label="Car Owner Full Name"
+                                variant="outlined"
+                                value={formik.values.carOwnerFullName}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                  formik.touched.carOwnerFullName &&
+                                  Boolean(formik.errors.carOwnerFullName)
+                                }
+                                helperText={
+                                  formik.touched.carOwnerFullName &&
+                                  formik.errors.carOwnerFullName
+                                }
+                                fullWidth
+                              />
                             </ListItem>
                             <ListItem>
-                              <ListItemText primary="Car Model" />
-                              <Typography variant="body2">
-                                <input
-                                  type="text"
-                                  name="carModel"
-                                  value={formik.values.carModel}
-                                  onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
-                                />
-                              </Typography>
+                              <TextField
+                                id="carMake"
+                                label="Car Make"
+                                variant="outlined"
+                                value={formik.values.carMake}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                  formik.touched.carMake &&
+                                  Boolean(formik.errors.carMake)
+                                }
+                                helperText={
+                                  formik.touched.carMake &&
+                                  formik.errors.carMake
+                                }
+                                fullWidth
+                              />
                             </ListItem>
                             <ListItem>
-                              <ListItemText primary="Car Year" />
-                              <Typography variant="body2">
-                                <input
-                                  type="text"
-                                  name="carYear"
-                                  value={formik.values.carYear}
-                                  onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
-                                />
-                              </Typography>
+                              <TextField
+                                id="carModel"
+                                label="Car Model"
+                                variant="outlined"
+                                value={formik.values.carModel}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                  formik.touched.carModel &&
+                                  Boolean(formik.errors.carModel)
+                                }
+                                helperText={
+                                  formik.touched.carModel &&
+                                  formik.errors.carModel
+                                }
+                                fullWidth
+                              />
                             </ListItem>
                             <ListItem>
-                              <ListItemText primary="Car Registration" />
-                              <Typography variant="body2">
-                                <input
-                                  type="text"
-                                  name="carRegistration"
-                                  value={formik.values.carRegistration}
-                                  onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
-                                />
-                              </Typography>
+                              <TextField
+                                id="carColor"
+                                label="Car Color"
+                                variant="outlined"
+                                value={formik.values.carColor}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                  formik.touched.carColor &&
+                                  Boolean(formik.errors.carColor)
+                                }
+                                helperText={
+                                  formik.touched.carColor &&
+                                  formik.errors.carColor
+                                }
+                                fullWidth
+                              />
+                            </ListItem>
+                            <ListItem>
+                              <TextField
+                                id="carRegistration"
+                                label="Car Registration"
+                                variant="outlined"
+                                value={formik.values.carRegistration}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                  formik.touched.carRegistration &&
+                                  Boolean(formik.errors.carRegistration)
+                                }
+                                helperText={
+                                  formik.touched.carRegistration &&
+                                  formik.errors.carRegistration
+                                }
+                                fullWidth
+                              />
+                            </ListItem>
+                            <ListItem>
+                              <TextField
+                                id="carYear"
+                                label="Car Year"
+                                variant="outlined"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                value={formik.values.carYear}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={
+                                  formik.touched.carYear &&
+                                  Boolean(formik.errors.carYear)
+                                }
+                                helperText={
+                                  formik.touched.carYear &&
+                                  formik.errors.carYear
+                                }
+                                fullWidth
+                              />
                             </ListItem>
                           </List>
                         </Box>
@@ -290,23 +379,28 @@ export function ExchangeModal({ open, onClose, personalInfo, }) {
                               },
                               {
                                 name: "insurancePolicy",
-                                label: "Insurance Policy (valid policy mandatory)",
+                                label:
+                                  "Insurance Policy (valid policy mandatory)",
                               },
                               {
                                 name: "pucCertificate",
-                                label: "PUC Certificate (Pollution Under Control)",
+                                label:
+                                  "PUC Certificate (Pollution Under Control)",
                               },
                               {
                                 name: "identityProof",
-                                label: "Identity Proof (Aadhaar, PAN, Passport, etc.)",
+                                label:
+                                  "Identity Proof (Aadhaar, PAN, Passport, etc.)",
                               },
                               {
                                 name: "addressProof",
-                                label: "Address Proof (Aadhaar, Utility Bill, Passport, etc.)",
+                                label:
+                                  "Address Proof (Aadhaar, Utility Bill, Passport, etc.)",
                               },
                               {
                                 name: "loanClearance",
-                                label: "Loan Clearance Certificate (if under loan)",
+                                label:
+                                  "Loan Clearance Certificate (if under loan)",
                               },
                               {
                                 name: "serviceHistory",
@@ -363,10 +457,7 @@ export function ExchangeModal({ open, onClose, personalInfo, }) {
                                 </Box>
                                 {formik.touched[doc.name] &&
                                   formik.errors[doc.name] && (
-                                    <Typography
-                                      color="error"
-                                      variant="caption"
-                                    >
+                                    <Typography color="error" variant="caption">
                                       {formik.errors[doc.name]}
                                     </Typography>
                                   )}

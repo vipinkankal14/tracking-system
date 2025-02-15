@@ -1,3 +1,5 @@
+const { pool } = require('./db/databaseConnection/mysqlConnection');
+
 const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
@@ -9,8 +11,7 @@ const http = require('http'); // For creating the HTTP server
 const { Server } = require('socket.io'); // For real-time updates
 require('dotenv').config(); // Load environment variables from .env
 
-const { pool } = require('./db/databaseConnection/mysqlConnection');
- 
+
 const app = express();
 const server = http.createServer(app); // Create an HTTP server
 const io = new Server(server, { cors: { origin: '*' } }); // Initialize Socket.IO
@@ -30,25 +31,27 @@ const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
 const { getCustomerOrders, getCustomerLoans, getCustomerCoatingRequests } = require('./db/routes/userModal/user');
- 
-/* app.get('/api/cashier/all', getAllCashierTransactions); */ 
- 
+const { postCoatingRequest } = require('./db/routes/Request/CarCoatingRequest');
+const { postCarExchangeRequests } = require('./db/routes/Request/CarExchangeRequest');
+const { postCarLoansRequest } = require('./db/routes/Request/CarLoansRequest');
+
+/* app.get('/api/cashier/all', getAllCashierTransactions); */
+
 // Use the payment routes
-app.post('/api/payments', handlePayment); // frontend\src\cashier\Payments\PaymentDetails.jsx
 app.get('/api/customers', getAllCustomers); //frontend\src\cashier\Payments\PaymentPending.jsx //frontend\src\cashier\CarBooking\CarBookings.jsx // frontend\src\cashier\CarBookingCancel\CarBookingCancel.jsx // frontend\src\cashier\CustomerPaymentDetails\CustomerPaymentDetails.jsx // frontend\src\cashier\Payments\PaymentClear.jsx
 app.get("/api/customers/:id", getCustomerById); // frontend\src\cashier\Payments\Payment.jsx
 app.use('/api/CarStock', addCarStock); //carStocks\AddCarStock.jsx
 app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
-app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers); 
-app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
+app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers);
 app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 app.get('/orders/:customerId', getCustomerOrders);
 app.get('/api/coating-requests/:customerId', getCustomerCoatingRequests);
-
-
 // Serve static files from the "uploads" directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'CarloansRequest')));
 app.get('/loans/:customerId', getCustomerLoans);
+
+app.post('/api/payments', handlePayment); // frontend\src\cashier\Payments\PaymentDetails.jsx
+app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
 
 
 app.post('/api/submitCart', (req, res) => {
@@ -117,74 +120,17 @@ app.post('/api/submitCart', (req, res) => {
   });
 });
 
-
-app.post('/api/submitCoatingRequest', (req, res) => {
-  console.log("Coating request received");
-
-  const { customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes } = req.body;
-
-  if (!customerId) {
-    return res.status(400).json({ message: 'Customer ID is required' });
-  }
-
-  pool.getConnection((err, connection) => {
-    if (err) {
-      console.error("Database connection error:", err);
-      return res.status(500).json({ message: "Database connection error" });
-    }
-
-    connection.beginTransaction((err) => {
-      if (err) {
-        connection.release();
-        console.error("Transaction error:", err);
-        return res.status(500).json({ message: "Transaction error" });
-      }
-
-      // Insert the new request
-      const insertQuery = `
-        INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `;
-
-      connection.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes], (err, results) => {
-        if (err) {
-          return handleDatabaseError(err, connection, res, "Error inserting coating request");
-        }
-
-        const requestId = results.insertId;
-
-        // Delete old requests
-        const deleteQuery = `DELETE FROM coating_requests WHERE customerId = ? AND id != ?`;
-        connection.query(deleteQuery, [customerId, requestId], (err) => {
-          if (err) {
-            return handleDatabaseError(err, connection, res, "Error deleting old coating requests");
-          }
-
-          connection.commit((err) => {
-            if (err) {
-              return handleDatabaseError(err, connection, res, "Transaction commit error");
-            }
-            connection.release();
-            res.status(200).json({ message: 'Coating request submitted successfully', requestId });
-          });
-        });
-      });
-    });
-  });
-});
+// backend\db\routes\Request\CarCoatingRequest.js
+app.post('/api/submitCoatingRequest', postCoatingRequest);
 
 
-
-// Increase payload size limits
+// Increase payload size limits // backend\db\routes\Request\CarLoansRequest.js
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-
-
-// Set up Multer storage for file uploads
-const storage = multer.diskStorage({
+const storageCarloans = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "uploads", req.body.customerId);
+    const uploadDir = path.join(__dirname, "CarloansRequest", req.body.customerId);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -194,126 +140,39 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
-const upload = multer({ storage });
+const uploadCarloans = multer({ storage: storageCarloans });
 
-app.post("/api/loans", upload.array("documents"), (req, res) => {
-  const { 
-    customerId, 
-    loanAmount, 
-    interestRate, 
-    loanDuration, 
-    calculatedEMI, 
-    employedType, 
-    requiredDocuments 
-  } = req.body;
-  const files = req.files;
+app.post("/api/loans", uploadCarloans.array("documents"), postCarLoansRequest);
 
-  // Validate required fields
-  if (!customerId || !loanAmount || !interestRate || !loanDuration || !employedType || !requiredDocuments) {
-    return res.status(400).json({ message: "All fields are required." });
-  }
 
-  if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(loanDuration)) {
-    return res.status(400).json({ message: "Invalid loan details provided." });
-  }
 
-  // Validate uploaded files
-  if (!files || files.length === 0) {
-    return res.status(400).json({ message: "No files uploaded." });
-  }
-
-  const allowedMimeTypes = ["application/pdf"];
-  for (const file of files) {
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      return res.status(400).json({ message: "Only PDF files are allowed." });
+// backend\db\routes\Request\CarExchangeRequest.js
+const storageCarExchange = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "CarExchangeRequest", req.body.customerId);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      return res.status(400).json({ message: "File size should not exceed 5MB." });
-    }
-  }
-
-  const requiredDocsArray = JSON.parse(requiredDocuments);
-  if (files.length !== requiredDocsArray.length) {
-    return res.status(400).json({ message: `Please upload all required documents for ${employedType}.` });
-  }
-
-  pool.getConnection((err, connection) => {
-    if (err) {
-      console.error("Database connection error:", err);
-      return res.status(500).json({ message: "Database connection error" });
-    }
-
-    connection.beginTransaction((err) => {
-      if (err) {
-        connection.release();
-        console.error("Transaction error:", err);
-        return res.status(500).json({ message: "Transaction error" });
-      }
-
-      try {
-        // Delete old data
-        const deleteOldDataQuery = `DELETE FROM loans WHERE customerId = ?`;
-        connection.query(deleteOldDataQuery, [customerId], (err) => {
-          if (err) {
-            return handleDatabaseError(err, connection, res, "Error deleting old loan data");
-          }
-
-          // Insert loan details
-          const loanQuery = `INSERT INTO loans (customerId, loan_amount, interest_rate, loan_duration, calculated_emi) VALUES (?, ?, ?, ?, ?)`;
-          connection.query(loanQuery, [customerId, loanAmount, interestRate, loanDuration, calculatedEMI], (err, loanResult) => {
-            if (err) {
-              return handleDatabaseError(err, connection, res, "Error inserting loan details");
-            }
-
-            const loanId = loanResult.insertId;
-
-            // Insert documents
-            const documentPromises = files.map((file, index) => {
-              const documentName = requiredDocsArray[index];
-              return new Promise((resolve, reject) => {
-                connection.query(
-                  `INSERT INTO customer_documents (loan_id, employed_type, document_name, uploaded_file) VALUES (?, ?, ?, ?)`,
-                  [loanId, employedType, documentName, file.path],
-                  (err) => {
-                    if (err) {
-                      return reject(err);
-                    }
-                    resolve();
-                  }
-                );
-              });
-            });
-
-            Promise.all(documentPromises)
-              .then(() => {
-                connection.commit((err) => {
-                  if (err) {
-                    return handleDatabaseError(err, connection, res, "Transaction commit error");
-                  }
-                  connection.release();
-                  res.status(201).json({ message: "Loan application submitted successfully." });
-                });
-              })
-              .catch((error) => {
-                handleDatabaseError(error, connection, res, "Error inserting documents");
-              });
-          });
-        });
-      } catch (error) {
-        handleDatabaseError(error, connection, res, "Error in loan submission");
-      }
-    });
-  });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
+const uploadCarExchange = multer({ storage: storageCarExchange });
 
-const handleDatabaseError = (err, connection, res, message) => {
-  connection.rollback(() => {
-    connection.release();
-    console.error(message, err);
-    res.status(500).json({ message, error: err.message });
-  });
-};
-
+app.post('/api/submitCarExchangeRequest',
+  uploadCarExchange.fields([
+    { name: 'rcDocument', maxCount: 1 },
+    { name: 'insurancePolicy', maxCount: 1 },
+    { name: 'pucCertificate', maxCount: 1 },
+    { name: 'identityProof', maxCount: 1 },
+    { name: 'addressProof', maxCount: 1 },
+    { name: 'loanClearance', maxCount: 1 },
+    { name: 'serviceHistory', maxCount: 1 }
+  ]),
+  postCarExchangeRequests
+);
 
 // API Route: Apply Booking
 app.post('/api/apply-booking', (req, res) => {
@@ -348,9 +207,6 @@ app.post('/api/apply-booking', (req, res) => {
     res.json({ message: 'Booking amounts applied successfully', result });
   });
 });
-
-
-
 
 app.get('/api/customer/:customerId', (req, res) => {
   const { customerId } = req.params;
@@ -410,14 +266,14 @@ app.get('/api/customer/:customerId', (req, res) => {
   `;
 
   pool.query(query, [customerId], (err, results) => {
-      if (err) {
-          console.error('Error fetching customer data:', err);
-          res.status(500).json({ error: 'Error fetching customer data' });
-      } else if (results.length === 0) {
-          console.log("No record found for customerId:", customerId);
-          res.status(404).json({ error: 'Customer not found' });
-      } else {    
-        res.json(results); 
+    if (err) {
+      console.error('Error fetching customer data:', err);
+      res.status(500).json({ error: 'Error fetching customer data' });
+    } else if (results.length === 0) {
+      console.log("No record found for customerId:", customerId);
+      res.status(404).json({ error: 'Customer not found' });
+    } else {
+      res.json(results);
     }
   });
 });
@@ -548,14 +404,14 @@ app.get('/api/PaymentHistory/:customerId', (req, res) => {
   `;
 
   pool.query(query, [customerId], (err, results) => {
-      if (err) {
-          console.error('Error fetching customer data:', err);
-          res.status(500).json({ error: 'Error fetching customer data' });
-      } else if (results.length === 0) {
-          console.log("No record found for customerId:", customerId);
-          res.status(404).json({ error: 'Customer not found' });
-      } else {    
-        res.json(results); 
+    if (err) {
+      console.error('Error fetching customer data:', err);
+      res.status(500).json({ error: 'Error fetching customer data' });
+    } else if (results.length === 0) {
+      console.log("No record found for customerId:", customerId);
+      res.status(404).json({ error: 'Customer not found' });
+    } else {
+      res.json(results);
     }
   });
 });
@@ -567,29 +423,29 @@ app.get('/api/cars', (req, res) => {
   const params = [];
 
   if (model) {
-      query += ' AND model = ?';
-      params.push(model);
+    query += ' AND model = ?';
+    params.push(model);
   }
   if (version) {
-      query += ' AND version = ?';
-      params.push(version);
+    query += ' AND version = ?';
+    params.push(version);
   }
   if (color) {
-      query += ' AND color = ?';
-      params.push(color);
+    query += ' AND color = ?';
+    params.push(color);
   }
   if (carType) {
-      query += ' AND carType = ?';
-      params.push(carType);
+    query += ' AND carType = ?';
+    params.push(carType);
   }
 
   pool.query(query, params, (err, results) => {
-      if (err) {
-          console.error('Database query failed:', err);
-          res.status(500).json({ error: 'Database query failed' });
-          return;
-      }
-      res.json(results);
+    if (err) {
+      console.error('Database query failed:', err);
+      res.status(500).json({ error: 'Database query failed' });
+      return;
+    }
+    res.json(results);
   });
 });
 
@@ -597,7 +453,7 @@ app.post('/api/apply-discount', (req, res) => {
   const { selectedCars, discountAmount } = req.body;
 
   if (!selectedCars || !discountAmount) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
   const vins = selectedCars.map((car) => car.vin).map(() => '?').join(',');
@@ -605,15 +461,14 @@ app.post('/api/apply-discount', (req, res) => {
   const params = [discountAmount, ...selectedCars.map((car) => car.vin)];
 
   pool.query(query, params, (err, result) => {
-      if (err) {
-          console.error('Failed to update discounts:', err);
-          res.status(500).json({ error: 'Failed to update discounts' });
-          return;
-      }
-      res.json({ message: 'Discounts applied successfully', result });
+    if (err) {
+      console.error('Failed to update discounts:', err);
+      res.status(500).json({ error: 'Failed to update discounts' });
+      return;
+    }
+    res.json({ message: 'Discounts applied successfully', result });
   });
 });
-
 
 // API endpoint to get all car stocks // frontend\src\carStocks\CarAllotment.jsx
 app.get('/api/api/customer/:customerId', (req, res) => {
@@ -674,9 +529,6 @@ app.put('/api/car/update/:vin', (req, res) => {
 
 
 
-
-
-
 // Route to check the current pool status
 app.get('/api/pool-status', (req, res) => {
   // Get the total number of connections
@@ -685,11 +537,11 @@ app.get('/api/pool-status', (req, res) => {
   const inUseConnections = totalConnections - freeConnections; // In-use connections
 
   res.json({
-      totalConnections,
-      freeConnections,
-      inUseConnections,
+    totalConnections,
+    freeConnections,
+    inUseConnections,
   });
-}); 
+});
 
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {
