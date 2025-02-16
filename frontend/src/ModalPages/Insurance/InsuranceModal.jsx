@@ -65,26 +65,20 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
         return;
       }
 
-      const insuranceData = {
-        customerId: personalInfo.customerId,
-        rcDocument: values.rcDocument,
-        salesInvoice: values.salesInvoice,
-        identityProof: values.identityProof,
-        addressProof: values.addressProof,
-        form21: values.form21,
-        form22: values.form22,
-        tempReg: values.tempReg,
-        puc: values.puc,
-        loanDocuments: values.loanDocuments,
-      };
+      const insuranceData = new FormData();
+      insuranceData.append("customerId", personalInfo.customerId);
+      Object.entries(values).forEach(([key, value]) => {
+        if (value) {
+          insuranceData.append(key, value);
+        }
+      });
 
       try {
         const response = await fetch(
           "http://localhost:5000/api/submitInsuranceRequest",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(insuranceData),
+            body: insuranceData,
           }
         );
 

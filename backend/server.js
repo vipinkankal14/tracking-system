@@ -35,7 +35,11 @@ const { postCoatingRequest } = require('./db/routes/Request/CarCoatingRequest');
 const { postCarExchangeRequests } = require('./db/routes/Request/CarExchangeRequest');
 const { postCarLoansRequest } = require('./db/routes/Request/CarLoansRequest');
 const { postCarFastTagRequest } = require('./db/routes/Request/CarFastTagRequest');
- 
+const { postCarInsuranceRequests } = require('./db/routes/Request/CarInsuranceRequest');
+const { postRTORequests } = require('./db/routes/Request/CarRTORequests');
+const { postCarExtendedWarrantyRequests } = require('./db/routes/Request/CarExtendedWarrantyRequest');
+const { postAutoCardRequest } = require('./db/routes/Request/CarAutoCardRequest');
+  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
 // Use the payment routes
@@ -124,6 +128,9 @@ app.post('/api/submitCart', (req, res) => {
 // backend\db\routes\Request\CarCoatingRequest.js
 app.post('/api/submitCoatingRequest', postCoatingRequest);
 
+
+
+{/*-------------------------------------------------------------------- */}
 
 // Increase payload size limits // backend\db\routes\Request\CarLoansRequest.js
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -214,10 +221,95 @@ app.post(
 
  
 
-{/*-------------------------------------------------------------------- */}
+{/*-------------------------------------------------------------------- */ }
 
 
 
+const storageCarInsurance = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "CarInsuranceRequest", req.body.customerId);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+
+const uploadCarInsurance = multer({ storage: storageCarInsurance });
+
+// POST endpoint for submitting Car FastTag request
+app.post(
+  "/api/submitInsuranceRequest",
+  uploadCarInsurance.fields([
+    { name: "rcDocument", maxCount: 1 },
+    { name: "salesInvoice", maxCount: 1 },
+    { name: "identityProof", maxCount: 1 },
+    { name: "addressProof", maxCount: 1 },
+    { name: "form21", maxCount: 1 },
+    { name: "form22", maxCount: 1 },
+    { name: "tempReg", maxCount: 1 },
+    { name: "puc", maxCount: 1 },
+    { name: "loanDocuments", maxCount: 1 },
+  ]),
+
+  postCarInsuranceRequests
+  
+);
+
+
+{/*-------------------------------------------------------------------- */ }
+
+
+const storageCarRTO = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "CarRTORequest", req.body.customerId);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+
+const uploadCarRTO = multer({ storage: storageCarRTO });
+
+// POST endpoint for submitting Car FastTag request
+app.post(
+  "/api/submitRTORequest",
+  uploadCarRTO.fields([
+    { name: "form20", maxCount: 1 },
+    { name: "form21", maxCount: 1 },
+    { name: "form22", maxCount: 1 },
+    { name: "invoice", maxCount: 1 },
+    { name: "insurance", maxCount: 1 },
+    { name: "puc", maxCount: 1 },
+    { name: "idProof", maxCount: 1 },
+    { name: "roadTax", maxCount: 1 },
+    { name: "tempReg", maxCount: 1 },
+    { name: "form34", maxCount: 1 },
+  ]),
+  postRTORequests
+);
+
+
+
+{/*-------------------------------------------------------------------- */ }
+
+
+app.post("/api/submitExtendedWarrantyRequest", postCarExtendedWarrantyRequests);
+
+
+
+
+// API endpoint to handle AutoCard request submission
+app.post("/api/submitAutoCardRequest",postAutoCardRequest);
 
 
 

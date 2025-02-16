@@ -16,7 +16,13 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
-import { DirectionsCar, Person, Visibility, Delete, CloudUpload } from "@mui/icons-material";
+import {
+  DirectionsCar,
+  Person,
+  Visibility,
+  Delete,
+  CloudUpload,
+} from "@mui/icons-material";
 import { Shield } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -61,20 +67,22 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
         return;
       }
 
-      const RTOData = {
-        customerId: personalInfo.customerId,
-        ...values,
-      };
+      // Create FormData object for file uploads
+      const formData = new FormData();
+      formData.append("customerId", personalInfo.customerId);
+
+      // Append files to FormData
+      Object.keys(values).forEach((key) => {
+        if (values[key]) {
+          formData.append(key, values[key]);
+        }
+      });
 
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/submitRTOdRequest",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(RTOData),
-          }
-        );
+        const response = await fetch("http://localhost:5000/api/submitRTORequest", {
+          method: "POST",
+          body: formData,
+        });
 
         const result = await response.json();
 
@@ -92,19 +100,15 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
 
   const handleFileChange = (field, event) => {
     const file = event.currentTarget.files[0];
-    const maxSize = 600 * 1024; // 600KB in bytes
-  
-    if (file.size > maxSize) {
+    if (file.size > 600 * 1024) {
       alert(`File size should not exceed 600KB. File name: ${file.name}`);
       return;
     }
-  
     console.log(file); // Log the file object for debugging
     formik.setFieldValue(field, file);
     formik.setFieldTouched(field, true, false);
   };
-  
-  
+
   const handleFilePreview = (file) => {
     const fileURL = URL.createObjectURL(file);
     setPreviewFile(fileURL);
@@ -297,7 +301,7 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
                                       <input
                                         type="file"
                                         hidden
-                                        accept=".pdf,.jpg,.jpeg,.png"
+                                        accept=".pdf"
                                         onChange={(e) => handleFileChange(doc.name, e)}
                                       />
                                     </Button>
@@ -343,6 +347,7 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
         </Box>
       </Modal>
 
+      {/* Confirmation Dialog */}
       <Dialog open={confirmationOpen}>
         <DialogTitle>Submission Successful</DialogTitle>
         <DialogContent>
@@ -357,6 +362,7 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
         </DialogActions>
       </Dialog>
 
+      {/* File Preview Dialog */}
       <Dialog open={Boolean(previewFile)} onClose={handlePreviewClose}>
         <DialogTitle>File Preview</DialogTitle>
         <DialogContent>

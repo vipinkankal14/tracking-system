@@ -409,8 +409,7 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
           open={usershowExtendedWarrantyModal}
           onClose={() => setUserShowExtendedWarrantyModal(false)}
           personalInfo={personalInfo}
-          onShowExtendedWarranty={() => setShowExtendedWarrantyModal(true)}
-          carInfo={carInfo}
+           carInfo={carInfo}
         />
       )}
 
@@ -431,7 +430,6 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
           open={usershowAutoCardModal}
           onClose={() => setUserShowAutoCardModal(false)}
           personalInfo={personalInfo}
-          onShowAutoCard={() => setShowAutoCardModal(true)}
           carInfo={carInfo}
         />
       )}

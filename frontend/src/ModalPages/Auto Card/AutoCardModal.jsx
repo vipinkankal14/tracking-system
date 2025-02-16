@@ -25,36 +25,20 @@ export function AutoCardModal({ open, onClose, personalInfo, carInfo }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    if (!personalInfo?.customerId) {
-      alert(
-        "Please fill in your personal information before submitting the Car AutoCard Services."
-      );
-      return;
-    }
-
+  
     const AutoCardData = {
       customerId: personalInfo.customerId,
-      ...formData,
-      confirmBenefits,
     };
-
+  
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/submitAutoCardRequest",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(AutoCardData),
-        }
-      );
-
+      const response = await fetch("http://localhost:5000/api/submitAutoCardRequest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(AutoCardData),
+      });
+  
       const result = await response.json();
-
+  
       if (response.ok) {
         setConfirmationOpen(true); // Open confirmation modal
       } else {

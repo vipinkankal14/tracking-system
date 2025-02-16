@@ -17,14 +17,20 @@ import {
 } from "@mui/material";
 import { DirectionsCar, Person } from "@mui/icons-material";
 
-export function ExtendedWarrantyModal({ open, onClose, personalInfo, carInfo }) {
+export function ExtendedWarrantyModal({
+  open,
+  onClose,
+  personalInfo,
+  carInfo,
+}) {
   const [errors, setErrors] = useState({});
   const [confirmationOpen, setConfirmationOpen] = useState(false);
-  const [formData, setFormData] = useState({});
   const [requestExtendedWarranty, setRequestExtendedWarranty] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("Checkbox state:", requestExtendedWarranty); // Debugging
 
     if (!validateForm()) {
       return;
@@ -39,8 +45,7 @@ export function ExtendedWarrantyModal({ open, onClose, personalInfo, carInfo }) 
 
     const ExtendedWarrantyData = {
       customerId: personalInfo.customerId,
-      ...formData,
-      requestExtendedWarranty,
+      requestExtendedWarranty, // Boolean value
     };
 
     try {
@@ -62,7 +67,9 @@ export function ExtendedWarrantyModal({ open, onClose, personalInfo, carInfo }) 
       }
     } catch (error) {
       console.error("Error submitting Extended Warranty request:", error);
-      alert("An error occurred while submitting the Extended Warranty request.");
+      alert(
+        "An error occurred while submitting the Extended Warranty request."
+      );
     }
   };
 
@@ -71,7 +78,8 @@ export function ExtendedWarrantyModal({ open, onClose, personalInfo, carInfo }) 
     let isValid = true;
 
     if (!requestExtendedWarranty) {
-      newErrors.requestExtendedWarranty = "You must agree to the terms to request an extended warranty.";
+      newErrors.requestExtendedWarranty =
+        "You must agree to the terms to request an extended warranty.";
       isValid = false;
     }
 
@@ -85,7 +93,6 @@ export function ExtendedWarrantyModal({ open, onClose, personalInfo, carInfo }) 
   };
 
   const handleClose = () => {
-    setFormData({});
     setRequestExtendedWarranty(false);
     onClose();
   };
@@ -181,27 +188,21 @@ export function ExtendedWarrantyModal({ open, onClose, personalInfo, carInfo }) 
                     <Stack spacing={2}>
                       <Box display="flex" alignItems="center" gap={1}>
                         <DirectionsCar />
-                        <Typography variant="h6">Car Information</Typography>
-                      </Box>
-                      <Box>
-                        <Typography variant="subtitle2" gutterBottom>
-                          Required Information:
+                        <Typography variant="h6">
+                          Vehicle Information
                         </Typography>
-                        <List dense>
-                          <h6 style={{ fontSize: "12px" }}>
-                            Car Manufacturer: {carInfo?.manufacturer}
-                          </h6>
-                          <h6 style={{ fontSize: "12px" }}>
-                            Car Model: {carInfo?.model}
-                          </h6>
-                          <h6 style={{ fontSize: "12px" }}>
-                            Car Year: {carInfo?.year}
-                          </h6>
-                          <h6 style={{ fontSize: "12px" }}>
-                            Car Registration Number: {carInfo?.registrationNumber}
-                          </h6>
-                        </List>
                       </Box>
+                      <List dense>
+                        <Typography variant="body2">
+                          Car Model: {carInfo?.model}
+                        </Typography>
+                        <Typography variant="body2">
+                          Car Version: {carInfo?.version}
+                        </Typography>
+                        <Typography variant="body2">
+                          Car Color: {carInfo?.color}
+                        </Typography>
+                      </List>
                     </Stack>
                   </Paper>
 

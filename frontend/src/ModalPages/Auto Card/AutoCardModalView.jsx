@@ -8,10 +8,7 @@ import {
     Typography,
     List,
     Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+   
 } from "@mui/material";
 import { Person, DirectionsCar } from "@mui/icons-material";
 
@@ -20,18 +17,9 @@ const AutoCardModalView = ({
     onClose,
     personalInfo,
     carInfo,
-    onShowAutoCard,
+   
 }) => {
-    const [showWarning, setShowWarning] = useState(false);
-
-    const handleUpdateClick = () => {
-        setShowWarning(true);
-    };
-
-    const handleWarningClose = () => {
-        setShowWarning(false);
-        onShowAutoCard();
-    };
+ 
 
     return (
         <>
@@ -135,45 +123,17 @@ const AutoCardModalView = ({
                         </Stack>
 
                         <Box
-                            sx={{ p: 1, display: "flex", justifyContent: "space-between" }}
+                            sx={{ p: 1, display: "flex", justifyContent: "end" }}
                         >
                             <Button variant="contained" color="primary" onClick={onClose}>
                                 Close
                             </Button>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleUpdateClick}
-                                size="small"
-                            >
-                                Update
-                            </Button>
+                             
                         </Box>
                     </Stack>
                 </Box>
             </Modal>
-            <Dialog
-                open={showWarning}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {"Please re-enter your data"}
-                </DialogTitle>
-                <DialogContent>
-                    <Typography variant="body2">
-                        All finest details need to be re-entered.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setShowWarning(false)} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleWarningClose} color="primary" autoFocus>
-                        OK
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            
         </>
     );
 };
