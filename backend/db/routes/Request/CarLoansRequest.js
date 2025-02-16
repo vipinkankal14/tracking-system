@@ -1,6 +1,6 @@
 const { pool } = require("../../databaseConnection/mysqlConnection");
+const fs = require('fs').promises;
 
- 
 // Handle database errors
 const handleDatabaseError = (err, connection, res, message) => {
     connection.rollback(() => {
@@ -54,6 +54,10 @@ const postCarLoansRequest = async (req, res) => {
         connection = await pool.promise().getConnection();
         await connection.beginTransaction();
 
+        // Retrieve old records
+        const selectOldRecordsQuery = `SELECT uploaded_file FROM customer_documents WHERE loan_id IN (SELECT id FROM loans WHERE customerId = ?)`;
+        const [oldRecords] = await connection.query(selectOldRecordsQuery, [customerId]);
+
         // Delete old data
         const deleteOldDataQuery = `DELETE FROM loans WHERE customerId = ?`;
         await connection.query(deleteOldDataQuery, [customerId]);
@@ -75,6 +79,11 @@ const postCarLoansRequest = async (req, res) => {
 
         await connection.commit();
         connection.release();
+
+        // Delete old files from filesystem
+        const fileDeletionPromises = oldRecords.map(record => fs.unlink(record.uploaded_file).catch(err => console.error("Error deleting file:", err)));
+        await Promise.all(fileDeletionPromises);
+
         res.status(201).json({ message: "Loan application submitted successfully." });
     } catch (error) {
         if (connection) {

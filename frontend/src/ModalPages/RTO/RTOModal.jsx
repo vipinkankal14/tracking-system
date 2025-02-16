@@ -92,10 +92,19 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
 
   const handleFileChange = (field, event) => {
     const file = event.currentTarget.files[0];
+    const maxSize = 600 * 1024; // 600KB in bytes
+  
+    if (file.size > maxSize) {
+      alert(`File size should not exceed 600KB. File name: ${file.name}`);
+      return;
+    }
+  
+    console.log(file); // Log the file object for debugging
     formik.setFieldValue(field, file);
     formik.setFieldTouched(field, true, false);
   };
-
+  
+  
   const handleFilePreview = (file) => {
     const fileURL = URL.createObjectURL(file);
     setPreviewFile(fileURL);

@@ -1,6 +1,7 @@
 const { pool } = require("../../databaseConnection/mysqlConnection");
+const fs = require('fs');
+const path = require('path');
 
- 
 const handleDatabaseError = (err, connection, res, message) => {
     console.error(message, err);
     connection.rollback(() => {
@@ -74,19 +75,48 @@ const postCarExchangeRequests = async (req, res) => {
 
                     const requestId = results.insertId;
 
-                    // Delete old requests
-                    const deleteQuery = `DELETE FROM car_exchange_requests WHERE customerId = ? AND id != ?`;
-                    connection.query(deleteQuery, [customerId, requestId], (err) => {
+                    // Retrieve old records
+                    const selectQuery = `SELECT rcDocument, insurancePolicy, pucCertificate, identityProof, addressProof, loanClearance, serviceHistory FROM car_exchange_requests WHERE customerId = ? AND id != ?`;
+                    connection.query(selectQuery, [customerId, requestId], (err, oldRecords) => {
                         if (err) {
-                            return handleDatabaseError(err, connection, res, "Error deleting old car exchange requests");
+                            return handleDatabaseError(err, connection, res, "Error retrieving old car exchange requests");
                         }
 
-                        connection.commit((err) => {
+                        // Delete old requests
+                        const deleteQuery = `DELETE FROM car_exchange_requests WHERE customerId = ? AND id != ?`;
+                        connection.query(deleteQuery, [customerId, requestId], (err) => {
                             if (err) {
-                                return handleDatabaseError(err, connection, res, "Transaction commit error");
+                                return handleDatabaseError(err, connection, res, "Error deleting old car exchange requests");
                             }
-                            connection.release();
-                            res.status(200).json({ message: 'Car exchange request submitted successfully!', requestId });
+
+                            connection.commit((err) => {
+                                if (err) {
+                                    return handleDatabaseError(err, connection, res, "Transaction commit error");
+                                }
+                                connection.release();
+                                res.status(200).json({ message: 'Car exchange request submitted successfully!', requestId });
+
+                                // Delete old files from filesystem
+                                oldRecords.forEach(record => {
+                                    const filePaths = [
+                                        record.rcDocument,
+                                        record.insurancePolicy,
+                                        record.pucCertificate,
+                                        record.identityProof,
+                                        record.addressProof,
+                                        record.loanClearance,
+                                        record.serviceHistory
+                                    ].filter(Boolean); // Remove null or undefined paths
+
+                                    filePaths.forEach(filePath => {
+                                        fs.unlink(path.resolve(filePath), (err) => {
+                                            if (err) {
+                                                console.error(`Error deleting file ${filePath}:`, err);
+                                            }
+                                        });
+                                    });
+                                });
+                            });
                         });
                     });
                 });

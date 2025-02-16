@@ -17,7 +17,13 @@ import {
   ListItemText,
   TextField,
 } from "@mui/material";
-import { DirectionsCar, Person, Visibility, Delete } from "@mui/icons-material";
+import {
+  DirectionsCar,
+  Person,
+  Visibility,
+  Delete,
+  CloudUpload,
+} from "@mui/icons-material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -61,35 +67,42 @@ export function ExchangeModal({ open, onClose, personalInfo }) {
     validationSchema,
     onSubmit: async (values) => {
       if (!personalInfo?.customerId) {
-        alert("Please fill in your personal information before submitting the Car Exchange form.");
+        alert(
+          "Please fill in your personal information before submitting the Car Exchange form."
+        );
         return;
       }
 
       const formData = new FormData();
 
       // Append text fields first
-      formData.append('customerId', personalInfo.customerId);
-      formData.append('carOwnerFullName', values.carOwnerFullName);
-      formData.append('carMake', values.carMake);
-      formData.append('carModel', values.carModel);
-      formData.append('carColor', values.carColor);
-      formData.append('carRegistration', values.carRegistration);
-      formData.append('carYear', values.carYear);
+      formData.append("customerId", personalInfo.customerId);
+      formData.append("carOwnerFullName", values.carOwnerFullName);
+      formData.append("carMake", values.carMake);
+      formData.append("carModel", values.carModel);
+      formData.append("carColor", values.carColor);
+      formData.append("carRegistration", values.carRegistration);
+      formData.append("carYear", values.carYear);
 
       // Append files after text fields
-      formData.append('rcDocument', values.rcDocument);
-      formData.append('insurancePolicy', values.insurancePolicy);
-      formData.append('pucCertificate', values.pucCertificate);
-      formData.append('identityProof', values.identityProof);
-      formData.append('addressProof', values.addressProof);
-      if (values.loanClearance) formData.append('loanClearance', values.loanClearance);
-      if (values.serviceHistory) formData.append('serviceHistory', values.serviceHistory);
+      formData.append("rcDocument", values.rcDocument);
+      formData.append("insurancePolicy", values.insurancePolicy);
+      formData.append("pucCertificate", values.pucCertificate);
+      formData.append("identityProof", values.identityProof);
+      formData.append("addressProof", values.addressProof);
+      if (values.loanClearance)
+        formData.append("loanClearance", values.loanClearance);
+      if (values.serviceHistory)
+        formData.append("serviceHistory", values.serviceHistory);
 
       try {
-        const response = await fetch("http://localhost:5000/api/submitCarExchangeRequest", {
-          method: "POST",
-          body: formData, // FormData is sent as multipart/form-data
-        });
+        const response = await fetch(
+          "http://localhost:5000/api/submitCarExchangeRequest",
+          {
+            method: "POST",
+            body: formData, // FormData is sent as multipart/form-data
+          }
+        );
 
         const result = await response.json();
 
@@ -107,8 +120,13 @@ export function ExchangeModal({ open, onClose, personalInfo }) {
 
   const handleFileChange = (field, event) => {
     const file = event.currentTarget.files[0];
+    if (file.size > 600 * 1024) {
+      alert(`File size should not exceed 600KB. File name: ${file.name}`);
+      return;
+    }
     formik.setFieldValue(field, file);
     formik.setFieldTouched(field, true, false);
+    console.log(file); // Log the file object for debugging
   };
 
   const handleFilePreview = (file) => {
@@ -237,7 +255,15 @@ export function ExchangeModal({ open, onClose, personalInfo }) {
                           <Typography variant="subtitle2" gutterBottom>
                             Required Information:
                           </Typography>
-                          <List dense sx={{ width: "100%", maxWidth: 360 , bgcolor: "background.paper",gridTemplateColumns: "repeat(2, 1fr)"}}>
+                          <List
+                            dense
+                            sx={{
+                              width: "100%",
+                              maxWidth: 360,
+                              bgcolor: "background.paper",
+                              gridTemplateColumns: "repeat(2, 1fr)",
+                            }}
+                          >
                             <ListItem>
                               <TextField
                                 id="carOwnerFullName"
@@ -339,7 +365,7 @@ export function ExchangeModal({ open, onClose, personalInfo }) {
                                 label="Car Year"
                                 variant="outlined"
                                 type="date"
-                                InputLabelProps={{ shrink: true }}
+                                slotProps={{ inputLabel: { shrink: true } }}
                                 value={formik.values.carYear}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
@@ -442,6 +468,7 @@ export function ExchangeModal({ open, onClose, personalInfo }) {
                                     <Button
                                       variant="outlined"
                                       component="label"
+                                      startIcon={<CloudUpload />}
                                     >
                                       Upload
                                       <input

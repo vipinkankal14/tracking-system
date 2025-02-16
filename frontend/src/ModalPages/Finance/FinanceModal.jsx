@@ -27,6 +27,7 @@ import {
   UploadFile as UploadFileIcon,
   Delete as DeleteIcon,
   Visibility as VisibilityIcon,
+  CloudUpload,
 } from "@mui/icons-material";
 
 // documentLists
@@ -78,13 +79,19 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
 
   const handleFileUpload = (event, doc) => {
     const file = event.target.files[0];
-    if (file && file.type === "application/pdf") {
+    if (file) {
+      if (file.type !== "application/pdf") {
+        alert("Please upload a valid PDF file.");
+        return;
+      }
+      if (file.size >  600 * 1024) { // 600kb size limit
+        alert(`File size should not exceed 600kb. File name: ${file.name || "Unknown"}`);
+        return;
+      }
       setUploadedFiles((prevFiles) => ({
         ...prevFiles,
         [doc]: file,
       }));
-    } else {
-      alert("Please upload a valid PDF file.");
     }
   };
 
@@ -159,6 +166,8 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
       alert("File is not a PDF.");
     }
   };
+
+  
 
   const handleConfirmationClose = () => {
     setConfirmationOpen(false);
@@ -347,6 +356,8 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     size="small"
                     variant="contained"
                     onClick={handleCalculateEMI}
+                    startIcon={<CloudUpload />}
+                    
                   >
                     Calculate EMI
                   </Button>

@@ -22,6 +22,7 @@ import {
   Visibility,
   Delete,
   CreditCard,
+  CloudUpload,
 } from "@mui/icons-material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -103,6 +104,11 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
 
   const handleFileChange = (field, event) => {
     const file = event.currentTarget.files[0];
+    if (file.size > 600 * 1024) {
+      alert(`File size should not exceed 600KB. File name: ${file.name}`);
+      return;
+    }
+    console.log(file); // Log the file object for debugging
     formik.setFieldValue(field, file);
     formik.setFieldTouched(field, true, false);
   };
@@ -335,7 +341,9 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
                                   ) : (
                                     <Button
                                       variant="outlined"
-                                      component="label"
+                                        component="label"
+                                        startIcon={<CloudUpload />}
+                                        
                                     >
                                       Upload
                                       <input

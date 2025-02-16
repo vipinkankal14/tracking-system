@@ -1,160 +1,192 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-    Modal,
-    Box,
-    Paper,
-    Stack,
-    Typography,
-    List,
-    Button,
-    Card,
-    CardActionArea,
-    CardContent,
+  Button,
+  Paper,
+  Stack,
+  Modal,
+  Box,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Card,
+  CardHeader,
+  CardContent,
+  ListItem,
+  ListItemText,
+  IconButton,
 } from "@mui/material";
-import {
-    Person,
-    DirectionsCar,
-} from "@mui/icons-material";
- import CreditScoreRoundedIcon from '@mui/icons-material/CreditScoreRounded';
+import { Visibility, Delete } from "@mui/icons-material";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
-const fetchLoanAndDocuments = async (customerId) => {
-    try {
-        const response = await fetch(`http://192.168.0.6:5000/loans/${customerId}`);
-        if (!response.ok) throw new Error('Failed to fetch loans');
-        return response.json();
-    } catch (error) {
-        console.error("Error fetching loan and documents:", error);
-        return { loans: [] };
-    }
-};
+// Validation Schema
+const validationSchema = Yup.object().shape({
+  rcDocument: Yup.mixed().required("RC Document is required"),
+  aadhaarDocument: Yup.mixed().required("Aadhaar Card is required"),
+  panDocument: Yup.mixed().required("PAN Card is required"),
+  passportPhoto: Yup.mixed().required("Passport Photo is required"),
+});
 
-const FinanceModalView = ({ open, onClose, personalInfo, carInfo, onShowFinance }) => {
-    const [loanData, setLoanData] = useState([]);
+export function FastTagModal({ open, onClose, personalInfo }) {
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
 
-    useEffect(() => {
-        if (personalInfo?.customerId) {
-            fetchLoanAndDocuments(personalInfo.customerId).then(({ loans }) => {
-                setLoanData(loans);
-            });
+  const formik = useFormik({
+    initialValues: {
+      rcDocument: null,
+      aadhaarDocument: null,
+      panDocument: null,
+      passportPhoto: null,
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      if (!personalInfo?.customerId) {
+        alert("Please fill in your personal information before submitting the Car FastTag Services.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("customerId", personalInfo.customerId);
+      formData.append("rcDocument", values.rcDocument);
+      formData.append("aadhaarDocument", values.aadhaarDocument);
+      formData.append("panDocument", values.panDocument);
+      formData.append("passportPhoto", values.passportPhoto);
+
+      try {
+        const response = await fetch("http://localhost:5000/api/submitCarFastTagRequest", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          setConfirmationOpen(true);
+        } else {
+          alert(result.message);
         }
-    }, [personalInfo?.customerId]);
+      } catch (error) {
+        console.error("Error submitting FastTag request:", error);
+        alert("An error occurred while submitting the FastTag request.");
+      }
+    },
+  });
 
-    return (
-        <Modal
-            open={open}
-            closeAfterTransition
-            aria-labelledby="modal-title"
-            aria-describedby="modal-description"
-            sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}
-        >
-            <Box component={Paper} sx={{ width: { xs: "100%", sm: "60vh" }, height: { xs: "100%", sm: "99%" }, marginBottom: { sm: "4px" } }}>
-                <Stack spacing={1} sx={{ p: 1, maxWidth: 600, height: { xs: "100%", sm: "100%" }, overflowY: "auto", borderRadius: 2 }}>
-                    
-                    <Box textAlign="center" sx={{ p: 2, display: "flex", justifyContent: "start", alignItems: "center" }}>
-                        <Typography variant="h5">Car Finance Services</Typography>
-                    </Box>
+  const handleFileChange = (field, event) => {
+    const file = event.currentTarget.files[0];
+    formik.setFieldValue(field, file);
+    formik.setFieldTouched(field, true, false);
+  };
 
-                    <Stack spacing={2} sx={{ p: 1, m: 0.6, maxWidth: 600, height: "79vh", overflowY: "auto", borderRadius: 2, bgcolor: "background.paper" }}>
-                        <Stack spacing={4}>
+  const handleFilePreview = (file) => {
+    const fileURL = URL.createObjectURL(file);
+    setPreviewFile(fileURL);
+  };
 
-                            {/* Personal Information */}
-                            <Paper variant="outlined" sx={{ p: 2 }}>
-                                <Stack spacing={2}>
-                                    <Box display="flex" alignItems="center" gap={1}>
-                                        <Person />
-                                        <Typography variant="h6">Personal Information</Typography>
-                                    </Box>
-                                    <List dense>
-                                        <Typography variant="body2">Customer ID: {personalInfo?.customerId}</Typography>
-                                        <Typography variant="body2">Full Name: {personalInfo?.firstName} {personalInfo?.middleName} {personalInfo?.lastName}</Typography>
-                                        <Typography variant="body2">Email: {personalInfo?.email}</Typography>
-                                        <Typography variant="body2">Phone: {personalInfo?.mobileNumber1}, {personalInfo?.mobileNumber2}</Typography>
-                                    </List>
-                                </Stack>
-                            </Paper>
+  const handleFileRemove = (field) => {
+    formik.setFieldValue(field, null);
+    formik.setFieldTouched(field, true, false);
+  };
 
-                            {/* Vehicle Information */}
-                            <Paper variant="outlined" sx={{ p: 2 }}>
-                                <Stack spacing={2}>
-                                    <Box display="flex" alignItems="center" gap={1}>
-                                        <DirectionsCar />
-                                        <Typography variant="h6">Vehicle Information</Typography>
-                                    </Box>
-                                    <List dense>
-                                        <Typography variant="body2">Car Model: {carInfo?.model}</Typography>
-                                        <Typography variant="body2">Car Version: {carInfo?.version}</Typography>
-                                        <Typography variant="body2">Car Color: {carInfo?.color}</Typography>
-                                    </List>
-                                </Stack>
-                            </Paper>
+  const handleClose = () => {
+    formik.resetForm();
+    onClose();
+  };
 
-                            {/* Loan Information */}
-                            {loanData.length > 0 && (
-                                <Paper variant="outlined" sx={{ p: 2 }}>
-                                    <Stack spacing={2}>
-                                        <Box display="flex" alignItems="center" gap={1}>
-                                            <CreditScoreRoundedIcon />
-                                            <Typography variant="h6">Loan Information</Typography>
-                                        </Box>
-                                        <List dense>
-                                            {loanData.map((loan, index) => (
-                                                <Box key={index}>
-                                                    <Typography variant="body2">Loan Amount: {loan.loan_amount}</Typography>
-                                                    <Typography variant="body2">Interest Rate: {loan.interest_rate}%</Typography>
-                                                    <Typography variant="body2">Loan Duration: {loan.loan_duration} months</Typography>
-                                                    <Typography variant="body2">EMI: {loan.calculated_emi}</Typography>
-                                                    <Typography variant="body2">Employment Type: {loan.employment_type}</Typography>
-                                                </Box>
-                                            ))}
-                                        </List>
-                                    </Stack>
-                                </Paper>
-                            )}
+  const handleConfirmationClose = () => {
+    setConfirmationOpen(false);
+    handleClose();
+  };
 
-                            {/* Loan Documents */}
-                            {loanData.map((loan, index) =>
-                                loan.products.map((doc, docIndex) => {
-                                    const fullPath = doc.uploaded_file;
-                                    const pathParts = fullPath.split("\\");
-                                    const customerId = pathParts[pathParts.length - 2];
-                                    const fileName = pathParts[pathParts.length - 1];
+  const handlePreviewClose = () => {
+    setPreviewFile(null);
+  };
 
-                                    return (
-                                        <Card key={`${index}-${docIndex}`} sx={{ maxWidth: 300 }}>
-                                            <CardActionArea>
-                                                <CardContent>
-                                                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                                                        {doc.document_name}
-                                                    </Typography>
-                                                    <iframe
-                                                        src={`http://192.168.0.6:5000/uploads/${customerId}/${encodeURIComponent(fileName)}`}
-                                                        width="100%"
-                                                        height="300px"
-                                                        title={doc.document_name}
-                                                        onError={(e) => {
-                                                            e.target.src = 'path/to/fallback/image_or_error_page.png';
-                                                            console.error('Failed to load document:', doc.document_name);
-                                                        }}
-                                                    />
-                                                </CardContent>
-                                            </CardActionArea>
-                                        </Card>
-                                    );
-                                })
-                              
-                            )}
-                        </Stack>
-                    </Stack>
+  return (
+    <>
+      <Modal open={open} onClose={handleClose}>
+        <Box component={Paper} sx={{ width: "60vh", height: "99%", marginBottom: "4px" }}>
+          <form onSubmit={formik.handleSubmit}>
+            <Stack spacing={1} sx={{ p: 1, maxWidth: 600, height: "100%", overflowY: "auto" }}>
+              <Typography variant="h5" component="h1" textAlign="center">
+                Car FastTag Services
+              </Typography>
+              <Stack spacing={2} sx={{ p: 1, m: 0.6, maxWidth: 600, height: "79vh", overflowY: "auto" }}>
+                {/* File Upload Fields */}
+                {["rcDocument", "aadhaarDocument", "panDocument", "passportPhoto"].map((field) => (
+                  <Box key={field}>
+                    <ListItem>
+                      <ListItemText primary={field.replace(/([A-Z])/g, " $1").toUpperCase()} />
+                      <Box display="flex" alignItems="center" gap={1}>
+                        {formik.values[field] ? (
+                          <>
+                            <IconButton color="primary" onClick={() => handleFilePreview(formik.values[field])}>
+                              <Visibility />
+                            </IconButton>
+                            <IconButton color="error" onClick={() => handleFileRemove(field)}>
+                              <Delete />
+                            </IconButton>
+                          </>
+                        ) : (
+                          <Button variant="outlined" component="label">
+                            Upload
+                            <input
+                              type="file"
+                              hidden
+                              name={field}
+                              onChange={(e) => handleFileChange(field, e)}
+                            />
+                          </Button>
+                        )}
+                      </Box>
+                    </ListItem>
+                    {formik.touched[field] && formik.errors[field] && (
+                      <Typography color="error" variant="caption">
+                        {formik.errors[field]}
+                      </Typography>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+              <Box sx={{ p: 2, display: "flex", justifyContent: "space-between" }}>
+                <Button variant="contained" color="secondary" onClick={handleClose}>
+                  Close
+                </Button>
+                <Button variant="contained" color="primary" type="submit">
+                  Submit
+                </Button>
+              </Box>
+            </Stack>
+          </form>
+        </Box>
+      </Modal>
 
-                    {/* Action Buttons */}
-                    <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "end" }}>
-                        <Button variant="contained" color="primary" onClick={onClose} size="small">Close</Button>
-                        <Button variant="contained" color="primary" onClick={onShowFinance} size="small">Update</Button>
-                    </Box>
-                </Stack>
-            </Box>
-        </Modal>
-    );
-};
+      <Dialog open={confirmationOpen} onClose={handleConfirmationClose}>
+        <DialogTitle>Submission Successful</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Your FastTag form has been submitted successfully.</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmationClose} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-export default FinanceModalView;
+      <Dialog open={Boolean(previewFile)} onClose={handlePreviewClose}>
+        <DialogTitle>File Preview</DialogTitle>
+        <DialogContent>
+          <iframe title="File Preview" src={previewFile} width="100%" height="400px" style={{ border: "none" }} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handlePreviewClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}

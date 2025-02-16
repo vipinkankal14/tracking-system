@@ -34,7 +34,8 @@ const { getCustomerOrders, getCustomerLoans, getCustomerCoatingRequests } = requ
 const { postCoatingRequest } = require('./db/routes/Request/CarCoatingRequest');
 const { postCarExchangeRequests } = require('./db/routes/Request/CarExchangeRequest');
 const { postCarLoansRequest } = require('./db/routes/Request/CarLoansRequest');
-
+const { postCarFastTagRequest } = require('./db/routes/Request/CarFastTagRequest');
+ 
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
 // Use the payment routes
@@ -144,6 +145,7 @@ const uploadCarloans = multer({ storage: storageCarloans });
 
 app.post("/api/loans", uploadCarloans.array("documents"), postCarLoansRequest);
 
+{/*-------------------------------------------------------------------- */}
 
 
 // backend\db\routes\Request\CarExchangeRequest.js
@@ -173,6 +175,51 @@ app.post('/api/submitCarExchangeRequest',
   ]),
   postCarExchangeRequests
 );
+
+{/*-------------------------------------------------------------------- */}
+
+// Multer storage configuration for Car FastTag documents
+
+const storageCarFastTag = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "CarFastTagRequest", req.body.customerId);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+
+const uploadCarFastTag = multer({ storage: storageCarFastTag });
+
+// POST endpoint for submitting Car FastTag request
+app.post(
+  "/api/submitCarFastTagRequest",
+  uploadCarFastTag.fields([
+    { name: "rcDocument", maxCount: 1 },
+    { name: "aadhaarDocument", maxCount: 1 },
+    { name: "panDocument", maxCount: 1 },
+    { name: "passportPhoto", maxCount: 1 },
+  ]),
+
+  postCarFastTagRequest
+  
+);
+
+
+
+ 
+
+{/*-------------------------------------------------------------------- */}
+
+
+
+
+
 
 // API Route: Apply Booking
 app.post('/api/apply-booking', (req, res) => {

@@ -20,11 +20,11 @@ import {
   IconButton,
 } from "@mui/material";
 import {
-  CreditCard,
   Person,
   Visibility,
   Delete,
   DirectionsCar,
+  CloudUpload,
 } from "@mui/icons-material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -38,6 +38,7 @@ const validationSchema = Yup.object().shape({
 });
 
 export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
+
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
 
@@ -51,29 +52,22 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
     validationSchema,
     onSubmit: async (values) => {
       if (!personalInfo?.customerId) {
-        alert(
-          "Please fill in your personal information before submitting the Car FastTag Services."
-        );
+        alert("Please fill in your personal information before submitting the Car FastTag Services.");
         return;
       }
 
-      const FastTagData = {
-        customerId: personalInfo.customerId,
-        rcDocument: values.rcDocument,
-        aadhaarDocument: values.aadhaarDocument,
-        panDocument: values.panDocument,
-        passportPhoto: values.passportPhoto,
-      };
+      const formData = new FormData();
+      formData.append("customerId", personalInfo.customerId);
+      formData.append("rcDocument", values.rcDocument);
+      formData.append("aadhaarDocument", values.aadhaarDocument);
+      formData.append("panDocument", values.panDocument);
+      formData.append("passportPhoto", values.passportPhoto);
 
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/submitFastTagRequest",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(FastTagData),
-          }
-        );
+        const response = await fetch("http://localhost:5000/api/submitCarFastTagRequest", {
+          method: "POST",
+          body: formData,
+        });
 
         const result = await response.json();
 
@@ -91,6 +85,11 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
 
   const handleFileChange = (field, event) => {
     const file = event.currentTarget.files[0];
+    if (file && file.size > 600 * 1024) {
+      alert(`File size should not exceed 600KB. File name: ${file.name}`);
+      return;
+    }
+    console.log(file);
     formik.setFieldValue(field, file);
     formik.setFieldTouched(field, true, false);
   };
@@ -290,7 +289,8 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
                                   ) : (
                                     <Button
                                       variant="outlined"
-                                      component="label"
+                                        component="label"
+                                        startIcon={<CloudUpload />}
                                     >
                                       Upload
                                       <input
@@ -364,7 +364,8 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
                                         ) : (
                                           <Button
                                             variant="outlined"
-                                            component="label"
+                                              component="label"
+                                              startIcon={<CloudUpload />}
                                           >
                                             Upload
                                             <input
@@ -409,6 +410,7 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
                                         display="flex"
                                         alignItems="center"
                                         gap={1}
+                                        
                                       >
                                         {formik.values.panDocument ? (
                                           <>
@@ -434,7 +436,8 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
                                         ) : (
                                           <Button
                                             variant="outlined"
-                                            component="label"
+                                              component="label"
+                                              startIcon={<CloudUpload />}
                                           >
                                             Upload
                                             <input
@@ -507,7 +510,8 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
                                   ) : (
                                     <Button
                                       variant="outlined"
-                                      component="label"
+                                        component="label"
+                                        startIcon={<CloudUpload />}
                                     >
                                       Upload
                                       <input
