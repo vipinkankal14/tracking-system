@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Box,
@@ -31,7 +31,6 @@ import {
 } from "@mui/icons-material";
 
 // documentLists
-
 const documentLists = {
   Salaried: [
     "Aadhaar Card",
@@ -68,7 +67,19 @@ const calculateEMI = (loanAmount, interestRate, duration) => {
   return emi.toFixed(2);
 };
 
+const fetchLoanAndDocuments = async (customerId) => {
+  try {
+    const response = await fetch(`http://localhost:5000/loans/${customerId}`);
+    if (!response.ok) throw new Error("Failed to fetch loans");
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching loan and documents:", error);
+    return { loans: [] };
+  }
+};
+
 const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
+  const [loanData, setLoanData] = useState([]);
   const [employedType, setEmployedType] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [loanAmount, setLoanAmount] = useState("");
@@ -77,6 +88,21 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
   const [calculatedEMI, setCalculatedEMI] = useState("");
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
+  useEffect(() => {
+    if (personalInfo?.customerId) {
+      fetchLoanAndDocuments(personalInfo.customerId).then(({ loans }) => {
+        setLoanData(loans);
+        if (loans.length > 0) {
+          const loan = loans[0]; // Use the first loan (or iterate if multiple loans exist)
+          setLoanAmount(loan.loan_amount);
+          setInterestRate(loan.interest_rate);
+          setLoanDuration(loan.loan_duration);
+          setCalculatedEMI(loan.emi);
+         }
+      });
+    }
+  }, [personalInfo?.customerId]);
+
   const handleFileUpload = (event, doc) => {
     const file = event.target.files[0];
     if (file) {
@@ -84,8 +110,11 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
         alert("Please upload a valid PDF file.");
         return;
       }
-      if (file.size >  600 * 1024) { // 600kb size limit
-        alert(`File size should not exceed 600kb. File name: ${file.name || "Unknown"}`);
+      if (file.size > 600 * 1024) {
+        // 600kb size limit
+        alert(
+          `File size should not exceed 600kb. File name: ${file.name || "Unknown"}`
+        );
         return;
       }
       setUploadedFiles((prevFiles) => ({
@@ -166,8 +195,6 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
       alert("File is not a PDF.");
     }
   };
-
-  
 
   const handleConfirmationClose = () => {
     setConfirmationOpen(false);
@@ -314,7 +341,7 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                       flex: 1,
                       mb: { xs: 2, sm: 0 },
                       mr: { xs: 4, sm: 2 },
-                      ml: 2,
+                      ml: 3,
                     }}
                   >
                     <Typography gutterBottom>Interest Rate (%)</Typography>
@@ -333,8 +360,8 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     sx={{
                       flex: 1,
                       mb: { xs: 2, sm: 0 },
-                      mr: { xs: 4, sm: 4 },
-                      ml: 1,
+                      mr: { xs: 4, sm: 0 },
+                      ml: 3,
                     }}
                   >
                     <Typography gutterBottom>Loan Duration (Years)</Typography>
@@ -357,7 +384,6 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
                     variant="contained"
                     onClick={handleCalculateEMI}
                     startIcon={<CloudUpload />}
-                    
                   >
                     Calculate EMI
                   </Button>

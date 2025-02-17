@@ -204,7 +204,7 @@ const FinanceModalView = ({
 
                       return (
                         <Grid item xs={12} sm={6} key={`${index}-${docIndex}`}>
-                          <Card sx={{ maxWidth: "100%", height: "35vh" }}>
+                          <Card sx={{ maxWidth: "100%", height: "100%" }}>
                             <CardActionArea>
                               <CardContent>
                                 <Typography
@@ -219,7 +219,7 @@ const FinanceModalView = ({
                                     fileName
                                   )}`}
                                   width="100%"
-                                  height="206px"
+                                  height="200px"
                                   title={doc.document_name}
                                   onError={(e) => {
                                     e.target.src =
@@ -296,6 +296,8 @@ const FinanceModalView = ({
       </Dialog>
     </>
   );
+
+  
 };
 
 export default FinanceModalView;

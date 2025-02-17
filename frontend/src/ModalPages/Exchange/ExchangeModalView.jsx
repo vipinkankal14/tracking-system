@@ -108,28 +108,7 @@ const ExchangeModalView = ({
                                         </Stack>
                                     </Paper>
 
-                                    {/* Vehicle Information */}
-                                    <Paper variant="outlined" sx={{ p: 2 }}>
-                                        <Stack spacing={2}>
-                                            <Box display="flex" alignItems="center" gap={1}>
-                                                <DirectionsCar />
-                                                <Typography variant="h6">
-                                                    Vehicle Information
-                                                </Typography>
-                                            </Box>
-                                            <List dense>
-                                                <Typography variant="body2">
-                                                    Car Model: {carInfo?.model}
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    Car Version: {carInfo?.version}
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    Car Color: {carInfo?.color}
-                                                </Typography>
-                                            </List>
-                                        </Stack>
-                                    </Paper>
+                                  
                                 </Box>
                             </Stack>
                         </Stack>

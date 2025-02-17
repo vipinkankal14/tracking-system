@@ -162,7 +162,7 @@ export function ExchangeModal({ open, onClose, personalInfo }) {
           alignItems: "flex-end",
           justifyContent: "flex-end",
         }}
-      >
+       >
         <Box
           component={Paper}
           sx={{

@@ -224,30 +224,27 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
                     </Paper>
 
                     {/* Car Information */}
-                    <Paper variant="outlined" sx={{ p: 2 }}>
-                      <Stack spacing={2}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <DirectionsCar />
-                          <Typography variant="h6">Car Information</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="subtitle2" gutterBottom>
-                            Required Information:
-                          </Typography>
-                          <List dense>
-                            <Typography variant="body2">
-                              Car Number: {carInfo?.carNumber}
-                            </Typography>
-                            <Typography variant="body2">
-                              Car Model: {carInfo?.carModel}
-                            </Typography>
-                            <Typography variant="body2">
-                              Car Make: {carInfo?.carMake}
-                            </Typography>
-                          </List>
-                        </Box>
-                      </Stack>
-                    </Paper>
+                   <Paper variant="outlined" sx={{ p: 2 }}>
+                                       <Stack spacing={2}>
+                                         <Box display="flex" alignItems="center" gap={1}>
+                                           <DirectionsCar />
+                                           <Typography variant="h6">
+                                             Vehicle Information
+                                           </Typography>
+                                         </Box>
+                                         <List dense>
+                                           <Typography variant="body2">
+                                             Car Model: {carInfo?.model}
+                                           </Typography>
+                                           <Typography variant="body2">
+                                             Car Version: {carInfo?.version}
+                                           </Typography>
+                                           <Typography variant="body2">
+                                             Car Color: {carInfo?.color}
+                                           </Typography>
+                                         </List>
+                                       </Stack>
+                                     </Paper>
 
                     {/* Required Documents */}
                     <Paper variant="outlined" sx={{ p: 2 }}>
