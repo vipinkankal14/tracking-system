@@ -666,6 +666,29 @@ app.put('/api/car/update/:vin', (req, res) => {
   });
 });
 
+{/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+ 
+  
+// Route to get exchange requests
+app.get("/api/getExchangeRequests/:customerId", async (req, res) => {
+  try {
+    const { customerId } = req.params;
+    const query = "SELECT * FROM car_exchange_requests WHERE customerId = ?";
+    const [results] = await pool.execute(query, [customerId]);
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ error: 'No exchange requests found' });
+    }
+
+    res.json(results);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Failed to fetch data" });
+  }
+});
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
 // Route to check the current pool status
