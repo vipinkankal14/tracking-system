@@ -1,12 +1,9 @@
-
-
 import React from "react";
 import clsx from "clsx";
 import PersonalInfo from "../CustomerAdd/PersonalInfo";
 import CarInfo from "../CustomerAdd/CarInfo";
 import OrderInfo from "../CustomerAdd/OrderInfo";
  import Confirmation from "../CustomerAdd/Confirmation";
-import UpDocument from "../CustomerAdd/Document";
 import { Button } from "@mui/material"; // MUI components
 import { Check, ChevronRight } from "lucide-react"; // Replace with MUI Icons if needed
 import "../CustomerAdd/scss/MultiStepForm.scss";
@@ -18,9 +15,8 @@ const steps = [
   { id: 2, name: "Car Info" },
   { id: 3, name: "Order Info" },
   { id: 4, name: "Additional Info" },
-  { id: 5, name: "Upload Document" },
-  { id: 6, name: "Confirmation" },
-];
+  { id: 5, name: "Confirmation" },
+ ];
 
 export function Home() {
   const navigate = useNavigate();
@@ -74,9 +70,6 @@ export function Home() {
       insurance: "No",
       extendedWarranty: "No",
       autoCard: "No",
-    },
-    accessories: {
-      accessories: [],
     },
     documentUpload: {
       document: null, // Stores the uploaded document file
@@ -177,14 +170,8 @@ export function Home() {
     />
   );
   
+       
       case 5:
-        return (
-          <UpDocument
-            data={formData.documentUpload}
-            updateData={(key, value) => updateSection("documentUpload", key, value)}
-          />
-        );
-      case 6:
         return <Confirmation data={formData} onSubmit={handleSubmit} />;
       
       default:

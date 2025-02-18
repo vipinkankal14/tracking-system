@@ -538,10 +538,7 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
           carInfo={carInfo}
         />
 
-      
-
-
-
+       
       )}
     </div>
   );

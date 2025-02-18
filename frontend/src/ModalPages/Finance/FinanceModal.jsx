@@ -67,20 +67,10 @@ const calculateEMI = (loanAmount, interestRate, duration) => {
   return emi.toFixed(2);
 };
 
-const fetchLoanAndDocuments = async (customerId) => {
-  try {
-    const response = await fetch(`http://localhost:5000/loans/${customerId}`);
-    if (!response.ok) throw new Error("Failed to fetch loans");
-    return response.json();
-  } catch (error) {
-    console.error("Error fetching loan and documents:", error);
-    return { loans: [] };
-  }
-};
+ 
 
 const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
-  const [loanData, setLoanData] = useState([]);
-  const [employedType, setEmployedType] = useState("");
+   const [employedType, setEmployedType] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [loanAmount, setLoanAmount] = useState("");
   const [interestRate, setInterestRate] = useState(0);
@@ -88,20 +78,7 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
   const [calculatedEMI, setCalculatedEMI] = useState("");
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
-  useEffect(() => {
-    if (personalInfo?.customerId) {
-      fetchLoanAndDocuments(personalInfo.customerId).then(({ loans }) => {
-        setLoanData(loans);
-        if (loans.length > 0) {
-          const loan = loans[0]; // Use the first loan (or iterate if multiple loans exist)
-          setLoanAmount(loan.loan_amount);
-          setInterestRate(loan.interest_rate);
-          setLoanDuration(loan.loan_duration);
-          setCalculatedEMI(loan.emi);
-         }
-      });
-    }
-  }, [personalInfo?.customerId]);
+ 
 
   const handleFileUpload = (event, doc) => {
     const file = event.target.files[0];

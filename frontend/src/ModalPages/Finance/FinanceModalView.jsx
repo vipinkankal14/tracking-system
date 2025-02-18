@@ -11,10 +11,8 @@ import {
   CardActionArea,
   CardContent,
   Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+ 
+ 
 } from "@mui/material";
 import { Person, DirectionsCar } from "@mui/icons-material";
 import CreditScoreRoundedIcon from "@mui/icons-material/CreditScoreRounded";
@@ -36,11 +34,10 @@ const FinanceModalView = ({
   onClose,
   personalInfo,
   carInfo,
-  onShowFinance,
+ 
 }) => {
   const [loanData, setLoanData] = useState([]);
-  const [showWarning, setShowWarning] = useState(false);
-
+ 
   useEffect(() => {
     if (personalInfo?.customerId) {
       fetchLoanAndDocuments(personalInfo.customerId).then(({ loans }) => {
@@ -49,14 +46,7 @@ const FinanceModalView = ({
     }
   }, [personalInfo?.customerId]);
 
-  const handleUpdateClick = () => {
-    setShowWarning(true);
-  };
-
-  const handleWarningClose = () => {
-    setShowWarning(false);
-    onShowFinance();
-  };
+  
 
   return (
     <>
@@ -259,41 +249,13 @@ const FinanceModalView = ({
               >
                 Close
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleUpdateClick}
-                size="small"
-              >
-                Update
-              </Button>
+               
             </Box>
           </Stack>
         </Box>
       </Modal>
 
-      <Dialog
-        open={showWarning}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Please re-enter your data"}
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">
-            All finest details need to be re-entered.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowWarning(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleWarningClose} color="primary" autoFocus>
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+       
     </>
   );
 
