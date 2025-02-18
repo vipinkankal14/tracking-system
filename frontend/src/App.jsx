@@ -27,8 +27,7 @@ import PaymentApp from "./cashier/PaymentApp";
 import Confirmation from "./CustomerAdd/Confirmation";
 import OrderInfo from "./CustomerAdd/OrderInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
-import UpDocument from "./CustomerAdd/Document";
- import { Home } from "./home/Home";
+import { Home } from "./home/Home";
 import AccessorieApp from "./Accessories/AccessorieApp";
 import AddedUploadViewApp from "./Accessories/AddedUploadView/AddedUploadViewApp";
 import { AccessorieUpload } from "./Accessories/AddedUploadView/AccessorieUpload";
@@ -109,8 +108,7 @@ function App() {
                 <Route path="/Confirmation" element={<Confirmation />} />
                 <Route path="/OrderInfo" element={<OrderInfo />} />
                 <Route path="/PersonalInfo" element={<PersonalInfo />} />
-                <Route path="/UploadDocument" element={<UpDocument />} />
-                 <Route path="/accessorie-app" element={<AccessorieApp />} />
+                <Route path="/accessorie-app" element={<AccessorieApp />} />
                 <Route path="/added-upload-viewapp" element={<AddedUploadViewApp />} />
                 <Route path="/accessorie-upload" element={<AccessorieUpload />} />
                 <Route path="/add-accessories" element={<AddAccessories />} />

@@ -47,9 +47,7 @@ export function Home() {
       color: "",
       teamLeader: "",
       teamMember: "",
-      exShowroomPrice: "",
-      bookingAmount: "",
-      cardiscount: "",
+      
     },
     orderInfo: {
       orderDate: "NO",

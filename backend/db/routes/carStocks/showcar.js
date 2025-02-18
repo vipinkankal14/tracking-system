@@ -24,7 +24,7 @@ const ShowCarStock = async (req, res) => {
 
 const ShowCarStock = async (req, res) => {
     const query = `
-        SELECT carType, color, version, model, exShowroomPrice, bookingAmount,cardiscount
+        SELECT *
         FROM carStocks
     `;
     

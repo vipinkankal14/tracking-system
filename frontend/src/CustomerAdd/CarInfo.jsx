@@ -3,7 +3,7 @@ import "./scss/page.scss";
 import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined";
 import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
 
-const CarInfo = ({ data, updateData }) => {
+const CarInfo = ({ data = {}, updateData }) => {
   const [carStocks, setCarStocks] = useState([]);
   const [dropdownState, setDropdownState] = useState({
     teamLeader: false,
@@ -16,11 +16,39 @@ const CarInfo = ({ data, updateData }) => {
 
   // Fetch car stocks data
   useEffect(() => {
-    fetch("http://localhost:5000/api/showAllCarStocks") // Example API endpoint
+    fetch("http://localhost:5000/api/showAllCarStocks")
       .then((response) => response.json())
       .then((data) => setCarStocks(data))
       .catch((error) => console.error("Error fetching car stocks:", error));
   }, []);
+
+  // Update prices when car details change
+  useEffect(() => {
+    const { carType, model, version, color } = data;
+  
+    if (carType && model && version && color) {
+      const selectedCar = carStocks.find(
+      (stock) =>
+        stock.carType === carType &&
+        stock.model === model &&
+        stock.version === version &&
+        stock.color === color
+      );
+    
+      if (selectedCar) {
+      if (data.exShowroomPrice !== selectedCar.exShowroomPrice) {
+        updateData("exShowroomPrice", selectedCar.exShowroomPrice || "");
+      }
+      if (data.bookingAmount !== selectedCar.bookingAmount) {
+        updateData("bookingAmount", selectedCar.bookingAmount || "");
+      }
+      if (data.cardiscount !== selectedCar.cardiscount) {
+        updateData("cardiscount", selectedCar.cardiscount || "");
+      }
+      }  
+    }  
+  }, [data.carType, data.model, data.version, data.color, carStocks, updateData]);
+
 
   const toggleDropdown = (dropdownName) => {
     setDropdownState((prevState) => ({
@@ -31,34 +59,21 @@ const CarInfo = ({ data, updateData }) => {
 
   const handleChange = (name, value) => {
     updateData(name, value);
-
-    // Auto-populate prices when all selections are made
-    if (["carType", "model", "version", "color"].includes(name)) {
-      const selectedCar = carStocks.find(
-        (stock) =>
-          stock.carType === (name === "carType" ? value : data.carType) &&
-          stock.model === (name === "model" ? value : data.model) &&
-          stock.version === (name === "version" ? value : data.version) &&
-          stock.color === (name === "color" ? value : data.color)
-      );
-
-      if (selectedCar) {
-        updateData("exShowroomPrice", selectedCar.exShowroomPrice || "");
-        updateData("bookingAmount", selectedCar.bookingAmount || "");
-
-        updateData("cardiscount", selectedCar.cardiscount || "");
-      } else {
-        updateData("exShowroomPrice", "");
-        updateData("bookingAmount", "");
-        updateData("cardiscount", "");
-      }
-    }
   };
 
+  // Find the selected car details
+  const selectedCar = carStocks.find(
+    (stock) =>
+      stock.carType === data.carType &&
+      stock.model === data.model &&
+      stock.version === data.version &&
+      stock.color === data.color
+  );
+
   return (
-    <div style={{ padding: "10px" }}>
+    <div style={{ padding: "0px" }}>
       {/* Dealership Advisor */}
-      <div className="row g-3">
+      <div className="row g-1">
         <h6>Dealership Advisor</h6>
         {/* Team Leader */}
         <div className="col-md-3">
@@ -222,7 +237,7 @@ const CarInfo = ({ data, updateData }) => {
             type="number"
             className="form-control input-underline input-margin"
             id="exShowroomPrice"
-            value={data.exShowroomPrice}
+            value={data.exShowroomPrice || ""}
             readOnly
           />
         </div>
@@ -233,12 +248,91 @@ const CarInfo = ({ data, updateData }) => {
             type="number"
             className="form-control input-underline input-margin"
             id="bookingAmount"
-            value={data.bookingAmount}
+            value={data.bookingAmount || ""}
             readOnly
           />
         </div>
 
+        <div className="col-md-2">
+          <label htmlFor="cardiscount">Discount</label>
+          <input
+            type="number"
+            className="form-control input-underline input-margin"
+            id="cardiscount"
+            value={data.cardiscount || ""}
+            readOnly
+          />
+        </div>
       </div>
+
+      {/* All Car Details (Read-Only) */}
+      {selectedCar && (
+        <div className="row mt-1">
+          <h6>All Car Details</h6>
+
+          <div className="col-md-2">
+            <label htmlFor="fuelType">Fuel Type</label>
+            <input
+              type="text"
+              className="form-control input-underline input-margin"
+              id="fuelType"
+              value={selectedCar.fuelType || ""}
+              readOnly
+            />
+          </div>
+
+          <div className="col-md-2">
+            <label htmlFor="transmission">Transmission</label>
+            <input
+              type="text"
+              className="form-control input-underline input-margin"
+              id="transmission"
+              value={selectedCar.transmission || ""}
+              readOnly
+            />
+          </div>
+
+          <div className="col-md-2">
+            <label htmlFor="mileage">Mileage(km)</label>
+            <input
+              type="text"
+              className="form-control input-underline input-margin"
+              id="mileage"
+              value={selectedCar.mileage || ""}
+              readOnly
+            />
+          </div>
+
+          
+          {selectedCar.fuelType === "Electric" && (
+          <div className="col-md-2">
+            <label htmlFor="batteryCapacity">Battery Capacity</label>
+            <input
+              type="text"
+              className="form-control input-underline input-margin"
+              id="batteryCapacity"
+              value={selectedCar.batteryCapacity || ""}
+              readOnly
+            />
+          </div>
+          )}
+
+
+          {selectedCar.fuelType !== "Electric" && (
+            <div className="col-md-2">
+              <label htmlFor="engineCapacity">Engine Capacity(cc)</label>
+              <input
+              type="text"
+              className="form-control input-underline input-margin"
+              id="engineCapacity"
+              value={selectedCar.engineCapacity || "NA"}
+              readOnly
+              />
+            </div>
+          )}
+          
+        </div>
+      )}
     </div>
   );
 };
