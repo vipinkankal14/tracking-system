@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from "react";
 import "./scss/page.scss";
-import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined";
-import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Paper,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { Person } from "@mui/icons-material";
 
-const CarInfo = ({ data = {}, updateData }) => {
+const CarInfo = ({ personalInfo, data = {}, updateData }) => {
   const [carStocks, setCarStocks] = useState([]);
-  const [dropdownState, setDropdownState] = useState({
-    teamLeader: false,
-    teamMember: false,
-    model: false,
-    version: false,
-    color: false,
-    carType: false,
-  });
+  const [open, setOpen] = useState(false); // State to control modal open/close status
+  const [confirmationChecked, setConfirmationChecked] = useState(false);
+
+
 
   // Fetch car stocks data
   useEffect(() => {
@@ -25,37 +35,39 @@ const CarInfo = ({ data = {}, updateData }) => {
   // Update prices when car details change
   useEffect(() => {
     const { carType, model, version, color } = data;
-  
+
     if (carType && model && version && color) {
       const selectedCar = carStocks.find(
-      (stock) =>
-        stock.carType === carType &&
-        stock.model === model &&
-        stock.version === version &&
-        stock.color === color
+        (stock) =>
+          stock.carType === carType &&
+          stock.model === model &&
+          stock.version === version &&
+          stock.color === color
       );
-    
+
       if (selectedCar) {
-      if (data.exShowroomPrice !== selectedCar.exShowroomPrice) {
-        updateData("exShowroomPrice", selectedCar.exShowroomPrice || "");
+        if (data.exShowroomPrice !== selectedCar.exShowroomPrice) {
+          updateData("exShowroomPrice", selectedCar.exShowroomPrice || "");
+        }
+        if (data.bookingAmount !== selectedCar.bookingAmount) {
+          updateData("bookingAmount", selectedCar.bookingAmount || "");
+        }
+        if (data.cardiscount !== selectedCar.cardiscount) {
+          updateData("cardiscount", selectedCar.cardiscount || "");
+        }
       }
-      if (data.bookingAmount !== selectedCar.bookingAmount) {
-        updateData("bookingAmount", selectedCar.bookingAmount || "");
-      }
-      if (data.cardiscount !== selectedCar.cardiscount) {
-        updateData("cardiscount", selectedCar.cardiscount || "");
-      }
-      }  
-    }  
-  }, [data.carType, data.model, data.version, data.color, carStocks, updateData]);
 
-
-  const toggleDropdown = (dropdownName) => {
-    setDropdownState((prevState) => ({
-      ...prevState,
-      [dropdownName]: !prevState[dropdownName],
-    }));
-  };
+      // Open the modal automatically when all selections are made
+      setOpen(true);
+    }
+  }, [
+    data.carType,
+    data.model,
+    data.version,
+    data.color,
+    carStocks,
+    updateData,
+  ]);
 
   const handleChange = (name, value) => {
     updateData(name, value);
@@ -70,269 +82,456 @@ const CarInfo = ({ data = {}, updateData }) => {
       stock.color === data.color
   );
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!personalInfo?.customerId) {
+      alert(
+        "Please fill in your personal information before submitting the Car Coating Services."
+      );
+      return;
+    }
+
+    const payload = {
+      customerId: personalInfo.customerId, // Assuming customerId is part of personalInfo
+      teamLeader: data.teamLeader,
+      teamMember: data.teamMember,
+      carType: data.carType,
+      model: data.model,
+      version: data.version,
+      color: data.color,
+      exShowroomPrice: data.exShowroomPrice,
+      bookingAmount: data.bookingAmount,
+      fuelType: selectedCar.fuelType,
+      transmission: selectedCar.transmission,
+      mileage: selectedCar.mileage,
+      engineCapacity: selectedCar.engineCapacity,
+    };
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/submitCarSelection",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit data");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      alert("Car selection submitted successfully!");
+      setOpen(false); // Close the modal after submission
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      alert("Failed to submit car selection. Please try again.");
+    }
+  };
+
   return (
-    <div style={{ padding: "0px" }}>
+    <div className="space-y-6 p-4">
       {/* Dealership Advisor */}
-      <div className="row g-1">
-        <h6>Dealership Advisor</h6>
-        {/* Team Leader */}
-        <div className="col-md-3">
-          <label htmlFor="teamLeader">Team Leader</label>
-          <div className="dropdown-wrapper">
-            <select
-              className="form-control input-underline input-margin"
-              id="teamLeader"
-              value={data.teamLeader}
-              onChange={(e) => handleChange("teamLeader", e.target.value)}
-              onClick={() => toggleDropdown("teamLeader")}
-              required
-            >
-              <option value="">Select Team Leader</option>
-              <option value="leader1">Leader 1</option>
-              <option value="leader2">Leader 2</option>
-              <option value="leader3">Leader 3</option>
-            </select>
-            {dropdownState.teamLeader ? (
-              <KeyboardArrowUpOutlinedIcon />
-            ) : (
-              <KeyboardArrowDownOutlinedIcon />
-            )}
-          </div>
-        </div>
-
-        {/* Team Member */}
-        <div className="col-md-3">
-          <label htmlFor="teamMember">Team Member</label>
-          <div className="dropdown-wrapper">
-            <select
-              className="form-control input-underline input-margin"
-              id="teamMember"
-              value={data.teamMember}
-              onChange={(e) => handleChange("teamMember", e.target.value)}
-              onClick={() => toggleDropdown("teamMember")}
-              required
-            >
-              <option value="">Select Team Member</option>
-              <option value="member1">Member 1</option>
-              <option value="member2">Member 2</option>
-              <option value="member3">Member 3</option>
-            </select>
-            {dropdownState.teamMember ? (
-              <KeyboardArrowUpOutlinedIcon />
-            ) : (
-              <KeyboardArrowDownOutlinedIcon />
-            )}
-          </div>
-        </div>
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Dealership Advisor</h3>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="teamLeader-label">Team Leader</InputLabel>
+              <Select
+                label="Team Leader"
+                labelId="teamLeader-label"
+                value={data.teamLeader}
+                onChange={(e) => updateData("teamLeader", e.target.value)}
+                variant="outlined"
+              >
+                <MenuItem value="">Select Team Leader</MenuItem>
+                <MenuItem value="leader1">Leader 1</MenuItem>
+                <MenuItem value="leader2">Leader 2</MenuItem>
+                <MenuItem value="leader3">Leader 3</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="teamMember-label">Team Member</InputLabel>
+              <Select
+                label="Team Member"
+                labelId="teamMember-label"
+                value={data.teamMember}
+                onChange={(e) => updateData("teamMember", e.target.value)}
+                variant="outlined"
+              >
+                <MenuItem value="">Select Team Member</MenuItem>
+                <MenuItem value="member1">Member 1</MenuItem>
+                <MenuItem value="member2">Member 2</MenuItem>
+                <MenuItem value="member3">Member 3</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
       </div>
-
+      <br />
       {/* Car Details */}
       <div className="row g-2">
-        <h6>Choose Your Car</h6>
-
-        {/* Car Type */}
-        <div className="col-md-2">
-          <label htmlFor="carType">Car Type</label>
-          <select
-            className="form-control input-underline input-margin"
-            id="carType"
-            value={data.carType}
-            onChange={(e) => handleChange("carType", e.target.value)}
-            required
-          >
-            <option value="">Select Car Type</option>
-            {[...new Set(carStocks.map((stock) => stock.carType))].map(
-              (carType, index) => (
-                <option key={index} value={carType}>
-                  {carType}
-                </option>
-              )
-            )}
-          </select>
-        </div>
-
-        {/* Model */}
-        <div className="col-md-2">
-          <label htmlFor="model">Model</label>
-          <select
-            className="form-control input-underline input-margin"
-            id="model"
-            value={data.model}
-            onChange={(e) => handleChange("model", e.target.value)}
-            required
-            disabled={!data.carType}
-          >
-            <option value="">Select Model</option>
-            {carStocks
-              .filter((stock) => stock.carType === data.carType)
-              .map((filteredStock, index) => (
-                <option key={index} value={filteredStock.model}>
-                  {filteredStock.model}
-                </option>
-              ))}
-          </select>
-        </div>
-
-        {/* Version */}
-        <div className="col-md-2">
-          <label htmlFor="version">Version</label>
-          <select
-            className="form-control input-underline input-margin"
-            id="version"
-            value={data.version}
-            onChange={(e) => handleChange("version", e.target.value)}
-            required
-            disabled={!data.model}
-          >
-            <option value="">Select Version</option>
-            {carStocks
-              .filter(
-                (stock) =>
-                  stock.carType === data.carType &&
-                  stock.model === data.model
-              )
-              .map((filteredStock, index) => (
-                <option key={index} value={filteredStock.version}>
-                  {filteredStock.version}
-                </option>
-              ))}
-          </select>
-        </div>
-
-        {/* Color */}
-        <div className="col-md-2">
-          <label htmlFor="color">Color</label>
-          <select
-            className="form-control input-underline input-margin"
-            id="color"
-            value={data.color}
-            onChange={(e) => handleChange("color", e.target.value)}
-            required
-            disabled={!data.version}
-          >
-            <option value="">Select Color</option>
-            {carStocks
-              .filter(
-                (stock) =>
-                  stock.carType === data.carType &&
-                  stock.model === data.model &&
-                  stock.version === data.version
-              )
-              .map((filteredStock, index) => (
-                <option key={index} value={filteredStock.color}>
-                  {filteredStock.color}
-                </option>
-              ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Pricing */}
-      <div className="row g-2">
-        <h6>Your Chosen Car Price</h6>
-
-        <div className="col-md-2">
-          <label htmlFor="exShowroomPrice">Ex-Showroom Price</label>
-          <input
-            type="number"
-            className="form-control input-underline input-margin"
-            id="exShowroomPrice"
-            value={data.exShowroomPrice || ""}
-            readOnly
-          />
-        </div>
-
-        <div className="col-md-2">
-          <label htmlFor="bookingAmount">Booking Amount</label>
-          <input
-            type="number"
-            className="form-control input-underline input-margin"
-            id="bookingAmount"
-            value={data.bookingAmount || ""}
-            readOnly
-          />
-        </div>
-
-        <div className="col-md-2">
-          <label htmlFor="cardiscount">Discount</label>
-          <input
-            type="number"
-            className="form-control input-underline input-margin"
-            id="cardiscount"
-            value={data.cardiscount || ""}
-            readOnly
-          />
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Choose Your Car</h3>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="carType-label">Car Type</InputLabel>
+                <Select
+                  label="Car Type"
+                  labelId="carType-label"
+                  value={data.carType}
+                  onChange={(e) => updateData("carType", e.target.value)}
+                  variant="outlined"
+                >
+                  <MenuItem value="">Select Car Type</MenuItem>
+                  {[...new Set(carStocks.map((stock) => stock.carType))].map(
+                    (carType) => (
+                      <MenuItem key={carType} value={carType}>
+                        {carType}
+                      </MenuItem>
+                    )
+                  )}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="model-label">Model</InputLabel>
+                <Select
+                  label="Model"
+                  labelId="model-label"
+                  value={data.model}
+                  onChange={(e) => updateData("model", e.target.value)}
+                  disabled={!data.carType}
+                  variant="outlined"
+                >
+                  <MenuItem value="">Select Model</MenuItem>
+                  {carStocks
+                    .filter((stock) => stock.carType === data.carType)
+                    .map((stock) => (
+                      <MenuItem key={stock.model} value={stock.model}>
+                        {stock.model}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="version-label">Version</InputLabel>
+                <Select
+                  label="Version"
+                  labelId="version-label"
+                  value={data.version}
+                  onChange={(e) => updateData("version", e.target.value)}
+                  disabled={!data.model}
+                  variant="outlined"
+                >
+                  <MenuItem value="">Select Version</MenuItem>
+                  {carStocks
+                    .filter(
+                      (stock) =>
+                        stock.carType === data.carType &&
+                        stock.model === data.model
+                    )
+                    .map((stock) => (
+                      <MenuItem key={stock.version} value={stock.version}>
+                        {stock.version}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="color-label">Color</InputLabel>
+                <Select
+                  label="Color"
+                  labelId="color-label"
+                  value={data.color}
+                  onChange={(e) => updateData("color", e.target.value)}
+                  disabled={!data.version}
+                  variant="outlined"
+                >
+                  <MenuItem value="">Select Color</MenuItem>
+                  {carStocks
+                    .filter(
+                      (stock) =>
+                        stock.carType === data.carType &&
+                        stock.model === data.model &&
+                        stock.version === data.version
+                    )
+                    .map((stock) => (
+                      <MenuItem key={stock.color} value={stock.color}>
+                        {stock.color}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
         </div>
       </div>
 
-      {/* All Car Details (Read-Only) */}
-      {selectedCar && (
-        <div className="row mt-1">
-          <h6>All Car Details</h6>
+      { /* View Button */}
+      <br /> <br />
+        {data.carType && data.model && data.version && data.color && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setOpen(true)}
+            sx={{ display: "block", margin: "0 auto" }}
+          >
+            View Car Selection
+          </Button>
+        )}
 
-          <div className="col-md-2">
-            <label htmlFor="fuelType">Fuel Type</label>
-            <input
-              type="text"
-              className="form-control input-underline input-margin"
-              id="fuelType"
-              value={selectedCar.fuelType || ""}
-              readOnly
-            />
-          </div>
+        {/* Modal */}
+      {data.carType && data.model && data.version && data.color && (
+        <Modal
+          open={open}
+           sx={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Box
+            component={Paper}
+            sx={{
+              width: { xs: "100%", sm: "60vh" },
+              height: { xs: "100%", sm: "99%" },
+              marginBottom: { sm: "4px" },
+            }}
+          >
+            <form onSubmit={handleSubmit}>
+              <Stack
+                spacing={1}
+                sx={{
+                  p: 1,
+                  maxWidth: 600,
+                  height: { xs: "100%", sm: "100%" },
+                  overflowY: "auto",
+                  borderRadius: 2,
+                }}
+              >
+                <Box
+                  textAlign="center"
+                  sx={{
+                    p: 2,
+                    width: "55vh",
+                    justifyContent: "start",
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                >
+                  <Typography variant="h5" component="h1">
+                    Car AutoCard Services
+                  </Typography>
+                </Box>
+                <Stack
+                  spacing={2}
+                  sx={{
+                    p: 1,
+                    m: 0.6,
+                    maxWidth: 600,
+                    height: "79vh",
+                    overflowY: "auto",
+                    borderRadius: 2,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  <Stack spacing={4}>
+                    {/* Information Sections */}
+                    <Box
+                      display="grid"
+                      gap={3}
+                      gridTemplateColumns={{ xs: "1fr" }}
+                    >
+                      <Paper variant="outlined" sx={{ p: 2 }}>
+                        <Stack spacing={2}>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Person />
+                            <Typography variant="h6">
+                              Personal Information
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="subtitle2" gutterBottom>
+                              Required Information:
+                            </Typography>
+                            <Typography variant="body2">
+                              Full Name: {personalInfo?.firstName}{" "}
+                              {personalInfo?.middleName}{" "}
+                              {personalInfo?.lastName}
+                            </Typography>
+                            <Typography variant="body2">
+                              Email: {personalInfo?.email}
+                            </Typography>
+                            <Typography variant="body2">
+                              Phone Number: {personalInfo?.mobileNumber1},{" "}
+                              {personalInfo?.mobileNumber2}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </Paper>
 
-          <div className="col-md-2">
-            <label htmlFor="transmission">Transmission</label>
-            <input
-              type="text"
-              className="form-control input-underline input-margin"
-              id="transmission"
-              value={selectedCar.transmission || ""}
-              readOnly
-            />
-          </div>
+                      {selectedCar && (
+                        <Paper variant="outlined" sx={{ p: 2 }}>
+                          <Typography variant="h6">
+                            {selectedCar.carType} | {selectedCar.model} |{" "}
+                            {selectedCar.version} | {selectedCar.color}
+                          </Typography>
+                          <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                Ex-Showroom Price:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                {selectedCar.exShowroomPrice}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                Booking Amount:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                {selectedCar.bookingAmount}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">Discount:</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                {selectedCar.cardiscount}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                Fuel Type:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                {selectedCar.fuelType}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                Transmission:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                {selectedCar.transmission}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">Mileage:</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">
+                                {selectedCar.mileage} km
+                              </Typography>
+                            </Grid>
+                            {selectedCar.fuelType === "Electric" ? (
+                              <Grid item xs={6}>
+                                <Typography variant="body1">
+                                  Battery Capacity:
+                                </Typography>
+                              </Grid>
+                            ) : (
+                              <Grid item xs={6}>
+                                <Typography variant="body1">
+                                  Engine Capacity:
+                                </Typography>
+                              </Grid>
+                            )}
+                            {selectedCar.fuelType === "Electric" ? (
+                              <Grid item xs={6}>
+                                <Typography variant="body1">
+                                  {selectedCar.batteryCapacity}
+                                </Typography>
+                              </Grid>
+                            ) : (
+                              <Grid item xs={6}>
+                                <Typography variant="body1">
+                                  {selectedCar.engineCapacity} cc
+                                </Typography>
+                              </Grid>
+                            )}
+                          </Grid>
+                        </Paper>
+                      )}
 
-          <div className="col-md-2">
-            <label htmlFor="mileage">Mileage(km)</label>
-            <input
-              type="text"
-              className="form-control input-underline input-margin"
-              id="mileage"
-              value={selectedCar.mileage || ""}
-              readOnly
-            />
-          </div>
+                      <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={confirmationChecked}
+                      onChange={(e) => setConfirmationChecked(e.target.checked)}
+                      name="confirmation"
+                      color="primary"
+                    />
+                  }
+                  label="Are you sure you want to select this car?"
+                />
 
-          
-          {selectedCar.fuelType === "Electric" && (
-          <div className="col-md-2">
-            <label htmlFor="batteryCapacity">Battery Capacity</label>
-            <input
-              type="text"
-              className="form-control input-underline input-margin"
-              id="batteryCapacity"
-              value={selectedCar.batteryCapacity || ""}
-              readOnly
-            />
-          </div>
-          )}
+                    </Box>
+                  </Stack>
+                </Stack>
 
-
-          {selectedCar.fuelType !== "Electric" && (
-            <div className="col-md-2">
-              <label htmlFor="engineCapacity">Engine Capacity(cc)</label>
-              <input
-              type="text"
-              className="form-control input-underline input-margin"
-              id="engineCapacity"
-              value={selectedCar.engineCapacity || "NA"}
-              readOnly
-              />
-            </div>
-          )}
-          
-        </div>
+                <Box
+                  size="small"
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => {
+                      
+                      setOpen(false);
+                    }}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={!confirmationChecked}
+                  >
+                    Submit
+                  </Button>
+                </Box>
+              </Stack>
+            </form>
+          </Box>
+        </Modal>
       )}
+
+      
+
+
     </div>
   );
 };

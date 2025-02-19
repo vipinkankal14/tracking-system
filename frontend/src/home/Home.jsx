@@ -145,8 +145,9 @@ export function Home() {
       case 2:
         return (
           <CarInfo
-            data={formData.carInfo}
-            updateData={(key, value) => updateSection("carInfo", key, value)}
+        data={formData.carInfo}
+        updateData={(key, value) => updateSection("carInfo", key, value)}
+        personalInfo={formData.personalInfo} // Pass personalInfo as a prop
           />
         );
       case 3:

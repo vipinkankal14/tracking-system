@@ -39,6 +39,7 @@ const { postCarInsuranceRequests } = require('./db/routes/Request/CarInsuranceRe
 const { postRTORequests } = require('./db/routes/Request/CarRTORequests');
 const { postCarExtendedWarrantyRequests } = require('./db/routes/Request/CarExtendedWarrantyRequest');
 const { postAutoCardRequest } = require('./db/routes/Request/CarAutoCardRequest');
+const { postCarBooking } = require('./db/routes/CarBookings/orderBooking');
   
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -704,6 +705,16 @@ app.get('/api/pool-status', (req, res) => {
     inUseConnections,
   });
 });
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+// API endpoint to handle car selection submission
+app.post('/api/submitCarSelection', postCarBooking)
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
 
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {
