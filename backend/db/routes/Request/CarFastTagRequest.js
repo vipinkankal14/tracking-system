@@ -1,10 +1,16 @@
-const { pool } = require("../../databaseConnection/mysqlConnection");
+const { pool } = require("../../databaseConnection/mysqlConnection"); 
 const fs = require('fs');
 
 const postCarFastTagRequest = async (req, res) => {
     try {
-        const { customerId } = req.body;
+        const { customerId, fasttag_amount } = req.body; // Extract fasttag_amount from the request body
         const files = req.files;
+
+        // Ensure all required files are present
+        if (!files.rcDocument || !files.aadhaarDocument || !files.panDocument || !files.passportPhoto) {
+            return res.status(400).json({ message: "All documents are required" });
+        }
+
         const rcDocumentPath = files.rcDocument[0].path;
         const aadhaarDocumentPath = files.aadhaarDocument[0].path;
         const panDocumentPath = files.panDocument[0].path;
@@ -26,10 +32,17 @@ const postCarFastTagRequest = async (req, res) => {
                 // Insert new request into the database
                 const insertQuery = `
                     INSERT INTO car_fasttag_requests (
-                        customerId, rcDocument, aadhaarDocument, panDocument, passportPhoto
-                    ) VALUES (?, ?, ?, ?, ?)`;
-                const values = [customerId, rcDocumentPath, aadhaarDocumentPath, panDocumentPath, passportPhotoPath];
-                
+                        customerId, rcDocument, aadhaarDocument, panDocument, passportPhoto, fasttag_amount
+                    ) VALUES (?, ?, ?, ?, ?, ?)`;
+                const values = [
+                    customerId,
+                    rcDocumentPath,
+                    aadhaarDocumentPath,
+                    panDocumentPath,
+                    passportPhotoPath,
+                    1000 // Store fasttag_amount as 1000 automatically
+                ];
+
                 connection.query(insertQuery, values, (err, results) => {
                     if (err) {
                         return handleDatabaseError(err, connection, res, "Error inserting car fasttag request");
@@ -85,7 +98,8 @@ const postCarFastTagRequest = async (req, res) => {
 
                                 res.status(200).json({ 
                                     message: 'Car fasttag request submitted successfully!', 
-                                    requestId 
+                                    requestId,
+                                    fasttag_amount: 1000 // Include fasttag_amount as 1000 in the response
                                 });
                             });
                         });

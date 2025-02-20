@@ -164,7 +164,7 @@ const CoatingModalView = ({
                           Coating Type: {coatingData?.coatingType || "N/A"}
                         </Typography>
                         <Typography variant="body2">
-                          Amount: {coatingData?.amount || "N/A"}
+                          Amount: {coatingData?.coating_amount || "N/A"}
                         </Typography>
                         <Typography variant="body2">
                           Durability: {coatingData?.durability || "N/A"}

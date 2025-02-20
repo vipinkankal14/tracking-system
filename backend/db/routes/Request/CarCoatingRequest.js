@@ -12,7 +12,7 @@ const handleDatabaseError = (err, connection, res, message) => {
 const postCoatingRequest = (req, res) => {
   console.log("Coating request received");
 
-  const { customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes } = req.body;
+  const { customerId, coatingType, preferredDate, preferredTime, coating_amount, durability, additionalNotes } = req.body;
 
   if (!customerId) {
     return res.status(400).json({ message: 'Customer ID is required' });
@@ -33,11 +33,11 @@ const postCoatingRequest = (req, res) => {
 
       // Insert the new request
       const insertQuery = `
-        INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes)
+        INSERT INTO coating_requests (customerId, coatingType, preferredDate, preferredTime, coating_amount, durability, additionalNotes)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
 
-      connection.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, amount, durability, additionalNotes], (err, results) => {
+      connection.query(insertQuery, [customerId, coatingType, preferredDate, preferredTime, coating_amount, durability, additionalNotes], (err, results) => {
         if (err) {
           return handleDatabaseError(err, connection, res, "Error inserting coating request");
         }

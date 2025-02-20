@@ -48,6 +48,7 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
       aadhaarDocument: null,
       panDocument: null,
       passportPhoto: null,
+      fasttag_amount: "",
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -62,6 +63,7 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
       formData.append("aadhaarDocument", values.aadhaarDocument);
       formData.append("panDocument", values.panDocument);
       formData.append("passportPhoto", values.passportPhoto);
+      formData.append("fasttag_amount", values.fasttag_amount);      
 
       try {
         const response = await fetch("http://localhost:5000/api/submitCarFastTagRequest", {

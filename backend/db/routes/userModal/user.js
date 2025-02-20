@@ -6,7 +6,7 @@ const getCustomerOrders = async (req, res) => {
 
     try {
         const [orders] = await pool.query(
-            'SELECT * FROM orders WHERE customerId = ?', 
+            'SELECT * FROM orders_accessories_request WHERE customerId = ?', 
             [customerId]
         );
 
@@ -24,6 +24,8 @@ const getCustomerOrders = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch orders' });
     }
 };
+
+ 
 
 const getCustomerLoans = async (req, res) => {
     try {
@@ -117,4 +119,4 @@ const getCustomerCoatingRequests = async (req, res) => {
 };
 
 
-module.exports = { getCustomerOrders, getCustomerLoans ,getCustomerCoatingRequests };
+module.exports = { getCustomerOrders, getCustomerLoans ,getCustomerCoatingRequests  };

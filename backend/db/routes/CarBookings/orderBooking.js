@@ -15,11 +15,12 @@ const postCarBooking = async (req, res) => {
     transmission,
     mileage,
     engineCapacity,
-    batteryCapacity
+    batteryCapacity,
+    cardiscount
   } = req.body;
 
   // Validate required fields
-  if (!customerId || !carType || !model || !version || !color || !exShowroomPrice || !bookingAmount || !fuelType || !transmission || !mileage) {
+  if (!customerId || !carType || !model || !version || !color || !exShowroomPrice || !bookingAmount || !fuelType || !transmission || !mileage || !cardiscount) {
     return res.status(400).json({ message: 'Missing required fields.' });
   }
 
@@ -54,8 +55,10 @@ const postCarBooking = async (req, res) => {
         transmission,
         mileage,
         engineCapacity,
-        batteryCapacity
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        batteryCapacity,
+        cardiscount
+
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -72,7 +75,8 @@ const postCarBooking = async (req, res) => {
       transmission,
       mileage,
       engineCapacity,
-      batteryCapacity
+      batteryCapacity,
+      cardiscount
     ];
 
     await connection.query(insertQuery, values);

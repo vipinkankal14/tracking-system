@@ -30,7 +30,7 @@ const { handlePayment, getAllCustomers, getCustomerById } = require('./db/routes
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
-const { getCustomerOrders, getCustomerLoans, getCustomerCoatingRequests } = require('./db/routes/userModal/user');
+const { getCustomerOrders, getCustomerLoans, getCustomerCoatingRequests, getCustomerCar } = require('./db/routes/userModal/user');
 const { postCoatingRequest } = require('./db/routes/Request/CarCoatingRequest');
 const { postCarExchangeRequests } = require('./db/routes/Request/CarExchangeRequest');
 const { postCarLoansRequest } = require('./db/routes/Request/CarLoansRequest');
@@ -72,7 +72,7 @@ app.post('/api/submitCart', (req, res) => {
   // First, delete the products associated with the customer order
   const deleteProductsQuery = `
     DELETE FROM order_products WHERE orderId IN (
-      SELECT id FROM orders WHERE customerId = ?
+      SELECT id FROM orders_accessories_request WHERE customerId = ?
     );
   `;
 
@@ -84,7 +84,7 @@ app.post('/api/submitCart', (req, res) => {
 
     // Then, delete the order itself
     const deleteOrderQuery = `
-      DELETE FROM orders WHERE customerId = ?;
+      DELETE FROM orders_accessories_request WHERE customerId = ?;
     `;
 
     pool.query(deleteOrderQuery, [customerId], (err) => {
@@ -93,7 +93,7 @@ app.post('/api/submitCart', (req, res) => {
         return res.status(500).json({ message: "Error deleting order." });
       }
 
-      const insertOrderQuery = `INSERT INTO orders (customerId, totalAmount) VALUES (?, ?)`;
+      const insertOrderQuery = `INSERT INTO orders_accessories_request (customerId, totalAmount) VALUES (?, ?)`;
       pool.query(insertOrderQuery, [customerId, totalAmount], (err, result) => {
         if (err) {
           console.error("Error inserting new order:", err);
@@ -708,13 +708,14 @@ app.get('/api/pool-status', (req, res) => {
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
-
+ 
 
 // API endpoint to handle car selection submission
 app.post('/api/submitCarSelection', postCarBooking)
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
+ 
 
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {

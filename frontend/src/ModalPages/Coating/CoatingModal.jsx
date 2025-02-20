@@ -37,7 +37,7 @@ const coatingOptions = [
     ],
     cons: ["Expensive", "Requires professional application"],
     budget: 3,
-    amount: "2000.00 Rs",
+    coating_amount: "2000.00 Rs",
   },
   {
     label: "Graphene Coating 🛡",
@@ -52,7 +52,7 @@ const coatingOptions = [
     ],
     cons: ["Expensive but longer-lasting"],
     budget: 4,
-    amount: "3000.00 Rs",
+    coating_amount: "3000.00 Rs",
   },
   {
     label: "Teflon Coating (PTFE Coating) 🏎",
@@ -67,7 +67,7 @@ const coatingOptions = [
     ],
     cons: ["Short lifespan"],
     budget: 2,
-    amount: "5400.00 Rs",
+    coating_amount: "5400.00 Rs",
   },
   {
     label: "Paint Protection Film (PPF) 🎥",
@@ -82,7 +82,7 @@ const coatingOptions = [
     ],
     cons: ["Very expensive", "Requires professional installation"],
     budget: 5,
-    amount: "6700.00 Rs",
+    coating_amount: "6700.00 Rs",
   },
   {
     label: "Wax Coating (Carnauba Wax) 🏁",
@@ -95,7 +95,7 @@ const coatingOptions = [
       "Less durable than other coatings",
     ],
     budget: 1,
-    amount: "7000.00 Rs",
+    coating_amount: "7000.00 Rs",
   },
   {
     label: "Glass Coating 🏆",
@@ -109,7 +109,7 @@ const coatingOptions = [
     ],
     cons: ["Expensive", "Less durable than ceramic"],
     budget: 3,
-    amount: "9000.00 Rs",
+    coating_amount: "9000.00 Rs",
   },
 ];
 
@@ -123,7 +123,7 @@ export function CoatingModal({ open, onClose, personalInfo, carInfo }) {
     preferredDate: "",
     preferredTime: "",
     additionalNotes: "",
-    amount: "",
+    coating_amount: "",
     durability: "",
   });
 
@@ -134,7 +134,7 @@ export function CoatingModal({ open, onClose, personalInfo, carInfo }) {
     if (selectedCoating) {
       setFormData((prevFormData) => ({
         ...prevFormData,
-        amount: selectedCoating.amount,
+        coating_amount: selectedCoating.coating_amount,
         durability: selectedCoating.durability,
       }));
     }
@@ -201,8 +201,8 @@ export function CoatingModal({ open, onClose, personalInfo, carInfo }) {
       isValid = false;
     }
 
-    if (!formData.amount) {
-      newErrors.amount = "Amount is required";
+    if (!formData.coating_amount) {
+      newErrors.coating_amount = "coating_amount is required";
       isValid = false;
     }
 
@@ -392,7 +392,7 @@ export function CoatingModal({ open, onClose, personalInfo, carInfo }) {
                           ))}
                         </ul>
                         <Typography variant="subtitle1">
-                          Amount: {selectedCoating.amount}
+                          coating_amount: {selectedCoating.coating_amount}
                         </Typography>
                       </Box>
                     )}
@@ -451,15 +451,15 @@ export function CoatingModal({ open, onClose, personalInfo, carInfo }) {
                       gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
                     >
                       <TextField
-                        label="Amount"
-                        name="amount"
-                        value={formData.amount}
+                        label="coating_amount"
+                        name="coating_amount"
+                        value={formData.coating_amount}
                         onChange={(e) =>
-                          setFormData({ ...formData, amount: e.target.value })
+                          setFormData({ ...formData, coating_amount: e.target.value })
                         }
                         fullWidth
-                        error={!!errors.amount}
-                        helperText={errors.amount}
+                        error={!!errors.coating_amount}
+                        helperText={errors.coating_amount}
                         size="small"
                         InputProps={{
                           readOnly: true,

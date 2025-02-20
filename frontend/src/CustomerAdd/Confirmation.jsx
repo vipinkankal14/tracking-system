@@ -59,8 +59,11 @@ export default function Confirmation({ data, onSubmit }) {
           Buyer Details
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={8}>
             <Box>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                <strong>customerId:</strong> {data.personalInfo.customerId}  
+              </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Name:</strong> {data.personalInfo.firstName} {data.personalInfo.middleName}{" "}
                 {data.personalInfo.lastName}
@@ -68,22 +71,20 @@ export default function Confirmation({ data, onSubmit }) {
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Email:</strong> {data.personalInfo.email}
               </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Contact:</strong> {data.personalInfo.mobileNumber1}, {data.personalInfo.mobileNumber2}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Box>
+              
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Address:</strong> {data.personalInfo.address}, {data.personalInfo.city},{" "}
                 {data.personalInfo.state} {data.personalInfo.country}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                <strong>Contact:</strong> {data.personalInfo.mobileNumber1}, {data.personalInfo.mobileNumber2}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Car Datalist :</strong> {data.carInfo.model} ,{data.carInfo.version} ,{data.carInfo.color}.
               </Typography>
             </Box>
           </Grid>
+           
         </Grid>
       </Paper>
 
