@@ -20,14 +20,15 @@ import { DirectionsCar, Person } from "@mui/icons-material";
 export function AutoCardModal({ open, onClose, personalInfo, carInfo }) {
   const [errors, setErrors] = useState({});
   const [confirmationOpen, setConfirmationOpen] = useState(false);
-  const [formData, setFormData] = useState({});
   const [confirmBenefits, setConfirmBenefits] = useState(false);
+  const [autocard_amount, setautocard_amount] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     const AutoCardData = {
       customerId: personalInfo.customerId,
+      autocard_amount
     };
   
     try {
@@ -69,7 +70,7 @@ export function AutoCardModal({ open, onClose, personalInfo, carInfo }) {
   };
 
   const handleClose = () => {
-    setFormData({});
+   
     setConfirmBenefits(false);
     onClose();
   };

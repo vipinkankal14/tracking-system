@@ -19,8 +19,8 @@ const postCarExtendedWarrantyRequests = async (req, res) => {
                 }
 
                 const insertQuery = `
-                INSERT INTO car_extended_warranty_requests (customerId, request_extended_warranty)
-                VALUES (?, ?)`;
+                INSERT INTO car_extended_warranty_requests (customerId, request_extended_warranty, extendedwarranty_amount)
+                VALUES (?, ?, 2000)`;
                 const values = [customerId, request_extended_warranty];
 
                 connection.query(insertQuery, values, (err, result) => {
@@ -44,7 +44,10 @@ const postCarExtendedWarrantyRequests = async (req, res) => {
                             }
 
                             connection.release();
-                            res.status(200).json({ message: "Car Extended Warranty request submitted successfully" });
+                            res.status(200).json({
+                                message: "Car Extended Warranty request submitted successfully" ,
+                                extendedwarranty_amount: 2000
+                            });
                         });
                     });
                 });

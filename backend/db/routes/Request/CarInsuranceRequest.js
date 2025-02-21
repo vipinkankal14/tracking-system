@@ -46,8 +46,8 @@ const postCarInsuranceRequests = async (req, res) => {
                 // Insert into database
                 const insertQuery = `
                 INSERT INTO car_Insurance_requests (
-                    customerId, rcDocument, salesInvoice, identityProof, addressProof, form21, form22, tempReg, puc, loanDocuments
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    customerId, rcDocument, salesInvoice, identityProof, addressProof, form21, form22, tempReg, puc, loanDocuments,insurance_amount
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 const values = [
                     customerId,
                     rcDocumentPath,
@@ -58,7 +58,8 @@ const postCarInsuranceRequests = async (req, res) => {
                     form22Path,
                     tempRegPath,
                     pucPath,
-                    loanDocumentsPath
+                    loanDocumentsPath,
+                    2400
                 ];
                 connection.query(insertQuery, values, (err, results) => {
                     if (err) {
@@ -68,7 +69,7 @@ const postCarInsuranceRequests = async (req, res) => {
                     const requestId = results.insertId;
 
                     // Retrieve old records
-                    const selectQuery = `SELECT rcDocument, salesInvoice, identityProof, addressProof, form21, form22, tempReg, puc, loanDocuments FROM car_Insurance_requests WHERE customerId = ? AND id != ?`;
+                    const selectQuery = `SELECT rcDocument, salesInvoice, identityProof, addressProof, form21, form22, tempReg, puc, loanDocuments,insurance_amount FROM car_Insurance_requests WHERE customerId = ? AND id != ?`;
                     connection.query(selectQuery, [customerId, requestId], (err, oldRecords) => {
                         if (err) {
                             return handleDatabaseError(err, connection, res, "Error retrieving old car Insurance requests");
@@ -86,7 +87,10 @@ const postCarInsuranceRequests = async (req, res) => {
                                     return handleDatabaseError(err, connection, res, "Transaction commit error");
                                 }
                                 connection.release();
-                                res.status(200).json({ message: 'Car Insurance request submitted successfully!', requestId });
+                                res.status(200).json({
+                                    message: 'Car Insurance request submitted successfully!', requestId,
+                                    insurance_amount: 2400
+                                 });
 
                                 // Delete old files from filesystem
                                 oldRecords.forEach(record => {

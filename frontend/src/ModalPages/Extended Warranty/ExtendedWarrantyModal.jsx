@@ -26,7 +26,8 @@ export function ExtendedWarrantyModal({
   const [errors, setErrors] = useState({});
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [requestExtendedWarranty, setRequestExtendedWarranty] = useState(false);
-
+  const [extendedwarranty_amount, setExtendedWarrantyAmount] = useState(0);
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -46,6 +47,7 @@ export function ExtendedWarrantyModal({
     const ExtendedWarrantyData = {
       customerId: personalInfo.customerId,
       requestExtendedWarranty, // Boolean value
+      extendedwarranty_amount,
     };
 
     try {

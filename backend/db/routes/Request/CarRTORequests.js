@@ -47,8 +47,8 @@ const postRTORequests = async (req, res) => {
                 // Insert into database
                 const insertQuery = `
                 INSERT INTO car_rto_requests (
-                    customerId, form20, form21, form22, invoice, insurance, puc, idProof, roadTax, tempReg, form34
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    customerId, form20, form21, form22, invoice, insurance, puc, idProof, roadTax, tempReg, form34, rto_amount
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 const values = [
                     customerId,
                     form20Path,
@@ -60,7 +60,8 @@ const postRTORequests = async (req, res) => {
                     idProofPath,
                     roadTaxPath,
                     tempRegPath,
-                    form34Path
+                    form34Path,
+                    5000 // Store RTO amount as 5000 automatically
                 ];
                 connection.query(insertQuery, values, (err, results) => {
                     if (err) {
@@ -70,7 +71,7 @@ const postRTORequests = async (req, res) => {
                     const requestId = results.insertId;
 
                     // Retrieve old records
-                    const selectQuery = `SELECT form20, form21, form22, invoice, insurance, puc, idProof, roadTax, tempReg, form34 FROM car_rto_requests WHERE customerId = ? AND id != ?`;
+                    const selectQuery = `SELECT form20, form21, form22, invoice, insurance, puc, idProof, roadTax, tempReg, form34, rto_amount FROM car_rto_requests WHERE customerId = ? AND id != ?`;
                     connection.query(selectQuery, [customerId, requestId], (err, oldRecords) => {
                         if (err) {
                             return handleDatabaseError(err, connection, res, "Error retrieving old RTO requests");
@@ -88,7 +89,11 @@ const postRTORequests = async (req, res) => {
                                     return handleDatabaseError(err, connection, res, "Transaction commit error");
                                 }
                                 connection.release();
-                                res.status(200).json({ message: 'RTO request submitted successfully!', requestId });
+                                res.status(200).json({
+                                    message: 'RTO request submitted successfully!',
+                                    requestId,
+                                    rto_amount: 5000
+                                });
 
                                 // Delete old files from filesystem
                                 oldRecords.forEach(record => {

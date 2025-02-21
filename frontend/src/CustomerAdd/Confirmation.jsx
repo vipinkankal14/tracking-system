@@ -1,14 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
   Paper,
   Typography,
-  Grid,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Divider,
   TableContainer,
   Table,
@@ -16,30 +11,47 @@ import {
   TableRow,
   TableCell,
   TableBody,
-} from "@mui/material"
+  Grid,
+} from "@mui/material";
+ import axios from "axios"; // Ensure axios is imported
 
-export default function Confirmation({ data, onSubmit }) {
-  const [formData, setFormData] = useState({
-    payment: {
-      type: "",
-    },
-  })
-
+export default function Confirmation({ data }) {
   // Constants for calculations
-  const TOTAL_ON_ROAD = 1669800.0 // 16,69,800.00
-  const TOTAL_CHARGES = 1669800.0 // 16,69,800.00
-  const GRAND_TOTAL = TOTAL_ON_ROAD + TOTAL_CHARGES
+  const TOTAL_ON_ROAD = 1669800; // Declare as a constant
 
-  const handleInputChange = (section, field, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [section]: {
-        ...prevData[section],
-        [field]: value,
-      },
-    }))
-  }
+  // State for dynamic charges
+  const [charges, setCharges] = useState({
+    coating_amount: 0,
+    fasttag_amount: 0,
+    rto_amount: 0,
+    insurance_amount: 0,
+    extendedwarranty_amount: 0,
+    autocard_amount: 0,
+    Total_Charges: 0,
+  });
 
+  // Calculate GRAND_TOTAL dynamically
+  const GRAND_TOTAL = TOTAL_ON_ROAD + charges.Total_Charges;
+
+  // Fetch charges from the backend
+  useEffect(() => {
+    const fetchCharges = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/totalCharges?customerId=${data.personalInfo.customerId}`);
+        setCharges(response.data);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error("Charges not found for the given customer ID.");
+          alert("Charges not found for the given customer ID.");
+        } else {
+          console.error("Error fetching charges:", error);
+          alert("Failed to fetch charges. Please try again later.");
+        }
+      }
+    };
+  
+    fetchCharges();
+  }, [data.personalInfo.customerId]);
   // Function to format currency
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -48,8 +60,8 @@ export default function Confirmation({ data, onSubmit }) {
       maximumFractionDigits: 2,
     })
       .format(amount)
-      .replace("INR", "₹")
-  }
+      .replace("INR", "₹");
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 2 }}>
@@ -62,29 +74,30 @@ export default function Confirmation({ data, onSubmit }) {
           <Grid item xs={12} md={8}>
             <Box>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>customerId:</strong> {data.personalInfo.customerId}  
+                <strong>customerId:</strong> {data.personalInfo.customerId}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Name:</strong> {data.personalInfo.firstName} {data.personalInfo.middleName}{" "}
-                {data.personalInfo.lastName}
+                <strong>Name:</strong> {data.personalInfo.firstName}{" "}
+                {data.personalInfo.middleName} {data.personalInfo.lastName}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Email:</strong> {data.personalInfo.email}
               </Typography>
-              
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Address:</strong> {data.personalInfo.address}, {data.personalInfo.city},{" "}
-                {data.personalInfo.state} {data.personalInfo.country}
+                <strong>Address:</strong> {data.personalInfo.address},{" "}
+                {data.personalInfo.city}, {data.personalInfo.state}{" "}
+                {data.personalInfo.country}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Contact:</strong> {data.personalInfo.mobileNumber1}, {data.personalInfo.mobileNumber2}
+                <strong>Contact:</strong> {data.personalInfo.mobileNumber1},{" "}
+                {data.personalInfo.mobileNumber2}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Car Datalist :</strong> {data.carInfo.model} ,{data.carInfo.version} ,{data.carInfo.color}.
+                <strong>Car Datalist :</strong> {data.carInfo.model},{" "}
+                {data.carInfo.version}, {data.carInfo.color}.
               </Typography>
             </Box>
           </Grid>
-           
         </Grid>
       </Paper>
 
@@ -109,7 +122,7 @@ export default function Confirmation({ data, onSubmit }) {
                 <TableBody>
                   <TableRow>
                     <TableCell>Ex-showroom Price</TableCell>
-                    <TableCell align="right">23728327</TableCell>
+                    <TableCell align="right">23,72,832.00</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Accessories</TableCell>
@@ -117,7 +130,7 @@ export default function Confirmation({ data, onSubmit }) {
                   </TableRow>
                   <TableRow>
                     <TableCell>Discount</TableCell>
-                    <TableCell align="right">623487234</TableCell>
+                    <TableCell align="right">62,348.72</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Subtotal</TableCell>
@@ -132,9 +145,11 @@ export default function Confirmation({ data, onSubmit }) {
                     <TableCell align="right">2,02,000.00</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Total On-Road Price</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Total On-Road Price
+                    </TableCell>
                     <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      16,69,800.00
+                      {formatCurrency(TOTAL_ON_ROAD)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -162,32 +177,46 @@ export default function Confirmation({ data, onSubmit }) {
                 <TableBody>
                   <TableRow>
                     <TableCell>Coating</TableCell>
-                    <TableCell align="right">10,10,000.00</TableCell>
+                    <TableCell align="right">
+                      {formatCurrency(charges.coating_amount)}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>FastTag</TableCell>
-                    <TableCell align="right">2,82,800.00</TableCell>
+                    <TableCell align="right">
+                      {formatCurrency(charges.fasttag_amount)}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>RTO</TableCell>
-                    <TableCell align="right">2,02,000.00</TableCell>
+                    <TableCell align="right">
+                      {formatCurrency(charges.rto_amount)}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Insurance</TableCell>
-                    <TableCell align="right">1,20,000.00</TableCell>
+                    <TableCell align="right">
+                      {formatCurrency(charges.insurance_amount)}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Extended Warranty</TableCell>
-                    <TableCell align="right">15,000.00</TableCell>
+                    <TableCell align="right">
+                      {formatCurrency(charges.extendedwarranty_amount)}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Auto Card</TableCell>
-                    <TableCell align="right">40,000.00</TableCell>
+                    <TableCell align="right">
+                      {formatCurrency(charges.autocard_amount)}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Total Charges</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Total Charges
+                    </TableCell>
                     <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      16,69,800.00
+                      {formatCurrency(charges.Total_Charges)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -197,6 +226,7 @@ export default function Confirmation({ data, onSubmit }) {
         </Grid>
       </Grid>
 
+      {/* Cost Summary Section */}
       <Paper
         elevation={6}
         sx={{
@@ -215,11 +245,15 @@ export default function Confirmation({ data, onSubmit }) {
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
                 <Typography variant="h6">Total On-Road Price:</Typography>
-                <Typography variant="h6">{formatCurrency(TOTAL_ON_ROAD)}</Typography>
+                <Typography variant="h6">
+                  {formatCurrency(TOTAL_ON_ROAD)}
+                </Typography>
               </Grid>
               <Grid item xs={12} md={4}>
                 <Typography variant="h6">Total Charges:</Typography>
-                <Typography variant="h6">{formatCurrency(TOTAL_CHARGES)}</Typography>
+                <Typography variant="h6">
+                  {formatCurrency(charges.Total_Charges)}
+                </Typography>
               </Grid>
               <Grid item xs={12} md={4}>
                 <Typography variant="h6">Grand Total:</Typography>
@@ -231,39 +265,6 @@ export default function Confirmation({ data, onSubmit }) {
           </Grid>
         </Grid>
       </Paper>
-
-      {/* Payment Details Section */}
-      <Paper elevation={1} sx={{ p: 3, mt: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Payment Details
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth>
-              <InputLabel>Payment Type</InputLabel>
-              <Select
-                value={formData.payment.type}
-                label="Payment Type"
-                onChange={(e) => handleInputChange("payment", "type", e.target.value)}
-              >
-                <MenuItem value="">Select Payment Type</MenuItem>
-                <MenuItem value="cash">Cash</MenuItem>
-                <MenuItem value="creditCard">Credit Card</MenuItem>
-                <MenuItem value="debitCard">Debit Card</MenuItem>
-                <MenuItem value="bankTransfer">Bank Transfer</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body1">
-                <strong>Booking Amount (₹):</strong> {data.carInfo.bookingAmount}
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-      </Paper>
     </Container>
-  )
+  );
 }
-

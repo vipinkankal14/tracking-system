@@ -57,6 +57,7 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
       roadTax: null,
       tempReg: null,
       form34: null,
+      rto_amount: "",
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -79,10 +80,13 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
       });
 
       try {
-        const response = await fetch("http://localhost:5000/api/submitRTORequest", {
-          method: "POST",
-          body: formData,
-        });
+        const response = await fetch(
+          "http://localhost:5000/api/submitRTORequest",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
         const result = await response.json();
 
@@ -190,7 +194,11 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
               >
                 <Stack spacing={4}>
                   {/* Information Sections */}
-                  <Box display="grid" gap={3} gridTemplateColumns={{ xs: "1fr" }}>
+                  <Box
+                    display="grid"
+                    gap={3}
+                    gridTemplateColumns={{ xs: "1fr" }}
+                  >
                     {/* Personal Information */}
                     <Paper variant="outlined" sx={{ p: 2 }}>
                       <Stack spacing={2}>
@@ -207,7 +215,8 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
                           <List dense>
                             <h6 style={{ fontSize: "12px" }}>
                               Full Name: {personalInfo?.firstName}{" "}
-                              {personalInfo?.middleName} {personalInfo?.lastName}
+                              {personalInfo?.middleName}{" "}
+                              {personalInfo?.lastName}
                             </h6>
                             <h6 style={{ fontSize: "12px" }}>
                               Email: {personalInfo?.email}
@@ -221,27 +230,27 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
                       </Stack>
                     </Paper>
 
-                   <Paper variant="outlined" sx={{ p: 2 }}>
-                                       <Stack spacing={2}>
-                                         <Box display="flex" alignItems="center" gap={1}>
-                                           <DirectionsCar />
-                                           <Typography variant="h6">
-                                             Vehicle Information
-                                           </Typography>
-                                         </Box>
-                                         <List dense>
-                                           <Typography variant="body2">
-                                             Car Model: {carInfo?.model}
-                                           </Typography>
-                                           <Typography variant="body2">
-                                             Car Version: {carInfo?.version}
-                                           </Typography>
-                                           <Typography variant="body2">
-                                             Car Color: {carInfo?.color}
-                                           </Typography>
-                                         </List>
-                                       </Stack>
-                                     </Paper>
+                    <Paper variant="outlined" sx={{ p: 2 }}>
+                      <Stack spacing={2}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <DirectionsCar />
+                          <Typography variant="h6">
+                            Vehicle Information
+                          </Typography>
+                        </Box>
+                        <List dense>
+                          <Typography variant="body2">
+                            Car Model: {carInfo?.model}
+                          </Typography>
+                          <Typography variant="body2">
+                            Car Version: {carInfo?.version}
+                          </Typography>
+                          <Typography variant="body2">
+                            Car Color: {carInfo?.color}
+                          </Typography>
+                        </List>
+                      </Stack>
+                    </Paper>
 
                     {/* Documents Required for RTO Registration */}
                     <Paper variant="outlined" sx={{ p: 2 }}>
@@ -258,31 +267,84 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
                           </Typography>
                           <List dense>
                             {[
-                              { name: "form20", label: "Form 20 – Application for vehicle registration" },
-                              { name: "form21", label: "Form 21 – Sale certificate issued by the dealer" },
-                              { name: "form22", label: "Form 22 – Roadworthiness certificate from the manufacturer" },
-                              { name: "invoice", label: "Invoice of the Vehicle – Proof of purchase" },
-                              { name: "insurance", label: "Insurance Certificate – Motor insurance is mandatory" },
-                              { name: "puc", label: "Pollution Under Control (PUC) Certificate – Emission compliance" },
-                              { name: "idProof", label: "Identity & Address Proof – Aadhaar, PAN, Passport, Voter ID, etc." },
-                              { name: "roadTax", label: "Road Tax Payment Receipt – Paid at the RTO" },
-                              { name: "tempReg", label: "Temporary Registration Certificate (if applicable)" },
-                              { name: "form34", label: "Form 34 – If the vehicle is financed, this form is needed for hypothecation" },
+                              {
+                                name: "form20",
+                                label:
+                                  "Form 20 – Application for vehicle registration",
+                              },
+                              {
+                                name: "form21",
+                                label:
+                                  "Form 21 – Sale certificate issued by the dealer",
+                              },
+                              {
+                                name: "form22",
+                                label:
+                                  "Form 22 – Roadworthiness certificate from the manufacturer",
+                              },
+                              {
+                                name: "invoice",
+                                label:
+                                  "Invoice of the Vehicle – Proof of purchase",
+                              },
+                              {
+                                name: "insurance",
+                                label:
+                                  "Insurance Certificate – Motor insurance is mandatory",
+                              },
+                              {
+                                name: "puc",
+                                label:
+                                  "Pollution Under Control (PUC) Certificate – Emission compliance",
+                              },
+                              {
+                                name: "idProof",
+                                label:
+                                  "Identity & Address Proof – Aadhaar, PAN, Passport, Voter ID, etc.",
+                              },
+                              {
+                                name: "roadTax",
+                                label:
+                                  "Road Tax Payment Receipt – Paid at the RTO",
+                              },
+                              {
+                                name: "tempReg",
+                                label:
+                                  "Temporary Registration Certificate (if applicable)",
+                              },
+                              {
+                                name: "form34",
+                                label:
+                                  "Form 34 – If the vehicle is financed, this form is needed for hypothecation",
+                              },
                             ].map((doc) => (
-                              <ListItem key={doc.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <ListItem
+                                key={doc.name}
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
                                 <ListItemText primary={doc.label} />
                                 <Box display="flex" alignItems="center" gap={1}>
                                   {formik.values[doc.name] ? (
                                     <>
                                       <IconButton
                                         color="primary"
-                                        onClick={() => handleFilePreview(formik.values[doc.name])}
+                                        onClick={() =>
+                                          handleFilePreview(
+                                            formik.values[doc.name]
+                                          )
+                                        }
                                       >
                                         <Visibility />
                                       </IconButton>
                                       <IconButton
                                         color="error"
-                                        onClick={() => handleFileRemove(doc.name)}
+                                        onClick={() =>
+                                          handleFileRemove(doc.name)
+                                        }
                                       >
                                         <Delete />
                                       </IconButton>
@@ -298,16 +360,19 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
                                         type="file"
                                         hidden
                                         accept=".pdf"
-                                        onChange={(e) => handleFileChange(doc.name, e)}
+                                        onChange={(e) =>
+                                          handleFileChange(doc.name, e)
+                                        }
                                       />
                                     </Button>
                                   )}
                                 </Box>
-                                {formik.touched[doc.name] && formik.errors[doc.name] && (
-                                  <Typography color="error" variant="caption">
-                                    {formik.errors[doc.name]}
-                                  </Typography>
-                                )}
+                                {formik.touched[doc.name] &&
+                                  formik.errors[doc.name] && (
+                                    <Typography color="error" variant="caption">
+                                      {formik.errors[doc.name]}
+                                    </Typography>
+                                  )}
                               </ListItem>
                             ))}
                           </List>
@@ -350,6 +415,7 @@ export function RTOModal({ open, onClose, personalInfo, carInfo }) {
           <DialogContentText>
             Your RTO form has been submitted successfully.
           </DialogContentText>
+           
         </DialogContent>
         <DialogActions>
           <Button onClick={handleConfirmationClose} color="primary">

@@ -26,8 +26,8 @@ const postAutoCardRequest = (req, res) => {
             }
     
             const insertQuery = `
-                INSERT INTO car_AutoCard_requests (customerId, confirm_Benefits)
-                VALUES (?, ?)
+                INSERT INTO car_AutoCard_requests (customerId, confirm_Benefits ,autocard_amount)
+                VALUES (?, ?,800)
             `;
     
             connection.query(insertQuery, [customerId, confirm_Benefits], (err, results) => {
@@ -54,7 +54,7 @@ const postAutoCardRequest = (req, res) => {
                             return handleDatabaseError(err, connection, res, "Transaction commit error");
                         }
                         connection.release();
-                        res.status(200).json({ message: 'AutoCard request submitted successfully', requestId });
+                        res.status(200).json({ message: 'AutoCard request submitted successfully', requestId, autocard_amount: 800});
                     });
                 });
             });

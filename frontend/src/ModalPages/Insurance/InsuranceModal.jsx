@@ -35,9 +35,9 @@ const validationSchema = Yup.object().shape({
   addressProof: Yup.mixed().required("Address Proof is required"),
   form21: Yup.mixed().required("Form 21 is required"),
   form22: Yup.mixed().required("Form 22 is required"),
-  tempReg: Yup.mixed().nullable(),
+  tempReg: Yup.mixed().nullable("Temporary Registration is required"),
   puc: Yup.mixed().required("PUC Certificate is required"),
-  loanDocuments: Yup.mixed().nullable(),
+  loanDocuments: Yup.mixed().nullable("Loan Documents are required"),
 });
 
 export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
@@ -55,6 +55,7 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
       tempReg: null,
       puc: null,
       loanDocuments: null,
+      insurance_amount:''
     },
     validationSchema,
     onSubmit: async (values) => {
