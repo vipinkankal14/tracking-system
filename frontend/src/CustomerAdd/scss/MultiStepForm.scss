@@ -1,136 +1,4 @@
-
-
-/*
-
-.step-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #f3f4f6;
-    border: 2px solid #e5e7eb;
-    color: #6b7280;
-    font-weight: 600;
-    position: relative;
-    margin-right: 60px;
-    
-    &.active {
-      background: #3b82f6;
-      border-color: #3b82f6;
-      color: white;
-    }
-    
-    &::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 100%;
-      width: calc(100% - 40px);
-      height: 2px;
-      background: #e5e7eb;
-      transform: translateY(-50%);
-    }
-    
-    &:last-child::after {
-      display: none;
-    }
-  }
-  
-  .step-label {
-    font-size: 0.875rem;
-    color: #6b7280;
-    font-weight: 500;
-  }
-  
-  .step-content {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  // Form styling
-  .form-control, .form-select {
-    border-color: #e5e7eb;
-    
-    &:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
-    }
-  }
-  
-  .form-check-input:checked {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
-  }
-  
-  // Summary card
-  .summary {
-    .card {
-      border-color: #e5e7eb;
-    }
-  }
-  
-  // Responsive adjustments
-  @media (max-width: 576px) {
-    .step-circle {
-      width: 32px;
-      height: 32px;
-      font-size: 0.875rem;
-      
-      &::after {
-        width: calc(100% - 32px);
-      }
-    }
-    
-    .step-label {
-      font-size: 0.75rem;
-      
-    }
-  }
-  
-  
-
-  .step-circle-spacing {
-    margin-right: 90px; 
-  }
-  
-  
-  .dropdown-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  
-    select {
-      width: calc(100% - 2px);  
-    }
-  
-    svg {
-      position: absolute;
-      right: 8px;
-      pointer-events: none;
-    }
-  }
-  
-  input[type="number"] {
-    appearance: none; // Removes arrows in most browsers
-    -moz-appearance: textfield; // Removes arrows in Firefox
-  
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-      appearance: none;
-      margin: 0; // Prevent layout shift
-    }
-}
-
-  */
+// Note: This is a SCSS file, so you need to compile it to CSS before using it in your project.
   
   
   .step-name {
@@ -246,4 +114,37 @@ header {
     margin-left: 12px;
     padding: 0px;
   }
+}
+
+
+
+
+// error message
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.api-error {
+  background: #f8d7da;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.error-input {
+  border-color: #dc3545 !important;
+}
+
+.step-name {
+  font-weight: 500;
+}
+
+.form-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
 }

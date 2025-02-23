@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { Person } from "@mui/icons-material";
 
-const CarInfo = ({ personalInfo, data = {}, updateData }) => {
+const CarInfo = ({ personalInfo, data , updateData }) => {
   const [carStocks, setCarStocks] = useState([]);
   const [open, setOpen] = useState(false); // State to control modal open/close status
   const [confirmationChecked, setConfirmationChecked] = useState(false);
@@ -31,13 +31,11 @@ const CarInfo = ({ personalInfo, data = {}, updateData }) => {
       .catch((error) => console.error("Error fetching car stocks:", error));
   }, []);
 
-
   // Reset confirmation when car selection changes
-useEffect(() => {
-  setConfirmationChecked(false);
-}, [data.carType, data.model, data.version, data.color]); // <-- Add this new effect
+  useEffect(() => {
+    setConfirmationChecked(false);
+  }, [data.carType, data.model, data.version, data.color]); // <-- Add this new effect
 
-  
   // Update prices when car details change
   useEffect(() => {
     const { carType, model, version, color } = data;
@@ -63,7 +61,14 @@ useEffect(() => {
         }
       }
     }
-  }, [data.carType, data.model, data.version, data.color, carStocks, updateData]);
+  }, [
+    data.carType,
+    data.model,
+    data.version,
+    data.color,
+    carStocks,
+    updateData,
+  ]);
 
   const handleChange = (name, value) => {
     updateData(name, value);
@@ -82,12 +87,14 @@ useEffect(() => {
     e.preventDefault();
 
     if (!personalInfo?.customerId) {
-      alert("Please fill in your personal information before submitting the Car Coating Services.");
+      alert(
+        "Please fill in your personal information before submitting the Car Coating Services."
+      );
       return;
     }
 
     const payload = {
-      customerId: personalInfo.customerId, 
+      customerId: personalInfo.customerId,
       teamLeader: data.teamLeader,
       teamMember: data.teamMember,
       carType: data.carType,
@@ -104,13 +111,16 @@ useEffect(() => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/submitCarSelection", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/submitCarSelection",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to submit data");
@@ -184,11 +194,13 @@ useEffect(() => {
                   variant="outlined"
                 >
                   <MenuItem value="">Select Car Type</MenuItem>
-                  {[...new Set(carStocks.map((stock) => stock.carType))].map((carType) => (
-                    <MenuItem key={carType} value={carType}>
-                      {carType}
-                    </MenuItem>
-                  ))}
+                  {[...new Set(carStocks.map((stock) => stock.carType))].map(
+                    (carType) => (
+                      <MenuItem key={carType} value={carType}>
+                        {carType}
+                      </MenuItem>
+                    )
+                  )}
                 </Select>
               </FormControl>
             </Grid>
@@ -227,7 +239,11 @@ useEffect(() => {
                 >
                   <MenuItem value="">Select Version</MenuItem>
                   {carStocks
-                    .filter((stock) => stock.carType === data.carType && stock.model === data.model)
+                    .filter(
+                      (stock) =>
+                        stock.carType === data.carType &&
+                        stock.model === data.model
+                    )
                     .map((stock) => (
                       <MenuItem key={stock.version} value={stock.version}>
                         {stock.version}
@@ -249,7 +265,12 @@ useEffect(() => {
                 >
                   <MenuItem value="">Select Color</MenuItem>
                   {carStocks
-                    .filter((stock) => stock.carType === data.carType && stock.model === data.model && stock.version === data.version)
+                    .filter(
+                      (stock) =>
+                        stock.carType === data.carType &&
+                        stock.model === data.model &&
+                        stock.version === data.version
+                    )
                     .map((stock) => (
                       <MenuItem key={stock.color} value={stock.color}>
                         {stock.color}
@@ -332,25 +353,34 @@ useEffect(() => {
               >
                 <Stack spacing={4}>
                   {/* Information Sections */}
-                  <Box display="grid" gap={3} gridTemplateColumns={{ xs: "1fr" }}>
+                  <Box
+                    display="grid"
+                    gap={3}
+                    gridTemplateColumns={{ xs: "1fr" }}
+                  >
                     <Paper variant="outlined" sx={{ p: 2 }}>
                       <Stack spacing={2}>
                         <Box display="flex" alignItems="center" gap={1}>
                           <Person />
-                          <Typography variant="h6">Personal Information</Typography>
+                          <Typography variant="h6">
+                            Personal Information
+                          </Typography>
                         </Box>
                         <Box>
                           <Typography variant="subtitle2" gutterBottom>
                             Required Information:
                           </Typography>
+                 
                           <Typography variant="body2">
-                            Full Name: {personalInfo?.firstName} {personalInfo?.middleName} {personalInfo?.lastName}
+                            Full Name: {personalInfo?.firstName}{" "}
+                            {personalInfo?.middleName} {personalInfo?.lastName}
                           </Typography>
                           <Typography variant="body2">
                             Email: {personalInfo?.email}
                           </Typography>
                           <Typography variant="body2">
-                            Phone Number: {personalInfo?.mobileNumber1}, {personalInfo?.mobileNumber2}
+                            Phone Number: {personalInfo?.mobileNumber1},{" "}
+                            {personalInfo?.mobileNumber2}
                           </Typography>
                         </Box>
                       </Stack>
@@ -367,7 +397,8 @@ useEffect(() => {
                             color: "black",
                           }}
                         >
-                          Dealership Advisor: {data.teamMember} | {data.teamLeader}
+                          Dealership Advisor: {data.teamMember} |{" "}
+                          {data.teamLeader}
                         </Typography>
                         <Typography
                           variant="h5"
@@ -379,62 +410,100 @@ useEffect(() => {
                             textAlign: "center",
                           }}
                         >
-                          {selectedCar.carType} | {selectedCar.model} | {selectedCar.version} | {selectedCar.color}
+                          {selectedCar.carType} | {selectedCar.model} |{" "}
+                          {selectedCar.version} | {selectedCar.color}
                         </Typography>
                         <Grid container spacing={2} sx={{ mt: 1, ml: 1 }}>
                           <Grid item xs={6}>
-                            <Typography variant="body1">Ex-Showroom Price:</Typography>
+                            <Typography variant="body1">
+                              Ex-Showroom Price:
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">{selectedCar.exShowroomPrice}</Typography>
+                            <Typography variant="body1">
+                              {selectedCar.exShowroomPrice}
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">Booking Amount:</Typography>
+                            <Typography variant="body1">
+                              Booking Amount:
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">{selectedCar.bookingAmount}</Typography>
+                            <Typography variant="body1">
+                              {selectedCar.bookingAmount}
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
                             <Typography variant="body1">Discount:</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">{selectedCar.cardiscount}</Typography>
+                            <Typography variant="body1">
+                              {selectedCar.cardiscount}
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
                             <Typography variant="body1">Fuel Type:</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">{selectedCar.fuelType}</Typography>
+                            <Typography variant="body1">
+                              {selectedCar.fuelType}
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">Transmission:</Typography>
+                            <Typography variant="body1">
+                              Transmission:
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">{selectedCar.transmission}</Typography>
+                            <Typography variant="body1">
+                              {selectedCar.transmission}
+                            </Typography>
                           </Grid>
                           <Grid item xs={6}>
                             <Typography variant="body1">Mileage:</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">{selectedCar.mileage} km</Typography>
+                            <Typography variant="body1">
+                              {selectedCar.mileage} km
+                            </Typography>
                           </Grid>
-                          
+
+                          <Grid item xs={6}>
+                            <Typography variant="body1">
+                              Ground Clearance:
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography variant="body1">
+                              {selectedCar.groundClearance} mm
+                            </Typography>
+                          </Grid>
+
                           {selectedCar.fuelType === "Electric" ? (
                             <Grid item xs={6}>
-                              <Typography variant="body1">Battery Capacity:</Typography>
+                              <Typography variant="body1">
+                                Battery Capacity:
+                              </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={6}>
-                              <Typography variant="body1">Engine Capacity:</Typography>
+                              <Typography variant="body1">
+                                Engine Capacity:
+                              </Typography>
                             </Grid>
                           )}
                           {selectedCar.fuelType === "Electric" ? (
                             <Grid item xs={6}>
-                              <Typography variant="body1">{selectedCar.batteryCapacity}</Typography>
+                              <Typography variant="body1">
+                                {selectedCar.batteryCapacity}
+                              </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={6}>
-                              <Typography variant="body1">{selectedCar.engineCapacity} cc</Typography>
+                              <Typography variant="body1">
+                                {selectedCar.engineCapacity} cc
+                              </Typography>
                             </Grid>
                           )}
                         </Grid>
@@ -445,7 +514,9 @@ useEffect(() => {
                       control={
                         <Checkbox
                           checked={confirmationChecked}
-                          onChange={(e) => setConfirmationChecked(e.target.checked)}
+                          onChange={(e) =>
+                            setConfirmationChecked(e.target.checked)
+                          }
                           name="confirmation"
                           color="primary"
                         />

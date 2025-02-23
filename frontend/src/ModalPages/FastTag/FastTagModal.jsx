@@ -212,31 +212,27 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
                       </Stack>
                     </Paper>
 
-                    {/* Car Information */}
                     <Paper variant="outlined" sx={{ p: 2 }}>
-                      <Stack spacing={2}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <DirectionsCar />
-                          <Typography variant="h6">Car Information</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="subtitle2" gutterBottom>
-                            Required Information:
-                          </Typography>
-                          <List dense>
-                            <h6 style={{ fontSize: "12px" }}>
-                              Car Number: {carInfo?.carNumber}
-                            </h6>
-                            <h6 style={{ fontSize: "12px" }}>
-                              Car Model: {carInfo?.carModel}
-                            </h6>
-                            <h6 style={{ fontSize: "12px" }}>
-                              Car Make: {carInfo?.carMake}
-                            </h6>
-                          </List>
-                        </Box>
-                      </Stack>
-                    </Paper>
+                                        <Stack spacing={2}>
+                                          <Box display="flex" alignItems="center" gap={1}>
+                                            <DirectionsCar />
+                                            <Typography variant="h6">
+                                              Vehicle Information
+                                            </Typography>
+                                          </Box>
+                                          <List dense>
+                                            <Typography variant="body2">
+                                              Car Model: {carInfo?.model}
+                                            </Typography>
+                                            <Typography variant="body2">
+                                              Car Version: {carInfo?.version}
+                                            </Typography>
+                                            <Typography variant="body2">
+                                              Car Color: {carInfo?.color}
+                                            </Typography>
+                                          </List>
+                                        </Stack>
+                                      </Paper>
 
                     {/* FASTag Guide */}
                     <Card sx={{ width: "100%", maxWidth: 800, mx: "auto" }}>
@@ -583,14 +579,7 @@ export function FastTagModal({ open, onClose, personalInfo, carInfo }) {
           <DialogContentText>
             Your FastTag form has been submitted successfully.
           </DialogContentText>
-          <Typography variant="subtitle2">Uploaded Documents:</Typography>
-          <List>
-            {Object.entries(formik.values).map(([key, value]) => (
-              <ListItem key={key}>
-                <ListItemText primary={`${key}: ${value?.name}`} />
-              </ListItem>
-            ))}
-          </List>
+           
         </DialogContent>
         <DialogActions>
           <Button onClick={handleConfirmationClose} color="primary">

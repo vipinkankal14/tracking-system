@@ -55,7 +55,7 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
       tempReg: null,
       puc: null,
       loanDocuments: null,
-      insurance_amount:''
+      insurance_amount: "",
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -225,27 +225,27 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
                     </Paper>
 
                     {/* Car Information */}
-                   <Paper variant="outlined" sx={{ p: 2 }}>
-                                       <Stack spacing={2}>
-                                         <Box display="flex" alignItems="center" gap={1}>
-                                           <DirectionsCar />
-                                           <Typography variant="h6">
-                                             Vehicle Information
-                                           </Typography>
-                                         </Box>
-                                         <List dense>
-                                           <Typography variant="body2">
-                                             Car Model: {carInfo?.model}
-                                           </Typography>
-                                           <Typography variant="body2">
-                                             Car Version: {carInfo?.version}
-                                           </Typography>
-                                           <Typography variant="body2">
-                                             Car Color: {carInfo?.color}
-                                           </Typography>
-                                         </List>
-                                       </Stack>
-                                     </Paper>
+                    <Paper variant="outlined" sx={{ p: 2 }}>
+                      <Stack spacing={2}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <DirectionsCar />
+                          <Typography variant="h6">
+                            Vehicle Information
+                          </Typography>
+                        </Box>
+                        <List dense>
+                          <Typography variant="body2">
+                            Car Model: {carInfo?.model}
+                          </Typography>
+                          <Typography variant="body2">
+                            Car Version: {carInfo?.version}
+                          </Typography>
+                          <Typography variant="body2">
+                            Car Color: {carInfo?.color}
+                          </Typography>
+                        </List>
+                      </Stack>
+                    </Paper>
 
                     {/* Required Documents */}
                     <Paper variant="outlined" sx={{ p: 2 }}>
@@ -288,15 +288,18 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
                               },
                               {
                                 name: "tempReg",
-                                label: "Temporary Registration Number (if applicable)",
+                                label:
+                                  "Temporary Registration Number (if applicable)",
                               },
                               {
                                 name: "puc",
-                                label: "Pollution Under Control (PUC) Certificate",
+                                label:
+                                  "Pollution Under Control (PUC) Certificate",
                               },
                               {
                                 name: "loanDocuments",
-                                label: "Loan/Hypothecation Documents (if car is financed)",
+                                label:
+                                  "Loan/Hypothecation Documents (if car is financed)",
                               },
                             ].map((doc) => (
                               <ListItem
@@ -333,15 +336,14 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
                                   ) : (
                                     <Button
                                       variant="outlined"
-                                        component="label"
-                                        startIcon={<CloudUpload />}
-                                        
+                                      component="label"
+                                      startIcon={<CloudUpload />}
                                     >
                                       Upload
                                       <input
                                         type="file"
                                         hidden
-                                        accept=".pdf,.jpg,.jpeg,.png"
+                                        accept=".pdf"
                                         onChange={(e) =>
                                           handleFileChange(doc.name, e)
                                         }
@@ -351,10 +353,7 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
                                 </Box>
                                 {formik.touched[doc.name] &&
                                   formik.errors[doc.name] && (
-                                    <Typography
-                                      color="error"
-                                      variant="caption"
-                                    >
+                                    <Typography color="error" variant="caption">
                                       {formik.errors[doc.name]}
                                     </Typography>
                                   )}
@@ -400,14 +399,6 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
           <DialogContentText>
             Your insurance form has been submitted successfully.
           </DialogContentText>
-          <Typography variant="subtitle2">Uploaded Documents:</Typography>
-          <List>
-            {Object.entries(formik.values).map(([key, value]) => (
-              <ListItem key={key}>
-                <ListItemText primary={`${key}: ${value?.name}`} />
-              </ListItem>
-            ))}
-          </List>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleConfirmationClose} color="primary">

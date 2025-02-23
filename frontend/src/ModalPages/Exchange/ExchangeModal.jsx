@@ -474,7 +474,7 @@ export function ExchangeModal({ open, onClose, personalInfo }) {
                                       <input
                                         type="file"
                                         hidden
-                                        accept=".pdf,.jpg,.jpeg,.png"
+                                        accept=".pdf"
                                         onChange={(e) =>
                                           handleFileChange(doc.name, e)
                                         }

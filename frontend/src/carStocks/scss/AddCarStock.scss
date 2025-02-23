@@ -1,76 +1,17 @@
 .input-form {
-    width: 80%;
-    
-    margin: 0 auto;
-  
-    font-family: Arial, sans-serif;
-    justify-content: center;
-    align-items: center;
-     
-  
-    .form-group {
-      margin-bottom: 15px;
-  
-      label {
-        font-weight: bold;
-        font-size: 16px;
-        color: #333;
-      }
-  
-      input,
-      select {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 10px;
-        font-size: 16px;
-        width: 100%;
-        transition: border-color 0.2s, box-shadow 0.2s;
-      
-  
-        &:focus {
-          border-color: #0d6efd;
-          box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-      }
-    }
-  
-    
-  
-    @media (max-width: 768px) {
-      padding: 15px;
-  
-      .form-group {
-        label {
-          font-size: 15px;
-          margin-top: 10px;
-        }
-  
-        input,
-        select {
-          font-size: 14px;
-          padding: 8px;
-        }
-      }
-    }
-  
-    @media (max-width: 576px) {
-      padding: 10px;
-  
-      .form-group {
-        margin-bottom: 10px;
-  
-        label {
-          font-size: 14px;
-        }
-  
-        input,
-        select {
-          font-size: 14px;
-          padding: 8px;
-        }
-      }
-  
-       
-    }
-  }
-  
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.5rem;
+}

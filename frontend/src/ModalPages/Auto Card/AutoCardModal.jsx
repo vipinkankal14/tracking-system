@@ -25,21 +25,24 @@ export function AutoCardModal({ open, onClose, personalInfo, carInfo }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const AutoCardData = {
       customerId: personalInfo.customerId,
-      autocard_amount
+      autocard_amount,
     };
-  
+
     try {
-      const response = await fetch("http://localhost:5000/api/submitAutoCardRequest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(AutoCardData),
-      });
-  
+      const response = await fetch(
+        "http://localhost:5000/api/submitAutoCardRequest",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(AutoCardData),
+        }
+      );
+
       const result = await response.json();
-  
+
       if (response.ok) {
         setConfirmationOpen(true); // Open confirmation modal
       } else {
@@ -70,7 +73,6 @@ export function AutoCardModal({ open, onClose, personalInfo, carInfo }) {
   };
 
   const handleClose = () => {
-   
     setConfirmBenefits(false);
     onClose();
   };
@@ -172,27 +174,21 @@ export function AutoCardModal({ open, onClose, personalInfo, carInfo }) {
                       <Stack spacing={2}>
                         <Box display="flex" alignItems="center" gap={1}>
                           <DirectionsCar />
-                          <Typography variant="h6">Car Information</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="subtitle2" gutterBottom>
-                            Required Information:
+                          <Typography variant="h6">
+                            Vehicle Information
                           </Typography>
-                          <List dense>
-                            <Typography variant="body2">
-                              Car Make: {carInfo?.make}
-                            </Typography>
-                            <Typography variant="body2">
-                              Car Model: {carInfo?.model}
-                            </Typography>
-                            <Typography variant="body2">
-                              Car Year: {carInfo?.year}
-                            </Typography>
-                            <Typography variant="body2">
-                              Car Registration: {carInfo?.registration}
-                            </Typography>
-                          </List>
                         </Box>
+                        <List dense>
+                          <Typography variant="body2">
+                            Car Model: {carInfo?.model}
+                          </Typography>
+                          <Typography variant="body2">
+                            Car Version: {carInfo?.version}
+                          </Typography>
+                          <Typography variant="body2">
+                            Car Color: {carInfo?.color}
+                          </Typography>
+                        </List>
                       </Stack>
                     </Paper>
 

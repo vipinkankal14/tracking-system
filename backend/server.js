@@ -40,6 +40,8 @@ const { postRTORequests } = require('./db/routes/Request/CarRTORequests');
 const { postCarExtendedWarrantyRequests } = require('./db/routes/Request/CarExtendedWarrantyRequest');
 const { postAutoCardRequest } = require('./db/routes/Request/CarAutoCardRequest');
 const { postCarBooking } = require('./db/routes/CarBookings/orderBooking');
+const { getChargesSummary } = require('./db/routes/InvoiceSummary/ChargesAndOn-Road');
+const { postCustomers } = require('./db/routes/customers/customersPost');
   
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -709,67 +711,31 @@ app.get('/api/pool-status', (req, res) => {
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
  
-
 // API endpoint to handle car selection submission
 app.post('/api/submitCarSelection', postCarBooking)
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 // API endpoint to fetch total charges
-app.get("/api/totalCharges", async (req, res) => {
-  const { customerId } = req.query;
+app.get("/api/totalCharges", getChargesSummary);
 
-   
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
+app.post('/api/submit-form', async (req, res) => {
   try {
-    pool.query(
-      `
-      SELECT
-          COALESCE(cr.customerId, cf.customerId, ca.customerId, ce.customerId, ci.customerId, crr.customerId) AS customerId,
-          COALESCE(cr.coating_amount, 0) AS coating_amount,
-          COALESCE(cf.fasttag_amount, 0) AS fasttag_amount,
-          COALESCE(ca.autocard_amount, 0) AS autocard_amount,
-          COALESCE(ce.extendedwarranty_amount, 0) AS extendedwarranty_amount,
-          COALESCE(ci.insurance_amount, 0) AS insurance_amount,
-          COALESCE(crr.rto_amount, 0) AS rto_amount,
-          (
-              COALESCE(cr.coating_amount, 0) +
-              COALESCE(cf.fasttag_amount, 0) +
-              COALESCE(ca.autocard_amount, 0) +
-              COALESCE(ce.extendedwarranty_amount, 0) +
-              COALESCE(ci.insurance_amount, 0) +
-              COALESCE(crr.rto_amount, 0)
-          ) AS Total_Charges
-      FROM coating_requests cr
-      LEFT JOIN car_fasttag_requests cf ON cr.customerId = cf.customerId
-      LEFT JOIN car_autocard_requests ca ON cr.customerId = ca.customerId
-      LEFT JOIN car_extended_warranty_requests ce ON cr.customerId = ce.customerId
-      LEFT JOIN car_insurance_requests ci ON cr.customerId = ci.customerId
-      LEFT JOIN car_rto_requests crr ON cr.customerId = crr.customerId
-      WHERE cr.customerId = ? OR cf.customerId = ? OR ca.customerId = ? OR ce.customerId = ? OR ci.customerId = ? OR crr.customerId = ?;
-      `,
-      [customerId, customerId, customerId, customerId, customerId, customerId]
-    , (err, rows) => {
-      if (err) {
-        console.error("Error fetching total charges:", err);
-        return res.status(500).json({ error: "Internal Server Error", details: err.message });
-      }
-
-      if (rows.length === 0) {
-        return res.status(404).json({ error: "Customer not found" });
-      }
-
-      res.json(rows[0]);
-    
-      });
+    const { personalInfo, orderInfo, additionalInfo } = req.body;
+    const result = await postCustomers(personalInfo, orderInfo, additionalInfo);
+    res.status(201).json(result);
   } catch (error) {
-    console.error("Error fetching total charges:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
+    res.status(error.status || 500).json({
+      error: error.message,
+      details: error.error || ''
+    });
   }
 });
 
 
-{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
 
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {
