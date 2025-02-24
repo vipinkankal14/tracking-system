@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./scss/page.scss";
 import {
   Box,
@@ -19,9 +19,9 @@ import { Person } from "@mui/icons-material";
 
 const CarInfo = ({ personalInfo, data , updateData }) => {
   const [carStocks, setCarStocks] = useState([]);
-  const [open, setOpen] = useState(false); // State to control modal open/close status
+  const [open, setOpen] = useState(false);
   const [confirmationChecked, setConfirmationChecked] = useState(false);
-  const [successModalOpen, setSuccessModalOpen] = useState(false); // State for success modal
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   // Fetch car stocks data
   useEffect(() => {
@@ -31,10 +31,29 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
       .catch((error) => console.error("Error fetching car stocks:", error));
   }, []);
 
-  // Reset confirmation when car selection changes
+  // Reset dependent fields when carType changes
   useEffect(() => {
-    setConfirmationChecked(false);
-  }, [data.carType, data.model, data.version, data.color]); // <-- Add this new effect
+    if (data.carType) {
+      updateData("model", "");
+      updateData("version", "");
+      updateData("color", "");
+    }
+  }, [data.carType]);
+
+  // Reset dependent fields when model changes
+  useEffect(() => {
+    if (data.model) {
+      updateData("version", "");
+      updateData("color", "");
+    }
+  }, [data.model]);
+
+  // Reset dependent fields when version changes
+  useEffect(() => {
+    if (data.version) {
+      updateData("color", "");
+    }
+  }, [data.version]);
 
   // Update prices when car details change
   useEffect(() => {
@@ -50,26 +69,14 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
       );
 
       if (selectedCar) {
-        if (data.exShowroomPrice !== selectedCar.exShowroomPrice) {
-          updateData("exShowroomPrice", selectedCar.exShowroomPrice || "");
-        }
-        if (data.bookingAmount !== selectedCar.bookingAmount) {
-          updateData("bookingAmount", selectedCar.bookingAmount || "");
-        }
-        if (data.cardiscount !== selectedCar.cardiscount) {
-          updateData("cardiscount", selectedCar.cardiscount || "");
-        }
+        updateData("exShowroomPrice", selectedCar.exShowroomPrice || "");
+        updateData("bookingAmount", selectedCar.bookingAmount || "");
+        updateData("cardiscount", selectedCar.cardiscount || "");
       }
     }
-  }, [
-    data.carType,
-    data.model,
-    data.version,
-    data.color,
-    carStocks,
-    updateData,
-  ]);
+  }, [data.carType, data.model, data.version, data.color, carStocks, updateData]);
 
+  // Handle change for Select components
   const handleChange = (name, value) => {
     updateData(name, value);
   };
@@ -83,6 +90,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
       stock.color === data.color
   );
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -128,7 +136,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
 
       const result = await response.json();
       console.log("Submission successful:", result);
-      setSuccessModalOpen(true); // Open the success modal after submission
+      setSuccessModalOpen(true);
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("Failed to submit car selection. Please try again.");
@@ -148,7 +156,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                 label="Team Leader"
                 labelId="teamLeader-label"
                 value={data.teamLeader}
-                onChange={(e) => updateData("teamLeader", e.target.value)}
+                onChange={(e) =>  handleChange("teamLeader", e.target.value)}
                 variant="outlined"
               >
                 <MenuItem value="">Select Team Leader</MenuItem>
@@ -165,7 +173,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                 label="Team Member"
                 labelId="teamMember-label"
                 value={data.teamMember}
-                onChange={(e) => updateData("teamMember", e.target.value)}
+                onChange={(e) => handleChange("teamMember", e.target.value)}
                 variant="outlined"
               >
                 <MenuItem value="">Select Team Member</MenuItem>
@@ -190,7 +198,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   label="Car Type"
                   labelId="carType-label"
                   value={data.carType}
-                  onChange={(e) => updateData("carType", e.target.value)}
+                  onChange={(e) => handleChange("carType", e.target.value)}
                   variant="outlined"
                 >
                   <MenuItem value="">Select Car Type</MenuItem>
@@ -211,18 +219,22 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   label="Model"
                   labelId="model-label"
                   value={data.model}
-                  onChange={(e) => updateData("model", e.target.value)}
+                  onChange={(e) => handleChange("model", e.target.value)}
                   disabled={!data.carType}
                   variant="outlined"
                 >
                   <MenuItem value="">Select Model</MenuItem>
-                  {carStocks
-                    .filter((stock) => stock.carType === data.carType)
-                    .map((stock) => (
-                      <MenuItem key={stock.model} value={stock.model}>
-                        {stock.model}
-                      </MenuItem>
-                    ))}
+                  {[
+                    ...new Set(
+                      carStocks
+                        .filter((stock) => stock.carType === data.carType)
+                        .map((stock) => stock.model)
+                    ),
+                  ].map((model) => (
+                    <MenuItem key={model} value={model}>
+                      {model}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -233,22 +245,26 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   label="Version"
                   labelId="version-label"
                   value={data.version}
-                  onChange={(e) => updateData("version", e.target.value)}
+                  onChange={(e) => handleChange("version", e.target.value)}
                   disabled={!data.model}
                   variant="outlined"
                 >
                   <MenuItem value="">Select Version</MenuItem>
-                  {carStocks
-                    .filter(
-                      (stock) =>
-                        stock.carType === data.carType &&
-                        stock.model === data.model
-                    )
-                    .map((stock) => (
-                      <MenuItem key={stock.version} value={stock.version}>
-                        {stock.version}
-                      </MenuItem>
-                    ))}
+                  {[
+                    ...new Set(
+                      carStocks
+                        .filter(
+                          (stock) =>
+                            stock.carType === data.carType &&
+                            stock.model === data.model
+                        )
+                        .map((stock) => stock.version)
+                    ),
+                  ].map((version) => (
+                    <MenuItem key={version} value={version}>
+                      {version}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -259,23 +275,27 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   label="Color"
                   labelId="color-label"
                   value={data.color}
-                  onChange={(e) => updateData("color", e.target.value)}
+                  onChange={(e) => handleChange("color", e.target.value)}
                   disabled={!data.version}
                   variant="outlined"
                 >
                   <MenuItem value="">Select Color</MenuItem>
-                  {carStocks
-                    .filter(
-                      (stock) =>
-                        stock.carType === data.carType &&
-                        stock.model === data.model &&
-                        stock.version === data.version
-                    )
-                    .map((stock) => (
-                      <MenuItem key={stock.color} value={stock.color}>
-                        {stock.color}
-                      </MenuItem>
-                    ))}
+                  {[
+                    ...new Set(
+                      carStocks
+                        .filter(
+                          (stock) =>
+                            stock.carType === data.carType &&
+                            stock.model === data.model &&
+                            stock.version === data.version
+                        )
+                        .map((stock) => stock.color)
+                    ),
+                  ].map((color) => (
+                    <MenuItem key={color} value={color}>
+                      {color}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>

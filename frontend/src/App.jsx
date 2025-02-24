@@ -3,58 +3,57 @@ import Sidebar from "./Nav/sidebar/Sidebar";
 import TopNavbar from "./Nav/Topnav-bar/Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Nav/sidebar/Sidebar.scss';
-import { useState, Suspense, lazy } from "react";
+import { useState, Suspense } from "react";
 import './App.css';
  
-import CustomerPaymentDetails from "./cashier/CustomerPaymentDetails/CustomerPaymentDetails";
-import PaymentHistory from "./cashier/CustomerPaymentDetails/PaymentHistory";
-import AddCarStock from "./carStocks/AddCarForUploadCarEXCEL/AddCarStock";
-import CarAllotmentByCustomer from "./carStocks/AllotmentAndNotAllotment/CarAllotmentByCustomer";
-import CarStockShow from "./carStocks/CarAllotment/CarStockShow";
-import { OrderEditAndCancel } from "./cashier/CarBooking/OrderEditAndCancel";
-import { OrderEditAndConfirmed } from "./cashier/CarBookingCancel/OrderEditAndConfirmed";
-import FileTracking from "./cashier/CashierMhanaement/FileTracking";
-import PaymentPending from "./cashier/Payments/PaymentPending";
-import BookingAmount from "./carStocks/discount/BookingAmount";
-import CarNotAllotmentByCustomer from "./carStocks/AllotmentAndNotAllotment/CarNotAllotmentByCustomer";
-import DiscountForCarAndAdditional from "./carStocks/discount/DiscountForCarAndAdditional";
-import UploadCarEXCEL from "./carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
-import DiscountApp from "./carStocks/discount/DiscountApp";
-import AllotmentStatusApp from "./carStocks/AllotmentStatus/AllotmentStatusApp";
-import CarManagement from "./carStocks/CarManagement/CarManagement";
-import PaymentApp from "./cashier/PaymentApp";
- import CarInfo from "./CustomerAdd/CarInfo";
+import AddCarStock from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/AddCarStock";
+import CarAllotmentByCustomer from "./AdditionalInfo/carStocks/AllotmentAndNotAllotment/CarAllotmentByCustomer";
+import CarStockShow from "./AdditionalInfo/carStocks/CarAllotment/CarStockShow";
+import BookingAmount from "./AdditionalInfo/carStocks/discount/BookingAmount";
+import CarNotAllotmentByCustomer from "./AdditionalInfo/carStocks/AllotmentAndNotAllotment/CarNotAllotmentByCustomer";
+import DiscountForCarAndAdditional from "./AdditionalInfo/carStocks/discount/DiscountForCarAndAdditional";
+
+import CarInfo from "./CustomerAdd/CarInfo";
 import Confirmation from "./CustomerAdd/Confirmation";
 import OrderInfo from "./CustomerAdd/OrderInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
 import { Home } from "./home/Home";
-import AccessorieApp from "./Accessories/AccessorieApp";
-import AddedUploadViewApp from "./Accessories/AddedUploadView/AddedUploadViewApp";
-import { AccessorieUpload } from "./Accessories/AddedUploadView/AccessorieUpload";
-import AddAccessories from "./Accessories/AddedUploadView/AddAccessories";
- import { AccessoriesDiscount } from "./Accessories/Discount/AccessoriesDiscount";
-import RequestByCustomer from "./Accessories/CustomerAccessories/RequestByCustomer";
-import { AccessoriesManagement } from "./Accessories/Management/AccessoriesManagement";
-import CancelAndModifyApp from "./Accessories/CancelAndModifyApp";
-import CancelByCustomer from "./Accessories/CustomerAccessories/CancelByCustomer";
-import { ModifyByCustomer } from "./Accessories/CustomerAccessories/ModifyByCustomer";
-import AccessorieView from "./Accessories/AddedUploadView/AccessorieView";
+
 import Demo from "./zekedemo/Demo";
 import AdditionalInfo from "./CustomerAdd/AdditionalInfoApp/AdditionalInfo";
-   
-
-// Lazy loaded components
-const AdditionalDetails = lazy(() => import("./zekedemo/AdditionalDetails"));
-const CarBookings = lazy(() => import("./cashier/CarBooking/CarBookings"));
-const PaymentClear = lazy(() => import("./cashier/Payments/PaymentClear"));
-const CarBookingCancel = lazy(() => import("./cashier/CarBookingCancel/CarBookingCancel"));
-const Payment = lazy(() => import("./cashier/Payments/Payment"));
-const CashierApp = lazy(() => import("./cashier/CashierApp"));
-const PaymentDetails = lazy(() => import("./cashier/Payments/PaymentDetails"));
-const PaymentSuccessful = lazy(() => import("./cashier/Payments/PaymentSuccessful"));
-const Car = lazy(() => import("./carStocks/CarApp"));
-const CarAllotment = lazy(() => import("./carStocks/CarAllotment/CarAllotment"));
-const SuccessPage = lazy(() => import("./CustomerAdd/SuccessPage"));
+import SuccessPage from "./CustomerAdd/SuccessPage";
+import PaymentSuccessful from "./AdditionalInfo/cashier/Payments/PaymentSuccessful";
+import CarAllotment from "./AdditionalInfo/carStocks/CarAllotment/CarAllotment";
+import CarApp from "./AdditionalInfo/carStocks/CarApp";
+import PaymentDetails from "./AdditionalInfo/cashier/Payments/PaymentDetails";
+import PaymentClear from "./AdditionalInfo/cashier/Payments/PaymentClear";
+import CarBookings from "./AdditionalInfo/cashier/CarBooking/CarBookings";
+import CarBookingCancel from "./AdditionalInfo/cashier/CarBookingCancel/CarBookingCancel";
+import CustomerPaymentDetails from "./AdditionalInfo/cashier/CustomerPaymentDetails/CustomerPaymentDetails";
+import PaymentHistory from "./AdditionalInfo/cashier/CustomerPaymentDetails/PaymentHistory";
+import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
+import { OrderEditAndConfirmed } from "./AdditionalInfo/cashier/CarBookingCancel/OrderEditAndConfirmed";
+import FileTracking from "./AdditionalInfo/cashier/CashierMhanaement/FileTracking";
+import PaymentPending from "./AdditionalInfo/cashier/Payments/PaymentPending";
+import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
+import CarManagement from "./AdditionalInfo/carStocks/CarManagement/CarManagement";
+import AllotmentStatusApp from "./AdditionalInfo/carStocks/AllotmentStatus/AllotmentStatusApp";
+import DiscountApp from "./AdditionalInfo/carStocks/discount/DiscountApp";
+import PaymentApp from "./AdditionalInfo/cashier/PaymentApp";
+import AccessorieApp from "./AdditionalInfo/Accessories/AccessorieApp";
+import { AccessorieUpload } from "./AdditionalInfo/Accessories/AddedUploadView/AccessorieUpload";
+import AddAccessories from "./AdditionalInfo/Accessories/AddedUploadView/AddAccessories";
+import AccessorieView from "./AdditionalInfo/Accessories/AddedUploadView/AccessorieView";
+import { AccessoriesDiscount } from "./AdditionalInfo/Accessories/Discount/AccessoriesDiscount";
+import RequestByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/RequestByCustomer";
+import { AccessoriesManagement } from "./AdditionalInfo/Accessories/Management/AccessoriesManagement";
+import CancelAndModifyApp from "./AdditionalInfo/Accessories/CancelAndModifyApp";
+import { ModifyByCustomer } from "./AdditionalInfo/Accessories/CustomerAccessories/ModifyByCustomer";
+import CancelByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/CancelByCustomer";
+import CashierApp from "./AdditionalInfo/cashier/CashierApp" 
+import Payment from "./AdditionalInfo/cashier/Payments/Payment";
+import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
+ 
 
 
 
@@ -75,10 +74,9 @@ function App() {
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
                 <Route path="/home" element={<Home />} />
-                <Route path="/additional-details" element={<AdditionalDetails />} />
                 <Route path="/success-page" element={<SuccessPage />} />
                 <Route path="/payment-successful" element={<PaymentSuccessful />} />
-                <Route path="/car" element={<Car />} />
+                <Route path="/car" element={<CarApp />} />
                 <Route path="/car-allotment/:vin" element={<CarAllotment />} />
                 <Route path="/cashier-app" element={<CashierApp />} />
                 <Route path="/payment-details" element={<PaymentDetails />} />

@@ -86,7 +86,7 @@ const getChargesSummary = async (req, res) => {
                 gstRate,  -- Include this field
                 cessRate,  -- Include this field
                 (exShowroomPrice + totalAmount - cardiscount) AS Subtotal,
-                
+
                 ((exShowroomPrice + totalAmount - cardiscount) * gstRate / 100) AS GST_Amount,
                 ((exShowroomPrice + totalAmount - cardiscount) * cessRate / 100) AS Cess_Amount,
                 ((exShowroomPrice + totalAmount - cardiscount) 
@@ -119,4 +119,104 @@ const getChargesSummary = async (req, res) => {
     }
 };
 
-module.exports = { getChargesSummary };
+ 
+const submitInvoice = async (req, res) => {
+  const {
+    customerId,
+    invoice_date,
+    due_date,
+    total_on_road_price,
+    total_charges,
+    grand_total,
+    on_road_price_details,
+    additional_charges
+  } = req.body;
+
+  // Validate required fields
+  if (!invoice_date || !due_date) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Start transaction
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // Insert into invoice_summary
+      const [invoiceResult] = await connection.query(
+        `INSERT INTO invoice_summary 
+        (customerId, invoice_date, due_date, total_on_road_price, total_charges, grand_total) 
+        VALUES (?, ?, ?, ?, ?, ?)`,
+        [customerId, invoice_date, due_date, total_on_road_price, total_charges, grand_total]
+      );
+
+      const invoiceId = invoiceResult.insertId;
+
+      // Insert into on_road_price_details
+      await connection.query(
+        `INSERT INTO on_road_price_details 
+        (invoice_id, ex_showroom_price, accessories, discount, subtotal, 
+         gst_rate, gst_amount, cess_rate, cess_amount, total_on_road_price) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          invoiceId,
+          on_road_price_details.ex_showroom_price,
+          on_road_price_details.accessories,
+          on_road_price_details.discount,
+          on_road_price_details.subtotal,
+          on_road_price_details.gst_rate,
+          on_road_price_details.gst_amount,
+          on_road_price_details.cess_rate,
+          on_road_price_details.cess_amount,
+          on_road_price_details.total_on_road_price
+        ]
+      );
+
+      // Insert into additional_charges
+      await connection.query(
+        `INSERT INTO additional_charges 
+        (invoice_id, coating, fast_tag, rto, insurance, extended_warranty, auto_card, total_charges) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          invoiceId,
+          additional_charges.coating,
+          additional_charges.fast_tag,
+          additional_charges.rto,
+          additional_charges.insurance,
+          additional_charges.extended_warranty,
+          additional_charges.auto_card,
+          additional_charges.total_charges
+        ]
+      );
+
+      // Commit transaction
+      await connection.commit();
+      connection.release();
+
+      res.status(201).json({
+        success: true,
+        message: 'Invoice created successfully',
+        invoiceId: invoiceId
+      });
+
+    } catch (error) {
+      // Rollback transaction on error
+      await connection.rollback();
+      connection.release();
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Invoice submission error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create invoice',
+      details: error.message
+    });
+  }
+};
+
+ 
+
+module.exports = { getChargesSummary ,submitInvoice };

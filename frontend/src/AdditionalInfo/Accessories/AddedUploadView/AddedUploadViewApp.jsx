@@ -112,7 +112,7 @@ const CardStatus = styled.div`
 `;
 
 
-function AccessorieApp() {
+function AddedUploadViewApp() {
   const navigate = useNavigate();
 
   const [statusCards] = useState([
@@ -179,4 +179,4 @@ function AccessorieApp() {
   );
 }
 
-export default AccessorieApp;
+export default AddedUploadViewApp;

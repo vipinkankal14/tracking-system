@@ -40,7 +40,7 @@ const { postRTORequests } = require('./db/routes/Request/CarRTORequests');
 const { postCarExtendedWarrantyRequests } = require('./db/routes/Request/CarExtendedWarrantyRequest');
 const { postAutoCardRequest } = require('./db/routes/Request/CarAutoCardRequest');
 const { postCarBooking } = require('./db/routes/CarBookings/orderBooking');
-const { getChargesSummary } = require('./db/routes/InvoiceSummary/ChargesAndOn-Road');
+const { getChargesSummary, submitInvoice } = require('./db/routes/InvoiceSummary/ChargesAndOn-Road');
 const { postCustomers } = require('./db/routes/customers/customersPost');
   
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
@@ -734,6 +734,9 @@ app.post('/api/submit-form', async (req, res) => {
   }
 });
 
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+app.post('/api/submitInvoice', submitInvoice);
 
 
 

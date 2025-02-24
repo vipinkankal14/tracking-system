@@ -17,25 +17,22 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-export default function Confirmation({ data , onSubmit }) {
+export default function Confirmation({ data, onSubmit }) {
   const [summaryData, setSummaryData] = useState({
     chargesSummary: { Total_Charges: 0 },
     onRoadPriceSummary: { Total_On_Road_Price: 0 },
     totalAmountForRoadPriceCharges: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // State to store error messages
-  const [openModal, setOpenModal] = useState(false); // State to control modal visibility
+  const [error, setError] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
-  // Fetch data from backend
   useEffect(() => {
     const fetchSummaryData = async () => {
       try {
         const response = await axios.get(
           `http://localhost:5000/api/totalCharges?customerId=${data.personalInfo.customerId}`
         );
-        console.log("API Response:", response.data);
-
         setSummaryData({
           chargesSummary: response.data.ChargesSummary || { Total_Charges: 0 },
           onRoadPriceSummary: response.data.OnRoadPriceSummary || {
@@ -47,8 +44,8 @@ export default function Confirmation({ data , onSubmit }) {
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        setError(error.message || "An error occurred while fetching data."); // Set error message
-        setOpenModal(true); // Open the modal to display the error
+        setError(error.message || "An error occurred while fetching data.");
+        setOpenModal(true);
         console.error("Error fetching data:", error);
       }
     };
@@ -56,7 +53,6 @@ export default function Confirmation({ data , onSubmit }) {
     fetchSummaryData();
   }, [data.personalInfo.customerId]);
 
-  // Currency formatter
   const formatCurrency = (amount) => {
     const safeAmount = Number(amount) || 0;
     return new Intl.NumberFormat("en-IN", {
@@ -66,7 +62,6 @@ export default function Confirmation({ data , onSubmit }) {
     }).format(safeAmount);
   };
 
-  // Modal style
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -79,15 +74,54 @@ export default function Confirmation({ data , onSubmit }) {
     borderRadius: 2,
   };
 
-  // Close modal
   const handleCloseModal = () => {
     setOpenModal(false);
-    setError(null); // Clear the error message
+    setError(null);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        customerId: data.personalInfo.customerId,
+        invoice_date: new Date().toISOString().split('T')[0], // Current date
+        due_date: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0], // 30 days from now
+        total_on_road_price: summaryData.onRoadPriceSummary.Total_On_Road_Price,
+        total_charges: summaryData.chargesSummary.Total_Charges,
+        grand_total: summaryData.totalAmountForRoadPriceCharges,
+        on_road_price_details: {
+          ex_showroom_price: summaryData.onRoadPriceSummary.exShowroomPrice,
+          accessories: summaryData.onRoadPriceSummary.totalAmount,
+          discount: summaryData.onRoadPriceSummary.cardiscount,
+          subtotal: summaryData.onRoadPriceSummary.Subtotal,
+          gst_rate: summaryData.onRoadPriceSummary.gstRate,
+          gst_amount: summaryData.onRoadPriceSummary.GST_Amount,
+          cess_rate: summaryData.onRoadPriceSummary.cessRate,
+          cess_amount: summaryData.onRoadPriceSummary.Cess_Amount,
+          total_on_road_price: summaryData.onRoadPriceSummary.Total_On_Road_Price,
+        },
+        additional_charges: {
+          coating: summaryData.chargesSummary.coating_amount,
+          fast_tag: summaryData.chargesSummary.fasttag_amount,
+          rto: summaryData.chargesSummary.rto_amount,
+          insurance: summaryData.chargesSummary.insurance_amount,
+          extended_warranty: summaryData.chargesSummary.extendedwarranty_amount,
+          auto_card: summaryData.chargesSummary.autocard_amount,
+          total_charges: summaryData.chargesSummary.Total_Charges,
+        },
+      };
+
+      const response = await axios.post("http://localhost:5000/api/submitInvoice", payload);
+      console.log("Invoice submitted successfully:", response.data);
+      onSubmit(); // Call the parent's onSubmit function if needed
+    } catch (error) {
+      setError(error.message || "An error occurred while submitting the invoice.");
+      setOpenModal(true);
+      console.error("Error submitting invoice:", error);
+    }
   };
 
   return (
     <Container maxWidth="lg" sx={{ py: 2 }}>
-      {/* Error Modal */}
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -142,7 +176,8 @@ export default function Confirmation({ data , onSubmit }) {
       </Paper>
 
       {/* Invoice Tables Section */}
-      <Grid container spacing={3}>
+       {/* Invoice Tables Section */}
+       <Grid container spacing={3}>
         {/* Invoice Summary Table */}
         <Grid item xs={12} md={6}>
           <Paper elevation={1} sx={{ p: 3 }}>
@@ -328,15 +363,7 @@ export default function Confirmation({ data , onSubmit }) {
       </Grid>
 
       {/* Cost Summary Section */}
-      <Paper
-        elevation={6}
-        sx={{
-          p: 2,
-          mt: 2,
-          bgcolor: "primary.main",
-          color: "primary.contrastText",
-        }}
-      >
+      <Paper elevation={6} sx={{ p: 2, mt: 2, bgcolor: "primary.main", color: "primary.contrastText" }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom align="center">
@@ -347,9 +374,7 @@ export default function Confirmation({ data , onSubmit }) {
               <Grid item xs={12} md={4}>
                 <Typography variant="h6">Total On-Road Price:</Typography>
                 <Typography variant="h6">
-                  {formatCurrency(
-                    summaryData.onRoadPriceSummary?.Total_On_Road_Price
-                  )}
+                  {formatCurrency(summaryData.onRoadPriceSummary?.Total_On_Road_Price)}
                 </Typography>
               </Grid>
               <Grid item xs={12} md={4}>
@@ -369,17 +394,12 @@ export default function Confirmation({ data , onSubmit }) {
         </Grid>
       </Paper>
 
-
       {/* Submit Button */}
-      <Box sx={{ mt: 2 , textAlign: 'end' }}>
-        <Button
-           color="secondary"
-          onClick={onSubmit}
-        >
+      <Box sx={{ mt: 2, textAlign: 'end' }}>
+        <Button color="secondary" onClick={handleSubmit}>
           Confirm Booking
         </Button>
       </Box>
-
     </Container>
   );
 }

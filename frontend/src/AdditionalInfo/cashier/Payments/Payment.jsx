@@ -6,7 +6,7 @@ import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 
 import "../css/Payment.scss";
 
-const CustomerDetails = () => {
+const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -133,4 +133,4 @@ const CustomerDetails = () => {
   );
 };
 
-export default CustomerDetails;
+export default Payment;
