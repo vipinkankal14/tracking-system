@@ -36,7 +36,7 @@ const handlePayment = async (req, res) => {
       ]);
 
       const updateDebitedBalanceQuery = `
-        UPDATE customers 
+        UPDATE invoice_summary 
         SET customer_account_balance = customer_account_balance - ? 
         WHERE customerId = ?`;
       await pool.query(updateDebitedBalanceQuery, [debitedAmount, customerId]);
@@ -45,8 +45,8 @@ const handlePayment = async (req, res) => {
     if (creditedAmount) {
       // Handle credit
       const fetchCustomerDetailsQuery = `
-        SELECT customer_account_balance, total_onroad_price 
-        FROM customers 
+        SELECT customer_account_balance, grand_total 
+        FROM invoice_summary 
         WHERE customerId = ?`;
       
       const [customerDetails] = await pool.query(fetchCustomerDetailsQuery, [customerId]);
@@ -55,9 +55,9 @@ const handlePayment = async (req, res) => {
         return res.status(404).json({ error: "Customer not found." });
       }
     
-      const { customer_account_balance, total_onroad_price } = customerDetails[0];
+      const { customer_account_balance, grand_total } = customerDetails[0];
       const currentBalance = customer_account_balance; // Current balance before credit
-      const requiredPayment = total_onroad_price - currentBalance; // Remaining amount to reach total price
+      const requiredPayment = grand_total - currentBalance; // Remaining amount to reach total price
     
       // Check if any payment is required
       if (requiredPayment <= 0) {
@@ -90,7 +90,7 @@ const handlePayment = async (req, res) => {
       ]);
     
       const updateCreditedBalanceQuery = `
-        UPDATE customers 
+        UPDATE invoice_summary 
         SET customer_account_balance = customer_account_balance + ? 
         WHERE customerId = ?`;
       
@@ -99,19 +99,19 @@ const handlePayment = async (req, res) => {
 
     // Fetch updated customer details to check payment status
     const updatedCustomerDetailsQuery = `
-      SELECT customer_account_balance, total_onroad_price 
-      FROM customers 
+      SELECT customer_account_balance, grand_total 
+      FROM invoice_summary 
       WHERE customerId = ?`;
     
     const [updatedCustomerDetails] = await pool.query(updatedCustomerDetailsQuery, [customerId]);
-    const { customer_account_balance, total_onroad_price } = updatedCustomerDetails[0];
+    const { customer_account_balance, grand_total } = updatedCustomerDetails[0];
 
     // Determine payment status
-    paymentStatus = (customer_account_balance >= total_onroad_price) ? "Clear" : "Pending";
+    paymentStatus = (customer_account_balance >= grand_total) ? "Paid" : "Unpaid";
 
     // Update the payment_status in the database
     const updatePaymentStatusQuery = `
-      UPDATE customers 
+      UPDATE invoice_summary 
       SET payment_status = ? 
       WHERE customerId = ?`;
     
@@ -126,7 +126,7 @@ const handlePayment = async (req, res) => {
         debitedAmount: debitedAmount || 0,
         creditedAmount: creditedAmount || 0,
         customer_account_balance: customer_account_balance,
-        total_onroad_price: total_onroad_price,
+        grand_total: grand_total,
       }
     });
     
@@ -137,10 +137,16 @@ const handlePayment = async (req, res) => {
 };
 
 
-// Function to fetch a specific customer by ID
+// Function to fetch a specific customer by ID {setp 1}
 const getCustomerById = async (req, res) => {
   const { id } = req.params;
-  const query = 'SELECT * FROM customers WHERE customerId = ?';
+  const query = `
+  SELECT *
+FROM customers c
+LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+WHERE c.customerId = ?
+  `;
 
   try {
     const [result] = await pool.query(query, [id]);

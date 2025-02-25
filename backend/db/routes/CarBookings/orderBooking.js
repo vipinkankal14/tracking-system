@@ -3,11 +3,11 @@ const pool = require('../../databaseConnection/mysqlConnection');
 const postCarBooking = async (req, res) => {
   const {
     customerId,
-    teamLeader,
-    teamMember,
+    team_Leader,
+    team_Member,
     carType,
     model,
-    version,
+    variant,
     color,
     exShowroomPrice,
     bookingAmount,
@@ -45,7 +45,7 @@ const postCarBooking = async (req, res) => {
     // Insert new car booking entry
     const insertQuery = `
       INSERT INTO carbooking (
-        customerId, teamLeader, teamMember, carType, model, version, color,
+        customerId, team_Leader, team_Member, carType, model, variant, color,
         exShowroomPrice, bookingAmount, fuelType, transmission, mileage,
         engineCapacity, batteryCapacity, cardiscount, groundClearance
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -53,11 +53,11 @@ const postCarBooking = async (req, res) => {
 
     const insertValues = [
       customerId,
-      teamLeader,
-      teamMember,
+      team_Leader,
+      team_Member,
       carType,
       model,
-      version,
+      variant,
       color,
       exShowroomPrice,
       bookingAmount,

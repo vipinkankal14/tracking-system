@@ -57,7 +57,7 @@ const Payment = () => {
         state: {
           customerId,
           customerName: `${customerDetails.firstName} ${customerDetails.middleName} ${customerDetails.lastName}`,
-          customer: `${customerDetails.total_onroad_price}`,
+          customer: `${customerDetails.grand_total}`,
           accountBalance: customerDetails.customer_account_balance,
         },
         replace: true,
@@ -101,7 +101,7 @@ const Payment = () => {
 
         <div className="info-box">
           <h4>Payment Details</h4>
-          <p>Total On-Road Price: {customerDetails?.total_onroad_price}</p>
+          <p>Grand total: {customerDetails?.grand_total}</p>
           <p>Amount Paid by Customer: {customerDetails?.customer_account_balance}</p>
         </div>
 

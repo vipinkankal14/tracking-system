@@ -35,7 +35,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
   useEffect(() => {
     if (data.carType) {
       updateData("model", "");
-      updateData("version", "");
+      updateData("variant", "");
       updateData("color", "");
     }
   }, [data.carType]);
@@ -43,28 +43,28 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
   // Reset dependent fields when model changes
   useEffect(() => {
     if (data.model) {
-      updateData("version", "");
+      updateData("variant", "");
       updateData("color", "");
     }
   }, [data.model]);
 
-  // Reset dependent fields when version changes
+  // Reset dependent fields when variant changes
   useEffect(() => {
-    if (data.version) {
+    if (data.variant) {
       updateData("color", "");
     }
-  }, [data.version]);
+  }, [data.variant]);
 
   // Update prices when car details change
   useEffect(() => {
-    const { carType, model, version, color } = data;
+    const { carType, model, variant, color } = data;
 
-    if (carType && model && version && color) {
+    if (carType && model && variant && color) {
       const selectedCar = carStocks.find(
         (stock) =>
           stock.carType === carType &&
           stock.model === model &&
-          stock.version === version &&
+          stock.variant === variant &&
           stock.color === color
       );
 
@@ -74,7 +74,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
         updateData("cardiscount", selectedCar.cardiscount || "");
       }
     }
-  }, [data.carType, data.model, data.version, data.color, carStocks, updateData]);
+  }, [data.carType, data.model, data.variant, data.color, carStocks, updateData]);
 
   // Handle change for Select components
   const handleChange = (name, value) => {
@@ -86,7 +86,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
     (stock) =>
       stock.carType === data.carType &&
       stock.model === data.model &&
-      stock.version === data.version &&
+      stock.variant === data.variant &&
       stock.color === data.color
   );
 
@@ -103,11 +103,11 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
 
     const payload = {
       customerId: personalInfo.customerId,
-      teamLeader: data.teamLeader,
-      teamMember: data.teamMember,
+      team_Leader: data.team_Leader,
+      team_Member: data.team_Member,
       carType: data.carType,
       model: data.model,
-      version: data.version,
+      variant: data.variant,
       color: data.color,
       exShowroomPrice: data.exShowroomPrice,
       bookingAmount: data.bookingAmount,
@@ -151,12 +151,12 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
-              <InputLabel id="teamLeader-label">Team Leader</InputLabel>
+              <InputLabel id="team_Leader-label">Team Leader</InputLabel>
               <Select
                 label="Team Leader"
-                labelId="teamLeader-label"
-                value={data.teamLeader}
-                onChange={(e) =>  handleChange("teamLeader", e.target.value)}
+                labelId="team_Leader-label"
+                value={data.team_Leader}
+                onChange={(e) =>  handleChange("team_Leader", e.target.value)}
                 variant="outlined"
               >
                 <MenuItem value="">Select Team Leader</MenuItem>
@@ -168,12 +168,12 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
           </Grid>
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
-              <InputLabel id="teamMember-label">Team Member</InputLabel>
+              <InputLabel id="team_Member-label">Team Member</InputLabel>
               <Select
                 label="Team Member"
-                labelId="teamMember-label"
-                value={data.teamMember}
-                onChange={(e) => handleChange("teamMember", e.target.value)}
+                labelId="team_Member-label"
+                value={data.team_Member}
+                onChange={(e) => handleChange("team_Member", e.target.value)}
                 variant="outlined"
               >
                 <MenuItem value="">Select Team Member</MenuItem>
@@ -240,16 +240,16 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
               <FormControl fullWidth>
-                <InputLabel id="version-label">Version</InputLabel>
+                <InputLabel id="variant-label">variant</InputLabel>
                 <Select
-                  label="Version"
-                  labelId="version-label"
-                  value={data.version}
-                  onChange={(e) => handleChange("version", e.target.value)}
+                  label="variant"
+                  labelId="variant-label"
+                  value={data.variant}
+                  onChange={(e) => handleChange("variant", e.target.value)}
                   disabled={!data.model}
                   variant="outlined"
                 >
-                  <MenuItem value="">Select Version</MenuItem>
+                  <MenuItem value="">Select variant</MenuItem>
                   {[
                     ...new Set(
                       carStocks
@@ -258,11 +258,11 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                             stock.carType === data.carType &&
                             stock.model === data.model
                         )
-                        .map((stock) => stock.version)
+                        .map((stock) => stock.variant)
                     ),
-                  ].map((version) => (
-                    <MenuItem key={version} value={version}>
-                      {version}
+                  ].map((variant) => (
+                    <MenuItem key={variant} value={variant}>
+                      {variant}
                     </MenuItem>
                   ))}
                 </Select>
@@ -276,7 +276,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   labelId="color-label"
                   value={data.color}
                   onChange={(e) => handleChange("color", e.target.value)}
-                  disabled={!data.version}
+                  disabled={!data.variant}
                   variant="outlined"
                 >
                   <MenuItem value="">Select Color</MenuItem>
@@ -287,7 +287,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           (stock) =>
                             stock.carType === data.carType &&
                             stock.model === data.model &&
-                            stock.version === data.version
+                            stock.variant === data.variant
                         )
                         .map((stock) => stock.color)
                     ),
@@ -309,7 +309,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
         variant="contained"
         color="primary"
         onClick={() => setOpen(true)}
-        disabled={!data.carType || !data.model || !data.version || !data.color}
+        disabled={!data.carType || !data.model || !data.variant || !data.color}
         sx={{ display: "block", margin: "0 auto" }}
       >
         View Choose Your Car
@@ -417,8 +417,8 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                             color: "black",
                           }}
                         >
-                          Dealership Advisor: {data.teamMember} |{" "}
-                          {data.teamLeader}
+                          Dealership Advisor: {data.team_Member} |{" "}
+                          {data.team_Leader}
                         </Typography>
                         <Typography
                           variant="h5"
@@ -431,7 +431,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           }}
                         >
                           {selectedCar.carType} | {selectedCar.model} |{" "}
-                          {selectedCar.version} | {selectedCar.color}
+                          {selectedCar.variant} | {selectedCar.color}
                         </Typography>
                         <Grid container spacing={2} sx={{ mt: 1, ml: 1 }}>
                           <Grid item xs={6}>

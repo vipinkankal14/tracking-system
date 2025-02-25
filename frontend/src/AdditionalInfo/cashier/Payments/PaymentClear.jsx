@@ -37,8 +37,6 @@ const PaymentClear = () => {
   );
 
 
-
-
   return (
     <>
       <div style={{ marginTop: '-36px', color: '#071947' }}> <p className="text-md-start my-4"> PAYMENT CLEAR </p> </div>
