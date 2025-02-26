@@ -165,7 +165,12 @@ WHERE c.customerId = ?
  
 // Function to fetch all customers
 const getAllCustomers = async (req, res) => {
-  const query = 'SELECT * FROM customers';
+  const query = `
+  SELECT *
+FROM customers c
+LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId;
+`;
 
   try {
     // Use await to get the results of the query

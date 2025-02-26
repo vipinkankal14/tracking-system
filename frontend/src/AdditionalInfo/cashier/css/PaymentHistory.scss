@@ -1,83 +1,58 @@
+// PaymentHistory.scss
+
 .payment-history {
-  margin-top: -10px;
+  padding: 0px;
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-  
-        th, td {
-          text-align: left;
-          padding: 0.5rem;
-          border-bottom: 1px solid #eee;
-        }
-  
-        th {
-          font-weight: bold;
-        }
-      }
-    }
-  
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        align-items: flex-start;       
-      }
-      
-      table {
-        font-size: 0.9rem;
-  
-        th, td {
-          padding: 0.3rem;
-        }
-      }
-    }
-  
+  .header {
+    margin-bottom: 20px;
+  }
 
+  .details-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
 
-  .payment-history {
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-  
-    .details-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); // Three equal columns
-      gap: 10px;
-  
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr; // Single column for mobile
-      }
-    }
-  
     .details {
-      padding: 12px;
-      border-radius: 2px;
-      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-  
-      
-  
-     
-  
-      strong {
-        font-weight: initial;
-      }
-  
-      p {
-        margin: 2px 0;
+      flex: 1 1 calc(33.333% - 20px);
+      padding: 15px;
+ 
+      @media (max-width: 768px) {
+        flex: 1 1 100%;
       }
     }
   }
-  
 
-  @media (max-width: 768px) {
-    .lines {
-      overflow-x: auto; /* Add horizontal scrolling for small screens */
-    }
-    table {
-      width: 100%; /* Ensure table scales properly */
+  .lines {
+    margin-top: 20px;
+    padding: 8px;
+ 
+    @media (max-width: 768px) {
+      margin-top: 10px;
     }
   }
-  
+
+  .MuiTableContainer-root {
+    overflow-x: auto;
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .MuiTableCell-root {
+    white-space: nowrap;
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+  }
+
+  .MuiButton-root {
+    @media (max-width: 768px) {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+}
+
+ 

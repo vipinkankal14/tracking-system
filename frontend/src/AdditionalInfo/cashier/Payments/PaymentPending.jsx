@@ -60,7 +60,7 @@ const PaymentPending = () => {
                 <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Model</TableCell>
                 <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Version</TableCell>
                 <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Color</TableCell>
-                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Total On-Road Price</TableCell>
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Grand total</TableCell>
                 <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }}>Booking Amount</TableCell>
                 <TableCell style={{ padding: '10px', fontSize: '10px' }}>Payment Status</TableCell>
               </TableRow>
@@ -68,7 +68,7 @@ const PaymentPending = () => {
             <TableBody>
               {filteredCarStocks.length > 0 ? (
                 filteredCarStocks
-                  .filter(stock => stock.payment_status === "Pending")
+                  .filter(stock => stock.payment_status === "Unpaid")
                   .map((stock, index) => (
                     <TableRow key={index}>
                       <TableCell className="d-none d-sm-table-cell" style={{ padding: '10px', fontSize: '11px' }}>{stock.customerId}</TableCell>
@@ -78,7 +78,7 @@ const PaymentPending = () => {
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.model}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.variant}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.color}</TableCell>
-                      <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.total_onroad_price}</TableCell>
+                      <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.grand_total}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.customer_account_balance}</TableCell>
                       <TableCell style={{ padding: '8px', fontSize: '11px' }}>
                         {stock.payment_status}

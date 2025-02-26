@@ -488,75 +488,42 @@ app.put('/api/confirmed-order', (req, res) => {
 });
 
 // frontend\src\cashier\CustomerPaymentDetails\PaymentHistory.jsx
-app.get('/api/PaymentHistory/:customerId', (req, res) => {
+app.get('/api/PaymentHistory/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  console.log("Received customerId:", customerId);
 
-  // SQL query to fetch customer and payment details
-  const query = `
-      SELECT 
-          c.id AS CustomerID,
-          c.firstName,
-          c.middleName,
-          c.lastName,
-          c.mobileNumber1,
-          c.mobileNumber2,
-          c.customerType,
-          c.birthDate,
-          c.email,
-          c.customerId,
-          c.address,
-          c.city,
-          c.state,
-          c.country,
-          c.model,
-          c.variant,
-          c.color,
-          c.team_Member,
-          c.team_Leader,
-          c.booking_amount,
-          c.total_onroad_price,
-          c.orderDate,
-          c.prebooking,
-          c.exchange,
-          c.finance,
-          c.accessories,
-          c.coating,
-          c.auto_card,
-          c.extended_warranty,
-          c.customer_account_balance,
-          c.rto_tax,
-          c.fast_tag,
-          c.insurance,
-          c.status,
-          p.id AS PaymentID,
-          p.debitedAmount,
-          p.creditedAmount,
-          p.paymentDate,
-          p.transactionType,
-          p.paymentType
-      FROM 
-          customers c
-      LEFT JOIN 
-          cashier p
-      ON 
-          c.customerId = p.customerId
-      WHERE 
-          c.customerId = ?;
-  `;
+  try {
+    // Fetch data from all tables
+    const [customer] = await pool.promise().query('SELECT * FROM customers WHERE customerId = ?', [customerId]);
+    const [carbooking] = await pool.promise().query('SELECT * FROM carbooking WHERE customerId = ?', [customerId]);
+    const [additionalInfo] = await pool.promise().query('SELECT * FROM additional_info WHERE customerId = ?', [customerId]);
+    const [cashier] = await pool.promise().query('SELECT * FROM cashier WHERE customerId = ?', [customerId]);
+    const [invoicesummary] = await pool.promise().query('SELECT * FROM invoice_summary WHERE customerId = ?', [customerId]);
+    const [ordersprebookingdate] = await pool.promise().query('SELECT * FROM orders_prebooking_date WHERE customerId = ?', [customerId]);
 
-  pool.query(query, [customerId], (err, results) => {
-    if (err) {
-      console.error('Error fetching customer data:', err);
-      res.status(500).json({ error: 'Error fetching customer data' });
-    } else if (results.length === 0) {
-      console.log("No record found for customerId:", customerId);
-      res.status(404).json({ error: 'Customer not found' });
-    } else {
-      res.json(results);
+
+    // Check if customer exists
+    if (customer.length === 0) {
+      return res.status(404).json({ error: 'Customer not found' });
     }
-  });
+
+    // Combine all data into a single response
+    const response = {
+      customer: customer[0],
+      carbooking: carbooking[0],
+      additionalInfo: additionalInfo[0],
+      invoicesummary: invoicesummary[0],
+      ordersprebookingdate: ordersprebookingdate[0],
+      cashier,
+    };
+
+    res.json(response);
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
+
 
 app.get('/api/cars', (req, res) => {
   const { model, version, color, carType } = req.query;
