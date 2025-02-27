@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Badge } from "react-bootstrap";
+import { Table, Spinner, Dropdown, Badge } from "react-bootstrap";
 import axios from "axios";
  import { useNavigate } from "react-router-dom";
  import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
 import { SearchIcon } from "lucide-react";
+ import '../css/CarBookings.scss';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import '../css/CarBookings.scss';
 
 const CarBookingCancel = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,15 +40,13 @@ const CarBookingCancel = () => {
   );
 
  
-
- 
   const handleCancelClick = (vin) => {
     navigate(`/order-edit-and-confirmed/${vin}`);
   };
 
   return (
     <>
-      <div style={{ marginTop: '-36px',color :'#071947'}}> <p className="text-md-start my-4">CAR BOOKING CANCEL</p> </div>
+      <div style={{ marginTop: '-36px',color :'#071947'}}> <p className="text-md-start my-4">CAR BOOKINGS</p> </div>
       <div className="d-flex justify-content-center justify-content-md-start"> <div className="mb-4"> <TextField variant="outlined" placeholder="Search..." label="Search Car Bookings" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} InputProps={{ startAdornment: ( <InputAdornment position="start"> <SearchIcon /> </InputAdornment> ), }} /> </div> </div>
  
       {loading && (<div className="text-center"> <Spinner animation="border" role="status"> <span className="visually-hidden">Loading...</span> </Spinner> </div>)}
@@ -67,8 +65,8 @@ const CarBookingCancel = () => {
                 <TableCell className="d-none d-sm-table-cell">Model</TableCell>
                 <TableCell className="d-none d-sm-table-cell">Version</TableCell>
                 <TableCell className="d-none d-sm-table-cell">Color</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Booking Amount</TableCell>
-                <TableCell style={{ padding: '10px' }}>Status</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Grand total</TableCell>
+                 <TableCell style={{ padding: '10px' }}>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -84,9 +82,9 @@ const CarBookingCancel = () => {
                       <TableCell className="d-none d-sm-table-cell">{stock.model}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.variant}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.booking_amount}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.grand_total}</TableCell>
                       <TableCell style={{ padding: '10px'}}><Badge bg="danger">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
-                    </TableRow>
+                      </TableRow>
                   ))
               ) : (
                 <TableRow><TableCell colSpan="10" className="text-center"> No records found.</TableCell> </TableRow>
@@ -95,7 +93,7 @@ const CarBookingCancel = () => {
           </Table>
         </TableContainer>
       )}
-      
+
     </>
   );
 };

@@ -293,6 +293,7 @@ function PaymentHistory() {
             <strong>Insurance:</strong> {insurance || "N/A"}
           </Typography>
         </Paper>
+        
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>

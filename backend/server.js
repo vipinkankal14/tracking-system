@@ -523,6 +523,36 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
   }
 });
 
+app.get('/api/OrderEditAndCancel/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  try {
+    // Fetch data from all tables
+    const [customer] = await pool.promise().query('SELECT * FROM customers WHERE customerId = ?', [customerId]);
+    const [carbooking] = await pool.promise().query('SELECT * FROM carbooking WHERE customerId = ?', [customerId]);
+    const [additionalInfo] = await pool.promise().query('SELECT * FROM additional_info WHERE customerId = ?', [customerId]);
+    const [ordersprebookingdate] = await pool.promise().query('SELECT * FROM orders_prebooking_date WHERE customerId = ?', [customerId]);
+
+
+    // Check if customer exists
+    if (customer.length === 0) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    // Combine all data into a single response
+    const response = {
+      customer: customer[0],
+      carbooking: carbooking[0],
+      additionalInfo: additionalInfo[0],
+      ordersprebookingdate: ordersprebookingdate[0],
+    };
+
+    res.json(response);
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 
 app.get('/api/cars', (req, res) => {
@@ -582,7 +612,13 @@ app.post('/api/apply-discount', (req, res) => {
 // API endpoint to get all car stocks // frontend\src\carStocks\CarAllotment.jsx
 app.get('/api/api/customer/:customerId', (req, res) => {
   const { customerId } = req.params;
-  const query = 'SELECT * FROM customers WHERE customerId = ?';
+  const query = `
+   SELECT *
+    FROM customers c
+    LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+    LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+    LEFT JOIN orders_prebooking_date ON c.customerId = orders_prebooking_date.customerId
+    WHERE c.customerId = ?`;
 
   pool.query(query, [customerId], (err, results) => {
     if (err) {
@@ -618,13 +654,18 @@ app.get('/api/car/:vin', (req, res) => {
 // Express route to update car allotment status // frontend\src\carStocks\CarAllotment.jsx
 app.put('/api/car/update/:vin', (req, res) => {
   const { vin } = req.params;
-  const { customerId, allotmentCarStatus } = req.body;  // Get both customerId and allotmentCarStatus from request body
+  const { customerId, allotmentCarStatus } = req.body;
 
-  // SQL query to update both customerId and allotmentCarStatus
+  // Validate allotmentCarStatus
+  if (!['Allocated', 'Not Allocated'].includes(allotmentCarStatus)) {
+    return res.status(400).json({ message: 'Invalid allotment status' });
+  }
+
   const query = 'UPDATE carstocks SET customerId = ?, allotmentCarStatus = ? WHERE vin = ?';
 
   pool.query(query, [customerId, allotmentCarStatus, vin], (err, result) => {
     if (err) {
+      console.error('Database error:', err);
       return res.status(500).json({ message: 'Error updating car stock' });
     }
 

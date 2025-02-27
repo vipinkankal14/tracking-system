@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { DirectionsCar} from '@mui/icons-material';
-import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
-import CarRentalIcon from '@mui/icons-material/CarRental';
 import NoCrashRoundedIcon from '@mui/icons-material/NoCrashRounded';
  
 const Container = styled.div`

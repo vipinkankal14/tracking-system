@@ -67,7 +67,7 @@ const CarBookings = () => {
                 <TableCell className="d-none d-sm-table-cell">Model</TableCell>
                 <TableCell className="d-none d-sm-table-cell">Version</TableCell>
                 <TableCell className="d-none d-sm-table-cell">Color</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Booking Amount</TableCell>
+                <TableCell className="d-none d-sm-table-cell">Grand total</TableCell>
                 <TableCell style={{ padding: '10px' }}>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -84,7 +84,7 @@ const CarBookings = () => {
                       <TableCell className="d-none d-sm-table-cell">{stock.model}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.variant}</TableCell>
                       <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.booking_amount}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell">{stock.grand_total}</TableCell>
                       <TableCell style={{ padding: '10px' }}><Badge bg="success">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
                     </TableRow>
                   ))

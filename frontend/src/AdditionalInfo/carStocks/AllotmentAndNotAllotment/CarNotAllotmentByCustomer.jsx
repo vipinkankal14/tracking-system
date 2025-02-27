@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Dropdown } from "react-bootstrap";
+import { Table, Spinner } from "react-bootstrap";
 import axios from "axios";
-import "../scss/CarStockShow.scss";
-import { Link } from "react-router-dom";
- import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
 import { SearchIcon } from "lucide-react";
+import '../scss/CarStockShow.scss'
 
 const CarNotAllotmentByCustomer = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,7 +50,7 @@ const CarNotAllotmentByCustomer = () => {
   return (
     <>
 <div style={{ marginTop: '0',color :'#071947',padding: '0px',display: 'flex',justifyContent: 'center'}}>
-  <p>CAR Not Allocated</p>
+  <p>Not Allocated</p>
 </div>
       
       <div className="d-flex justify-content-center justify-content-md-start">
@@ -122,7 +121,7 @@ const CarNotAllotmentByCustomer = () => {
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{formatDate(stock.dateIn)}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.model}, {stock.version}, {stock.color}</TableCell>
                       <TableCell style={{ fontSize: '11px',padding: '10px' }} className="d-none d-sm-table-cell">{stock.fuelType}</TableCell>
-                      <TableCell style={{ fontSize: '11px',padding: '10px' }} className="style={{ padding: '10px' }}"><Link to={`/customer/${stock.allotmentCarStatus}`}>{stock.allotmentCarStatus}</Link></TableCell>
+                      <TableCell style={{ fontSize: '11px',padding: '10px' }} className="style={{ padding: '10px' }}">{stock.allotmentCarStatus}</TableCell>
                     </TableRow>
                   )
                 ))

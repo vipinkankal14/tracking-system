@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import '../scss/CarAllotment.scss';
 import { Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
- 
+import { useNavigate, useParams } from 'react-router-dom';
+import { Typography } from '@mui/material';
 
 const CarAllotment = () => {
   const { vin } = useParams(); // Get VIN from the URL
@@ -16,6 +16,9 @@ const CarAllotment = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState('');
   const [modalMessage, setModalMessage] = useState('');
+  const [showAlertModal, setShowAlertModal] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,6 +36,11 @@ const CarAllotment = () => {
         .then((response) => {
           setCustomerData(response.data);
           setError('');
+
+          // Validate car and customer details after fetching customer data
+          if (carData) {
+            validateDetails(response.data, carData);
+          }
         })
         .catch((error) => {
           setCustomerData(null);
@@ -45,6 +53,11 @@ const CarAllotment = () => {
     }
   }, [formData.customerId]);
 
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
   // Fetch car data
   useEffect(() => {
     if (vin) {
@@ -53,6 +66,11 @@ const CarAllotment = () => {
         .then((response) => {
           setCarData(response.data);
           setError('');
+
+          // Validate car and customer details after fetching car data
+          if (customerData) {
+            validateDetails(customerData, response.data);
+          }
         })
         .catch((error) => {
           setCarData(null);
@@ -65,25 +83,37 @@ const CarAllotment = () => {
     }
   }, [vin]);
 
+  // Validate car and customer details
+  const validateDetails = (customerData, carData) => {
+    if (
+      carData.model !== customerData.model ||
+      carData.version !== customerData.variant ||
+      carData.color !== customerData.color
+    ) {
+      setShowAlertModal(true); // Show alert modal if details do not match
+      setFormData((prevState) => ({ ...prevState, customerId: '' })); // Clear customer ID input
+      setCustomerData(null); // Reset customer data
+    }
+  };
+
   // Function to handle allotment
-  const handleAllotment = (status) => {
+  const handleAllotment = async (status) => {
     if (carData && formData.customerId) {
-      axios
-        .put(`http://localhost:5000/api/car/update/${vin}`, {
+      try {
+        const response = await axios.put(`http://localhost:5000/api/car/update/${vin}`, {
           customerId: formData.customerId,
           allotmentCarStatus: status,
-        })
-        .then((response) => {
-          setCarData((prevState) => ({
-            ...prevState,
-            customerId: formData.customerId,
-            allotmentCarStatus: status,
-          }));
-          setError('');
-        })
-        .catch((error) => {
-          setError('Error updating allotment status');
         });
+
+        setCarData((prevState) => ({
+          ...prevState,
+          customerId: formData.customerId,
+          allotmentCarStatus: status,
+        }));
+        setError('');
+      } catch (error) {
+        setError(error.response?.data?.message || 'Error updating allotment status');
+      }
     }
   };
 
@@ -91,29 +121,41 @@ const CarAllotment = () => {
   const handleShowModal = (action) => {
     setModalAction(action);
     setModalMessage(
-      action === 'Allotment'
+      action === 'Allocated'
         ? 'Are you sure you want to allot this car to the customer?'
         : 'Are you sure you do not want to allot this car to the customer?'
     );
     setShowModal(true);
   };
 
+  // Reset local data
+  const resetLocalData = () => {
+    setCustomerData(null); // Clear customer data
+    setCarData(null); // Clear car data
+    setFormData({ customerId: '' }); // Reset the form
+    setError(''); // Clear any errors
+  };
+
   // Handle modal confirmation
-  const handleConfirm = () => {
-    handleAllotment(modalAction);
-    setShowModal(false);
+  const handleConfirm = async () => {
+    try {
+      await handleAllotment(modalAction); // Call handleAllotment with the modal action
+      setShowModal(false); // Close the modal
+      resetLocalData(); // Clear local data
+      navigate('/car-stock-show'); // Redirect to the desired page
+    } catch (error) {
+      setError('Error confirming allotment');
+    }
   };
 
   // Handle modal close
   const handleClose = () => setShowModal(false);
-
+  const handleAlertClose = () => setShowAlertModal(false);
 
   return (
     <>
       <p className="car-allotment-title">CAR ALLOTMENT</p>
-     
- 
- 
+
       <div className="car-allotment form-output">
         <div className="form-data">
           <p>
@@ -146,8 +188,42 @@ const CarAllotment = () => {
               <p><strong>Car Model:</strong> {customerData.model}</p>
               <p><strong>Car Variant:</strong> {customerData.variant}</p>
               <p><strong>Car Color:</strong> {customerData.color}</p>
-              <p><strong>Order Date:</strong> {customerData.orderDate}</p>
-              <p><strong>Delivery Date:</strong> {customerData.delivery_date}</p>
+
+              {customerData.prebooking === "YES" && (
+                <>
+                  <Typography>
+                    <strong>Pre Booking:</strong> {customerData.prebooking}
+                  </Typography>
+                  <Typography>
+                    <strong>Prebooking date:</strong>{" "}
+                    {formatDate(customerData.prebooking_date)}
+                  </Typography>
+                  <Typography>
+                    <strong>Delivery date:</strong>{" "}
+                    {formatDate(customerData.delivery_date)}
+                  </Typography>
+                </>
+              )}
+
+              {customerData.order_date === "YES" && (
+                <>
+                  <Typography>
+                    <strong>Order Dates:</strong> {customerData.order_date}
+                  </Typography>
+                  <Typography>
+                    <strong>Tentative Date:</strong>{" "}
+                    {formatDate(customerData.tentative_date)}
+                  </Typography>
+                  <Typography>
+                    <strong>Preferred Date:</strong>{" "}
+                    {formatDate(customerData.preferred_date)}
+                  </Typography>
+                  <Typography>
+                    <strong>Request Date:</strong>{" "}
+                    {formatDate(customerData.request_date)}
+                  </Typography>
+                </>
+              )}
             </div>
           </>
         )}
@@ -162,8 +238,8 @@ const CarAllotment = () => {
               <p><strong>Chassis Number:</strong> {carData.chassisNumber}</p>
               <p><strong>Engine Number:</strong> {carData.engineNumber}</p>
               <p><strong>Fuel Type:</strong> {carData.fuelType}</p>
-              <p><strong>Manufacturer Date:</strong> {carData.manufacturerDate}</p>
-              <p><strong>Date In:</strong> {carData.dateIn}</p>
+              <p><strong>Manufacturer Date:</strong> {formatDate(carData.manufacturerDate)}</p>
+              <p><strong>Date In:</strong> {formatDate(carData.dateIn)}</p>
               <p><strong>Version:</strong> {carData.version}</p>
               <p><strong>Model:</strong> {carData.model}</p>
               <p><strong>Color:</strong> {carData.color}</p>
@@ -180,38 +256,54 @@ const CarAllotment = () => {
             Allotment
           </Button>
           <Button
-            variant="danger"
+            variant="primary"
             size="sm"
-            onClick={() => handleShowModal('NotAllotment')}
+            onClick={() => navigate('/car-stock-show')} // Navigate back
           >
-            Not Allotment
+            Back
           </Button>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Confirmation Modal */}
       <Modal show={showModal} onHide={handleClose} centered backdrop="static" keyboard={false} animation={false}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Action</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        {customerData && (
-      <>
-        <p>
-          <strong>Customer ID:</strong> {formData.customerId}
-        </p>
-        <p>
-          <strong>Full Name:</strong> {`${customerData.firstName} ${customerData.middleName} ${customerData.lastName}`}
-        </p>
-      </>
+          {customerData && (
+            <>
+              <p>
+                <strong>Customer ID:</strong> {formData.customerId}
+              </p>
+              <p>
+                <strong>Full Name:</strong> {`${customerData.firstName} ${customerData.middleName} ${customerData.lastName}`}
+              </p>
+            </>
           )}
-          {modalMessage}</Modal.Body>
+          {modalMessage}
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
           <Button variant="primary" onClick={handleConfirm}>
             Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal show={showAlertModal} onHide={handleAlertClose} centered backdrop="static" keyboard={false} animation={false}>
+        <Modal.Header closeButton>
+          <Modal.Title>Details Mismatch</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>The car details do not match the customer's details. Please check and try again.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleAlertClose}>
+            OK
           </Button>
         </Modal.Footer>
       </Modal>
