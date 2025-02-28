@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { DirectionsCar} from '@mui/icons-material';
-import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
-import NoCrashRoundedIcon from '@mui/icons-material/NoCrashRounded';
 import PercentIcon from '@mui/icons-material/Percent';
 import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
-
-
 
 const Container = styled.div`
   padding: 2rem 1rem;

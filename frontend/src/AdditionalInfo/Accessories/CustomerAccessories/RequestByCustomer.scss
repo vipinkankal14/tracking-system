@@ -1,0 +1,18 @@
+@media (max-width: 600px) {
+    .orders-table-container {
+      overflow-x: auto;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .modal-content {
+      font-size: 12px;
+    }
+  }
+
+  .single-line-cell {
+    white-space: nowrap; // Prevent text from wrapping
+    overflow: hidden; // Hide overflow
+    text-overflow: ellipsis; // Show ellipsis for overflow text
+    max-width: 150px; // Set a maximum width for the cell (adjust as needed)
+  }

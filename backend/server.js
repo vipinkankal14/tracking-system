@@ -63,7 +63,7 @@ app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUpl
 
 
 app.post('/api/submitCart', (req, res) => {
-  const { customerId, totalAmount, products } = req.body;
+  const { customerId, totalAmount,requestStatus,products } = req.body;
 
   console.log("Received cart data:", req.body); // Log received data
 
@@ -95,8 +95,8 @@ app.post('/api/submitCart', (req, res) => {
         return res.status(500).json({ message: "Error deleting order." });
       }
 
-      const insertOrderQuery = `INSERT INTO orders_accessories_request (customerId, totalAmount) VALUES (?, ?)`;
-      pool.query(insertOrderQuery, [customerId, totalAmount], (err, result) => {
+      const insertOrderQuery = `INSERT INTO orders_accessories_request (customerId, totalAmount,requestStatus) VALUES (?, ?, ?);`
+      pool.query(insertOrderQuery, [customerId, totalAmount,requestStatus], (err, result) => {
         if (err) {
           console.error("Error inserting new order:", err);
           return res.status(500).json({ message: "Database error while inserting new order." });
@@ -654,16 +654,16 @@ app.get('/api/car/:vin', (req, res) => {
 // Express route to update car allotment status // frontend\src\carStocks\CarAllotment.jsx
 app.put('/api/car/update/:vin', (req, res) => {
   const { vin } = req.params;
-  const { customerId, allotmentCarStatus } = req.body;
+  const { customerId, allotmentCarStatus, cancellationReason } = req.body;
 
   // Validate allotmentCarStatus
   if (!['Allocated', 'Not Allocated'].includes(allotmentCarStatus)) {
     return res.status(400).json({ message: 'Invalid allotment status' });
   }
 
-  const query = 'UPDATE carstocks SET customerId = ?, allotmentCarStatus = ? WHERE vin = ?';
+  const query = 'UPDATE carstocks SET customerId = ?, allotmentCarStatus = ?, cancellationReason = ? WHERE vin = ?';
 
-  pool.query(query, [customerId, allotmentCarStatus, vin], (err, result) => {
+  pool.query(query, [customerId, allotmentCarStatus, cancellationReason, vin], (err, result) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ message: 'Error updating car stock' });
@@ -745,6 +745,80 @@ app.post('/api/submit-form', async (req, res) => {
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.post('/api/submitInvoice', submitInvoice);
+
+// API endpoint to fetch orders with customer and product details
+app.get('/api/getOrdersWithCustomers', (req, res) => {
+  const query = `
+    SELECT 
+      o.id AS orderId,
+      c.customerId,
+      CONCAT(c.firstName, ' ', c.lastName) AS fullName,
+      o.totalAmount,
+      o.requestStatus,
+      p.category,
+      p.name,
+      p.price
+    FROM 
+      orders_accessories_request o
+    JOIN 
+      customers c ON o.customerId = c.customerId
+    JOIN 
+      order_products p ON o.id = p.orderId;
+  `;
+
+  pool.query(query, (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+
+    // Group products by order
+    const ordersMap = new Map();
+
+    results.forEach((row) => {
+      if (!ordersMap.has(row.orderId)) {
+        ordersMap.set(row.orderId, {
+          id: row.orderId,
+          customerId: row.customerId,
+          fullName: row.fullName,
+          totalAmount: row.totalAmount,
+          requestStatus: row.requestStatus,
+          products: [],
+        });
+      }
+
+      ordersMap.get(row.orderId).products.push({
+        id: row.id, // Assuming `id` is available in the result
+        category: row.category,
+        name: row.name,
+        price: row.price,
+      });
+    });
+
+    // Convert map to array
+    const orders = Array.from(ordersMap.values());
+
+    res.json(orders);
+  });
+});
+
+app.put('/api/updateOrderStatus/:orderId', (req, res) => {
+  const { orderId } = req.params;
+  const { requestStatus } = req.body;
+
+  // Update the order status in the database
+  pool.query(
+    'UPDATE orders_accessories_request SET requestStatus = ? WHERE id = ?',
+    [requestStatus, orderId],
+    (err, result) => {
+      if (err) {
+        console.error('Error updating order status:', err);
+        return res.status(500).json({ error: 'Failed to update order status' });
+      }
+      res.json({ message: 'Order status updated successfully' });
+    }
+  );
+});
 
 
 

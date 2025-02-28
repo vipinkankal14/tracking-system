@@ -8,9 +8,9 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
     // 1. Insert into customers table
     const [customerResult] = await connection.execute(
       `INSERT INTO customers (
-        customerId, first_name, middle_name, last_name, 
-        mobile_number1, mobile_number2, customer_type, 
-        birth_date, email, aadhaar_number, pan_number, 
+        customerId, firstName, middleName, lastName, 
+        mobileNumber1, mobileNumber2, customerType, 
+        birthDate, email, aadhaarNumber, panNumber, 
         city, state, country, address
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [

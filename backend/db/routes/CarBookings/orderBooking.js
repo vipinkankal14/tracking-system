@@ -7,7 +7,7 @@ const postCarBooking = async (req, res) => {
     team_Member,
     carType,
     model,
-    variant,
+    version,
     color,
     exShowroomPrice,
     bookingAmount,
@@ -45,7 +45,7 @@ const postCarBooking = async (req, res) => {
     // Insert new car booking entry
     const insertQuery = `
       INSERT INTO carbooking (
-        customerId, team_Leader, team_Member, carType, model, variant, color,
+        customerId, team_Leader, team_Member, carType, model, version, color,
         exShowroomPrice, bookingAmount, fuelType, transmission, mileage,
         engineCapacity, batteryCapacity, cardiscount, groundClearance
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -57,7 +57,7 @@ const postCarBooking = async (req, res) => {
       team_Member,
       carType,
       model,
-      variant,
+      version,
       color,
       exShowroomPrice,
       bookingAmount,

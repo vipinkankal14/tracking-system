@@ -128,8 +128,6 @@ function AddedUploadViewApp() {
         path: '/accessorie-upload',
       },
         
-   
-    
     {
         id: 'addaccessories',
         title: 'Accessories Added',

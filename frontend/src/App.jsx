@@ -53,6 +53,8 @@ import CancelByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/C
 import CashierApp from "./AdditionalInfo/cashier/CashierApp" 
 import Payment from "./AdditionalInfo/cashier/Payments/Payment";
 import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
+import RequestByAcceotApp from "./AdditionalInfo/Accessories/RequestByAcceptApp";
+import AcceptByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/AcceptByCustomer";
  
 
 
@@ -118,6 +120,9 @@ function App() {
                 <Route path="/Modify-By-Customer" element={<ModifyByCustomer />} /> 
                 <Route path="/Cancel-By-Customer" element={<CancelByCustomer />} />
                 <Route path="/Demo" element={<Demo />} />
+                
+                <Route path="/Request-By-Accept-App" element={<RequestByAcceotApp />} />
+                <Route path="/accept-by-customer" element={<AcceptByCustomer />} />
 
               
                 

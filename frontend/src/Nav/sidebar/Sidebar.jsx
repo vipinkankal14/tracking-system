@@ -1,19 +1,15 @@
-import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Home, GitPullRequest, CircuitBoard, MessageSquare, Code2, Cpu, Compass, ShoppingBag } from 'lucide-react'
+import { Home, CircuitBoard, MessageSquare, Code2, } from 'lucide-react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './sidebar.scss'
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const navItems = [
     { icon: <Home size={20} />, label: 'Home', path: '/Home' },
-    { icon: <GitPullRequest size={20} />, label: 'Customers', path: '/' },
     { icon: <CircuitBoard size={20} />, label: 'CashierApp', path: '/cashier-app' },
     { icon: <MessageSquare size={20} />, label: 'car', path: '/car' },
     { icon: <Code2 size={20} />, label: 'AccessorieApp', path: '/accessorie-app' },
-    { icon: <Cpu size={20} />, label: 'Demo', path: '/Demo' },
-    { icon: <Compass size={20} />, label: 'Explore', path: '/explore' },
-    { icon: <ShoppingBag size={20} />, label: 'Marketplace', path: '/marketplace' },
+ 
   ]
 
   return (

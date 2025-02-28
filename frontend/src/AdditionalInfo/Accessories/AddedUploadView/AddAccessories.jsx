@@ -1,31 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Paper, Typography, Snackbar, Alert } from '@mui/material';
+import { Grid, Paper, Typography, Snackbar, Alert, useMediaQuery, useTheme } from '@mui/material';
 import AddAccessoryForm from './Store/AddAccessoryForm';
 import AccessoriesTable from './Store/AccessoriesTable';
 
 const AddAccessories = () => {
   const [accessories, setAccessories] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
- 
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the screen is mobile
+
   // Fetch accessories from the backend when the component mounts
   useEffect(() => {
     const fetchAccessories = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/getAllAccessories');
         if (!response.ok) throw new Error('Failed to fetch accessories');
-    
+
         let data = await response.json();
-        
+
         // Ensure all accessories have required properties
         data = data.filter(item => item.name && item.category && item.price !== undefined && item.quantity !== undefined);
-    
+
         setAccessories(data);
       } catch (error) {
         console.error('Error fetching accessories:', error);
-         setOpenSnackbar(true);
+        setSnackbarMessage('Error fetching accessories');
+        setOpenSnackbar(true);
       }
     };
-     
+
     fetchAccessories();
   }, []);
 
@@ -46,10 +51,12 @@ const AddAccessories = () => {
 
       const data = await response.json();
       setAccessories(prevAccessories => [...prevAccessories, data]);
-       setOpenSnackbar(true);
+      setSnackbarMessage('Accessory added successfully');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error adding accessory:', error);
-       setOpenSnackbar(true);
+      setSnackbarMessage('Error adding accessory');
+      setOpenSnackbar(true);
     }
   };
 
@@ -67,7 +74,7 @@ const AddAccessories = () => {
         Accessories Store
       </Typography>
 
-      <Grid container spacing={4} sx={{ ml: 8 , mt: 1 }}>
+      <Grid container spacing={4} >
         {/* Left Panel - Form */}
         <Grid item xs={12} md={3}>
           <Paper elevation={3} sx={{ p: 3, height: 'fit-content' }}>
@@ -79,7 +86,7 @@ const AddAccessories = () => {
         </Grid>
 
         {/* Right Panel - Table */}
-        <Grid item xs={12} md={7}>
+        <Grid item xs={12} md={9}>
           <Paper elevation={3} sx={{ p: 2 }}>
             <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
               Accessories List

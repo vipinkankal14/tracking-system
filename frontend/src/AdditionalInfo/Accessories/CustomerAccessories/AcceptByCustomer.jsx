@@ -18,7 +18,7 @@ import {
 
 import "../CustomerAccessories/RequestByCustomer.scss";
 
-const RequestByCustomer = () => {
+const AcceptByCustomer = () => {
   const [orders, setOrders] = useState([]); // State to store orders with customer details
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(""); // Error state
@@ -61,40 +61,13 @@ const RequestByCustomer = () => {
     setSelectedProducts([]);
   };
 
-  // Function to handle the "accept" action
-  const handleAccept = async (orderId) => {
-    try {
-      // Update the requestStatus to "accept" in the backend
-      const response = await fetch(
-        `http://localhost:5000/api/updateOrderStatus/${orderId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ requestStatus: "accept" }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to update order status");
-
-      // Update the requestStatus in the local state
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, requestStatus: "accept" } : order
-        )
-      );
-
-      alert('Order status updated to "accept"');
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      alert("Failed to update order status");
-    }
-  };
+ 
 
   return (
     <div className="orders-table-container">
       
       <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-      Request By Customer
+      Accept By Customer
       </Typography>
      
       {/* Orders Table */}
@@ -117,9 +90,7 @@ const RequestByCustomer = () => {
               <TableCell className="single-line-cell" sx={{ fontSize: "12px" }}>
                 Request Status
               </TableCell>
-              <TableCell className="single-line-cell" sx={{ fontSize: "12px" }}>
-                Action
-              </TableCell>
+              
             </TableRow>
           </TableHead>
 
@@ -138,7 +109,7 @@ const RequestByCustomer = () => {
               </TableRow>
             ) : orders.length > 0 ? (
               orders
-                .filter((order) => order.requestStatus !== "accept") // Filter out accepted orders
+                .filter((order) => order.requestStatus !== "Request") // Filter out accepted orders
                 .map((order) => (
                   <React.Fragment key={order.id}>
                     <TableRow>
@@ -178,32 +149,17 @@ const RequestByCustomer = () => {
                           : "N/A"}
                       </TableCell>
 
+                       
                       <TableCell className="single-line-cell">
                         <Button
                           variant="outlined"
-                          color={
-                            order.requestStatus === "accept"
-                              ? "success"
-                              : "secondary"
-                          }
-                          size="small"
-                          disabled={order.requestStatus === "accept"}
-                        >
-                          {order.requestStatus}
-                        </Button>
-                      </TableCell>
-
-                      <TableCell className="single-line-cell">
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          onClick={() => handleAccept(order.id)}
-                          disabled={order.requestStatus === "accept"}
+                          color={order.requestStatus === 'accept' ? 'success' : 'primary'}
+                          size="small"    
                         >
                           Accept
                         </Button>
-                      </TableCell>
+                    </TableCell>
+                            
                     </TableRow>
                   </React.Fragment>
                 ))
@@ -277,7 +233,7 @@ const RequestByCustomer = () => {
   );
 };
 
-RequestByCustomer.propTypes = {
+AcceptByCustomer.propTypes = {
   orders: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
@@ -299,4 +255,4 @@ RequestByCustomer.propTypes = {
   ),
 };
 
-export default RequestByCustomer;
+export default AcceptByCustomer;

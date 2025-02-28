@@ -35,7 +35,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
   useEffect(() => {
     if (data.carType) {
       updateData("model", "");
-      updateData("variant", "");
+      updateData("version", "");
       updateData("color", "");
     }
   }, [data.carType]);
@@ -43,28 +43,28 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
   // Reset dependent fields when model changes
   useEffect(() => {
     if (data.model) {
-      updateData("variant", "");
+      updateData("version", "");
       updateData("color", "");
     }
   }, [data.model]);
 
-  // Reset dependent fields when variant changes
+  // Reset dependent fields when version changes
   useEffect(() => {
-    if (data.variant) {
+    if (data.version) {
       updateData("color", "");
     }
-  }, [data.variant]);
+  }, [data.version]);
 
   // Update prices when car details change
   useEffect(() => {
-    const { carType, model, variant, color } = data;
+    const { carType, model, version, color } = data;
 
-    if (carType && model && variant && color) {
+    if (carType && model && version && color) {
       const selectedCar = carStocks.find(
         (stock) =>
           stock.carType === carType &&
           stock.model === model &&
-          stock.variant === variant &&
+          stock.version === version &&
           stock.color === color
       );
 
@@ -74,7 +74,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
         updateData("cardiscount", selectedCar.cardiscount || "");
       }
     }
-  }, [data.carType, data.model, data.variant, data.color, carStocks, updateData]);
+  }, [data.carType, data.model, data.version, data.color, carStocks, updateData]);
 
   // Handle change for Select components
   const handleChange = (name, value) => {
@@ -86,7 +86,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
     (stock) =>
       stock.carType === data.carType &&
       stock.model === data.model &&
-      stock.variant === data.variant &&
+      stock.version === data.version &&
       stock.color === data.color
   );
 
@@ -107,7 +107,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
       team_Member: data.team_Member,
       carType: data.carType,
       model: data.model,
-      variant: data.variant,
+      version: data.version,
       color: data.color,
       exShowroomPrice: data.exShowroomPrice,
       bookingAmount: data.bookingAmount,
@@ -157,7 +157,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                 labelId="team_Leader-label"
                 value={data.team_Leader}
                 onChange={(e) =>  handleChange("team_Leader", e.target.value)}
-                variant="outlined"
+                version="outlined"
               >
                 <MenuItem value="">Select Team Leader</MenuItem>
                 <MenuItem value="leader1">Leader 1</MenuItem>
@@ -174,7 +174,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                 labelId="team_Member-label"
                 value={data.team_Member}
                 onChange={(e) => handleChange("team_Member", e.target.value)}
-                variant="outlined"
+                version="outlined"
               >
                 <MenuItem value="">Select Team Member</MenuItem>
                 <MenuItem value="member1">Member 1</MenuItem>
@@ -199,7 +199,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   labelId="carType-label"
                   value={data.carType}
                   onChange={(e) => handleChange("carType", e.target.value)}
-                  variant="outlined"
+                  version="outlined"
                 >
                   <MenuItem value="">Select Car Type</MenuItem>
                   {[...new Set(carStocks.map((stock) => stock.carType))].map(
@@ -221,7 +221,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   value={data.model}
                   onChange={(e) => handleChange("model", e.target.value)}
                   disabled={!data.carType}
-                  variant="outlined"
+                  version="outlined"
                 >
                   <MenuItem value="">Select Model</MenuItem>
                   {[
@@ -240,16 +240,16 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
             </Grid>
             <Grid item xs={12} sm={6} lg={3}>
               <FormControl fullWidth>
-                <InputLabel id="variant-label">variant</InputLabel>
+                <InputLabel id="version-label">version</InputLabel>
                 <Select
-                  label="variant"
-                  labelId="variant-label"
-                  value={data.variant}
-                  onChange={(e) => handleChange("variant", e.target.value)}
+                  label="version"
+                  labelId="version-label"
+                  value={data.version}
+                  onChange={(e) => handleChange("version", e.target.value)}
                   disabled={!data.model}
-                  variant="outlined"
+                  version="outlined"
                 >
-                  <MenuItem value="">Select variant</MenuItem>
+                  <MenuItem value="">Select version</MenuItem>
                   {[
                     ...new Set(
                       carStocks
@@ -258,11 +258,11 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                             stock.carType === data.carType &&
                             stock.model === data.model
                         )
-                        .map((stock) => stock.variant)
+                        .map((stock) => stock.version)
                     ),
-                  ].map((variant) => (
-                    <MenuItem key={variant} value={variant}>
-                      {variant}
+                  ].map((version) => (
+                    <MenuItem key={version} value={version}>
+                      {version}
                     </MenuItem>
                   ))}
                 </Select>
@@ -276,8 +276,8 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   labelId="color-label"
                   value={data.color}
                   onChange={(e) => handleChange("color", e.target.value)}
-                  disabled={!data.variant}
-                  variant="outlined"
+                  disabled={!data.version}
+                  version="outlined"
                 >
                   <MenuItem value="">Select Color</MenuItem>
                   {[
@@ -287,7 +287,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           (stock) =>
                             stock.carType === data.carType &&
                             stock.model === data.model &&
-                            stock.variant === data.variant
+                            stock.version === data.version
                         )
                         .map((stock) => stock.color)
                     ),
@@ -306,10 +306,10 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
       <br />
       {/* Submit Button */}
       <Button
-        variant="contained"
+        version="contained"
         color="primary"
         onClick={() => setOpen(true)}
-        disabled={!data.carType || !data.model || !data.variant || !data.color}
+        disabled={!data.carType || !data.model || !data.version || !data.color}
         sx={{ display: "block", margin: "0 auto" }}
       >
         View Choose Your Car
@@ -355,7 +355,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                   display: "flex",
                 }}
               >
-                <Typography variant="h5" component="h1">
+                <Typography version="h5" component="h1">
                   Car AutoCard Services
                 </Typography>
               </Box>
@@ -378,27 +378,27 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                     gap={3}
                     gridTemplateColumns={{ xs: "1fr" }}
                   >
-                    <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Paper version="outlined" sx={{ p: 2 }}>
                       <Stack spacing={2}>
                         <Box display="flex" alignItems="center" gap={1}>
                           <Person />
-                          <Typography variant="h6">
+                          <Typography version="h6">
                             Personal Information
                           </Typography>
                         </Box>
                         <Box>
-                          <Typography variant="subtitle2" gutterBottom>
+                          <Typography version="subtitle2" gutterBottom>
                             Required Information:
                           </Typography>
                  
-                          <Typography variant="body2">
+                          <Typography version="body2">
                             Full Name: {personalInfo?.firstName}{" "}
                             {personalInfo?.middleName} {personalInfo?.lastName}
                           </Typography>
-                          <Typography variant="body2">
+                          <Typography version="body2">
                             Email: {personalInfo?.email}
                           </Typography>
-                          <Typography variant="body2">
+                          <Typography version="body2">
                             Phone Number: {personalInfo?.mobileNumber1},{" "}
                             {personalInfo?.mobileNumber2}
                           </Typography>
@@ -407,9 +407,9 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                     </Paper>
 
                     {selectedCar && (
-                      <Paper variant="outlined" sx={{ p: 2 }}>
+                      <Paper version="outlined" sx={{ p: 2 }}>
                         <Typography
-                          variant="h6"
+                          version="h6"
                           gutterBottom
                           fontStyle={{
                             fontWeight: "italic",
@@ -421,7 +421,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           {data.team_Leader}
                         </Typography>
                         <Typography
-                          variant="h5"
+                          version="h5"
                           gutterBottom
                           fontFamily={{
                             fontFamily: "Arial",
@@ -431,97 +431,97 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           }}
                         >
                           {selectedCar.carType} | {selectedCar.model} |{" "}
-                          {selectedCar.variant} | {selectedCar.color}
+                          {selectedCar.version} | {selectedCar.color}
                         </Typography>
                         <Grid container spacing={2} sx={{ mt: 1, ml: 1 }}>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               Ex-Showroom Price:
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               {selectedCar.exShowroomPrice}
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               Booking Amount:
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               {selectedCar.bookingAmount}
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">Discount:</Typography>
+                            <Typography version="body1">Discount:</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               {selectedCar.cardiscount}
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">Fuel Type:</Typography>
+                            <Typography version="body1">Fuel Type:</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               {selectedCar.fuelType}
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               Transmission:
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               {selectedCar.transmission}
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">Mileage:</Typography>
+                            <Typography version="body1">Mileage:</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               {selectedCar.mileage} km
                             </Typography>
                           </Grid>
 
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               Ground Clearance:
                             </Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography variant="body1">
+                            <Typography version="body1">
                               {selectedCar.groundClearance} mm
                             </Typography>
                           </Grid>
 
                           {selectedCar.fuelType === "Electric" ? (
                             <Grid item xs={6}>
-                              <Typography variant="body1">
+                              <Typography version="body1">
                                 Battery Capacity:
                               </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={6}>
-                              <Typography variant="body1">
+                              <Typography version="body1">
                                 Engine Capacity:
                               </Typography>
                             </Grid>
                           )}
                           {selectedCar.fuelType === "Electric" ? (
                             <Grid item xs={6}>
-                              <Typography variant="body1">
+                              <Typography version="body1">
                                 {selectedCar.batteryCapacity}
                               </Typography>
                             </Grid>
                           ) : (
                             <Grid item xs={6}>
-                              <Typography variant="body1">
+                              <Typography version="body1">
                                 {selectedCar.engineCapacity} cc
                               </Typography>
                             </Grid>
@@ -557,7 +557,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
               >
                 <Button
                   size="small"
-                  variant="contained"
+                  version="contained"
                   color="secondary"
                   onClick={() => {
                     setOpen(false);
@@ -567,7 +567,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                 </Button>
                 <Button
                   size="small"
-                  variant="contained"
+                  version="contained"
                   color="primary"
                   type="submit"
                   disabled={!confirmationChecked}
@@ -596,11 +596,11 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
             textAlign: "center",
           }}
         >
-          <Typography variant="h6" gutterBottom>
+          <Typography version="h6" gutterBottom>
             Car selection submitted successfully!
           </Typography>
           <Button
-            variant="contained"
+            version="contained"
             color="primary"
             onClick={() => {
               setSuccessModalOpen(false);

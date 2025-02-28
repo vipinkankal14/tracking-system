@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner } from "react-bootstrap";
+import { Table, Spinner, Modal } from "react-bootstrap";
 import axios from "axios";
-import { InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { Button, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextareaAutosize, TextField, Typography } from "@mui/material";
 import { SearchIcon } from "lucide-react";
 import '../scss/CarStockShow.scss';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 
 const CarAllotmentByCustomer = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [carStocks, setCarStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
-  // Fetch car stock data from backend
   useEffect(() => {
     const fetchCarStocks = async () => {
       try {
@@ -27,7 +32,6 @@ const CarAllotmentByCustomer = () => {
     fetchCarStocks();
   }, []);
 
-  // Filter car stocks based on search query (specific fields only)
   const filteredCarStocks = carStocks.filter(
     (stock) =>
       stock.vin?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -35,9 +39,45 @@ const CarAllotmentByCustomer = () => {
       stock.engineNumber?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Helper function to format date (removes time part)
+  const handleErrorIconClick = (stock) => {
+    setSelectedStock(stock);
+    setShowModal(true); // Show the modal
+  };
+
+  const handleAllotment = async (status) => {
+    if (selectedStock) {
+      try {
+        const response = await axios.put(`http://localhost:5000/api/car/update/${selectedStock.vin}`, {
+          customerId: selectedStock.customerId,
+          allotmentCarStatus: status,
+          cancellationReason: cancellationReason, // Include cancellation reason
+        });
+
+        // Update the local state
+        setCarStocks((prevStocks) =>
+          prevStocks.map((stock) =>
+            stock.vin === selectedStock.vin
+              ? { ...stock, allotmentCarStatus: status }
+              : stock
+          )
+        );
+
+        setError(''); // Clear any errors
+        setShowModal(false); // Close the modal
+      } catch (error) {
+        setError(error.response?.data?.message || 'Error updating allotment status');
+      }
+    }
+  };
+
+  const handleClose = () => {
+    setShowModal(false); // Close the modal
+    setCancellationReason(""); // Reset cancellation reason
+    setIsConfirmed(false); // Reset confirmation checkbox
+  };
+
   const formatDate = (dateString) => {
-    return dateString ? dateString.slice(0, 10) : "N/A"; // Slices "YYYY-MM-DD"
+    return dateString ? dateString.slice(0, 10) : "N/A";
   };
 
   return (
@@ -65,7 +105,6 @@ const CarAllotmentByCustomer = () => {
         </div>
       </div>
 
-      {/* Loading Spinner */}
       {loading && (
         <div className="text-center">
           <Spinner animation="border" role="status">
@@ -74,14 +113,12 @@ const CarAllotmentByCustomer = () => {
         </div>
       )}
 
-      {/* Error Message */}
       {error && (
         <div className="text-center text-danger">
           <p>{error}</p>
         </div>
       )}
 
-      {/* Car Stock Table */}
       {!loading && !error && (
         <TableContainer component={Paper}>
           <Table>
@@ -99,6 +136,7 @@ const CarAllotmentByCustomer = () => {
                 <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Color</TableCell>
                 <TableCell style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">Fuel Type</TableCell>
                 <TableCell style={{ fontSize: '10px', padding: '10px' }}>Allotment Status</TableCell>
+                <TableCell style={{ fontSize: '10px', padding: '10px' }}></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -117,8 +155,12 @@ const CarAllotmentByCustomer = () => {
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.version}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.color}</TableCell>
                       <TableCell style={{ fontSize: '11px', padding: '10px' }} className="d-none d-sm-table-cell">{stock.fuelType}</TableCell>
-                      <TableCell style={{ fontSize: '11px', padding: '10px' }}>
-                        {stock.allotmentCarStatus}
+                      <TableCell style={{ fontSize: '11px', padding: '10px' }}><Button variant="outlined" color="success" size="small">{stock.allotmentCarStatus}</Button></TableCell>
+                      <TableCell style={{ fontSize: '11px', padding: '10px', color: '#341047' }}>
+                        <ErrorOutlineIcon
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleErrorIconClick(stock)}
+                        />
                       </TableCell>
                     </TableRow>
                   )
@@ -134,6 +176,61 @@ const CarAllotmentByCustomer = () => {
           </Table>
         </TableContainer>
       )}
+
+      <Modal show={showModal} onHide={handleClose} centered backdrop="static" keyboard={false} animation={false}>
+        <Modal.Header closeButton>
+          <Typography>
+            <strong>Cancel Order for:</strong> {selectedStock?.customerId || 'N/A'}{' '}
+            {selectedStock?.customerId && <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px', marginTop: '-3px', marginRight: '-4px' }} />}
+            {selectedStock && (
+              <>
+                <p>
+                  <strong>Full Name:</strong> {`${selectedStock.firstName} ${selectedStock.middleName} ${selectedStock.lastName}`}
+                </p>
+              </>
+            )}
+          </Typography>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Typography>Are you sure you want to cancel the order?</Typography>
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Reason for cancellation (optional)"
+            style={{ width: '100%', marginTop: '10px' }}
+            value={cancellationReason}
+            onChange={(e) => setCancellationReason(e.target.value)}
+          />
+          <div style={{ marginLeft: '5px', display: 'flex', alignItems: 'center'}}>
+            <input
+              type="checkbox"
+              id="confirmCheckbox"
+              checked={isConfirmed}
+              onChange={(e) => setIsConfirmed(e.target.checked)}
+            />
+            <label htmlFor="confirmCheckbox" style={{ marginLeft: '5px', display: 'flex', alignItems: 'center' }}>I confirm the cancellation</label>
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button
+            variant="success"
+            size="sm"
+            onClick={async () => {
+              if (isConfirmed) {
+                await handleAllotment('Not Allocated');
+              } else {
+                setError("Please confirm the cancellation.");
+              }
+            }}
+          >
+            Not Allotment
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

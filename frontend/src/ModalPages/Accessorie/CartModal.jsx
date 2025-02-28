@@ -43,6 +43,7 @@ export function CartModal({
             customerId: personalInfo.customerId,
             totalAmount,
             products: selectedProducts,
+            requestStatus: "request", // Ensure the status is set to "request"
         };
 
         try {
