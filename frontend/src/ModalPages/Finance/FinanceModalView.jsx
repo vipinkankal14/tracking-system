@@ -210,7 +210,7 @@ const FinanceModalView = ({
                                   )}`}
                                   width="100%"
                                   height="200px"
-                                  title={doc.document_name}
+                                  title={doc.document_name} 
                                   onError={(e) => {
                                     e.target.src =
                                       "path/to/fallback/document_name_or_error_page.png";

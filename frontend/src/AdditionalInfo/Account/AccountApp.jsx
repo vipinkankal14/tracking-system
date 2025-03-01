@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
 import { DirectionsCar, Block, AccountBalance } from '@mui/icons-material';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-import CurrencyRupeeRoundedIcon from '@mui/icons-material/CurrencyRupeeRounded';
+import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
 
 const Container = styled.div`
   padding: 2rem 1rem;
@@ -125,13 +125,14 @@ function StackedStatusPage() {
       path: '/file-tracking',
     },
     {
-      id: 'payment',
-      title: 'Payment',
-      status: 'Credit / Debit',
-      icon: CurrencyRupeeRoundedIcon,
-      iconType: 'Payment',
-      path: '/Payment',
-    }, 
+      id: 'payment-credit',
+      title: 'PAYMENT MENU',
+      count: 80,
+      status: 'Payment History',
+      icon: WidgetsRoundedIcon,
+      iconType: 'CustomerDetails',
+      path: '/payment-app'
+    },
     {
       id: 'car-booking',
       title: 'Car Booking',

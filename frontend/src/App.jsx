@@ -39,8 +39,7 @@ import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/U
 import CarManagement from "./AdditionalInfo/carStocks/CarManagement/CarManagement";
 import AllotmentStatusApp from "./AdditionalInfo/carStocks/AllotmentStatus/AllotmentStatusApp";
 import DiscountApp from "./AdditionalInfo/carStocks/discount/DiscountApp";
-import PaymentApp from "./AdditionalInfo/cashier/PaymentApp";
-import AccessorieApp from "./AdditionalInfo/Accessories/AccessorieApp";
+ import AccessorieApp from "./AdditionalInfo/Accessories/AccessorieApp";
 import { AccessorieUpload } from "./AdditionalInfo/Accessories/AddedUploadView/AccessorieUpload";
 import AddAccessories from "./AdditionalInfo/Accessories/AddedUploadView/AddAccessories";
 import AccessorieView from "./AdditionalInfo/Accessories/AddedUploadView/AccessorieView";
@@ -55,6 +54,11 @@ import Payment from "./AdditionalInfo/cashier/Payments/Payment";
 import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
 import RequestByAcceotApp from "./AdditionalInfo/Accessories/RequestByAcceptApp";
 import AcceptByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/AcceptByCustomer";
+import AccountApp from "./AdditionalInfo/Account/AccountApp";
+import ExchangeApp from "./AdditionalInfo/Exchange/ExchangeApp";
+import PaymentApp from "./AdditionalInfo/Account/PaymentApp";
+import CarExchange from "./AdditionalInfo/Exchange/CarExchange";
+import CarRequest from "./AdditionalInfo/Exchange/CarRequest";
  
 
 
@@ -123,6 +127,15 @@ function App() {
                 
                 <Route path="/Request-By-Accept-App" element={<RequestByAcceotApp />} />
                 <Route path="/accept-by-customer" element={<AcceptByCustomer />} />
+                <Route path="/account-app" element={<AccountApp />} />
+
+                <Route path="/exchange-app" element={<ExchangeApp />} />
+                
+                <Route path="/car-Exchange" element={<CarExchange />} />
+              
+                <Route path="/car-Request" element={<CarRequest />} />
+
+
 
               
                 

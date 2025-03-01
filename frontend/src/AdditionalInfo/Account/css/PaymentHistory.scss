@@ -1,0 +1,58 @@
+// PaymentHistory.scss
+
+.payment-history {
+  padding: 0px;
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .details-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    .details {
+      flex: 1 1 calc(33.333% - 20px);
+      padding: 15px;
+ 
+      @media (max-width: 768px) {
+        flex: 1 1 100%;
+      }
+    }
+  }
+
+  .lines {
+    margin-top: 20px;
+    padding: 8px;
+ 
+    @media (max-width: 768px) {
+      margin-top: 10px;
+    }
+  }
+
+  .MuiTableContainer-root {
+    overflow-x: auto;
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .MuiTableCell-root {
+    white-space: nowrap;
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+  }
+
+  .MuiButton-root {
+    @media (max-width: 768px) {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+}
+
+ 

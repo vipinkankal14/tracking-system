@@ -1,0 +1,49 @@
+.leads-table {
+  width: 100%;
+  margin: 20px 0;
+
+  .leads-header {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .status-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: default;
+
+      &.closed {
+        background-color: #28a745;
+      }
+
+      &.negotiation {
+        background-color: #ffc107;
+      }
+
+      &.prospecting {
+        background-color: #17a2b8;
+      }
+
+      &.qualification {
+        background-color: #6c757d;
+      }
+    }
+  }
+}

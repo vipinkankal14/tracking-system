@@ -102,6 +102,8 @@ const getCustomerLoans = async (req, res) => {
     }
 };
 
+
+
 const getCustomerCoatingRequests = async (req, res) => {
     const { customerId } = req.params;
 

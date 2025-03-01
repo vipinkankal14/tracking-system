@@ -42,6 +42,7 @@ const { postAutoCardRequest } = require('./db/routes/Request/CarAutoCardRequest'
 const { postCarBooking } = require('./db/routes/CarBookings/orderBooking');
 const { getChargesSummary, submitInvoice } = require('./db/routes/InvoiceSummary/ChargesAndOn-Road');
 const { postCustomers } = require('./db/routes/customers/customersPost');
+const { showexchange } = require('./db/routes/CarExchangeRequest/showexchange');
   
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -60,6 +61,9 @@ app.get('/loans/:customerId', getCustomerLoans);
 
 app.post('/api/payments', handlePayment); // frontend\src\cashier\Payments\PaymentDetails.jsx
 app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
+
+app.use('/uploads', express.static(path.join(__dirname, 'CarExchangeRequest')));
+app.get('/api/showexchange', showexchange);
 
 
 app.post('/api/submitCart', (req, res) => {
@@ -677,6 +681,8 @@ app.put('/api/car/update/:vin', (req, res) => {
   });
 });
 
+
+ 
 {/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
  

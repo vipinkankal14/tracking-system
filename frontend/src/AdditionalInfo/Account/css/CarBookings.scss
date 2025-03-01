@@ -1,0 +1,38 @@
+ 
+
+  
+  
+  @media (max-width: 576px) {
+    .hide-desktop {
+      display: table-cell !important;
+    }
+  }
+  
+  @media (min-width: 577px) {
+    .hide-desktop {
+      display: none !important;
+    }
+  }
+  
+
+   
+  .button-container {
+    margin-top: 20px;
+  
+    
+       
+  
+  
+    @media (max-width: 576px) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  
+       
+    }
+  }
+  
+
+ 
+  
+  
