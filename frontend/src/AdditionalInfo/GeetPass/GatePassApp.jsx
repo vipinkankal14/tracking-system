@@ -111,30 +111,20 @@ const CardStatus = styled.div`
 `;
 
 
-function AutoCardApp() {
+function GatePassApp() {
   const navigate = useNavigate();
 
   const [statusCards] = useState([
     {
-      id: 'AutoCard',
-      title: 'AutoCard Management',
+      id: 'ExtendedWarranty',
+      title: 'Extended Warranty Management',
       count: 80,
       status: 'Approved / Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Allotment',
       path: '/car-Exchange',
      
-    },
-    {
-      id: 'AutoCard Request',
-      title: 'AutoCard Request',
-      count: 80,
-      status: 'AutoCard warranty for car request',
-      icon: CarRentalIcon,
-      iconType: 'CarAllotment',
-      path: '/car-request',
-     
-    },
+    }
      
         
   ]);
@@ -170,7 +160,7 @@ function AutoCardApp() {
   );
 }
 
-export default AutoCardApp;
+export default GatePassApp;
 
 
 

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { DirectionsCar, Block, AccountBalance } from '@mui/icons-material';
+import { DirectionsCar, Block } from '@mui/icons-material';
+ import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
+import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
+import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
+import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
 
 const Container = styled.div`
   padding: 2rem 1rem;
@@ -111,7 +114,7 @@ const CardStatus = styled.div`
   color: #6b7280;
 `;
 
-function StackedStatusPage() {
+function AccountApp() {
   const navigate = useNavigate();
 
   const [statusCards] = useState([
@@ -124,36 +127,43 @@ function StackedStatusPage() {
       iconType: 'CashierMhanaement',
       path: '/file-tracking',
     },
+     
     {
-      id: 'payment-credit',
-      title: 'PAYMENT MENU',
+      id: 'CustomerPaymentDetails',
+      title: 'Customer Payment Details',
       count: 80,
       status: 'Payment History',
-      icon: WidgetsRoundedIcon,
+      icon: PersonSearchRoundedIcon,
       iconType: 'CustomerDetails',
-      path: '/payment-app'
+      path: '/customer-payment-details'
     },
     {
-      id: 'car-booking',
-      title: 'Car Booking',
+      id: 'payment',
+      title: 'Payment Clear',
       count: 80,
-      status: 'Confirmed Booking',
-      icon: DirectionsCar,
-      iconType: 'primary',
-      path: '/car-Booking'
+      status: 'All Payments Paid',
+      icon: AssuredWorkloadRoundedIcon,
+      iconType: 'success',
+      path: '/Payment-Clear',
     },
     {
-      id: 'booking-cancel',
-      title: 'Booking Cancel',
+      id: 'pending',
+      title: 'Payment pending',
       count: 80,
-      status: 'Cancelled',
-      icon: Block,
-      iconType: 'danger',
-      path: '/car-booking-cancel'
+      status: 'All Payments unpaid',
+      icon: PendingOutlinedIcon,
+      iconType: 'warning',
+      path: '/Payment-pending',
+    }, 
+    {
+      id: 'Refund',
+      title: 'Payment refund',
+      count: 80,
+      status: 'Refund',
+      icon: PendingOutlinedIcon,
+      iconType: 'warning',
+      path: '/Payment-refund',
     },
-    
-   
-    
   ]);
 
   const handleCardClick = (path) => {
@@ -186,4 +196,4 @@ function StackedStatusPage() {
   );
 }
 
-export default StackedStatusPage;
+export default AccountApp;

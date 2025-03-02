@@ -60,15 +60,14 @@ const CarBookings = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ padding: '10px' }} className="d-none d-sm-table-cell" >Customer Id</TableCell>
-                <TableCell>Full Name</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Phone</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Email</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Model</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Version</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Color</TableCell>
-                <TableCell className="d-none d-sm-table-cell">Grand total</TableCell>
-                <TableCell style={{ padding: '10px' }}>Status</TableCell>
+                <TableCell   className="d-none d-sm-table-cell" style={{ fontSize: '10px',padding: '10px'  }} >Customer Id</TableCell>
+                <TableCell style={{ fontSize: '10px' }} >Full Name</TableCell>
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Phone</TableCell>
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Email</TableCell>
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Model | Version | Color</TableCell>
+    
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Grand total</TableCell>
+                <TableCell style={{ fontSize: '10px',padding: '10px' }} >Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -77,15 +76,14 @@ const CarBookings = () => {
                   .filter(stock => stock.status !== 'cancel') // Filter out canceled orders
                   .map((stock, index) => (
                     <TableRow key={index}>
-                      <TableCell className="d-none d-sm-table-cell" style={{ padding: '10px' }}>{stock.customerId}</TableCell>
-                      <TableCell>{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.email}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.model}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.variant}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.color}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell">{stock.grand_total}</TableCell>
-                      <TableCell style={{ padding: '10px' }}><Badge bg="success">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
+                      <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px',padding: '10px'  }} >{stock.customerId}</TableCell>
+                      <TableCell style={{ fontSize: '10px',padding: '10px'  }} >{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.email}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.model} | {stock.variant} | {stock.color}</TableCell>
+        
+                      <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.grand_total}</TableCell>
+                      <TableCell style={{ padding: '10px'  }} ><Badge bg="success">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
                     </TableRow>
                   ))
               ) : (

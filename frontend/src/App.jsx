@@ -26,15 +26,13 @@ import PaymentSuccessful from "./AdditionalInfo/cashier/Payments/PaymentSuccessf
 import CarAllotment from "./AdditionalInfo/carStocks/CarAllotment/CarAllotment";
 import CarApp from "./AdditionalInfo/carStocks/CarApp";
 import PaymentDetails from "./AdditionalInfo/cashier/Payments/PaymentDetails";
-import PaymentClear from "./AdditionalInfo/cashier/Payments/PaymentClear";
+import PaymentClear from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentClear";
 import CarBookings from "./AdditionalInfo/cashier/CarBooking/CarBookings";
 import CarBookingCancel from "./AdditionalInfo/cashier/CarBookingCancel/CarBookingCancel";
-import CustomerPaymentDetails from "./AdditionalInfo/cashier/CustomerPaymentDetails/CustomerPaymentDetails";
-import PaymentHistory from "./AdditionalInfo/cashier/CustomerPaymentDetails/PaymentHistory";
-import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
+ import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
 import { OrderEditAndConfirmed } from "./AdditionalInfo/cashier/CarBookingCancel/OrderEditAndConfirmed";
 import FileTracking from "./AdditionalInfo/cashier/CashierMhanaement/FileTracking";
-import PaymentPending from "./AdditionalInfo/cashier/Payments/PaymentPending";
+import PaymentPending from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentPending";
 import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
 import CarManagement from "./AdditionalInfo/carStocks/CarManagement/CarManagement";
 import AllotmentStatusApp from "./AdditionalInfo/carStocks/AllotmentStatus/AllotmentStatusApp";
@@ -49,16 +47,28 @@ import { AccessoriesManagement } from "./AdditionalInfo/Accessories/Management/A
 import CancelAndModifyApp from "./AdditionalInfo/Accessories/CancelAndModifyApp";
 import { ModifyByCustomer } from "./AdditionalInfo/Accessories/CustomerAccessories/ModifyByCustomer";
 import CancelByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/CancelByCustomer";
-import CashierApp from "./AdditionalInfo/cashier/CashierApp" 
 import Payment from "./AdditionalInfo/cashier/Payments/Payment";
 import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
 import RequestByAcceotApp from "./AdditionalInfo/Accessories/RequestByAcceptApp";
 import AcceptByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/AcceptByCustomer";
-import AccountApp from "./AdditionalInfo/Account/AccountApp";
 import ExchangeApp from "./AdditionalInfo/Exchange/ExchangeApp";
-import PaymentApp from "./AdditionalInfo/Account/PaymentApp";
 import CarExchange from "./AdditionalInfo/Exchange/CarExchange";
 import CarRequest from "./AdditionalInfo/Exchange/CarRequest";
+import CoatingApp from "./AdditionalInfo/Coating/CoatingApp";
+import ExtendedWarrantyApp from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyApp";
+import FastTagApp from "./AdditionalInfo/FastTag/FastTagApp";
+import FinanceApp from "./AdditionalInfo/Finance/FinanceApp";
+import InsuranceApp from "./AdditionalInfo/Insurance/InsuranceApp";
+import AutoCardApp from "./AdditionalInfo/AutoCard/AutoCardApp";
+import RTOApp from "./AdditionalInfo/RTO/RTOApp";
+import SecurityClearanceApp from "./AdditionalInfo/SecurityClearance/SecurityClearanceApp";
+import GatePassApp from "./AdditionalInfo/GeetPass/GatePassApp";
+import CustomerPaymentDetails from "./AdditionalInfo/Account/CustomerPaymentDetails/CustomerPaymentDetails";
+import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/PaymentHistory";
+import CashierApp from "./AdditionalInfo/cashier/CashierApp";
+import AccountApp from "./AdditionalInfo/Account/AccountApp";
+import { Rule } from "@mui/icons-material";
+import PaymentRefund from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentRefund";
  
 
 
@@ -84,8 +94,7 @@ function App() {
                 <Route path="/payment-successful" element={<PaymentSuccessful />} />
                 <Route path="/car" element={<CarApp />} />
                 <Route path="/car-allotment/:vin" element={<CarAllotment />} />
-                <Route path="/cashier-app" element={<CashierApp />} />
-                <Route path="/payment-details" element={<PaymentDetails />} />
+                 <Route path="/payment-details" element={<PaymentDetails />} />
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/payment-clear" element={<PaymentClear />} />
                 <Route path="/car-Booking" element={<CarBookings />} />
@@ -106,8 +115,7 @@ function App() {
                 <Route path="/car-management" element={<CarManagement />} />
                 <Route path="/allotment-status-app" element={<AllotmentStatusApp />} />
                 <Route path="/discount-app" element={<DiscountApp />} />
-                <Route path="/payment-app" element={<PaymentApp />} />
-                <Route path="/additional-info" element={<AdditionalInfo />} />
+                 <Route path="/additional-info" element={<AdditionalInfo />} />
                 <Route path="/CarInfo" element={<CarInfo />} />
                 <Route path="/Confirmation" element={<Confirmation />} />
                 <Route path="/OrderInfo" element={<OrderInfo />} />
@@ -127,13 +135,43 @@ function App() {
                 
                 <Route path="/Request-By-Accept-App" element={<RequestByAcceotApp />} />
                 <Route path="/accept-by-customer" element={<AcceptByCustomer />} />
-                <Route path="/account-app" element={<AccountApp />} />
-
+ 
                 <Route path="/exchange-app" element={<ExchangeApp />} />
-                
                 <Route path="/car-Exchange" element={<CarExchange />} />
-              
                 <Route path="/car-Request" element={<CarRequest />} />
+
+
+                <Route path="/coating-app" element={<CoatingApp />} />
+
+
+                <Route path="/extended-warranty-app" element={<ExtendedWarrantyApp />} />
+
+
+               
+
+                <Route path="/fast-tag-app" element={<FastTagApp />} />
+                <Route path="/finance-app" element={<FinanceApp />} />
+                <Route path="/insurance-app" element={<InsuranceApp />} />
+                <Route path="/autocard-app" element={<AutoCardApp />} />
+                
+
+                <Route path="/RTO-app" element={<RTOApp />} /> 
+
+                
+
+                <Route path="/gatepass-app" element={<GatePassApp />} />
+                <Route path="/securityclearance-app" element={<SecurityClearanceApp />} />
+
+                <Route path="/account-app" element={<AccountApp />} />
+                 
+                <Route path="/cashier-app" element={<CashierApp />} />
+
+                <Route path="/payment-refund" element={<PaymentRefund />} />
+
+
+                
+
+
 
 
 

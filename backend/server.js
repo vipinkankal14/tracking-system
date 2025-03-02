@@ -43,10 +43,12 @@ const { postCarBooking } = require('./db/routes/CarBookings/orderBooking');
 const { getChargesSummary, submitInvoice } = require('./db/routes/InvoiceSummary/ChargesAndOn-Road');
 const { postCustomers } = require('./db/routes/customers/customersPost');
 const { showexchange } = require('./db/routes/CarExchangeRequest/showexchange');
+const { getAllAccountManagementRefund } = require('./db/routes/Request/CarPaymentRefund');
   
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
 // Use the payment routes
+app.get('/api/getAllAccountManagementRefund', getAllAccountManagementRefund);
 app.get('/api/customers', getAllCustomers); //frontend\src\cashier\Payments\PaymentPending.jsx //frontend\src\cashier\CarBooking\CarBookings.jsx // frontend\src\cashier\CarBookingCancel\CarBookingCancel.jsx // frontend\src\cashier\CustomerPaymentDetails\CustomerPaymentDetails.jsx // frontend\src\cashier\Payments\PaymentClear.jsx
 app.get("/api/customers/:id", getCustomerById); // frontend\src\cashier\Payments\Payment.jsx
 app.use('/api/CarStock', addCarStock); //carStocks\AddCarStock.jsx
@@ -824,6 +826,117 @@ app.put('/api/updateOrderStatus/:orderId', (req, res) => {
       res.json({ message: 'Order status updated successfully' });
     }
   );
+});
+
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
+
+ 
+
+app.put('/api/account/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, cancellationReason } = req.body;
+
+  // Check if the customerId exists in account_management
+  const checkSql = `SELECT * FROM account_management WHERE customerId = ?`;
+  
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO account_management 
+        (customerId, status, cancellationReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(insertSql, [customerId, status, cancellationReason], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        res.json({ message: 'New record created successfully', result: insertResult });
+      });
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE account_management 
+        SET status = ?, cancellationReason = ? 
+        WHERE customerId = ?
+      `;
+      pool.query(updateSql, [status, cancellationReason, customerId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error("Update error:", updateErr);
+          return res.status(500).json({ error: updateErr.message });
+        }
+        res.json({ message: 'Record updated successfully', result: updateResult });
+      });
+    }
+  });
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
+
+
+app.put('/api/refund/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, refundReason, refundAmount } = req.body;
+
+  // Check if the customerId exists in account_management_refund
+  const checkSql = `SELECT * FROM account_management_refund WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO account_management_refund 
+        (customerId, status, refundReason, refundAmount) 
+        VALUES (?, ?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, refundReason, refundAmount],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE account_management_refund
+        SET 
+          refundAmount = ?,
+          refundReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [refundAmount, refundReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
 });
 
 

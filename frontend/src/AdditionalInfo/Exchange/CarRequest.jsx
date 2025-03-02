@@ -3,7 +3,10 @@ import { Table, Spinner, Modal } from "react-bootstrap";
 import axios from "axios";
 import {
   Button,
+  FormControl,
   InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Paper,
   TableBody,
   TableCell,
@@ -144,11 +147,12 @@ const CarRequest = () => {
           justifyContent: "center",
         }}
       >
-        <Typography>Car Exchange</Typography>
+        <Typography variant="h6">Car Exchange</Typography>
       </div>
 
+      {/* Search Bar */}
       <div className="d-flex justify-content-center justify-content-md-start">
-        <div className="mb-4">
+        <div className="mb-4" style={{ width: "100%", maxWidth: "400px" }}>
           <TextField
             variant="outlined"
             placeholder="Search..."
@@ -162,6 +166,7 @@ const CarRequest = () => {
                 </InputAdornment>
               ),
             }}
+            fullWidth
           />
         </div>
       </div>
@@ -181,32 +186,32 @@ const CarRequest = () => {
       )}
 
       {!loading && !error && (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} style={{ overflowX: "auto" }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Customer ID
                 </TableCell>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Full Name
                 </TableCell>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Car Make
                 </TableCell>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Car Model
                 </TableCell>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Car Color
                 </TableCell>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Car Registration
                 </TableCell>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Car Year
                 </TableCell>
-                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -217,35 +222,34 @@ const CarRequest = () => {
                   <TableRow
                     key={index}
                     style={{
-                      fontSize: "11px",
+                      fontSize: "12px",
                       padding: "10px",
-                      justifyContent: "space-between",
                     }}
                   >
-                    <TableCell style={{ fontSize: "11px" }}>
+                    <TableCell style={{ fontSize: "12px" }}>
                       {stock.customerId}
                     </TableCell>
-                    <TableCell style={{ fontSize: "11px", padding: "10px" }}>
+                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                       {stock.firstName} {stock.middleName} {stock.lastName}
                     </TableCell>
-                    <TableCell style={{ fontSize: "11px", padding: "10px" }}>
+                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                       {stock.carMake}
                     </TableCell>
-                    <TableCell style={{ fontSize: "11px", padding: "10px" }}>
+                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                       {stock.carModel}
                     </TableCell>
-                    <TableCell style={{ fontSize: "11px", padding: "10px" }}>
+                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                       {stock.carColor}
                     </TableCell>
-                    <TableCell style={{ fontSize: "11px", padding: "10px" }}>
+                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                       {stock.carRegistration}
                     </TableCell>
-                    <TableCell style={{ fontSize: "11px", padding: "10px" }}>
+                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                       {stock.carYear}
                     </TableCell>
                     <TableCell
                       style={{
-                        fontSize: "11px",
+                        fontSize: "12px",
                         padding: "10px",
                         color: "#341047",
                       }}
@@ -310,35 +314,86 @@ const CarRequest = () => {
               </>
             )}
           </Typography>
-          <Typography>Are you sure you want to cancel the order?</Typography>
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Reason for cancellation (optional)"
-            style={{ width: "100%", marginTop: "10px" }}
-            value={cancellationReason}
-            onChange={(e) => setCancellationReason(e.target.value)}
-          />
           <div
-            style={{ marginLeft: "5px", display: "flex", alignItems: "center" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              marginTop: "10px",
+              justifyContent: "center",
+              alignItems: "center", // Center horizontally
+            }}
           >
-            <input
-              type="checkbox"
-              id="confirmCheckbox"
-              checked={isConfirmed}
-              onChange={(e) => setIsConfirmed(e.target.checked)}
-            />
-            <label
-              htmlFor="confirmCheckbox"
+            {/* Amount Input */}
+            <FormControl fullWidth sx={{ m: 1 }}>
+              <InputLabel htmlFor="outlined-adornment-amount">
+                Amount
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-amount"
+                startAdornment={
+                  <InputAdornment position="start">₹</InputAdornment>
+                }
+                label="Amount"
+              />
+            </FormControl>
+
+            {/* Cancellation Reason Textarea */}
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Reason for cancellation (optional)"
               style={{
-                marginLeft: "5px",
+                width: "100%",
+                padding: "10px",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+                resize: "vertical", // Allow vertical resizing
+              }}
+              value={cancellationReason}
+              onChange={(e) => setCancellationReason(e.target.value)}
+            />
+
+            {/* Confirmation Checkbox */}
+            <div
+              style={{
                 display: "flex",
                 alignItems: "center",
+                width: "100%",
+                justifyContent: "flex-start", // Align checkbox to the left
               }}
             >
-              I confirm the cancellation
-            </label>
+              <input
+                type="checkbox"
+                id="confirmCheckbox"
+                checked={isConfirmed}
+                onChange={(e) => setIsConfirmed(e.target.checked)}
+                style={{ cursor: "pointer" }} // Add pointer cursor
+              />
+              <label
+                htmlFor="confirmCheckbox"
+                style={{
+                  marginLeft: "5px",
+                  display: "flex",
+                  alignItems: "center",
+                  cursor: "pointer", // Add pointer cursor
+                }}
+              >
+                I confirm the cancellation
+              </label>
+            </div>
           </div>
-          {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+          {error && (
+            <Typography
+              style={{
+                color: "red",
+                fontSize: "12px",
+                marginTop: "5px",
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </Typography>
+          )}{" "}
         </Modal.Body>
 
         <Modal.Footer>
@@ -428,6 +483,7 @@ const CarRequest = () => {
               </Typography>
             );
           })}
+          {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
         </Modal.Body>
 
         <Modal.Footer>

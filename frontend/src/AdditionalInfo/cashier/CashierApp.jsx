@@ -111,7 +111,7 @@ const CardStatus = styled.div`
   color: #6b7280;
 `;
 
-function StackedStatusPage() {
+function CashierApp() {
   const navigate = useNavigate();
 
   const [statusCards] = useState([
@@ -124,14 +124,14 @@ function StackedStatusPage() {
       iconType: 'CashierMhanaement',
       path: '/file-tracking',
     },
-    {
+     {
       id: 'payment',
       title: 'Payment',
-      status: 'Credit / Debit',
+      status: 'Credit / Debit / Exchange Credit / Finance Credit',
       icon: CurrencyRupeeRoundedIcon,
       iconType: 'Payment',
       path: '/Payment',
-    }, 
+    },  
     {
       id: 'car-booking',
       title: 'Car Booking',
@@ -185,4 +185,4 @@ function StackedStatusPage() {
   );
 }
 
-export default StackedStatusPage;
+export default CashierApp;

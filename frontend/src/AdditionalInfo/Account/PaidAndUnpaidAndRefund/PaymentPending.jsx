@@ -57,11 +57,10 @@ const PaymentPending = () => {
                 <TableCell style={{ fontSize: '10px' }}>Full Name</TableCell>
                 <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Phone</TableCell>
                 <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Email</TableCell>
-                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Model</TableCell>
-                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Version</TableCell>
-                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Color</TableCell>
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Model | Version | Color</TableCell>
                 <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >Grand total</TableCell>
-                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }}>Booking Amount</TableCell>
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }}>Paid Amount</TableCell>
+                <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }}>Unpaid Amount</TableCell>
                 <TableCell style={{ padding: '10px', fontSize: '10px' }}>Payment Status</TableCell>
               </TableRow>
             </TableHead>
@@ -75,11 +74,10 @@ const PaymentPending = () => {
                       <TableCell style={{ fontSize: '11px' }} >{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.email}</TableCell>
-                      <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.model}</TableCell>
-                      <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.variant}</TableCell>
-                      <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.color}</TableCell>
+                      <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.model} | {stock.version} | {stock.color}</TableCell>
                       <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.grand_total}</TableCell>
-                      <TableCell style={{ fontSize: '11px' }} className="d-none d-sm-table-cell">{stock.customer_account_balance}</TableCell>
+                      <TableCell style={{ fontSize: '11px' ,color:'green' }} className="d-none d-sm-table-cell">{stock.customer_account_balance}</TableCell>
+                      <TableCell style={{ fontSize: '11px', color:'red' }} className="d-none d-sm-table-cell">{stock.customer_account_balance !== null && stock.grand_total !== null ? (parseFloat(stock.customer_account_balance) - parseFloat(stock.grand_total)).toFixed(2) : "N/A"} </TableCell>
                       <TableCell style={{ padding: '8px', fontSize: '11px' }}>
                         {stock.payment_status}
                         <PendingActionsOutlinedIcon

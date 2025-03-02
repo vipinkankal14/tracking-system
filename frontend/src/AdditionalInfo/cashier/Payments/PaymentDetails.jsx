@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, replace } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 import "../css/PaymentDetails.scss";
@@ -7,7 +7,7 @@ import "../css/PaymentDetails.scss";
 const PaymentDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { customerId, customerName, accountBalance,customer } = location.state || {};
+  const { customerId, customerName, accountBalance, customer } = location.state || {};
 
   const [formData, setFormData] = useState({
     transactionType: "debit",
@@ -21,10 +21,9 @@ const PaymentDetails = () => {
 
   useEffect(() => {
     if (!customerId || !customerName || !customer) {
-      navigate("/CashierApp",
-        { replace: true });
+      navigate("/CashierApp", { replace: true });
     }
-  }, [customerId, customerName,customer, navigate]);
+  }, [customerId, customerName, customer, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,12 +36,12 @@ const PaymentDetails = () => {
     e.preventDefault();
     const { transactionType, amount, paymentType } = formData;
     const parsedAmount = parseFloat(amount);
-
+  
     if (!parsedAmount || parsedAmount <= 0) {
       setError("Please enter a valid positive amount.");
       return;
     }
-
+  
     try {
       const response = await fetch("http://localhost:5000/api/payments", {
         method: "POST",
@@ -50,33 +49,33 @@ const PaymentDetails = () => {
         body: JSON.stringify({
           customerId,
           debitedAmount: transactionType === "debit" ? parsedAmount : null,
-          creditedAmount: transactionType === "credit" ? parsedAmount : null,
+          creditedAmount: transactionType === "credit" || transactionType === "exchangeCredit" || transactionType === "financeCredit" ? parsedAmount : null,
           paymentType,
+          transactionType, // Ensure transactionType is included in the request body
         }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to process payment.");
       }
-
+  
       const updatedBalance =
         transactionType === "debit"
           ? newBalance - parsedAmount
           : newBalance + parsedAmount;
-
+  
       setNewBalance(updatedBalance);
       setFormData({ transactionType: "debit", paymentType: "cash", amount: "" });
       setSuccess(
         `Payment of ₹${parsedAmount} ${transactionType === "debit" ? "debited" : "credited"} successfully.`
       );
-
+  
       setTimeout(() => {
         navigate("/payment-successful", {
-          state: { transactionType, amount: parsedAmount, updatedBalance, customerId, customerName,customer },
-          replace : true,
+          state: { transactionType, amount: parsedAmount, updatedBalance, customerId, customerName, customer },
+          replace: true,
         });
-       
       }, 2000);
     } catch (err) {
       setError(err.message || "An error occurred while processing the payment.");
@@ -100,13 +99,10 @@ const PaymentDetails = () => {
         )}
       </p>
       <p><strong>Name:</strong> {customerName} </p>
-      <p><strong>total_onroad_price :</strong> {customer} </p>
+      <p><strong>Total On-Road Price:</strong> {customer} </p>
       <p><strong>Account Balance:</strong> ₹{Number(newBalance).toFixed(2)}</p>
 
       <form className="payment-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        
-        <div className="mb-1">
-          
         <div className="mb-1">
           <label htmlFor="paymentType" className="form-label">
             Payment Type
@@ -124,7 +120,7 @@ const PaymentDetails = () => {
           </select>
         </div>
 
-
+        <div className="mb-1">
           <label htmlFor="transactionType" className="form-label">
             Transaction Type
           </label>
@@ -137,6 +133,8 @@ const PaymentDetails = () => {
           >
             <option value="debit">Debit</option>
             <option value="credit">Credit</option>
+            <option value="exchangeCredit">Exchange Credit</option>
+            <option value="financeCredit">Finance Credit</option>
           </select>
         </div>
 
@@ -159,16 +157,16 @@ const PaymentDetails = () => {
         <div className="form-group mb-3" style={{ display: 'flex', gap: '10px' }}>
           <Button type="submit" variant="contained">Submit Payment</Button>
           <Button
-  onClick={() => {
-    setFormData({ transactionType: "debit", amount: "" }); // Clear form data
-    setError(""); // Clear error messages
-    setSuccess(""); // Clear success messages
-    navigate("/Payment"); // Navigate to the desired route
-  }}
-  variant="outlined"
->
-  Cancel
-</Button>
+            onClick={() => {
+              setFormData({ transactionType: "debit", amount: "" }); // Clear form data
+              setError(""); // Clear error messages
+              setSuccess(""); // Clear success messages
+              navigate("/Payment"); // Navigate to the desired route
+            }}
+            variant="outlined"
+          >
+            Cancel
+          </Button>
         </div>
         <div style={{ color: '#d4000e', fontSize: '14px', marginTop: '-20px' }}>
           {error && <p className="error-message">{error}</p>}

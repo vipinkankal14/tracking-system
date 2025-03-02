@@ -101,11 +101,10 @@ const Payment = () => {
 
         <div className="info-box">
           <h4>Payment Details</h4>
-          <p>Total on road price: {customerDetails?.total_on_road_price}</p>
-          <p>Total charges: {customerDetails?.total_charges}</p>
           <p>Grand total: {customerDetails?.grand_total}</p>
           <p>Amount Paid by Customer: {customerDetails?.customer_account_balance}</p>
-          <p>Unpaid Balance: {customerDetails ? customerDetails.grand_total - customerDetails.customer_account_balance : 0}</p>
+          <p>Amount Unpaid by Customer: {customerDetails ? customerDetails.customer_account_balance - customerDetails.grand_total : 0}</p>
+
         </div>
 
         <div className="info-box">

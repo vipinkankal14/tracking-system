@@ -2,7 +2,7 @@ import React from 'react'
 
 const FileTracking = () => {
   return (
-    <div>FileTracking</div>
+    <div>acc Mhanaement</div>
   )
 }
 
