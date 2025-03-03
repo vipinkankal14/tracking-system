@@ -7,7 +7,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const navItems = [
     { icon: <Home size={18} />, label: 'Home', path: '/Home' },
     { icon: <CircuitBoard size={18} />, label: 'CashierApp', path: '/cashier-app' },
-    { icon: <MessageSquare size={18} />, label: 'car', path: '/car' },
+    { icon: <MessageSquare size={18} />, label: 'car', path: '/car-app' },
     { icon: <Code2 size={18} />, label: 'Account', path: '/account-app' },
     { icon: <Code2 size={18} />, label: 'Exchange', path: '/exchange-app' },
     { icon: <Code2 size={18} />, label: 'Finance', path: '/finance-app' },

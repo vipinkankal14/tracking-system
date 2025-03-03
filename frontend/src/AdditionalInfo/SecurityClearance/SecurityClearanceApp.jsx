@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
+ 
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-  
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -116,16 +117,34 @@ function SecurityClearanceApp() {
 
   const [statusCards] = useState([
     {
-      id: 'ExtendedWarranty',
-      title: 'Extended Warranty Management',
+      id: 'Approved',
+      title: 'security clearance Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
-      path: '/car-Exchange',
+      iconType: 'Approved',
+      path: '/securityclearance-approved',
      
-    }
-        
+    },
+    {
+      id: 'Rejected',
+      title: 'Security Clearance Rejected',
+      count: 80,
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/securityclearance-rejected',
+     
+    },
+    {
+      id: 'pending',
+      title: 'Car Pending for Security Clearance',
+      count: 80,
+      status: 'Car Security Clearance Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-securityclearance',
+    },
   ]);
 
   const handleCardClick = (path) => {

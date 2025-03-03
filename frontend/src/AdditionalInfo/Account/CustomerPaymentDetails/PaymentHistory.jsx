@@ -56,7 +56,6 @@ function PaymentHistory() {
   const [refundAmount, setRefundAmount] = useState("");
   const [refundReason, setRefundReason] = useState("");
 
-
   const fetchCustomerData = async () => {
     if (!customerId) {
       setError("Customer ID is undefined.");
@@ -107,12 +106,12 @@ function PaymentHistory() {
         cancellationReason: status === "rejected" ? cancellationReason : null,
       };
       console.log("Sending payload:", payload); // Log the payload
-  
+
       const response = await axios.put(
         `http://localhost:5000/api/account/update-status/${customerId}`,
         payload
       );
-  
+
       console.log("Backend response:", response.data); // Log the response
       if (response.status === 200) {
         alert(`Status updated to ${status} successfully!`);
@@ -128,10 +127,8 @@ function PaymentHistory() {
     }
   };
 
-
-
   // Add this refund handler function
-   const handleRefundConfirmation = async () => {
+  const handleRefundConfirmation = async () => {
     if (!isConfirmed) {
       setError("Please confirm the refund.");
       return;
@@ -161,23 +158,25 @@ function PaymentHistory() {
         setError(null);
       }
     } catch (err) {
-      setError(`Failed to update refund status: ${err.response?.data?.error || err.message}`);
+      setError(
+        `Failed to update refund status: ${
+          err.response?.data?.error || err.message
+        }`
+      );
     }
   };
 
- 
-    const handleClose = () => {
-      setShowModal(false);
-      setCancellationReason("");
-      setIsConfirmed(false);
-      setError(null);
-      setShowRefundModal(false);
-      setRefundAmount("");
-      setRefundReason("");
-     
-      setError(null);
-    };
-  
+  const handleClose = () => {
+    setShowModal(false);
+    setCancellationReason("");
+    setIsConfirmed(false);
+    setError(null);
+    setShowRefundModal(false);
+    setRefundAmount("");
+    setRefundReason("");
+
+    setError(null);
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error fetching customer data: {error}</div>;
@@ -726,12 +725,8 @@ function PaymentHistory() {
           >
             Back
           </Button>
-
         </div>
       </div>
-
-      
-      
 
       {/* Rejected Modal */}
       <Modal
@@ -744,7 +739,7 @@ function PaymentHistory() {
       >
         <Modal.Header closeButton>
           <Typography id="rejected-modal-title">
-            Rejected for: { customerId || "  "} 
+            Rejected for: {customerId || "  "}
             <VerifiedRoundedIcon
               style={{
                 color: "#092e6b",
@@ -826,18 +821,17 @@ function PaymentHistory() {
         </Modal.Footer>
       </Modal>
 
-      
-  <Modal
-    show={showRefundModal}
-    onHide={handleClose}
-    centered
-    backdrop="static"
-    keyboard={false}
-    animation={false}
-   >
-   <Modal.Header closeButton>
+      <Modal
+        show={showRefundModal}
+        onHide={handleClose}
+        centered
+        backdrop="static"
+        keyboard={false}
+        animation={false}
+      >
+        <Modal.Header closeButton>
           <Typography variant="h6" id="rejected-modal-title">
-            Refund for: { customerId || "  "} 
+            Refund for: {customerId || "  "}
             <VerifiedRoundedIcon
               style={{
                 color: "#092e6b",
@@ -849,48 +843,48 @@ function PaymentHistory() {
           </Typography>
         </Modal.Header>
 
-    <Modal.Body>
-      <Typography>
-        <strong>Full Name: </strong>
-        {`${firstName || "N/A"} ${middleName || ""} ${lastName || ""}`}
-      </Typography>
-      
-      {/* Add Refund Amount Input */}
-      <div style={{ marginTop: "10px" }}>
-        <Typography variant="subtitle1">
-          <strong>Refund Amount:</strong>
-        </Typography>
-        <input
-          type="number"
-          placeholder="Enter refund amount"
-          style={{
-            width: "100%",
-            padding: "8px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            marginTop: "5px"
-          }}
-          value={refundAmount}
-          onChange={(e) => setRefundAmount(e.target.value)}
-          min="0"
-          step="0.01"
-        />
-      </div>
+        <Modal.Body>
+          <Typography>
+            <strong>Full Name: </strong>
+            {`${firstName || "N/A"} ${middleName || ""} ${lastName || ""}`}
+          </Typography>
 
-      <TextareaAutosize
-        minRows={3}
-        placeholder="Reason for refund (optional)"
-        style={{
-          width: "100%",
-          padding: "10px",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-          resize: "vertical",
-          marginTop: "10px",
-        }}
-        value={refundReason}
-        onChange={(e) => setRefundReason(e.target.value)}
-      />
+          {/* Add Refund Amount Input */}
+          <div style={{ marginTop: "10px" }}>
+            <Typography variant="subtitle1">
+              <strong>Refund Amount:</strong>
+            </Typography>
+            <input
+              type="number"
+              placeholder="Enter refund amount"
+              style={{
+                width: "100%",
+                padding: "8px",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+                marginTop: "5px",
+              }}
+              value={refundAmount}
+              onChange={(e) => setRefundAmount(e.target.value)}
+              min="0"
+              step="0.01"
+            />
+          </div>
+
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Reason for refund (optional)"
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              resize: "vertical",
+              marginTop: "10px",
+            }}
+            value={refundReason}
+            onChange={(e) => setRefundReason(e.target.value)}
+          />
 
           <div
             style={{
@@ -913,26 +907,25 @@ function PaymentHistory() {
               I confirm the refund
             </label>
           </div>
-    </Modal.Body>
+        </Modal.Body>
 
-    <Modal.Footer>
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-        <Button variant="outlined" onClick={handleClose}>
-          Close
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleRefundConfirmation}
-          disabled={!isConfirmed}
-        >
-          Confirm Refund
-        </Button>
-      </div>
-    </Modal.Footer>
-  </Modal>
-
-
-
+        <Modal.Footer>
+          <div
+            style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}
+          >
+            <Button variant="outlined" onClick={handleClose}>
+              Close
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleRefundConfirmation}
+              disabled={!isConfirmed}
+            >
+              Confirm Refund
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

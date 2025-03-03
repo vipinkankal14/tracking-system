@@ -80,7 +80,7 @@ const CarBookings = () => {
                       <TableCell style={{ fontSize: '10px',padding: '10px'  }} >{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
                       <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
                       <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.email}</TableCell>
-                      <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.model} | {stock.variant} | {stock.color}</TableCell>
+                      <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.model} | {stock.version} | {stock.color}</TableCell>
         
                       <TableCell className="d-none d-sm-table-cell" style={{ fontSize: '10px' }} >{stock.grand_total}</TableCell>
                       <TableCell style={{ padding: '10px'  }} ><Badge bg="success">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>

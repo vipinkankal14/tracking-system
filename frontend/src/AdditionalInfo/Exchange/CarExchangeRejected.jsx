@@ -22,7 +22,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 import DescriptionIcon from "@mui/icons-material/Description"; // Icon for exchange documents
 
-const CarExchange = () => {
+const CarExchangeRejected = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [carStocks, setCarStocks] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,8 @@ const CarExchange = () => {
   const [selectedStock, setSelectedStock] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-   const [exchangeReason, setExchangeReason] = useState("");
+  const [exchangeAmount, setExchangeAmount] = useState("");
+  const [exchangeReason, setExchangeReason] = useState("");
 
   // New states for exchange documents modal
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
@@ -93,21 +94,26 @@ const CarExchange = () => {
       return;
     }
 
-   
+    if (!exchangeAmount || isNaN(exchangeAmount) || exchangeAmount <= 0) {
+      setError("Please Re-enter a valid exchange amount.");
+      return;
+    }
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/rejected/update-status/${selectedStock.customerId}`,
+        `http://localhost:5000/api/exchange/update-status/${selectedStock.customerId}`,
         {
-          status: "Rejected", //
-           exchangeReason,
+          status: "Approved", //
+          exchangeAmount: parseFloat(exchangeAmount),
+          exchangeReason,
         }
       );
 
       if (response.status === 200) {
         alert("Exchange status updated successfully!");
         setShowModal(false);
-         setExchangeReason("");
+        setExchangeAmount("");
+        setExchangeReason("");
         setIsConfirmed(false);
         setError(null);
       }
@@ -124,7 +130,8 @@ const CarExchange = () => {
     setShowModal(false); // Close the cancellation modal
     setShowDocumentsModal(false); // Close the documents modal
     setIsConfirmed(false); // Reset confirmation checkbox
-     setExchangeReason(""); // Reset exchange reason
+    setExchangeAmount(""); // Reset exchange amount
+    setExchangeReason(""); // Reset exchange reason
     setError(null); // Reset error message
   };
 
@@ -151,7 +158,7 @@ const CarExchange = () => {
           justifyContent: "center",
         }}
       >
-        <Typography variant="h6">Car Exchange for Approved </Typography>
+        <Typography variant="h6">Car Exchange for Rejected </Typography>
       </div>
 
       {/* Search Bar */}
@@ -221,8 +228,8 @@ const CarExchange = () => {
             <TableBody>
               {filteredCarStocks.length > 0 ? (
                 filteredCarStocks.map((stock, index) => {
-                  // Only render the row if the status is "Approved"
-                  if (stock.status === "Approved") {
+                  // Only render the row if the status is "Rejected"
+                  if (stock.status === "Rejected") {
                     return (
                       <TableRow
                         key={index}
@@ -257,7 +264,7 @@ const CarExchange = () => {
                         <TableCell
                           style={{ fontSize: "12px", padding: "10px" }}
                         >
-                          <Badge bg="success" style={{ cursor: "pointer" }}>
+                          <Badge bg="danger" style={{ cursor: "pointer" }}>
                             {" "}
                             {stock.status}
                           </Badge>
@@ -324,10 +331,10 @@ const CarExchange = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <Typography fontSize={12}>
+          <Typography fontSize={12} style={{cursor:"pointer"}}>
             {selectedStock && (
               <>
-                 <Typography style={{fontSize: "12px"}} >
+                <Typography style={{fontSize: "12px"}} >
                   <strong>Full Name:</strong>{" "}
                   {`${selectedStock.firstName} ${selectedStock.middleName} ${selectedStock.lastName}`}
                 </Typography>
@@ -336,7 +343,7 @@ const CarExchange = () => {
                   {selectedStock.exchangeAmount || "N/A"}
                 </Typography>
                 <Typography style={{fontSize: "12px", color: "red"}}>
-                  <strong style={{color:'black'}} >Exchange Reason Approved :</strong>{" "}
+                  <strong style={{color:'black'}} >Exchange Reason Rejected:</strong>{" "}
                   {selectedStock.exchangeReason || "N/A"}
                 </Typography>
               </>
@@ -352,8 +359,25 @@ const CarExchange = () => {
               alignItems: "center", // Center horizontally
             }}
           >
-          
+            {/* Amount Input */}
+            <FormControl fullWidth sx={{ m: 1 }}>
+              <InputLabel htmlFor="outlined-adornment-amount">
+                Amount
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-amount"
+                startAdornment={
+                  <InputAdornment position="start">₹</InputAdornment>
+                }
+                label="Amount"
+                type="number"
+                value={exchangeAmount}
+                onChange={(e) => setExchangeAmount(e.target.value)}
+              />
+            </FormControl>
+
             {/* Exchange Reason Textarea */}
+
             <TextareaAutosize
               minRows={3}
               placeholder="Reason for exchange (optional)"
@@ -364,7 +388,7 @@ const CarExchange = () => {
                 border: "1px solid #ccc",
                 resize: "vertical", // Allow vertical resizing
               }}
-              value={exchangeReason} 
+              value={exchangeReason}
               onChange={(e) => setExchangeReason(e.target.value)}
             />
 
@@ -506,4 +530,4 @@ const CarExchange = () => {
   );
 };
 
-export default CarExchange;
+export default CarExchangeRejected;

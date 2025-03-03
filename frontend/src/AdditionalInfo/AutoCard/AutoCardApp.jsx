@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
+ 
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-  
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -116,27 +117,34 @@ function AutoCardApp() {
 
   const [statusCards] = useState([
     {
-      id: 'AutoCard',
-      title: 'AutoCard Management',
+      id: 'Approved',
+      title: 'Auto Card Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
-      path: '/car-Exchange',
+      iconType: 'Approved',
+      path: '/autocard-approved',
      
     },
     {
-      id: 'AutoCard Request',
-      title: 'AutoCard Request',
+      id: 'Rejected',
+      title: 'Auto Card Rejected',
       count: 80,
-      status: 'AutoCard warranty for car request',
-      icon: CarRentalIcon,
-      iconType: 'CarAllotment',
-      path: '/car-request',
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/autocard-rejected',
      
     },
-     
-        
+    {
+      id: 'pending',
+      title: 'Car Pending for Auto Card ',
+      count: 80,
+      status: 'Car autocard Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-autocard',
+    },
   ]);
 
   const handleCardClick = (path) => {

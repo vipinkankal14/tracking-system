@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
+ 
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
  
@@ -116,27 +117,34 @@ function CoatingApp() {
 
   const [statusCards] = useState([
     {
-      id: 'Coating',
-      title: 'Coating Management',
+      id: 'Approved',
+      title: 'Coating Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
-      path: '/car-Exchange',
+      iconType: 'Approved',
+      path: '/coating-approved',
      
     },
     {
-      id: 'Coating Request',
-      title: 'Coating Request',
+      id: 'Rejected',
+      title: 'Coating Rejected',
       count: 80,
-      status: 'coating for car request',
-      icon: CarRentalIcon,
-      iconType: 'CarAllotment',
-      path: '/car-request',
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/coating-rejected',
      
     },
-     
-        
+    {
+      id: 'pending',
+      title: 'Car Pending for Coating',
+      count: 80,
+      status: 'Car coating Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-coating',
+    },
   ]);
 
   const handleCardClick = (path) => {

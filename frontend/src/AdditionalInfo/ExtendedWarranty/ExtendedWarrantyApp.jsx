@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
+ 
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-  
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -116,27 +117,34 @@ function ExtendedWarrantyApp() {
 
   const [statusCards] = useState([
     {
-      id: 'ExtendedWarranty',
-      title: 'Extended Warranty Management',
+      id: 'Approved',
+      title: 'Extended Warranty Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
-      path: '/car-Exchange',
+      iconType: 'Approved',
+      path: '/extended-warranty-approved',
      
     },
     {
-      id: 'Extended Warranty Request',
-      title: 'Extended Warranty Request',
+      id: 'Rejected',
+      title: 'Extended Warranty Rejected',
       count: 80,
-      status: 'Extended warranty for car request',
-      icon: CarRentalIcon,
-      iconType: 'CarAllotment',
-      path: '/car-request',
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/extended-warranty-rejected',
      
     },
-     
-        
+    {
+      id: 'pending',
+      title: 'Car Pending for Extended Warranty',
+      count: 80,
+      status: 'Car extended-warranty Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-extended-warranty',
+    },
   ]);
 
   const handleCardClick = (path) => {

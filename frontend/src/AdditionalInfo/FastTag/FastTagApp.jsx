@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
+ 
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-  
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -116,27 +117,34 @@ function FastTagApp() {
 
   const [statusCards] = useState([
     {
-      id: 'ExtendedWarranty',
-      title: 'Extended Warranty Management',
+      id: 'Approved',
+      title: 'fast-tag Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
-      path: '/car-Exchange',
+      iconType: 'Approved',
+      path: '/fast-tag-approved',
      
     },
     {
-      id: 'Extended Warranty Request',
-      title: 'Extended Warranty Request',
+      id: 'Rejected',
+      title: 'fast-tag Rejected',
       count: 80,
-      status: 'Extended warranty for car request',
-      icon: CarRentalIcon,
-      iconType: 'CarAllotment',
-      path: '/car-request',
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/fast-tag-rejected',
      
     },
-     
-        
+    {
+      id: 'pending',
+      title: 'Car Pending for fast-tag',
+      count: 80,
+      status: 'Car fast-tag Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-fast-tag',
+    },
   ]);
 
   const handleCardClick = (path) => {

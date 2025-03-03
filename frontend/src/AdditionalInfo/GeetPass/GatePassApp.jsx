@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
+ 
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-  
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -111,22 +112,39 @@ const CardStatus = styled.div`
 `;
 
 
-function GatePassApp() {
+function GatepassApp() {
   const navigate = useNavigate();
 
   const [statusCards] = useState([
     {
-      id: 'ExtendedWarranty',
-      title: 'Extended Warranty Management',
+      id: 'Approved',
+      title: 'Gatepass Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
-      path: '/car-Exchange',
+      iconType: 'Approved',
+      path: '/gatepass-approved',
      
-    }
+    },
+    {
+      id: 'Rejected',
+      title: 'Gatepass Rejected',
+      count: 80,
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/gatepass-rejected',
      
-        
+    },
+    {
+      id: 'pending',
+      title: 'Car Pending for Gatepass',
+      count: 80,
+      status: 'Car gatepass Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-gatepass',
+    },
   ]);
 
   const handleCardClick = (path) => {
@@ -160,7 +178,7 @@ function GatePassApp() {
   );
 }
 
-export default GatePassApp;
+export default GatepassApp;
 
 
 

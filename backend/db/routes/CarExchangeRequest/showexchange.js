@@ -23,7 +23,10 @@ const showexchange = async (req, res) => {
             s.carModel,
             s.carColor,
             s.carRegistration,
-            s.carYear
+            s.carYear,
+            s.status,
+            s.exchangeAmount,
+            s.exchangeReason
         FROM 
             customers c
         LEFT JOIN 

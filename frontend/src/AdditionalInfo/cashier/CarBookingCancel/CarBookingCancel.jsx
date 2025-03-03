@@ -77,8 +77,7 @@ const CarBookingCancel = () => {
                       <TableCell style={{ fontSize: '10px' }} >{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
                       <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
                       <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.email}</TableCell>
-                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.model} | {stock.variant} | {stock.color}</TableCell>
-                      
+                      <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.model} | {stock.version} | {stock.color}</TableCell>
                       <TableCell  style={{ fontSize: '10px' }} className="d-none d-sm-table-cell">{stock.grand_total}</TableCell>
                       <TableCell  style={{  padding: '10px' }} ><Badge bg="danger">{stock.status}</Badge><ManageAccountsIcon onClick={() => handleCancelClick(stock.customerId)} style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }} /></TableCell>
                       </TableRow>

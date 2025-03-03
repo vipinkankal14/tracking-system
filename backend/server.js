@@ -44,7 +44,7 @@ const { getChargesSummary, submitInvoice } = require('./db/routes/InvoiceSummary
 const { postCustomers } = require('./db/routes/customers/customersPost');
 const { showexchange } = require('./db/routes/CarExchangeRequest/showexchange');
 const { getAllAccountManagementRefund } = require('./db/routes/Request/CarPaymentRefund');
-  
+
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
 // Use the payment routes
@@ -63,9 +63,6 @@ app.get('/loans/:customerId', getCustomerLoans);
 
 app.post('/api/payments', handlePayment); // frontend\src\cashier\Payments\PaymentDetails.jsx
 app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
-
-app.use('/uploads', express.static(path.join(__dirname, 'CarExchangeRequest')));
-app.get('/api/showexchange', showexchange);
 
 
 app.post('/api/submitCart', (req, res) => {
@@ -684,28 +681,6 @@ app.put('/api/car/update/:vin', (req, res) => {
 });
 
 
- 
-{/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
-
- 
-  
-// Route to get exchange requests
-app.get("/api/getExchangeRequests/:customerId", async (req, res) => {
-  try {
-    const { customerId } = req.params;
-    const query = "SELECT * FROM car_exchange_requests WHERE customerId = ?";
-    const [results] = pool.execute(query, [customerId]);
-
-    if (!results || results.length === 0) {
-      return res.status(404).json({ error: 'No exchange requests found' });
-    }
-
-    res.json(results);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Failed to fetch data" });
-  }
-});
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
@@ -939,6 +914,127 @@ app.put('/api/refund/update-status/:customerId', async (req, res) => {
   });
 });
 
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
+
+
+ 
+// showexchange
+
+app.use('/uploads', express.static(path.join(__dirname, 'CarExchangeRequest')));
+app.get('/api/showexchange', showexchange);
+
+// update car exchange request status
+
+app.put('/api/exchange/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, exchangeReason , exchangeAmount  } = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_exchange_requests 
+        (customerId, status, exchangeReason, exchangeAmount ) 
+        VALUES (?, ?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, exchangeReason , exchangeAmount ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_exchange_requests
+        SET 
+          exchangeAmount  = ?,
+          exchangeReason  = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [exchangeAmount , exchangeReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+app.put('/api/rejected/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, exchangeReason} = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_exchange_requests 
+        (customerId, status, exchangeReason ) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, exchangeReason ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_exchange_requests
+        SET 
+          exchangeReason  = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [ exchangeReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
 
 
 // Real-Time Connection with Socket.IO

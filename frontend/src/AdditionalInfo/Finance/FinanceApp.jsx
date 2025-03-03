@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
+import { DirectionsCar} from '@mui/icons-material';
+import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-  
+import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
+
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -116,27 +119,34 @@ function FinanceApp() {
 
   const [statusCards] = useState([
     {
-      id: 'ExtendedWarranty',
-      title: 'Extended Warranty Management',
+      id: 'Approved',
+      title: 'Finance Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
-      path: '/car-Exchange',
+      iconType: 'Approved',
+      path: '/finance-approved',
      
     },
     {
-      id: 'Extended Warranty Request',
-      title: 'Extended Warranty Request',
+      id: 'Rejected',
+      title: 'Finance Rejected',
       count: 80,
-      status: 'Extended warranty for car request',
-      icon: CarRentalIcon,
-      iconType: 'CarAllotment',
-      path: '/car-request',
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/finance-rejected',
      
     },
-     
-        
+    {
+      id: 'pending',
+      title: 'Car Pending for Finance',
+      count: 80,
+      status: 'Car Finance Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-finance',
+    },
   ]);
 
   const handleCardClick = (path) => {

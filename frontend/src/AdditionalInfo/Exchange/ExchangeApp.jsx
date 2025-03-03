@@ -119,22 +119,32 @@ function ExchangeApp() {
 
   const [statusCards] = useState([
     {
-      id: 'Exchange',
-      title: 'Exchange Management',
+      id: 'Approved',
+      title: 'Exchange Approved',
       count: 80,
-      status: 'Approved / Rejected',
+      status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Allotment',
+      iconType: 'Approved',
       path: '/car-Exchange',
      
     },
     {
-      id: 'Request',
-      title: 'Car Request',
+      id: 'Rejected',
+      title: 'Exchange Rejected',
       count: 80,
-      status: 'Car Exchange Amount update',
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/car-Exchange-Rejected',
+     
+    },
+    {
+      id: 'pending',
+      title: 'Car Pending for Exchange',
+      count: 80,
+      status: 'Car Exchange Amount update Request',
       icon: CarRentalIcon,
-      iconType: 'CarAllotment',
+      iconType: 'pending',
       path: '/car-request',
      
     },

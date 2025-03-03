@@ -131,8 +131,8 @@ function AccountApp() {
     {
       id: 'CustomerPaymentDetails',
       title: 'Customer Payment Details',
-      count: 80,
-      status: 'Payment History',
+      
+      status: 'Payment Details / Paid / Unpaid / Refund',
       icon: PersonSearchRoundedIcon,
       iconType: 'CustomerDetails',
       path: '/customer-payment-details'

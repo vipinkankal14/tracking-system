@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Modal } from "react-bootstrap";
+import { Table, Spinner, Modal, Badge } from "react-bootstrap";
 import axios from "axios";
 import {
   Button,
@@ -29,8 +29,10 @@ const CarRequest = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState(null);
-  const [cancellationReason, setCancellationReason] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
+
+  const [exchangeAmount, setExchangeAmount] = useState("");
+  const [exchangeReason, setExchangeReason] = useState("");
 
   // New states for exchange documents modal
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
@@ -86,42 +88,51 @@ const CarRequest = () => {
     setShowDocumentsModal(true); // Show the documents modal
   };
 
-  const handleAllotment = async (status) => {
-    if (selectedStock) {
-      try {
-        const response = await axios.put(
-          `http://localhost:5000/api/car/update/${selectedStock.customerId}`,
-          {
-            customerId: selectedStock.customerId,
-            allotmentCarStatus: status,
-            cancellationReason: cancellationReason, // Include cancellation reason
-          }
-        );
+  const handleRefundConfirmation = async () => {
+    if (!isConfirmed) {
+      setError("Please confirm the exchange.");
+      return;
+    }
 
-        // Update the local state
-        setCarStocks((prevStocks) =>
-          prevStocks.map((stock) =>
-            stock.customerId === selectedStock.customerId
-              ? { ...stock, allotmentCarStatus: status }
-              : stock
-          )
-        );
+    if (!exchangeAmount || isNaN(exchangeAmount) || exchangeAmount <= 0) {
+      setError("Please enter a valid exchange amount.");
+      return;
+    }
 
-        setError(""); // Clear any errors
-        setShowModal(false); // Close the modal
-      } catch (error) {
-        setError(
-          error.response?.data?.message || "Error updating allotment status"
-        );
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/exchange/update-status/${selectedStock.customerId}`,
+        {
+          status: "Approved", //
+          exchangeAmount: parseFloat(exchangeAmount),
+          exchangeReason,
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Exchange status updated successfully!");
+        setShowModal(false);
+        setExchangeAmount("");
+        setExchangeReason("");
+        setIsConfirmed(false);
+        setError(null);
       }
+    } catch (err) {
+      setError(
+        `Failed to update exchange status: ${
+          err.response?.data?.error || err.message
+        }`
+      );
     }
   };
 
   const handleClose = () => {
     setShowModal(false); // Close the cancellation modal
     setShowDocumentsModal(false); // Close the documents modal
-    setCancellationReason(""); // Reset cancellation reason
     setIsConfirmed(false); // Reset confirmation checkbox
+    setExchangeAmount(""); // Reset exchange amount
+    setExchangeReason(""); // Reset exchange reason
+    setError(null); // Reset error message
   };
 
   // Function to extract customerId and fileName from document path
@@ -147,7 +158,7 @@ const CarRequest = () => {
           justifyContent: "center",
         }}
       >
-        <Typography variant="h6">Car Exchange</Typography>
+        <Typography variant="h6">Car Exchange Padding</Typography>
       </div>
 
       {/* Search Bar */}
@@ -197,19 +208,17 @@ const CarRequest = () => {
                   Full Name
                 </TableCell>
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Make
+                  Car Make | Car Model | Car Color
                 </TableCell>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Model
-                </TableCell>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Color
-                </TableCell>
+
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Car Registration
                 </TableCell>
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Car Year
+                </TableCell>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                  Status
                 </TableCell>
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Actions
@@ -218,53 +227,68 @@ const CarRequest = () => {
             </TableHead>
             <TableBody>
               {filteredCarStocks.length > 0 ? (
-                filteredCarStocks.map((stock, index) => (
-                  <TableRow
-                    key={index}
-                    style={{
-                      fontSize: "12px",
-                      padding: "10px",
-                    }}
-                  >
-                    <TableCell style={{ fontSize: "12px" }}>
-                      {stock.customerId}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {stock.firstName} {stock.middleName} {stock.lastName}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {stock.carMake}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {stock.carModel}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {stock.carColor}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {stock.carRegistration}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {stock.carYear}
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        fontSize: "12px",
-                        padding: "10px",
-                        color: "#341047",
-                      }}
-                    >
-                      <DescriptionIcon
-                        style={{ cursor: "pointer", marginRight: "10px" }}
-                        onClick={() => handleDocumentsIconClick(stock)}
-                      />
-                      <ErrorOutlineIcon
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleErrorIconClick(stock)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
+                filteredCarStocks.map((stock, index) => {
+                  // Only render the row if the status is "padding"
+                  if (stock.status === "Pending") {
+                    return (
+                      <TableRow
+                        key={index}
+                        style={{
+                          fontSize: "12px",
+                          padding: "10px",
+                        }}
+                      >
+                        <TableCell style={{ fontSize: "12px" }}>
+                          {stock.customerId}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "12px", padding: "10px" }}
+                        >
+                          {stock.firstName} {stock.middleName} {stock.lastName}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "12px", padding: "10px" }}
+                        >
+                          {stock.carMake} | {stock.carModel} | {stock.carColor}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "12px", padding: "10px" }}
+                        >
+                          {stock.carRegistration}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "12px", padding: "10px" }}
+                        >
+                          {stock.carYear}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "12px", padding: "10px" }}
+                        >
+                          <Badge bg="warning" style={ {cursor:'pointer'} }> {stock.status}</Badge>
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            fontSize: "12px",
+                            padding: "10px",
+                            color: "#341047",
+                          }}
+                        >
+                          <DescriptionIcon
+                            style={{ cursor: "pointer", marginRight: "10px" }}
+                            onClick={() => handleDocumentsIconClick(stock)}
+                          />
+                          <ErrorOutlineIcon
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleErrorIconClick(stock)}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  } else {
+                    // Return null for rows that don't meet the condition
+                    return null;
+                  }
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan="9" className="text-center">
@@ -288,7 +312,7 @@ const CarRequest = () => {
       >
         <Modal.Header closeButton>
           <Typography>
-            <strong>Cancel Order for:</strong>{" "}
+            <strong>Exchange Amount for:</strong>{" "}
             {selectedStock?.customerId || "N/A"}{" "}
             {selectedStock?.customerId && (
               <VerifiedRoundedIcon
@@ -335,7 +359,11 @@ const CarRequest = () => {
                   <InputAdornment position="start">₹</InputAdornment>
                 }
                 label="Amount"
-              />
+                type="number"
+                value={exchangeAmount}
+                onChange={(e) => setExchangeAmount(e.target.value)}
+              />{" "}
+              {selectedStock?.exchangeAmount}
             </FormControl>
 
             {/* Cancellation Reason Textarea */}
@@ -349,8 +377,8 @@ const CarRequest = () => {
                 border: "1px solid #ccc",
                 resize: "vertical", // Allow vertical resizing
               }}
-              value={cancellationReason}
-              onChange={(e) => setCancellationReason(e.target.value)}
+              value={exchangeReason}
+              onChange={(e) => setExchangeReason(e.target.value)}
             />
 
             {/* Confirmation Checkbox */}
@@ -406,13 +434,8 @@ const CarRequest = () => {
             <Button
               variant="outlined"
               size="small"
-              onClick={async () => {
-                if (isConfirmed) {
-                  await handleAllotment("Not Allocated");
-                } else {
-                  setError("Please confirm the cancellation.");
-                }
-              }}
+              disabled={!isConfirmed}
+              onClick={handleRefundConfirmation}
             >
               Confirm
             </Button>
