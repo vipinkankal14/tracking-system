@@ -73,20 +73,7 @@ const CarRequest = () => {
     setShowModal(true); // Show the cancellation modal
   };
 
-  // Function to handle opening the exchange documents modal
-  const handleDocumentsIconClick = (stock) => {
-    setSelectedStock(stock);
-    setExchangeDocuments({
-      rcDocument: stock.rcDocument,
-      insurancePolicy: stock.insurancePolicy,
-      pucCertificate: stock.pucCertificate,
-      identityProof: stock.identityProof,
-      addressProof: stock.addressProof,
-      loanClearance: stock.loanClearance,
-      serviceHistory: stock.serviceHistory,
-    });
-    setShowDocumentsModal(true); // Show the documents modal
-  };
+ 
 
   const handleRefundConfirmation = async () => {
     if (!isConfirmed) {
@@ -135,6 +122,23 @@ const CarRequest = () => {
     setError(null); // Reset error message
   };
 
+
+
+   // Function to handle opening the exchange documents modal
+   const handleDocumentsIconClick = (stock) => {
+    setSelectedStock(stock);
+    setExchangeDocuments({
+      rcDocument: stock.rcDocument,
+      insurancePolicy: stock.insurancePolicy,
+      pucCertificate: stock.pucCertificate,
+      identityProof: stock.identityProof,
+      addressProof: stock.addressProof,
+      loanClearance: stock.loanClearance,
+      serviceHistory: stock.serviceHistory,
+    });
+    setShowDocumentsModal(true); // Show the documents modal
+  };
+  
   // Function to extract customerId and fileName from document path
   const getDocumentDetails = (documentPath) => {
     if (!documentPath) return { customerId: null, fileName: null };

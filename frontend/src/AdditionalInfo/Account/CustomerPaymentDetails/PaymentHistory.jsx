@@ -11,6 +11,8 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Grid,
+  TablePagination,
   TextareaAutosize,
 } from "@mui/material";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
@@ -40,6 +42,8 @@ function PaymentHistory() {
   const [customerData, setCustomerData] = useState(null);
   const [carBookingData, setCarBookingData] = useState(null);
   const [additionalInfoData, setAdditionalInfoData] = useState(null);
+  const [onRoadPriceSummary, setOnRoadPriceSummary] = useState(null);
+  const [chargesSummary, setChargesSummary] = useState(null);
   const [invoiceSummary, setInvoiceSummary] = useState(null);
   const [ordersprebookingdate, setOrdersprebookingdate] = useState(null);
   const [payments, setPayments] = useState([]);
@@ -78,6 +82,10 @@ function PaymentHistory() {
       setAdditionalInfoData(data.additionalInfo);
       setInvoiceSummary(data.invoicesummary);
       setOrdersprebookingdate(data.ordersprebookingdate);
+      // Inside fetchCustomerData function
+      setOnRoadPriceSummary(data.onRoadPriceDetails);
+      setChargesSummary(data.additionalCharges);
+
       setPayments(
         data.cashier.map((item) => ({
           id: item.id,
@@ -241,6 +249,13 @@ function PaymentHistory() {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(amount);
+  };
+
   return (
     <>
       <div className="payment-history">
@@ -254,160 +269,430 @@ function PaymentHistory() {
         </div>
 
         <div className="details-container">
-          {/* Customer Details */}
-          <Paper className="details customer-details">
-            <Typography
-              variant="h6"
-              style={{
-                borderBottom: "1px solid #ccc",
-                paddingBottom: "10px",
-                marginBottom: "10px",
-              }}
-            >
-              <strong>Customer Details</strong>
-            </Typography>
-            <Typography>
-              <strong>Customer ID:</strong> {customerId || "N/A"}{" "}
-              <VerifiedRoundedIcon
-                style={{
-                  color: "#092e6b",
-                  fontSize: "15px",
-                  marginTop: "-3px",
-                  marginRight: "-4px",
-                }}
-              />
-            </Typography>
-            <Typography>
-              <strong>Customer Type:</strong> {customertype || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Full Name:</strong>{" "}
-              {`${firstName || "N/A"} ${middleName || ""} ${lastName || ""}`}
-            </Typography>
-            <Typography>
-              <strong>Birth Date:</strong> {birthDate || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Email:</strong> {email || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Phone:</strong> {mobileNumber1 || "N/A"},{" "}
-              {mobileNumber2 || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Address:</strong>{" "}
-              {`${address || "N/A"}, ${city || "N/A"}`}
-            </Typography>
-            <Typography>
-              <strong>State:</strong> {`${state || "N/A"}, ${country || "N/A"}`}
-            </Typography>
-          </Paper>
+          <Grid container spacing={3}>
+           { /* Customer Details */}
+                  <Grid item xs={12} md={4}>
+                    <Paper elevation={1} sx={{ p: 3 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Customer Details
+                    </Typography>
+                    <TableContainer>
+                      <Table size="small">
+                      <TableBody>
+                        <TableRow>
+                        <TableCell>
+                          <strong>Customer ID:</strong> {customerId || "N/A"}{" "}
+                          <VerifiedRoundedIcon
+                          style={{
+                            color: "#092e6b",
+                            fontSize: "15px",
+                            marginTop: "-3px",
+                            marginRight: "-4px",
+                          }}
+                          />
+                        </TableCell>
+                        </TableRow>
+                        <TableRow>
+                        <TableCell>
+                          <strong>Customer Type:</strong>{" "}
+                          {customertype || "N/A"}
+                        </TableCell>
+                        </TableRow>
+                        <TableRow>
+                        <TableCell>
+                          <strong>Full Name:</strong>{" "}
+                          {`${firstName || "N/A"} ${middleName || ""} ${
+                          lastName || ""
+                          }`}
+                        </TableCell>
+                        </TableRow>
+                        <TableRow>
+                        <TableCell>
+                          <strong>Birth Date:</strong> {formatDate(birthDate || "N/A")}
+                        </TableCell>
+                        </TableRow>
+                        <TableRow>
+                        <TableCell>
+                          <strong>Email:</strong> {email || "N/A"}
+                        </TableCell>
+                        </TableRow>
+                        <TableRow>
+                        <TableCell>
+                          <strong>Phone:</strong> {mobileNumber1 || "N/A"},{" "}
+                          {mobileNumber2 || "N/A"}
+                        </TableCell>
+                        </TableRow>
+                        <TableRow>
+                        <TableCell
+                          sx={{
+                          maxWidth: "200px",
+                          whiteSpace: "normal", // Allow text to wrap
+                          wordWrap: "break-word", // Break long words if necessary
+                          }}
+                        >
+                          <strong>Address:</strong>{" "}
+                          {`${address || "N/A"}`.split(",").map((line, index) => (
+                          <React.Fragment key={index}>
+                            {line.trim()}
+                            <br />
+                          </React.Fragment>
+                          ))}
+                        </TableCell>
+                        </TableRow>
+                        <TableRow>
+                        <TableCell>
+                          <strong>State:</strong>{" "}
+                          {`${state || "N/A"}, ${country || "N/A"}`}
+                        </TableCell>
+                        </TableRow>
+                      </TableBody>
+                      </Table>
+                    </TableContainer>
+                    </Paper>
+                  </Grid>
 
-          {/* Car Details */}
-          <Paper className="details car-details">
-            <Typography
-              variant="h6"
-              style={{
-                borderBottom: "1px solid #ccc",
-                paddingBottom: "10px",
-                marginBottom: "10px",
-              }}
-            >
-              <strong>Car Details</strong>
-            </Typography>
-            <Typography>
-              <strong>Car Model:</strong> {model || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Car Variant:</strong> {version || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Car Color:</strong> {color || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Team Member:</strong> {team_Member || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Team Leader:</strong> {team_Leader || "N/A"}
-            </Typography>
+                  {/* Car Details */}
+            <Grid item xs={12} md={4}>
+              <Paper elevation={1} sx={{ p: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  <strong>Car Details</strong>
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>
+                          <strong>Car Model:</strong> {model || "N/A"}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          <strong>Car Variant:</strong> {version || "N/A"}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          <strong>Car Color:</strong> {color || "N/A"}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          <strong>Team Member:</strong> {team_Member || "N/A"}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          <strong>Team Leader:</strong> {team_Leader || "N/A"}
+                        </TableCell>
+                      </TableRow>
+                      {prebooking === "YES" && (
+                        <>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Pre Booking:</strong>{" "}
+                              {prebooking || "N/A"}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Prebooking date:</strong>{" "}
+                              {formatDate(prebooking_date || "N/A")}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Delivery date:</strong>{" "}
+                              {formatDate(delivery_date || "N/A")}
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      )}
+                      {order_date === "YES" && (
+                        <>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Order Dates:</strong>{" "}
+                              {order_date || "N/A"}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Tentative Date:</strong>{" "}
+                              {formatDate(tentative_date || "N/A")}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Preferred Date:</strong>{" "}
+                              {formatDate(preferred_date || "N/A")}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Request Date:</strong>{" "}
+                              {formatDate(request_date || "N/A")}
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Grid>
 
-            {prebooking === "YES" && (
-              <>
-                <Typography>
-                  <strong>Pre Booking:</strong> {prebooking || "N/A"}
+            <Grid item xs={12} md={4}>
+              <Paper elevation={1} sx={{ p: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  <strong>Additional Details</strong>
                 </Typography>
-                <Typography>
-                  <strong>Prebooking date:</strong>{" "}
-                  {formatDate(prebooking_date || "N/A")}
-                </Typography>
-                <Typography>
-                  <strong>Delivery date:</strong>{" "}
-                  {formatDate(delivery_date || "N/A")}
-                </Typography>
-              </>
-            )}
 
-            {order_date === "YES" && (
-              <>
-                <Typography>
-                  <strong>Order Dates:</strong> {order_date || "N/A"}
-                </Typography>
-                <Typography>
-                  <strong>Tentative Date:</strong>{" "}
-                  {formatDate(tentative_date || "N/A")}
-                </Typography>
-                <Typography>
-                  <strong>Preferred Date:</strong>{" "}
-                  {formatDate(preferred_date || "N/A")}
-                </Typography>
-                <Typography>
-                  <strong>Request Date:</strong>{" "}
-                  {formatDate(request_date || "N/A")}
-                </Typography>
-              </>
-            )}
-          </Paper>
+                <TableContainer>
+                  <Table size="small">
+                     
+                    <TableBody>
+                      {/* Extended Warranty */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Extended Warranty</strong>
+                        </TableCell>
+                        <TableCell align="right">
+                          {extended_warranty || "N/A"}
+                        </TableCell>
+                      </TableRow>
 
-          {/* Additional Details */}
-          <Paper className="details car-details">
-            <Typography
-              variant="h6"
-              style={{
-                borderBottom: "1px solid #ccc",
-                paddingBottom: "10px",
-                marginBottom: "10px",
-              }}
-            >
-              <strong>Additional Details</strong>
-            </Typography>
-            <Typography>
-              <strong>Exchange:</strong> {exchange || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Finance:</strong> {finance || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Accessories:</strong> {accessories || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Coating:</strong> {coating || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Auto Card:</strong> {auto_card || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Extended Warranty:</strong> {extended_warranty || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>RTO Tax:</strong> {rto || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Fast Tag:</strong> {fast_tag || "N/A"}
-            </Typography>
-            <Typography>
-              <strong>Insurance:</strong> {insurance || "N/A"}
-            </Typography>
-          </Paper>
+                      {/* Exchange */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Exchange</strong>
+                        </TableCell>
+                        <TableCell align="right">{exchange || "N/A"}</TableCell>
+                      </TableRow>
+
+                      {/* Finance */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Finance</strong>
+                        </TableCell>
+                        <TableCell align="right">{finance || "N/A"}</TableCell>
+                      </TableRow>
+
+                      {/* Accessories */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Accessories</strong>
+                        </TableCell>
+                        <TableCell align="right">
+                          {accessories || "N/A"}
+                        </TableCell>
+                      </TableRow>
+
+                      {/* Coating */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Coating</strong>
+                        </TableCell>
+                        <TableCell align="right">{coating || "N/A"}</TableCell>
+                      </TableRow>
+
+                      {/* Auto Card */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Auto Card</strong>
+                        </TableCell>
+                        <TableCell align="right">
+                          {auto_card || "N/A"}
+                        </TableCell>
+                      </TableRow>
+
+                      {/* RTO Tax */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>RTO Tax</strong>
+                        </TableCell>
+                        <TableCell align="right">{rto || "N/A"}</TableCell>
+                      </TableRow>
+
+                      {/* Fast Tag */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Fast Tag</strong>
+                        </TableCell>
+                        <TableCell align="right">{fast_tag || "N/A"}</TableCell>
+                      </TableRow>
+
+                      {/* Insurance */}
+                      <TableRow>
+                        <TableCell>
+                          <strong>Insurance</strong>
+                        </TableCell>
+                        <TableCell align="right">
+                          {insurance || "N/A"}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={3}>
+            {/* On-Road Price Details Table */}
+            <Grid item xs={12} md={6}>
+              <Paper elevation={1} sx={{ p: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  On-Road Price Details
+                </Typography>
+
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: "bold" }}>
+                          Description
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                          Amount (₹)
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Ex-showroom Price</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(
+                            onRoadPriceSummary?.ex_showroom_price
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Accessories</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(onRoadPriceSummary?.accessories)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Discount</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(onRoadPriceSummary?.discount)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Subtotal</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(onRoadPriceSummary?.subtotal)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          GST (
+                          <span style={{ color: "red" }}>
+                            {onRoadPriceSummary?.gst_rate || 0}%
+                          </span>{" "}
+                          of Subtotal)
+                        </TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(onRoadPriceSummary?.gst_amount)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          Cess (
+                          <span style={{ color: "red" }}>
+                            {onRoadPriceSummary?.cess_rate || 0}%
+                          </span>{" "}
+                          of Subtotal)
+                        </TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(onRoadPriceSummary?.cess_amount)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: "bold" }}>
+                          Total On-Road Price
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                          {formatCurrency(
+                            onRoadPriceSummary?.total_on_road_price
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Grid>
+
+            {/* Additional Charges Table */}
+            <Grid item xs={12} md={6}>
+              <Paper elevation={1} sx={{ p: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Additional Charges
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: "bold" }}>
+                          Charges
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                          Amount (₹)
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Coating</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(chargesSummary?.coating)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>FastTag</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(chargesSummary?.fast_tag)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>RTO</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(chargesSummary?.rto)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Insurance</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(chargesSummary?.insurance)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Extended Warranty</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(chargesSummary?.extended_warranty)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Auto Card</TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(chargesSummary?.auto_card)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: "bold" }}>
+                          Total Charges
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                          {formatCurrency(chargesSummary?.total_charges)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Grid>
+          </Grid>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
