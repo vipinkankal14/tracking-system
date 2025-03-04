@@ -44,6 +44,7 @@ const { getChargesSummary, submitInvoice } = require('./db/routes/InvoiceSummary
 const { postCustomers } = require('./db/routes/customers/customersPost');
 const { showexchange } = require('./db/routes/CarExchangeRequest/showexchange');
 const { getAllAccountManagementRefund } = require('./db/routes/Request/CarPaymentRefund');
+const { financeshow } = require('./db/routes/CarFinanceRequest/financeshow');
 
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -503,6 +504,26 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
     const [invoicesummary] = await pool.promise().query('SELECT * FROM invoice_summary WHERE customerId = ?', [customerId]);
     const [ordersprebookingdate] = await pool.promise().query('SELECT * FROM orders_prebooking_date WHERE customerId = ?', [customerId]);
 
+    // Fetch invoice summary
+    const [invoiceSummaryRows] = await pool.promise().query(
+      'SELECT * FROM invoice_summary WHERE customerId = ?',
+      [customerId]
+    );
+    const invoiceSummary = invoiceSummaryRows[0];
+    const invoiceId = invoiceSummary?.invoice_id;
+
+    // Fetch on-road price details using invoice_id
+    const [onRoadPriceDetails] = await pool.promise().query(
+      'SELECT * FROM on_road_price_details WHERE invoice_id = ?',
+      [invoiceId]
+    );
+
+    // Fetch additional charges using invoice_id
+    const [additionalCharges] = await pool.promise().query(
+      'SELECT * FROM additional_charges WHERE invoice_id = ?',
+      [invoiceId]
+    );
+
 
     // Check if customer exists
     if (customer.length === 0) {
@@ -514,9 +535,11 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
       customer: customer[0],
       carbooking: carbooking[0],
       additionalInfo: additionalInfo[0],
-      invoicesummary: invoicesummary[0],
+      cashier: cashier,
+      invoicesummary: invoiceSummary,
       ordersprebookingdate: ordersprebookingdate[0],
-      cashier,
+      onRoadPriceDetails: onRoadPriceDetails[0], // Assuming one entry per invoice
+      additionalCharges: additionalCharges[0],
     };
 
     res.json(response);
@@ -1035,6 +1058,130 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
     }
   });
 });
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+app.use('/uploads', express.static(path.join(__dirname, 'CarloansRequest')));
+app.get('/api/financeshow', financeshow);
+
+// update car exchange request status
+
+app.put('/api/exchange/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, exchangeReason , exchangeAmount  } = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_exchange_requests 
+        (customerId, status, exchangeReason, exchangeAmount ) 
+        VALUES (?, ?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, exchangeReason , exchangeAmount ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_exchange_requests
+        SET 
+          exchangeAmount  = ?,
+          exchangeReason  = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [exchangeAmount , exchangeReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+app.put('/api/rejected/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, exchangeReason} = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_exchange_requests 
+        (customerId, status, exchangeReason ) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, exchangeReason ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_exchange_requests
+        SET 
+          exchangeReason  = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [ exchangeReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
 
 
 // Real-Time Connection with Socket.IO
