@@ -87,7 +87,7 @@ const CarAllotment = () => {
   const validateDetails = (customerData, carData) => {
     if (
       carData.model !== customerData.model ||
-      carData.version !== customerData.variant ||
+      carData.version !== customerData.version ||
       carData.color !== customerData.color
     ) {
       setShowAlertModal(true); // Show alert modal if details do not match

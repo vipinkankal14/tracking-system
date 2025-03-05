@@ -14,7 +14,7 @@ export default function TopNavbar({ toggleSidebar }) {
         
         <Link to="/" className="navbar-brand d-flex align-items-center text-decoration-none">
           <Mountain className="text-primary" size={28} />
-          <span className="ms-2 fw-bold text-dark">ACME Inc</span>
+          <span className="ms-2 fw-bold text-dark">Company Name</span>
         </Link> 
       </div>
       
