@@ -20,90 +20,72 @@ import {
 import { SearchIcon } from "lucide-react";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-import DescriptionIcon from "@mui/icons-material/Description"; // Icon for Finance documents
+import DescriptionIcon from "@mui/icons-material/Description";
 
 const FinanceRejected = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [carStocks, setCarStocks] = useState([]); // Initialize as an empty array
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [selectedStock, setSelectedStock] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
-
   const [financeAmount, setFinanceAmount] = useState("");
   const [financeReason, setFinanceReason] = useState("");
-
-  // New states for Finance documents modal
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
-  const [financeDocuments, setFinanceDocuments] = useState(null);
+  const [selectedLoan, setSelectedLoan] = useState(null);
 
   useEffect(() => {
-    const fetchCarStocks = async () => {
+    const fetchCustomers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/showFinance"
+          "http://localhost:5000/api/financeshow"
         );
-
-        // Ensure the response data is in the expected format
         if (response.data && Array.isArray(response.data.data)) {
-          setCarStocks(response.data.data); // Use response.data.data
+          setCustomers(response.data.data);
         } else {
           throw new Error("Invalid data format: Expected an array.");
         }
       } catch (err) {
-        setError("Failed to load car stock data.");
-        console.error("Error fetching car stocks:", err);
+        setError("Failed to load customer data.");
+        console.error("Error fetching customers:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchCarStocks();
+    fetchCustomers();
   }, []);
 
-  const filteredCarStocks = carStocks.filter(
-    (stock) =>
-      stock.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      stock.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      stock.carMake?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCustomers = customers.filter(
+    (customer) =>
+      customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleErrorIconClick = (stock) => {
-    setSelectedStock(stock);
-    setShowModal(true); // Show the cancellation modal
+  const handleErrorIconClick = (customer) => {
+    setSelectedCustomer(customer);
+    setShowModal(true);
   };
 
-  // Function to handle opening the Finance documents modal
-  const handleDocumentsIconClick = (stock) => {
-    setSelectedStock(stock);
-    setFinanceDocuments({
-      rcDocument: stock.rcDocument,
-      insurancePolicy: stock.insurancePolicy,
-      pucCertificate: stock.pucCertificate,
-      identityProof: stock.identityProof,
-      addressProof: stock.addressProof,
-      loanClearance: stock.loanClearance,
-      serviceHistory: stock.serviceHistory,
-    });
-    setShowDocumentsModal(true); // Show the documents modal
-  };
+
 
   const handleRefundConfirmation = async () => {
     if (!isConfirmed) {
-      setError("Please confirm the Finance.");
+      setError("Please confirm the finance approval.");
       return;
     }
 
     if (!financeAmount || isNaN(financeAmount) || financeAmount <= 0) {
-      setError("Please Re-enter a valid Finance amount.");
+      setError("Please Re-enter a valid finance amount.");
       return;
     }
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/finance/update-status/${selectedStock.customerId}`,
+        `http://localhost:5000/api/finance/update-status/${selectedCustomer.customerId}`,
         {
-          status: "Approved", //
+          status: "Approved",
           financeAmount: parseFloat(financeAmount),
           financeReason,
         }
@@ -119,7 +101,7 @@ const FinanceRejected = () => {
       }
     } catch (err) {
       setError(
-        `Failed to update Finance status: ${
+        `Failed to update finance status: ${
           err.response?.data?.error || err.message
         }`
       );
@@ -127,19 +109,24 @@ const FinanceRejected = () => {
   };
 
   const handleClose = () => {
-    setShowModal(false); // Close the cancellation modal
-    setShowDocumentsModal(false); // Close the documents modal
-    setIsConfirmed(false); // Reset confirmation checkbox
-    setFinanceAmount(""); // Reset Finance amount
-    setFinanceReason(""); // Reset Finance reason
-    setError(null); // Reset error message
+    setShowModal(false);
+    setShowDocumentsModal(false);
+    setIsConfirmed(false);
+    setFinanceAmount("");
+    setFinanceReason("");
+    setError(null);
   };
 
-  // Function to extract customerId and fileName from document path
-  const getDocumentDetails = (documentPath) => {
-    if (!documentPath) return { customerId: null, fileName: null };
+  const handleDocumentsIconClick = (customer, loan) => {
+    setSelectedCustomer(customer);
+    setSelectedLoan(loan);
+    setShowDocumentsModal(true);
+  };
 
-    const fullPath = documentPath.replace(/\\/g, "/");
+  const getDocumentDetails = (document_path) => {
+    if (!document_path) return { customerId: null, fileName: null };
+
+    const fullPath = document_path.replace(/\\/g, "/");
     const pathParts = fullPath.split("/");
     const customerId = pathParts[pathParts.length - 2];
     const fileName = pathParts[pathParts.length - 1];
@@ -158,153 +145,175 @@ const FinanceRejected = () => {
           justifyContent: "center",
         }}
       >
-        <Typography variant="h6">Car Finance for Rejected </Typography>
+        <Typography variant="h6">Car Finance Rejected</Typography>
       </div>
 
       {/* Search Bar */}
-      <div className="d-flex justify-content-center justify-content-md-start">
-        <div className="mb-4" style={{ width: "100%", maxWidth: "400px" }}>
-          <TextField
-            variant="outlined"
-            placeholder="Search..."
-            label="Search Car Finance"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            fullWidth
-          />
+        <div className="d-flex justify-content-center justify-content-md-start">
+          <div className="mb-4" style={{ width: "100%", maxWidth: "400px" }}>
+            <TextField
+          variant="outlined"
+          placeholder="Search..."
+          label="Search Car Finance"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+            <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          fullWidth
+            />
+          </div>
         </div>
-      </div>
 
-      {loading && (
-        <div className="text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-      )}
+        {loading && (
+          <div className="text-center">
+            <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </div>
+        )}
 
-      {error && (
-        <div className="text-center text-danger">
-          <Typography>{error}</Typography>
-        </div>
-      )}
+        {error && (
+          <div className="text-center text-danger">
+            <Typography>{error}</Typography>
+          </div>
+        )}
 
-      {!loading && !error && (
-        <TableContainer component={Paper} style={{ overflowX: "auto" }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Customer ID
+        {!loading && !error && (
+          <TableContainer component={Paper} style={{ overflowX: "auto" }}>
+            <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+            Customer ID
+              </TableCell>
+              <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+            Full Name
+              </TableCell>
+              <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+            Email
                 </TableCell>
+                
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Full Name
-                </TableCell>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Make | Car Model | Car Color
+                  Car Details
                 </TableCell>
 
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Registration
+
+              <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+            Loans
+              </TableCell>
+              <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+            Actions
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredCustomers.length > 0 ? (
+              filteredCustomers.map((customer, index) =>
+            customer.loans?.some((loan) => loan.status === "Rejected") ? (
+              <TableRow key={index}>
+                {/* Customer ID */}
+                <TableCell style={{ fontSize: "12px" }}>
+              {customer.customerId}
                 </TableCell>
+
+                {/* Customer Name */}
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Year
+              {customer.firstName} {customer.middleName}{" "}
+              {customer.lastName}
                 </TableCell>
+
+                {/* Customer Email */}
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  status
+              {customer.email}
+                    </TableCell>
+                    
+                       <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                                  {customer.model} | {customer.version} | {customer.color}
+                                        </TableCell>
+
+                {/* Loans Information */}
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+              {customer.loans?.length > 0
+                ? customer.loans.map((loan, loanIndex) => (
+                <div key={loanIndex}>
+                  <strong>Loan ID:</strong> {loan.id} <br />
+                  <strong>Amount:</strong> {loan.loan_amount}{" "}
+                  <br />
+                  <strong>Interest Rate:</strong>{" "}
+                  {loan.interest_rate} <br />
+                  <strong>Duration:</strong> {loan.loan_duration}{" "}
+                  <br />
+                  <strong>EMI:</strong> {loan.calculated_emi}{" "}
+                  <br />
+                </div>
+                  ))
+                : "No loans available"}
                 </TableCell>
+
+                {/* Loan Status */}
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Actions
+              {customer.loans?.length > 0
+                ? customer.loans.map((loan, loanIndex) => (
+                <Badge
+                  key={loanIndex}
+                  bg={
+                    loan.status === "approved"
+                  ? "success"
+                  : "danger"
+                  }
+                  style={{ cursor: "pointer" }}
+                >
+                  {loan.status}
+                </Badge>
+                  ))
+                : "N/A"}
+                </TableCell>
+
+                {/* Action Icons */}
+                <TableCell style={{ fontSize: "12px" }}>
+              {customer.loans?.length > 0
+                ? customer.loans.map((loan, loanIndex) => (
+                <DescriptionIcon
+                  key={loanIndex}
+                  style={{
+                    cursor: "pointer",
+                    marginRight: "10px",
+                  }}
+                  onClick={() =>
+                    handleDocumentsIconClick(customer, loan)
+                  }
+                  aria-label="View Documents"
+                />
+                  ))
+                : "No actions"}
+
+              <ErrorOutlineIcon
+                style={{ cursor: "pointer" }}
+                onClick={() => handleErrorIconClick(customer)}
+                aria-label="Handle Error"
+              />
                 </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredCarStocks.length > 0 ? (
-                filteredCarStocks.map((stock, index) => {
-                  // Only render the row if the status is "Rejected"
-                  if (stock.status === "Rejected") {
-                    return (
-                      <TableRow
-                        key={index}
-                        style={{
-                          fontSize: "12px",
-                          padding: "10px",
-                        }}
-                      >
-                        <TableCell style={{ fontSize: "12px" }}>
-                          {stock.customerId}
-                        </TableCell>
-                        <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
-                        >
-                          {stock.firstName} {stock.middleName} {stock.lastName}
-                        </TableCell>
-                        <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
-                        >
-                          {stock.carMake} | {stock.carModel} | {stock.carColor}
-                        </TableCell>
-                        <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
-                        >
-                          {stock.carRegistration}
-                        </TableCell>
-                        <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
-                        >
-                          {stock.carYear}
-                        </TableCell>
-                        <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
-                        >
-                          <Badge bg="danger" style={{ cursor: "pointer" }}>
-                            {" "}
-                            {stock.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell
-                          style={{
-                            fontSize: "12px",
-                            padding: "10px",
-                            color: "#341047",
-                          }}
-                        >
-                          <DescriptionIcon
-                            style={{ cursor: "pointer", marginRight: "10px" }}
-                            onClick={() => handleDocumentsIconClick(stock)}
-                          />
-                          <ErrorOutlineIcon
-                            style={{ cursor: "pointer" }}
-                            onClick={() => handleErrorIconClick(stock)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  } else {
-                    // Return null for rows that don't meet the condition
-                    return null;
-                  }
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan="9" className="text-center">
-                    No records found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+            ) : null
+              )
+            ) : (
+              <TableRow>
+            <TableCell colSpan="5" className="text-center">
+              No records found.
+            </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+            </Table>
+          </TableContainer>
+        )}
 
-      {/* Cancellation Modal */}
+        {/* Finance Approval Modal */}
       <Modal
         show={showModal}
         onHide={handleClose}
@@ -316,8 +325,8 @@ const FinanceRejected = () => {
         <Modal.Header closeButton>
           <Typography>
             <strong>Finance Amount for:</strong>{" "}
-            {selectedStock?.customerId || "N/A"}{" "}
-            {selectedStock?.customerId && (
+            {selectedCustomer?.customerId || "N/A"}{" "}
+            {selectedCustomer?.customerId && (
               <VerifiedRoundedIcon
                 style={{
                   color: "#092e6b",
@@ -331,22 +340,26 @@ const FinanceRejected = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <Typography fontSize={12} style={{cursor:"pointer"}}>
-            {selectedStock && (
+        <Typography fontSize={12}>
+            {selectedCustomer ? (
               <>
                 <Typography style={{fontSize: "12px"}} >
-                  <strong>Full Name:</strong>{" "}
-                  {`${selectedStock.firstName} ${selectedStock.middleName} ${selectedStock.lastName}`}
+                  <strong >Full Name:</strong>{" "}
+                  {`${selectedCustomer.firstName} ${selectedCustomer.middleName} ${selectedCustomer.lastName}`}
                 </Typography>
-                <Typography style={{fontSize: "12px"}} >
-                  <strong>Current Finance Amount:</strong> ₹
-                  {selectedStock.financeAmount || "N/A"}
+                          
+                <Typography style={{fontSize: "12px"}}>
+                  <strong>Current Finance Amount: :</strong>{" "}
+                  {selectedCustomer.loans?.[0]?.financeAmount || "N/A"}
                 </Typography>
-                <Typography style={{fontSize: "12px", color: "red"}}>
-                  <strong style={{color:'black'}} >Finance Reason Rejected:</strong>{" "}
-                  {selectedStock.financeReason || "N/A"}
+                          
+                <Typography style={{fontSize: "12px", color: "red"}} >
+                  <strong style={{color:'black'}}  >Finance Reason Rejected:</strong>{" "}
+                  {selectedCustomer.loans?.[0]?.financeReason || "N/A"}
                 </Typography>
               </>
+            ) : (
+              <Typography>No customer selected.</Typography>
             )}
           </Typography>
           <div
@@ -356,10 +369,9 @@ const FinanceRejected = () => {
               gap: "10px",
               marginTop: "10px",
               justifyContent: "center",
-              alignItems: "center", // Center horizontally
+              alignItems: "center",
             }}
           >
-            {/* Amount Input */}
             <FormControl fullWidth sx={{ m: 1 }}>
               <InputLabel htmlFor="outlined-adornment-amount">
                 Amount
@@ -376,29 +388,26 @@ const FinanceRejected = () => {
               />
             </FormControl>
 
-            {/* Finance Reason Textarea */}
-
             <TextareaAutosize
               minRows={3}
-              placeholder="Reason for Finance (optional)"
+              placeholder="Reason for finance approval (optional)"
               style={{
                 width: "100%",
                 padding: "10px",
                 borderRadius: "4px",
                 border: "1px solid #ccc",
-                resize: "vertical", // Allow vertical resizing
+                resize: "vertical",
               }}
               value={financeReason}
               onChange={(e) => setFinanceReason(e.target.value)}
             />
 
-            {/* Confirmation Checkbox */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 width: "100%",
-                justifyContent: "flex-start", // Align checkbox to the left
+                justifyContent: "flex-start",
               }}
             >
               <input
@@ -406,7 +415,7 @@ const FinanceRejected = () => {
                 id="confirmCheckbox"
                 checked={isConfirmed}
                 onChange={(e) => setIsConfirmed(e.target.checked)}
-                style={{ cursor: "pointer" }} // Add pointer cursor
+                style={{ cursor: "pointer" }}
               />
               <label
                 htmlFor="confirmCheckbox"
@@ -414,10 +423,10 @@ const FinanceRejected = () => {
                   marginLeft: "5px",
                   display: "flex",
                   alignItems: "center",
-                  cursor: "pointer", // Add pointer cursor
+                  cursor: "pointer",
                 }}
               >
-                I confirm the Finance
+                I confirm the finance approval
               </label>
             </div>
           </div>
@@ -466,8 +475,8 @@ const FinanceRejected = () => {
         <Modal.Header closeButton>
           <Typography fontSize={12}>
             <strong>Finance Documents for:</strong>{" "}
-            {selectedStock?.customerId || "N/A"}{" "}
-            {selectedStock?.customerId && (
+            {selectedCustomer?.customerId || "N/A"}{" "}
+            {selectedCustomer?.customerId && (
               <VerifiedRoundedIcon
                 style={{
                   color: "#092e6b",
@@ -481,42 +490,69 @@ const FinanceRejected = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <Typography fontSize={12}>
-            {selectedStock && (
-              <>
-                <Typography>
-                  <strong>Full Name:</strong>{" "}
-                  {`${selectedStock.firstName} ${selectedStock.middleName} ${selectedStock.lastName}`}
-                </Typography>
-              </>
-            )}
-          </Typography>
-          {Object.entries(financeDocuments || {}).map(([key, value]) => {
-            const { customerId, fileName } = getDocumentDetails(value);
-            return (
-              <Typography key={key}>
-                <strong>{key}:</strong>
-                {fileName ? (
-                  <a
-                    href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
-                      fileName
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      marginLeft: "10px",
-                      color: "blue",
-                      textDecoration: "underline",
-                    }}
-                  >
+          
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ fontSize: "10px" }}>
+                    Document Name
+                  </TableCell>
+                  <TableCell style={{ fontSize: "10px" }}>
                     View Document
-                  </a>
+                  </TableCell>
+                  <TableCell style={{ fontSize: "10px" }}>
+                    Uploaded At
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedLoan?.documents?.length > 0 ? (
+                  selectedLoan.documents.map((document, index) => {
+                    const { customerId, fileName } = getDocumentDetails(
+                      document.document_path
+                    );
+                    return (
+                      <TableRow key={index}>
+                        <TableCell style={{ fontSize: "10px" }}>
+                          {document.document_name}
+                        </TableCell>
+                        <TableCell style={{ fontSize: "10px" }}>
+                          {fileName ? (
+                            <a
+                              href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
+                                fileName
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "blue",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              View Document
+                            </a>
+                          ) : (
+                            "N/A"
+                          )}
+                        </TableCell>
+                        <TableCell style={{ fontSize: "10px" }}>
+                          {new Date(document.uploaded_at).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 ) : (
-                  "N/A"
+                  <TableRow>
+                    <TableCell colSpan="3" className="text-center">
+                      No documents found.
+                    </TableCell>
+                  </TableRow>
                 )}
-              </Typography>
-            );
-          })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
           {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
         </Modal.Body>
 

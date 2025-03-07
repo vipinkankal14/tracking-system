@@ -111,7 +111,7 @@ const Payment = () => {
           <h4>Car Details</h4>
           <p>Car Model: {customerDetails?.model}</p>
           <p>Car Color: {customerDetails?.color}</p>
-          <p>Car Variant: {customerDetails?.variant}</p>
+          <p>Car Variant: {customerDetails?.version}</p>
         </div>
 
         <div className="info-box">

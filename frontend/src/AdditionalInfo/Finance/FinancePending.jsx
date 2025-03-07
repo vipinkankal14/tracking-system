@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Modal } from "react-bootstrap";
+import { Table, Spinner, Modal, Badge } from "react-bootstrap";
 import axios from "axios";
 import {
   Button,
@@ -195,65 +195,102 @@ const FinancePending = () => {
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Email
                 </TableCell>
+                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                                  Car Details
+                                </TableCell>
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Loans
                 </TableCell>
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Actions
+                  Status
                 </TableCell>
+
+                <TableCell
+                  style={{ fontSize: "12px", padding: "10px" }}
+                ></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredCustomers.length > 0 ? (
-                filteredCustomers.map((customer, index) => (
-                  <TableRow key={index}>
-                    <TableCell style={{ fontSize: "12px" }}>
-                      {customer.customerId}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {customer.firstName} {customer.middleName}{" "}
-                      {customer.lastName}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {customer.email}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {customer.loans?.length > 0
-                        ? customer.loans.map((loan, loanIndex) => (
-                            <div key={loanIndex}>
-                              <strong>Loan ID:</strong> {loan.id} <br />
-                              <strong>Amount:</strong> {loan.loan_amount} <br />
-                              <strong>Interest Rate:</strong>{" "}
-                              {loan.interest_rate} <br />
-                              <strong>Duration:</strong> {loan.loan_duration}{" "}
-                              <br />
-                              <strong>EMI:</strong> {loan.calculated_emi} <br />
-                            </div>
-                          ))
-                        : "No loans"}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "12px" }}>
-                      {customer.loans?.length > 0
-                        ? customer.loans.map((loan, loanIndex) => (
-                            <DescriptionIcon
-                              style={{
-                                cursor: "pointer",
-                                marginRight: "10px",
-                              }}
-                              onClick={() =>
-                                handleDocumentsIconClick(customer, loan)
-                              }
-                            />
-                          ))
-                        : "No loans"}
+                filteredCustomers.map((customer, index) =>
+                  customer.loans?.some((loan) => loan.status === "Pending") ? (
+                    <TableRow key={index}>
+                      {/* Customer ID */}
+                      <TableCell style={{ fontSize: "12px" }}>
+                        {customer.customerId}
+                      </TableCell>
 
-                      <ErrorOutlineIcon
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleErrorIconClick(customer)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
+                      {/* Customer Name */}
+                      <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                        {customer.firstName} {customer.middleName}{" "}
+                        {customer.lastName}
+                      </TableCell>
+
+                      {/* Customer Email */}
+                      <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                        {customer.email}
+                      </TableCell>
+
+                      {/* Car Details */}
+                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                                 {customer.model} | {customer.version} | {customer.color}
+                      </TableCell>
+
+                      {/* Loans Information */}
+                      <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                        {customer.loans?.length > 0
+                          ? customer.loans.map((loan, loanIndex) => (
+                              <div key={loanIndex}>
+                                <strong>Loan ID:</strong> {loan.id} <br />
+                                <strong>Amount:</strong> {loan.loan_amount}{" "}
+                                <br />
+                                <strong>Interest Rate:</strong>{" "}
+                                {loan.interest_rate} <br />
+                                <strong>Duration:</strong> {loan.loan_duration}{" "}
+                                <br />
+                                <strong>EMI:</strong> {loan.calculated_emi}{" "}
+                                <br />
+                              </div>
+                            ))
+                          : "No loans available"}
+                      </TableCell>
+
+                      {/* Loan Status */}
+                      {/* Loan Status */}
+                      <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                        <Badge bg="warning" style={{ cursor: "pointer" }}>
+                          {" "}
+                          {customer.loans?.[0]?.status || "N/A"}
+                        </Badge>
+                      </TableCell>
+
+                      {/* Action Icons */}
+                      <TableCell style={{ fontSize: "12px" }}>
+                        {customer.loans?.length > 0
+                          ? customer.loans.map((loan, loanIndex) => (
+                              <DescriptionIcon
+                                key={loanIndex}
+                                style={{
+                                  cursor: "pointer",
+                                  marginRight: "10px",
+                                }}
+                                onClick={() =>
+                                  handleDocumentsIconClick(customer, loan)
+                                }
+                                aria-label="View Documents"
+                              />
+                            ))
+                          : "No actions"}
+
+                        <ErrorOutlineIcon
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleErrorIconClick(customer)}
+                          aria-label="Handle Error"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ) : null
+                )
               ) : (
                 <TableRow>
                   <TableCell colSpan="5" className="text-center">

@@ -31,7 +31,7 @@ const CarExchange = () => {
   const [selectedStock, setSelectedStock] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-   const [exchangeReason, setExchangeReason] = useState("");
+  const [exchangeReason, setExchangeReason] = useState("");
 
   // New states for exchange documents modal
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
@@ -93,21 +93,19 @@ const CarExchange = () => {
       return;
     }
 
-   
-
     try {
       const response = await axios.put(
         `http://localhost:5000/api/rejected/update-status/${selectedStock.customerId}`,
         {
           status: "Rejected", //
-           exchangeReason,
+          exchangeReason,
         }
       );
 
       if (response.status === 200) {
         alert("Exchange status updated successfully!");
         setShowModal(false);
-         setExchangeReason("");
+        setExchangeReason("");
         setIsConfirmed(false);
         setError(null);
       }
@@ -124,7 +122,7 @@ const CarExchange = () => {
     setShowModal(false); // Close the cancellation modal
     setShowDocumentsModal(false); // Close the documents modal
     setIsConfirmed(false); // Reset confirmation checkbox
-     setExchangeReason(""); // Reset exchange reason
+    setExchangeReason(""); // Reset exchange reason
     setError(null); // Reset error message
   };
 
@@ -200,8 +198,11 @@ const CarExchange = () => {
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Full Name
                 </TableCell>
+                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                                EX-Car Owner FullName
+                                </TableCell>
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Make | Car Model | Car Color
+                  Car Details
                 </TableCell>
 
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
@@ -235,14 +236,44 @@ const CarExchange = () => {
                           {stock.customerId}
                         </TableCell>
                         <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
+                          style={{
+                            fontSize: "12px",
+                            padding: "8px",
+                            verticalAlign: "middle",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "200px", // Adjust based on your layout
+                          }}
                         >
-                          {stock.firstName} {stock.middleName} {stock.lastName}
+                          <span
+                            title={`${stock.firstName}${
+                              stock.middleName ? " " + stock.middleName : ""
+                            } ${stock.lastName}`}
+                          >
+                            {stock.firstName}
+                            {stock.middleName && ` ${stock.middleName}`}
+                            {stock.lastName}
+                          </span>
                         </TableCell>
+                         <TableCell style={{ fontSize: "12px" }}>
+                                                  {stock.carOwnerFullName}
+                                                </TableCell>
                         <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
+                          style={{
+                            fontSize: "12px",
+                            padding: "8px",
+                            minWidth: "200px", // Adjust based on your content
+                            whiteSpace: "nowrap",
+                            verticalAlign: "middle",
+                          }}
                         >
-                          {stock.carMake} | {stock.carModel} | {stock.carColor}
+                          <span
+                            title={`${stock.carMake} | ${stock.carModel} | ${stock.carColor}`}
+                          >
+                            {stock.carMake} | {stock.carModel} |{" "}
+                            {stock.carColor}
+                          </span>
                         </TableCell>
                         <TableCell
                           style={{ fontSize: "12px", padding: "10px" }}
@@ -327,16 +358,18 @@ const CarExchange = () => {
           <Typography fontSize={12}>
             {selectedStock && (
               <>
-                 <Typography style={{fontSize: "12px"}} >
+                <Typography style={{ fontSize: "12px" }}>
                   <strong>Full Name:</strong>{" "}
                   {`${selectedStock.firstName} ${selectedStock.middleName} ${selectedStock.lastName}`}
                 </Typography>
-                <Typography style={{fontSize: "12px"}} >
+                <Typography style={{ fontSize: "12px" }}>
                   <strong>Current Exchange Amount:</strong> ₹
                   {selectedStock.exchangeAmount || "N/A"}
                 </Typography>
-                <Typography style={{fontSize: "12px", color: "red"}}>
-                  <strong style={{color:'black'}} >Exchange Reason Approved :</strong>{" "}
+                <Typography style={{ fontSize: "12px", color: "red" }}>
+                  <strong style={{ color: "black" }}>
+                    Exchange Reason Approved :
+                  </strong>{" "}
                   {selectedStock.exchangeReason || "N/A"}
                 </Typography>
               </>
@@ -352,7 +385,6 @@ const CarExchange = () => {
               alignItems: "center", // Center horizontally
             }}
           >
-          
             {/* Exchange Reason Textarea */}
             <TextareaAutosize
               minRows={3}
@@ -364,7 +396,7 @@ const CarExchange = () => {
                 border: "1px solid #ccc",
                 resize: "vertical", // Allow vertical resizing
               }}
-              value={exchangeReason} 
+              value={exchangeReason}
               onChange={(e) => setExchangeReason(e.target.value)}
             />
 

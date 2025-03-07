@@ -50,14 +50,9 @@ import { AccessorieUpload } from "./AdditionalInfo/Accessories/AddedUploadView/A
 import AddAccessories from "./AdditionalInfo/Accessories/AddedUploadView/AddAccessories";
 import AccessorieView from "./AdditionalInfo/Accessories/AddedUploadView/AccessorieView";
 import { AccessoriesDiscount } from "./AdditionalInfo/Accessories/Discount/AccessoriesDiscount";
-import RequestByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/RequestByCustomer";
- import CancelAndModifyApp from "./AdditionalInfo/Accessories/CancelAndModifyApp";
-import { ModifyByCustomer } from "./AdditionalInfo/Accessories/CustomerAccessories/ModifyByCustomer";
-import CancelByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/CancelByCustomer";
-import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
-import RequestByAcceotApp from "./AdditionalInfo/Accessories/RequestByAcceptApp";
-import AcceptByCustomer from "./AdditionalInfo/Accessories/CustomerAccessories/AcceptByCustomer";
-
+ import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
+ 
+ 
 import ExchangeApp from "./AdditionalInfo/Exchange/ExchangeApp";
 import CarExchange from "./AdditionalInfo/Exchange/CarExchange";
 import CarRequest from "./AdditionalInfo/Exchange/CarRequest";
@@ -82,29 +77,36 @@ import FinanceApproved from "./AdditionalInfo/Finance/FinanceApproved";
 import InsuranceApproved from "./AdditionalInfo/Insurance/InsuranceApproved";
 import InsuranceRejected from "./AdditionalInfo/Insurance/InsuranceRejected";
 import InsurancePending from "./AdditionalInfo/Insurance/InsurancePending";
-import { AutocardApproved } from "./AdditionalInfo/AutoCard/AutocardApproved";
-import SecurityclearancePending from "./AdditionalInfo/SecurityClearance/SecurityclearancePending";
-import SecurityclearanceRejected from "./AdditionalInfo/SecurityClearance/SecurityclearanceRejected";
-import SecurityclearanceApproved from "./AdditionalInfo/SecurityClearance/SecurityclearanceApproved";
-import { ExtendedWarrantyPending } from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyPending";
-import { ExtendedWarrantyRejected } from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyRejected";
-import { ExtendedWarrantyApproved } from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyApproved";
-import CoatingPending from "./AdditionalInfo/Coating/CoatingPending";
-import CoatingRejected from "./AdditionalInfo/Coating/CoatingRejected";
-import CoatingApproved from "./AdditionalInfo/Coating/CoatingApproved";
-import { GatepassPending } from "./AdditionalInfo/GeetPass/GatepassPending";
-import GatepassRejected from "./AdditionalInfo/GeetPass/GatepassRejected";
-import { GatepassApproved } from "./AdditionalInfo/GeetPass/GatepassApproved";
-import FastTagPending from "./AdditionalInfo/FastTag/FastTagPending";
-import FastTagApproved from "./AdditionalInfo/FastTag/FastTagApproved";
-import { FastTagRejected } from "./AdditionalInfo/FastTag/FastTagRejected";
-import RTOPending from "./AdditionalInfo/RTO/RTOPending";
-import RTORejected from "./AdditionalInfo/RTO/RTORejected";
-import { RTOApproved } from "./AdditionalInfo/RTO/RTOApproved";
+ 
+ 
+ 
 import AutocardRejected from "./AdditionalInfo/AutoCard/AutocardRejected";
 import AutocardPending from "./AdditionalInfo/AutoCard/AutocardPending";
 import FastTagApp from "./AdditionalInfo/FastTag/FastTagApp";
- 
+import AutocardApproved from "./AdditionalInfo/AutoCard/AutocardApproved";
+import ExtendedWarrantyApproved from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyApproved";
+import ExtendedWarrantyPending from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyPending";
+import ExtendedWarrantyRejected from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyRejected";
+import FastTagApproved from "./AdditionalInfo/FastTag/FastTagApproved";
+import FastTagRejected from "./AdditionalInfo/FastTag/FastTagRejected";
+import FastTagPending from "./AdditionalInfo/FastTag/FastTagPending";
+import GatepassApproved from "./AdditionalInfo/GeetPass/GatepassApproved";
+import GatepassRejected from "./AdditionalInfo/GeetPass/GatepassRejected";
+import GatepassPending from "./AdditionalInfo/GeetPass/GatepassPending";
+import SecurityclearanceApproved from "./AdditionalInfo/SecurityClearance/SecurityclearanceApproved";
+import SecurityclearanceRejected from "./AdditionalInfo/SecurityClearance/SecurityclearanceRejected";
+import SecurityclearancePending from "./AdditionalInfo/SecurityClearance/SecurityclearancePending";
+import RTOApproved from "./AdditionalInfo/RTO/RTOApproved";
+import RTORejected from "./AdditionalInfo/RTO/RTORejected";
+import RTOPending from "./AdditionalInfo/RTO/RTOPending";
+import CoatingApproved from "./AdditionalInfo/Coating/CoatingApproved";
+import CoatingRejected from "./AdditionalInfo/Coating/CoatingRejected";
+import CoatingPending from "./AdditionalInfo/Coating/CoatingPending";
+import ACMApprovedRejected from "./AdditionalInfo/Account/ACMApprovedRejected";
+import AccessoriesApproval from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesApproval";
+import AccessoriesReject from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesReject";
+import AccessoriesPending from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesPending";
+  
 
 
 
@@ -169,17 +171,19 @@ function App() {
                 {/* ========================================================================================== */}
 
                 <Route path="/accessorie-app" element={<AccessorieApp />} />
-                <Route path="/Request-By-Accept-App" element={<RequestByAcceotApp />} />
-                <Route path="/accept-by-customer" element={<AcceptByCustomer />} />
-                <Route path="/accessories-discount-main" element={<AccessoriesDiscount />} />
+                  <Route path="/accessories-discount-main" element={<AccessoriesDiscount />} />
                 <Route path="/accessorie-upload" element={<AccessorieUpload />} />
                 <Route path="/add-accessories" element={<AddAccessories />} />
                 <Route path="/accessorie-view" element={<AccessorieView />} />
-                <Route path="/request-by-customer" element={<RequestByCustomer />} />
-                <Route path="/CancelAnd-Modify-App" element={<CancelAndModifyApp />} />
-                <Route path="/Modify-By-Customer" element={<ModifyByCustomer />} /> 
-                <Route path="/Cancel-By-Customer" element={<CancelByCustomer />} />
+                <Route path="/accessories-Approval" element={<AccessoriesApproval />} />
+                <Route path="/accessories-Reject" element={<AccessoriesReject />} />
+                <Route path="/accessories-Reject" element={<AccessoriesReject />} />
+                <Route path="/accessories-Pending" element={<AccessoriesPending />} />
 
+                
+
+
+   
                 
                  {/* ========================================================================================== */}
 
@@ -190,6 +194,7 @@ function App() {
                 <Route path="/payment-pending" element={<PaymentPending />} />
                 <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
                 <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
+                <Route path="/ACMApprovedRejected" element={<ACMApprovedRejected />} />
 
 
                  {/* ========================================================================================== */}

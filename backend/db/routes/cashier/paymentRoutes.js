@@ -16,13 +16,7 @@ const handlePayment = async (req, res) => {
       return res.status(404).json({ error: "Customer does not exist." });
     }
 
-    // Check the account_management status
-    const accountStatusQuery = `SELECT status FROM account_management WHERE customerId = ?`;
-    const [accountStatus] = await pool.query(accountStatusQuery, [customerId]);
 
-    if (accountStatus.length === 0 || accountStatus[0].status !== 'approved') {
-      return res.status(403).json({ error: "Payment cannot be processed. Account status is not approved." });
-    }
 
     // Variable to store the payment status
     let paymentStatus;
@@ -142,7 +136,7 @@ const handlePayment = async (req, res) => {
         grand_total,
       },
     });
-    
+
   } catch (err) {
     console.error("Error processing payment:", err.message);
     res.status(500).json({ error: "Error processing payment." });
@@ -154,11 +148,11 @@ const handlePayment = async (req, res) => {
 const getCustomerById = async (req, res) => {
   const { id } = req.params;
   const query = `
-  SELECT *
-FROM customers c
-LEFT JOIN carbooking cb ON c.customerId = cb.customerId
-LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
-WHERE c.customerId = ?
+      SELECT *
+    FROM customers c
+    LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+    LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+    WHERE c.customerId = ?
   `;
 
   try {
@@ -179,10 +173,10 @@ WHERE c.customerId = ?
 // Function to fetch all customers
 const getAllCustomers = async (req, res) => {
   const query = `
-  SELECT *
-FROM customers c
-LEFT JOIN carbooking cb ON c.customerId = cb.customerId
-LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId;
+      SELECT *
+    FROM customers c
+    LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+    LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId;
 `;
 
   try {
@@ -208,11 +202,35 @@ const getAllCashierTransactions = async (req, res) => {
   }
 };
 
+  
+
+
+// Function to fetch all customers
+const ACMApprovedRejected = async (req, res) => {
+  const query = `
+      SELECT *
+    FROM customers c
+    LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+    LEFT JOIN account_management inv ON c.customerId = inv.customerId;
+`;
+
+  try {
+    // Use await to get the results of the query
+    const [results] = await pool.query(query);
+
+    res.json(results);  // Send the customer data as JSON
+  } catch (err) {
+    console.error('Error fetching customers:', err);
+    res.status(500).json({ error: 'Error fetching customers' });
+  }
+};
+
 
 // Export the function via module.exports
 module.exports = {
   handlePayment,
   getAllCustomers,
   getAllCashierTransactions,
-  getCustomerById
+  getCustomerById,
+  ACMApprovedRejected
 };

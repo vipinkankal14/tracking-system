@@ -4,29 +4,35 @@ const pool = require('../../databaseConnection/mysqlConnection');
 
 const financeshow = async (req, res) => {
     const query = `
-        SELECT 
-            c.customerId,
-            c.firstName,
-            c.middleName,
-            c.lastName,
-            c.email,
-            c.created_at AS customer_created,
-            l.id AS loan_id,
-            l.loan_amount,
-            l.interest_rate,
-            l.loan_duration,
-            l.calculated_emi,
-            l.created_at AS loan_created,
-            d.id AS document_id,
-            d.employed_type,
-            d.document_name,
-          
-            d.uploaded_file AS document_path,
-            d.uploaded_at AS document_uploaded
-        FROM customers c
-        LEFT JOIN loans l ON c.customerId = l.customerId
-        LEFT JOIN customer_documents d ON l.id = d.loan_id
-    `;
+    SELECT 
+        c.customerId,
+        c.firstName,
+        c.middleName,
+        c.lastName,
+        c.email,
+        c.created_at AS customer_created,
+        l.id AS loan_id,
+        l.loan_amount,
+        l.interest_rate,
+        l.loan_duration,
+        l.status,
+        l.financeReason,
+        l.financeAmount,
+        l.calculated_emi,
+        l.created_at AS loan_created,
+        d.id AS document_id,
+        d.employed_type,
+        d.document_name,
+        d.uploaded_file AS document_path,
+        d.uploaded_at AS document_uploaded,
+        cr.model,
+        cr.version,
+        cr.color
+    FROM customers c
+    LEFT JOIN loans l ON c.customerId = l.customerId
+    LEFT JOIN carbooking cr ON c.customerId = cr.customerId
+    LEFT JOIN customer_documents d ON l.id = d.loan_id
+`;
 
     try {
         const [results] = await pool.query(query);
@@ -51,6 +57,9 @@ const financeshow = async (req, res) => {
                     lastName: row.lastName,
                     email: row.email,
                     created_at: row.customer_created,
+                    model: row.model,
+                    version: row.version,
+                    color: row.color,
                     loans: []
                 });
             }
@@ -63,8 +72,12 @@ const financeshow = async (req, res) => {
                     loan_amount: row.loan_amount,
                     interest_rate: row.interest_rate,
                     loan_duration: row.loan_duration,
+                    status: row.status,
+                    financeReason: row.financeReason,
+                    financeAmount: row.financeAmount,
                     calculated_emi: row.calculated_emi,
                     created_at: row.loan_created,
+
                     documents: []
                 });
             }

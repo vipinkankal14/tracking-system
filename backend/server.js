@@ -26,7 +26,7 @@ app.use(express.json({ limit: "10mb" })); // Increase limit for large file uploa
 
 
 // Import the payment function from the paymentRoutes file
-const { handlePayment, getAllCustomers, getCustomerById } = require('./db/routes/cashier/paymentRoutes');
+const { handlePayment, getAllCustomers, getCustomerById, ACMApprovedRejected } = require('./db/routes/cashier/paymentRoutes');
 const { addCarStock } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
@@ -45,11 +45,17 @@ const { postCustomers } = require('./db/routes/customers/customersPost');
 const { showexchange } = require('./db/routes/CarExchangeRequest/showexchange');
 const { getAllAccountManagementRefund } = require('./db/routes/Request/CarPaymentRefund');
 const { financeshow } = require('./db/routes/CarFinanceRequest/financeshow');
-
+const { Insuranceshow } = require('./db/routes/CarInsuranceRequest/Insuranceshow');
+const { fastTagshow } = require('./db/routes/CarFastTagRequest/fastTagshow');
+const { AccessoriesRequestshow } = require('./db/routes/CarAccessoriesRequest/AccessoriesRequestshow');
+const { showRTO } = require('./db/routes/CarRTORequest/showRTO');
+const { showCoating } = require('./db/routes/CarCoatingRequest/showCoating');
+ 
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
 // Use the payment routes
 app.get('/api/getAllAccountManagementRefund', getAllAccountManagementRefund);
+app.get('/api/ACMApprovedRejected', ACMApprovedRejected);
 app.get('/api/customers', getAllCustomers); //frontend\src\cashier\Payments\PaymentPending.jsx //frontend\src\cashier\CarBooking\CarBookings.jsx // frontend\src\cashier\CarBookingCancel\CarBookingCancel.jsx // frontend\src\cashier\CustomerPaymentDetails\CustomerPaymentDetails.jsx // frontend\src\cashier\Payments\PaymentClear.jsx
 app.get("/api/customers/:id", getCustomerById); // frontend\src\cashier\Payments\Payment.jsx
 app.use('/api/CarStock', addCarStock); //carStocks\AddCarStock.jsx
@@ -67,7 +73,7 @@ app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUpl
 
 
 app.post('/api/submitCart', (req, res) => {
-  const { customerId, totalAmount,requestStatus,products } = req.body;
+  const { customerId, totalAmount,products } = req.body;
 
   console.log("Received cart data:", req.body); // Log received data
 
@@ -99,8 +105,8 @@ app.post('/api/submitCart', (req, res) => {
         return res.status(500).json({ message: "Error deleting order." });
       }
 
-      const insertOrderQuery = `INSERT INTO orders_accessories_request (customerId, totalAmount,requestStatus) VALUES (?, ?, ?);`
-      pool.query(insertOrderQuery, [customerId, totalAmount,requestStatus], (err, result) => {
+      const insertOrderQuery = `INSERT INTO orders_accessories_request (customerId, totalAmount) VALUES ( ?, ?);`
+      pool.query(insertOrderQuery, [customerId, totalAmount], (err, result) => {
         if (err) {
           console.error("Error inserting new order:", err);
           return res.status(500).json({ message: "Database error while inserting new order." });
@@ -752,85 +758,8 @@ app.post('/api/submit-form', async (req, res) => {
 
 app.post('/api/submitInvoice', submitInvoice);
 
-// API endpoint to fetch orders with customer and product details
-app.get('/api/getOrdersWithCustomers', (req, res) => {
-  const query = `
-    SELECT 
-      o.id AS orderId,
-      c.customerId,
-      CONCAT(c.firstName, ' ', c.lastName) AS fullName,
-      o.totalAmount,
-      o.requestStatus,
-      p.category,
-      p.name,
-      p.price
-    FROM 
-      orders_accessories_request o
-    JOIN 
-      customers c ON o.customerId = c.customerId
-    JOIN 
-      order_products p ON o.id = p.orderId;
-  `;
-
-  pool.query(query, (err, results) => {
-    if (err) {
-      console.error('Error executing query:', err);
-      return res.status(500).json({ error: 'Failed to fetch orders' });
-    }
-
-    // Group products by order
-    const ordersMap = new Map();
-
-    results.forEach((row) => {
-      if (!ordersMap.has(row.orderId)) {
-        ordersMap.set(row.orderId, {
-          id: row.orderId,
-          customerId: row.customerId,
-          fullName: row.fullName,
-          totalAmount: row.totalAmount,
-          requestStatus: row.requestStatus,
-          products: [],
-        });
-      }
-
-      ordersMap.get(row.orderId).products.push({
-        id: row.id, // Assuming `id` is available in the result
-        category: row.category,
-        name: row.name,
-        price: row.price,
-      });
-    });
-
-    // Convert map to array
-    const orders = Array.from(ordersMap.values());
-
-    res.json(orders);
-  });
-});
-
-app.put('/api/updateOrderStatus/:orderId', (req, res) => {
-  const { orderId } = req.params;
-  const { requestStatus } = req.body;
-
-  // Update the order status in the database
-  pool.query(
-    'UPDATE orders_accessories_request SET requestStatus = ? WHERE id = ?',
-    [requestStatus, orderId],
-    (err, result) => {
-      if (err) {
-        console.error('Error updating order status:', err);
-        return res.status(500).json({ error: 'Failed to update order status' });
-      }
-      res.json({ message: 'Order status updated successfully' });
-    }
-  );
-});
-
-
-
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
 
- 
 
 app.put('/api/account/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
@@ -1067,12 +996,12 @@ app.get('/api/financeshow', financeshow);
 
 // update car exchange request status
 
-app.put('/api/exchange/update-status/:customerId', async (req, res) => {
+app.put('/api/finance/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status, exchangeReason , exchangeAmount  } = req.body;
+  const { status, financeReason , financeAmount  } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
-  const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
+  const checkSql = `SELECT * FROM loans  WHERE customerId = ?`;
 
   pool.query(checkSql, [customerId], (checkErr, checkResult) => {
     if (checkErr) {
@@ -1083,13 +1012,13 @@ app.put('/api/exchange/update-status/:customerId', async (req, res) => {
     if (checkResult.length === 0) {
       // CustomerId not found: Insert a new record
       const insertSql = `
-        INSERT INTO car_exchange_requests 
-        (customerId, status, exchangeReason, exchangeAmount ) 
+        INSERT INTO loans 
+        (customerId, status, financeReason, financeAmount ) 
         VALUES (?, ?, ?, ?)
       `;
       pool.query(
         insertSql,
-        [customerId, status, exchangeReason , exchangeAmount ],
+        [customerId, status, financeReason , financeAmount ],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1101,16 +1030,16 @@ app.put('/api/exchange/update-status/:customerId', async (req, res) => {
     } else {
       // CustomerId exists: Update the existing record
       const updateSql = `
-        UPDATE car_exchange_requests
+        UPDATE loans
         SET 
-          exchangeAmount  = ?,
-          exchangeReason  = ?,
+          financeAmount  = ?,
+          financeReason  = ?,
           status = ?
         WHERE customerId = ?
       `;
       pool.query(
         updateSql,
-        [exchangeAmount , exchangeReason, status, customerId],
+        [financeAmount , financeReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -1125,10 +1054,10 @@ app.put('/api/exchange/update-status/:customerId', async (req, res) => {
 
 app.put('/api/rejected/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status, exchangeReason} = req.body;
+  const { status, financeReason} = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
-  const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
+  const checkSql = `SELECT * FROM loans  WHERE customerId = ?`;
 
   pool.query(checkSql, [customerId], (checkErr, checkResult) => {
     if (checkErr) {
@@ -1139,13 +1068,13 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
     if (checkResult.length === 0) {
       // CustomerId not found: Insert a new record
       const insertSql = `
-        INSERT INTO car_exchange_requests 
-        (customerId, status, exchangeReason ) 
+        INSERT INTO loans 
+        (customerId, status, financeReason ) 
         VALUES (?, ?, ?)
       `;
       pool.query(
         insertSql,
-        [customerId, status, exchangeReason ],
+        [customerId, status, financeReason ],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1157,15 +1086,15 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
     } else {
       // CustomerId exists: Update the existing record
       const updateSql = `
-        UPDATE car_exchange_requests
+        UPDATE loans
         SET 
-          exchangeReason  = ?,
+          financeReason  = ?,
           status = ?
         WHERE customerId = ?
       `;
       pool.query(
         updateSql,
-        [ exchangeReason, status, customerId],
+        [ financeReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -1181,6 +1110,561 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+app.use('/uploads', express.static(path.join(__dirname, 'CarInsuranceRequest')));
+app.get('/api/Insuranceshow', Insuranceshow);
+
+
+app.put('/api/approval/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status  } = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_insurance_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_insurance_requests 
+        (customerId, status ) 
+        VALUES (?, ?,)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_insurance_requests
+        SET 
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+app.put('/api/rejection/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, insuranceReason   } = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_insurance_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_insurance_requests 
+        (customerId, status, insuranceReason ) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, insuranceReason  ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_insurance_requests
+        SET 
+         
+          insuranceReason  = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [ insuranceReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+app.use('/uploads', express.static(path.join(__dirname, 'CarFastTagRequest')));
+app.get('/api/fastTagshow', fastTagshow);
+
+
+app.put('/api/fastapproval/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status  } = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_fasttag_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_fasttag_requests 
+        (customerId, status ) 
+        VALUES (?, ?,)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_fasttag_requests
+        SET 
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+app.put('/api/fastrejection/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, fasttagReason } = req.body;
+
+  // Check if the customerId exists in car_exchange_requests 
+  const checkSql = `SELECT * FROM car_fasttag_requests  WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // CustomerId not found: Insert a new record
+      const insertSql = `
+        INSERT INTO car_fasttag_requests 
+        (customerId, status, fasttagReason ) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, fasttagReason  ],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // CustomerId exists: Update the existing record
+      const updateSql = `
+        UPDATE car_fasttag_requests
+        SET 
+         
+          fasttagReason  = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [ fasttagReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+// API endpoint to fetch orders with customer and product details
+app.get('/api/getOrdersWithCustomers', AccessoriesRequestshow)
+
+app.put('/api/accessoriesapproval/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status } = req.body;
+
+  // Check if the customerId exists in orders_accessories_request
+  const checkSql = `SELECT * FROM orders_accessories_request WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO orders_accessories_request 
+        (customerId, status) 
+        VALUES (?, ?)
+      `;
+      pool.query(insertSql, [customerId, status], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        res.json({ message: 'New record created successfully', result: insertResult });
+      });
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE orders_accessories_request
+        SET status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(updateSql, [status, customerId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error("Update error:", updateErr);
+          return res.status(500).json({ error: updateErr.message });
+        }
+        res.json({ message: 'Record updated successfully', result: updateResult });
+      });
+    }
+  });
+});
+
+
+app.put('/api/accessoriesrejection/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, accessorieReason } = req.body;
+
+  // Check if the customerId exists in orders_accessories_request
+  const checkSql = `SELECT * FROM orders_accessories_request WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO orders_accessories_request 
+        (customerId, status, accessorieReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, accessorieReason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE orders_accessories_request
+        SET 
+          accessorieReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [accessorieReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+app.use('/uploads', express.static(path.join(__dirname, 'CarRTORequest')));
+app.get('/api/showRTO', showRTO);
+
+app.put('/api/rtoapproval/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status } = req.body;
+
+  // Check if the customerId exists in car_rto_requests
+  const checkSql = `SELECT * FROM car_rto_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO car_rto_requests 
+        (customerId, status) 
+        VALUES (?, ?)
+      `;
+      pool.query(insertSql, [customerId, status], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        res.json({ message: 'New record created successfully', result: insertResult });
+      });
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE car_rto_requests
+        SET status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(updateSql, [status, customerId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error("Update error:", updateErr);
+          return res.status(500).json({ error: updateErr.message });
+        }
+        res.json({ message: 'Record updated successfully', result: updateResult });
+      });
+    }
+  });
+});
+
+
+app.put('/api/rtorejection/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, rtoReason } = req.body;
+
+  // Check if the customerId exists in car_rto_requests
+  const checkSql = `SELECT * FROM car_rto_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO car_rto_requests 
+        (customerId, status, rtoReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, rtoReason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE car_rto_requests
+        SET 
+          rtoReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [rtoReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+app.get('/api/showCoating', showCoating);
+
+app.put('/api/coatingapproval/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status } = req.body;
+
+  // Check if the customerId exists in car_rto_requests
+  const checkSql = `SELECT * FROM coating_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO coating_requests 
+        (customerId, status) 
+        VALUES (?, ?)
+      `;
+      pool.query(insertSql, [customerId, status], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        res.json({ message: 'New record created successfully', result: insertResult });
+      });
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE coating_requests
+        SET status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(updateSql, [status, customerId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error("Update error:", updateErr);
+          return res.status(500).json({ error: updateErr.message });
+        }
+        res.json({ message: 'Record updated successfully', result: updateResult });
+      });
+    }
+  });
+});
+
+app.put('/api/coatingrejection/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, coatingReason } = req.body;
+
+  // Check if the customerId exists in car_rto_requests
+  const checkSql = `SELECT * FROM coating_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO coating_requests 
+        (customerId, status, coatingReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, coatingReason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE coating_requests
+        SET 
+          coatingReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [coatingReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+
 
 
 

@@ -121,18 +121,17 @@ function AccountApp() {
     {
       id: 'CashierManaement',
       title: 'Cashier Manaement',
-      count: 80,
+     
       status: 'Approved / Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'CashierMhanaement',
-      path: '/file-tracking',
+      path: '/ACMApprovedRejected',
     },
      
     {
       id: 'CustomerPaymentDetails',
       title: 'Customer Payment Details',
-      
-      status: 'Payment Details / Paid / Unpaid / Refund',
+      status: 'Paid / Unpaid / Refund',
       icon: PersonSearchRoundedIcon,
       iconType: 'CustomerDetails',
       path: '/customer-payment-details'

@@ -118,7 +118,7 @@ function FastTagApp() {
   const [statusCards] = useState([
     {
       id: 'Approved',
-      title: 'fast-tag Approved',
+      title: 'Fast-tag Approved',
       count: 80,
       status: 'Approved',
       icon: FlakyRoundedIcon,
@@ -128,7 +128,7 @@ function FastTagApp() {
     },
     {
       id: 'Rejected',
-      title: 'fast-tag Rejected',
+      title: 'Fast-tag Rejected',
       count: 80,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
@@ -138,7 +138,7 @@ function FastTagApp() {
     },
     {
       id: 'pending',
-      title: 'Car Pending for fast-tag',
+      title: 'Fast-Tag Pending',
       count: 80,
       status: 'Car fast-tag Amount update Request',
       icon: CarRentalIcon,
@@ -154,7 +154,7 @@ function FastTagApp() {
 
   return (
     <Container>
-      <Title>Status Overview</Title>
+      <Title>Fast-Tag Status Overview</Title>
       <Grid>
         {statusCards.map((card) => (
           <Card 

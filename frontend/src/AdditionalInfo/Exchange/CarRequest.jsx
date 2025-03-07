@@ -73,8 +73,6 @@ const CarRequest = () => {
     setShowModal(true); // Show the cancellation modal
   };
 
- 
-
   const handleRefundConfirmation = async () => {
     if (!isConfirmed) {
       setError("Please confirm the exchange.");
@@ -122,10 +120,8 @@ const CarRequest = () => {
     setError(null); // Reset error message
   };
 
-
-
-   // Function to handle opening the exchange documents modal
-   const handleDocumentsIconClick = (stock) => {
+  // Function to handle opening the exchange documents modal
+  const handleDocumentsIconClick = (stock) => {
     setSelectedStock(stock);
     setExchangeDocuments({
       rcDocument: stock.rcDocument,
@@ -138,7 +134,7 @@ const CarRequest = () => {
     });
     setShowDocumentsModal(true); // Show the documents modal
   };
-  
+
   // Function to extract customerId and fileName from document path
   const getDocumentDetails = (documentPath) => {
     if (!documentPath) return { customerId: null, fileName: null };
@@ -211,8 +207,13 @@ const CarRequest = () => {
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
                   Full Name
                 </TableCell>
+
+
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Car Make | Car Model | Car Color
+                EX-Car Owner FullName
+                </TableCell>
+                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
+                  Car Details
                 </TableCell>
 
                 <TableCell style={{ fontSize: "12px", padding: "10px" }}>
@@ -246,14 +247,46 @@ const CarRequest = () => {
                           {stock.customerId}
                         </TableCell>
                         <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
+                          style={{
+                            fontSize: "12px",
+                            padding: "8px",
+                            verticalAlign: "middle",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "200px", // Adjust based on your layout
+                          }}
                         >
-                          {stock.firstName} {stock.middleName} {stock.lastName}
+                          <span
+                            title={`${stock.firstName}${
+                              stock.middleName ? " " + stock.middleName : ""
+                            } ${stock.lastName}`}
+                          >
+                            {stock.firstName}
+                            {stock.middleName && ` ${stock.middleName}`}
+                            {stock.lastName}
+                          </span>
                         </TableCell>
+                        
+                        <TableCell style={{ fontSize: "12px" }}>
+                          {stock.carOwnerFullName}
+                        </TableCell>
+
                         <TableCell
-                          style={{ fontSize: "12px", padding: "10px" }}
+                          style={{
+                            fontSize: "12px",
+                            padding: "8px",
+                            minWidth: "200px", // Adjust based on your content
+                            whiteSpace: "nowrap",
+                            verticalAlign: "middle",
+                          }}
                         >
-                          {stock.carMake} | {stock.carModel} | {stock.carColor}
+                          <span
+                            title={`${stock.carMake} | ${stock.carModel} | ${stock.carColor}`}
+                          >
+                            {stock.carMake} | {stock.carModel} |{" "}
+                            {stock.carColor}
+                          </span>
                         </TableCell>
                         <TableCell
                           style={{ fontSize: "12px", padding: "10px" }}
@@ -268,7 +301,10 @@ const CarRequest = () => {
                         <TableCell
                           style={{ fontSize: "12px", padding: "10px" }}
                         >
-                          <Badge bg="warning" style={ {cursor:'pointer'} }> {stock.status}</Badge>
+                          <Badge bg="warning" style={{ cursor: "pointer" }}>
+                            {" "}
+                            {stock.status}
+                          </Badge>
                         </TableCell>
                         <TableCell
                           style={{

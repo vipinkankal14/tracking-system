@@ -4,10 +4,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Button, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
 import { SearchIcon } from "lucide-react";
-import '../css/CarBookings.scss';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
-const CustomerPaymentDetails = () => {
+const ACMApprovedRejected = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [carStocks, setCarStocks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +19,7 @@ const CustomerPaymentDetails = () => {
   useEffect(() => {
     const fetchCarStocks = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/customers"); // API endpoint
+        const response = await axios.get("http://localhost:5000/api/ACMApprovedRejected"); // API endpoint
         setCarStocks(response.data);
       } catch (err) {
         setError("Failed to load car stock data.");
@@ -41,8 +40,8 @@ const CustomerPaymentDetails = () => {
 
     const matchesPaymentFilter =
       paymentFilter === "all" ||
-      (paymentFilter === "paid" && stock.payment_status === "Paid") ||
-      (paymentFilter === "unpaid" && stock.payment_status === "Unpaid");
+      (paymentFilter === "approved" && stock.status === "approved") ||
+      (paymentFilter === "rejected" && stock.status === "rejected");
 
     return matchesSearchQuery && matchesPaymentFilter;
   });
@@ -54,7 +53,7 @@ const CustomerPaymentDetails = () => {
   return (
     <>
       <div style={{ marginTop: '-36px', color: '#071947' }}>
-        <p className="text-md-start my-4">CUSTOMER PAYMENT DETAILS</p>
+        <p className="text-md-start my-4">Approved / Rejected</p>
       </div>
 
       {/* Search Bar */}
@@ -81,23 +80,23 @@ const CustomerPaymentDetails = () => {
       <div className="d-flex justify-content-center justify-content-md-end">
         <div className="mb-4 d-flex gap-2">
           <Button
-            variant={paymentFilter === "paid" ? "contained" : "outlined"}
+            variant={paymentFilter === "approved" ? "contained" : "outlined"}
             color="success"
             style={{ marginRight: "8px", fontSize: '10px' }}
-            onClick={() => setPaymentFilter("paid")}
+            onClick={() => setPaymentFilter("approved")}
             size="small"
           >
-            Paid
+            Approved
           </Button>
           <Button
-            variant={paymentFilter === "unpaid" ? "contained" : "outlined"}
+            variant={paymentFilter === "rejected" ? "contained" : "outlined"}
             color="error"
             style={{ marginLeft: "8px", fontSize: '10px' }}
-            onClick={() => setPaymentFilter("unpaid")}
+            onClick={() => setPaymentFilter("rejected")}
             size="small"
 
           >
-            Unpaid
+            Rejected
           </Button>
           <Button
             variant={paymentFilter === "all" ? "contained" : "outlined"}
@@ -138,7 +137,7 @@ const CustomerPaymentDetails = () => {
                 <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
                 <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Phone</TableCell>
                 <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Email</TableCell>
-                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Model | variant | Color</TableCell>
+                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Model | Variant | Color</TableCell>
                 <TableCell style={{ fontSize: "10px", padding: '10px' }}>Status</TableCell>
                 <TableCell style={{ fontSize: "10px", padding: '10px' }}></TableCell>
               </TableRow>
@@ -153,8 +152,8 @@ const CustomerPaymentDetails = () => {
                     <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.email}</TableCell>
                     <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.model} | {stock.version} | {stock.color}</TableCell>
                     <TableCell style={{ padding: '10px' }}>
-                      <Badge bg={stock.payment_status === "Paid" ? "success" : "danger"}>
-                        {stock.payment_status}
+                      <Badge bg={stock.status === "approved" ? "success" : "danger"}>
+                        {stock.status}
                       </Badge>
                     </TableCell>
                     <TableCell style={{ padding: '10px' }}>
@@ -180,4 +179,4 @@ const CustomerPaymentDetails = () => {
   );
 };
 
-export default CustomerPaymentDetails;
+export default ACMApprovedRejected;
