@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Modal } from "react-bootstrap";
+import { Table, Spinner, Modal, Badge } from "react-bootstrap";
 import axios from "axios";
 import {
+  Box,
   Button,
-  FormControl,
   InputAdornment,
-  InputLabel,
-  OutlinedInput,
   Paper,
   TableBody,
   TableCell,
@@ -18,9 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { SearchIcon } from "lucide-react";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-import DescriptionIcon from "@mui/icons-material/Description";
 
 const AutocardRejected = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,24 +26,22 @@ const AutocardRejected = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [financeAmount, setFinanceAmount] = useState("");
-  const [financeReason, setFinanceReason] = useState("");
+  const [autoCardReason, setAutoCardReason] = useState("");
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
-  const [selectedLoan, setSelectedLoan] = useState(null);
+  const [selectedAutocard, setSelectedAutocard] = useState(null);
 
+  // Fetch customers with autocard data
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/financeshow"
-        );
+        const response = await axios.get("http://localhost:5000/api/showAutocard");
         if (response.data && Array.isArray(response.data.data)) {
           setCustomers(response.data.data);
         } else {
           throw new Error("Invalid data format: Expected an array.");
         }
       } catch (err) {
-        setError("Failed to load customer data.");
+        setError("Failed to fetch autocard customer data.");
         console.error("Error fetching customers:", err);
       } finally {
         setLoading(false);
@@ -56,103 +50,66 @@ const AutocardRejected = () => {
     fetchCustomers();
   }, []);
 
+  // Filter customers based on search query and pending status
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+      (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      customer.autocardRequests?.length > 0 &&
+      customer.autocardRequests[0]?.status === "Rejected"
   );
 
-  const handleErrorIconClick = (customer) => {
+  // Handle documents icon click
+  const handleDocumentsIconClick = (customer, autocard) => {
     setSelectedCustomer(customer);
-    setShowModal(true);
+    setSelectedAutocard(autocard);
+    setShowDocumentsModal(true);
   };
 
-  const handleRefundConfirmation = async () => {
-    if (!isConfirmed) {
-      setError("Please confirm the finance approval.");
-      return;
-    }
-
-    if (!financeAmount || isNaN(financeAmount) || financeAmount <= 0) {
-      setError("Please enter a valid finance amount.");
-      return;
-    }
-
+  // Handle autocard approval
+  const handleApprove = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/finance/update-status/${selectedCustomer.customerId}`,
-        {
-          status: "Approved",
-          financeAmount: parseFloat(financeAmount),
-          financeReason,
-        }
+        `http://localhost:5000/api/autocardApproval/update-status/${selectedCustomer.customerId}`,
+        { status: "Approval" }
       );
 
       if (response.status === 200) {
-        alert("Finance status updated successfully!");
-        setShowModal(false);
-        setFinanceAmount("");
-        setFinanceReason("");
-        setIsConfirmed(false);
-        setError(null);
+        alert("Autocard approved successfully!");
+        handleClose();
+        // Refresh the data
+        const newData = await axios.get("http://localhost:5000/api/showAutocard");
+        setCustomers(newData.data.data);
       }
     } catch (err) {
-      setError(
-        `Failed to update finance status: ${
-          err.response?.data?.error || err.message
-        }`
-      );
+      setError(`Failed to approve autocard: ${err.response?.data?.error || err.message}`);
+      console.error("Error:", err);
     }
   };
 
+ 
+
+  // Close all modals and reset state
   const handleClose = () => {
     setShowModal(false);
     setShowDocumentsModal(false);
     setIsConfirmed(false);
-    setFinanceAmount("");
-    setFinanceReason("");
+    setAutoCardReason("");
     setError(null);
-  };
-
-  const handleDocumentsIconClick = (customer, loan) => {
-    setSelectedCustomer(customer);
-    setSelectedLoan(loan);
-    setShowDocumentsModal(true);
-  };
-
-  const getDocumentDetails = (document_path) => {
-    if (!document_path) return { customerId: null, fileName: null };
-
-    const fullPath = document_path.replace(/\\/g, "/");
-    const pathParts = fullPath.split("/");
-    const customerId = pathParts[pathParts.length - 2];
-    const fileName = pathParts[pathParts.length - 1];
-
-    return { customerId, fileName };
   };
 
   return (
     <>
-      <div
-        style={{
-          marginTop: "0",
-          color: "#071947",
-          padding: "0px",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <Typography variant="h6">Car Finance Pending</Typography>
+      <div style={{ marginTop: "-36px", color: "#071947" }}>
+        <Typography className="text-md-start my-4">Autocard Rejected</Typography>
       </div>
-
-      {/* Search Bar */}
       <div className="d-flex justify-content-center justify-content-md-start">
-        <div className="mb-4" style={{ width: "100%", maxWidth: "400px" }}>
+        <div className="mb-4">
           <TextField
             variant="outlined"
             placeholder="Search..."
-            label="Search Car Finance"
+            label="Search Customers"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
@@ -162,7 +119,6 @@ const AutocardRejected = () => {
                 </InputAdornment>
               ),
             }}
-            fullWidth
           />
         </div>
       </div>
@@ -177,86 +133,84 @@ const AutocardRejected = () => {
 
       {error && (
         <div className="text-center text-danger">
-          <Typography>{error}</Typography>
+          <p>{error}</p>
         </div>
       )}
 
       {!loading && !error && (
-        <TableContainer component={Paper} style={{ overflowX: "auto" }}>
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Customer ID
-                </TableCell>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Full Name
-                </TableCell>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Email
-                </TableCell>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Loans
-                </TableCell>
-                <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                  Actions
-                </TableCell>
+                <TableCell style={{ padding: "10px", fontSize: "10px" }}>Customer ID</TableCell>
+                <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
+                <TableCell style={{ fontSize: "10px" }}>Email</TableCell>
+                <TableCell style={{ fontSize: "10px" }}>Car Details</TableCell>
+                <TableCell style={{ fontSize: "10px" }}>Autocard Amount</TableCell>
+                <TableCell style={{ fontSize: "10px" }}>Status</TableCell>
+                <TableCell style={{ fontSize: "10px" }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredCustomers.length > 0 ? (
-                filteredCustomers.map((customer, index) => (
-                  <TableRow key={index}>
-                    <TableCell style={{ fontSize: "12px" }}>
-                      {customer.customerId}
+                filteredCustomers.map((customer) => (
+                  <TableRow key={customer.customerId}>
+                    <TableCell style={{ fontSize: "11px" }}>{customer.customerId}</TableCell>
+                    <TableCell
+                      style={{
+                        fontSize: "11px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "180px",
+                        verticalAlign: "middle",
+                        padding: "8px",
+                      }}
+                      title={`${customer.firstName}${customer.middleName ? ` ${customer.middleName}` : ""} ${customer.lastName}`}
+                    >
+                      {`${customer.firstName}${customer.middleName ? ` ${customer.middleName}` : ""} ${customer.lastName}`}
                     </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {customer.firstName} {customer.middleName}{" "}
-                      {customer.lastName}
+                    <TableCell style={{ fontSize: "11px" }}>{customer.email}</TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "12px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {`${customer.carBooking?.model || "N/A"} | ${customer.carBooking?.version || "N/A"} | ${customer.carBooking?.color || "N/A"}`}
                     </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {customer.email}
+                    <TableCell style={{ fontSize: "11px" }}>
+                      {customer.autocardRequests[0]?.autocardAmount || "N/A"}
                     </TableCell>
-                    <TableCell style={{ fontSize: "12px", padding: "10px" }}>
-                      {customer.loans?.length > 0
-                        ? customer.loans.map((loan, loanIndex) => (
-                            <div key={loanIndex}>
-                              <strong>Loan ID:</strong> {loan.id} <br />
-                              <strong>Amount:</strong> {loan.loan_amount} <br />
-                              <strong>Interest Rate:</strong>{" "}
-                              {loan.interest_rate} <br />
-                              <strong>Duration:</strong> {loan.loan_duration}{" "}
-                              <br />
-                              <strong>EMI:</strong> {loan.calculated_emi} <br />
-                            </div>
-                          ))
-                        : "No loans"}
+                    <TableCell style={{ fontSize: "11px" }}>
+                      <Badge bg="danger">
+                        {customer.autocardRequests[0]?.status || "N/A"}
+                      </Badge>
                     </TableCell>
-                    <TableCell style={{ fontSize: "12px" }}>
-                      {customer.loans?.length > 0
-                        ? customer.loans.map((loan, loanIndex) => (
-                            <DescriptionIcon
-                              style={{
-                                cursor: "pointer",
-                                marginRight: "10px",
-                              }}
-                              onClick={() =>
-                                handleDocumentsIconClick(customer, loan)
-                              }
-                            />
-                          ))
-                        : "No loans"}
-
-                      <ErrorOutlineIcon
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleErrorIconClick(customer)}
-                      />
+                    <TableCell style={{ fontSize: "11px" }}>
+                      <Button
+                        style={{
+                          cursor: "pointer",
+                          color: "#1b1994",
+                          textTransform: "none",
+                          padding: "6px 12px",
+                          fontSize: "0.875rem",
+                        }}
+                        onClick={() =>
+                          handleDocumentsIconClick(customer, customer.autocardRequests[0])
+                        }
+                        variant="text"
+                      >
+                        Autocard Details
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan="5" className="text-center">
+                  <TableCell colSpan="7" className="text-center">
                     No records found.
                   </TableCell>
                 </TableRow>
@@ -266,145 +220,7 @@ const AutocardRejected = () => {
         </TableContainer>
       )}
 
-      {/* Finance Approval Modal */}
-      <Modal
-        show={showModal}
-        onHide={handleClose}
-        centered
-        backdrop="static"
-        keyboard={false}
-        animation={false}
-      >
-        <Modal.Header closeButton>
-          <Typography>
-            <strong>Finance Amount for:</strong>{" "}
-            {selectedCustomer?.customerId || "N/A"}{" "}
-            {selectedCustomer?.customerId && (
-              <VerifiedRoundedIcon
-                style={{
-                  color: "#092e6b",
-                  fontSize: "15px",
-                  marginTop: "-3px",
-                  marginRight: "-4px",
-                }}
-              />
-            )}
-          </Typography>
-        </Modal.Header>
-
-        <Modal.Body>
-          <Typography fontSize={12}>
-            {selectedCustomer && (
-              <>
-                <Typography>
-                  <strong>Full Name:</strong>{" "}
-                  {`${selectedCustomer.firstName} ${selectedCustomer.middleName} ${selectedCustomer.lastName}`}
-                </Typography>
-              </>
-            )}
-          </Typography>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "10px",
-              marginTop: "10px",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <FormControl fullWidth sx={{ m: 1 }}>
-              <InputLabel htmlFor="outlined-adornment-amount">
-                Amount
-              </InputLabel>
-              <OutlinedInput
-                id="outlined-adornment-amount"
-                startAdornment={
-                  <InputAdornment position="start">₹</InputAdornment>
-                }
-                label="Amount"
-                type="number"
-                value={financeAmount}
-                onChange={(e) => setFinanceAmount(e.target.value)}
-              />
-            </FormControl>
-
-            <TextareaAutosize
-              minRows={3}
-              placeholder="Reason for finance approval (optional)"
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                resize: "vertical",
-              }}
-              value={financeReason}
-              onChange={(e) => setFinanceReason(e.target.value)}
-            />
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                width: "100%",
-                justifyContent: "flex-start",
-              }}
-            >
-              <input
-                type="checkbox"
-                id="confirmCheckbox"
-                checked={isConfirmed}
-                onChange={(e) => setIsConfirmed(e.target.checked)}
-                style={{ cursor: "pointer" }}
-              />
-              <label
-                htmlFor="confirmCheckbox"
-                style={{
-                  marginLeft: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-              >
-                I confirm the finance approval
-              </label>
-            </div>
-          </div>
-          {error && (
-            <Typography
-              style={{
-                color: "red",
-                fontSize: "12px",
-                marginTop: "5px",
-                textAlign: "center",
-              }}
-            >
-              {error}
-            </Typography>
-          )}
-        </Modal.Body>
-
-        <Modal.Footer>
-          <div
-            style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}
-          >
-            <Button variant="outlined" size="small" onClick={handleClose}>
-              Close
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={!isConfirmed}
-              onClick={handleRefundConfirmation}
-            >
-              Confirm
-            </Button>
-          </div>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Finance Documents Modal */}
+      {/* Documents Modal */}
       <Modal
         show={showDocumentsModal}
         onHide={handleClose}
@@ -414,104 +230,55 @@ const AutocardRejected = () => {
         animation={false}
       >
         <Modal.Header closeButton>
-          <Typography fontSize={12}>
-            <strong>Finance Documents for:</strong>{" "}
-            {selectedCustomer?.customerId || "N/A"}{" "}
-            {selectedCustomer?.customerId && (
-              <VerifiedRoundedIcon
-                style={{
-                  color: "#092e6b",
-                  fontSize: "15px",
-                  marginTop: "-3px",
-                  marginRight: "-4px",
-                }}
-              />
-            )}
-          </Typography>
+          <Modal.Title>Autocard Details</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
-          <Typography fontSize={12}>
-            {selectedCustomer && (
-              <>
-                <Typography>
-                  <strong>Full Name:</strong>{" "}
-                  {`${selectedCustomer.firstName} ${selectedCustomer.middleName} ${selectedCustomer.lastName}`}
-                </Typography>
-              </>
-            )}
-          </Typography>
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell style={{ fontSize: "10px" }}>
-                    Document Name
-                  </TableCell>
-                  <TableCell style={{ fontSize: "10px" }}>
-                    View Document
-                  </TableCell>
-                  <TableCell style={{ fontSize: "10px" }}>
-                    Uploaded At
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedLoan?.documents?.length > 0 ? (
-                  selectedLoan.documents.map((document, index) => {
-                    const { customerId, fileName } = getDocumentDetails(
-                      document.document_path
-                    );
-                    return (
-                      <TableRow key={index}>
-                        <TableCell style={{ fontSize: "10px" }}>
-                          {document.document_name}
-                        </TableCell>
-                        <TableCell style={{ fontSize: "10px" }}>
-                          {fileName ? (
-                            <a
-                              href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
-                                fileName
-                              )}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                color: "blue",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              View Document
-                            </a>
-                          ) : (
-                            "N/A"
-                          )}
-                        </TableCell>
-                        <TableCell style={{ fontSize: "10px" }}>
-                          {new Date(document.uploaded_at).toLocaleString()}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan="3" className="text-center">
-                      No documents found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {selectedAutocard && (
+            <>
+              <Typography style={{ fontSize: "12px" }}>
+                <strong>Customer ID:</strong> {selectedCustomer.customerId}
+              </Typography>
+              <Typography style={{ fontSize: "12px" }}>
+                <strong>Full Name:</strong>{" "}
+                {`${selectedCustomer.firstName}${selectedCustomer.middleName ? ` ${selectedCustomer.middleName}` : ""} ${selectedCustomer.lastName}`}
+              </Typography>
+              <Typography style={{ fontSize: "12px" }}>
+                <strong>Autocard Amount:</strong> {selectedAutocard.autocardAmount}
+              </Typography>
+               
+              <Typography style={{ fontSize: "12px" }}>
+                <strong>AutoCard Reason:</strong> {selectedAutocard.confirmBenefits}
+              </Typography>
 
-          {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+              <Typography style={{ fontSize: "12px",color:'red' }}>
+                <strong style={{color:'black'}}>Autocard Rejection Reason:</strong>{" "}
+                {selectedAutocard.autoCardReason}
+              </Typography>
+             
+              <Typography style={{ fontSize: "12px" }}>
+                <strong>Created At:</strong>{" "}
+                {new Date(selectedAutocard.createdAt).toLocaleString()}
+              </Typography>
+              <Typography style={{ fontSize: "12px" }}>
+                <strong>Updated At:</strong>{" "}
+                {new Date(selectedAutocard.updatedAt).toLocaleString()}
+              </Typography>
+            </>
+          )}
         </Modal.Body>
-
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
+            <Button variant="contained" color="success" size="small" onClick={handleApprove}>
+              Approve
+            </Button>
+           
+            <Button variant="contained" color="primary" size="small" onClick={handleClose}>
+              Close
+            </Button>
+          </Box>
         </Modal.Footer>
       </Modal>
+ 
     </>
   );
 };

@@ -50,6 +50,8 @@ const { fastTagshow } = require('./db/routes/CarFastTagRequest/fastTagshow');
 const { AccessoriesRequestshow } = require('./db/routes/CarAccessoriesRequest/AccessoriesRequestshow');
 const { showRTO } = require('./db/routes/CarRTORequest/showRTO');
 const { showCoating } = require('./db/routes/CarCoatingRequest/showCoating');
+const { showExtendedWarranty } = require('./db/routes/CarExWarrantyRequest/showExtendedWarranty');
+const { showAutocard } = require('./db/routes/CarAutocardRequest/showAutocard');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -1664,8 +1666,215 @@ app.put('/api/coatingrejection/update-status/:customerId', async (req, res) => {
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
+app.get('/api/showExtendedWarranty', showExtendedWarranty);
+
+app.put('/api/extendedWarrantyApproval/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status } = req.body;
+
+  // Check if the customerId exists in car_rto_requests
+  const checkSql = `SELECT * FROM car_extended_warranty_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO car_extended_warranty_requests 
+        (customerId, status) 
+        VALUES (?, ?)
+      `;
+      pool.query(insertSql, [customerId, status], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        res.json({ message: 'New record created successfully', result: insertResult });
+      });
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE car_extended_warranty_requests
+        SET status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(updateSql, [status, customerId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error("Update error:", updateErr);
+          return res.status(500).json({ error: updateErr.message });
+        }
+        res.json({ message: 'Record updated successfully', result: updateResult });
+      });
+    }
+  });
+});
+
+app.put('/api/extendedWarrantyRejection/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, ex_Reason } = req.body;
+
+  // Check if the customerId exists in car_rto_requests
+  const checkSql = `SELECT * FROM car_extended_warranty_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO car_extended_warranty_requests 
+        (customerId, status, ex_Reason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, ex_Reason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE car_extended_warranty_requests
+        SET 
+          ex_Reason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [ex_Reason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
 
 
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+app.get('/api/showAutocard', showAutocard);
+
+app.put('/api/autocardApproval/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status } = req.body;
+
+  // Check if the customerId exists in car_rto_requests
+  const checkSql = `SELECT * FROM car_autocard_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO car_autocard_requests 
+        (customerId, status) 
+        VALUES (?, ?)
+      `;
+      pool.query(insertSql, [customerId, status], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        res.json({ message: 'New record created successfully', result: insertResult });
+      });
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE car_autocard_requests
+        SET status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(updateSql, [status, customerId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error("Update error:", updateErr);
+          return res.status(500).json({ error: updateErr.message });
+        }
+        res.json({ message: 'Record updated successfully', result: updateResult });
+      });
+    }
+  });
+});
+
+app.put('/api/autocardRejection/update-status/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, autoCardReason } = req.body;
+
+   const checkSql = `SELECT * FROM car_autocard_requests WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO car_autocard_requests 
+        (customerId, status, autoCardReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, autoCardReason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE car_autocard_requests
+        SET 
+          autoCardReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [autoCardReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
 // Real-Time Connection with Socket.IO
