@@ -205,7 +205,7 @@ const FinanceApproved = () => {
           <TableBody>
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer, index) => (
-            customer.loans?.[0]?.status === "Approved" && (
+            customer.loans?.[0]?.status === "Approval" && (
               <TableRow key={index}>
                 {/* Customer ID */}
                 <TableCell style={{ fontSize: "12px" }}>
