@@ -52,6 +52,7 @@ const { showRTO } = require('./db/routes/CarRTORequest/showRTO');
 const { showCoating } = require('./db/routes/CarCoatingRequest/showCoating');
 const { showExtendedWarranty } = require('./db/routes/CarExWarrantyRequest/showExtendedWarranty');
 const { showAutocard } = require('./db/routes/CarAutocardRequest/showAutocard');
+const { showPreDeliveryInspection } = require('./db/routes/PreDeliveryInspection/showPreDeliveryInspection');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -59,7 +60,7 @@ const { showAutocard } = require('./db/routes/CarAutocardRequest/showAutocard');
 app.get('/api/getAllAccountManagementRefund', getAllAccountManagementRefund);
 app.get('/api/ACMApprovedRejected', ACMApprovedRejected);
 app.get('/api/customers', getAllCustomers); //frontend\src\cashier\Payments\PaymentPending.jsx //frontend\src\cashier\CarBooking\CarBookings.jsx // frontend\src\cashier\CarBookingCancel\CarBookingCancel.jsx // frontend\src\cashier\CustomerPaymentDetails\CustomerPaymentDetails.jsx // frontend\src\cashier\Payments\PaymentClear.jsx
-app.get("/api/customers/:id", getCustomerById); // frontend\src\cashier\Payments\Payment.jsx
+app.get("/api/customerspay/:id", getCustomerById); // frontend\src\cashier\Payments\Payment.jsx
 app.use('/api/CarStock', addCarStock); //carStocks\AddCarStock.jsx
 app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers);
@@ -509,8 +510,9 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
     const [carbooking] = await pool.promise().query('SELECT * FROM carbooking WHERE customerId = ?', [customerId]);
     const [additionalInfo] = await pool.promise().query('SELECT * FROM additional_info WHERE customerId = ?', [customerId]);
     const [cashier] = await pool.promise().query('SELECT * FROM cashier WHERE customerId = ?', [customerId]);
-    const [invoicesummary] = await pool.promise().query('SELECT * FROM invoice_summary WHERE customerId = ?', [customerId]);
-    const [ordersprebookingdate] = await pool.promise().query('SELECT * FROM orders_prebooking_date WHERE customerId = ?', [customerId]);
+     const [ordersprebookingdate] = await pool.promise().query('SELECT * FROM orders_prebooking_date WHERE customerId = ?', [customerId]);
+    const [accountmanagement] = await pool.promise().query('SELECT * FROM account_management WHERE customerId = ?', [customerId]);
+
 
     // Fetch invoice summary
     const [invoiceSummaryRows] = await pool.promise().query(
@@ -548,6 +550,7 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
       ordersprebookingdate: ordersprebookingdate[0],
       onRoadPriceDetails: onRoadPriceDetails[0], // Assuming one entry per invoice
       additionalCharges: additionalCharges[0],
+      accountmanagement: accountmanagement[0],
     };
 
     res.json(response);
@@ -812,60 +815,29 @@ app.put('/api/account/update-status/:customerId', async (req, res) => {
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
 
 
-app.put('/api/refund/update-status/:customerId', async (req, res) => {
-  const { customerId } = req.params;
-  const { status, refundReason, refundAmount } = req.body;
+app.post('/api/refund/create', async (req, res) => {
+  const { customerId, refundReason, refundAmount } = req.body;
 
-  // Check if the customerId exists in account_management_refund
-  const checkSql = `SELECT * FROM account_management_refund WHERE customerId = ?`;
+  // Default status is "Process"
+  const status = "Process";
 
-  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
-    if (checkErr) {
-      console.error("Database error:", checkErr);
-      return res.status(500).json({ error: checkErr.message });
-    }
+  try {
+    // Insert a new record into account_management_refund
+    const insertSql = `
+      INSERT INTO account_management_refund 
+      (customerId, status, refundReason, refundAmount) 
+      VALUES (?, ?, ?, ?)
+    `;
+    const [insertResult] = await pool.promise().query(insertSql, [customerId, status, refundReason, refundAmount]);
 
-    if (checkResult.length === 0) {
-      // CustomerId not found: Insert a new record
-      const insertSql = `
-        INSERT INTO account_management_refund 
-        (customerId, status, refundReason, refundAmount) 
-        VALUES (?, ?, ?, ?)
-      `;
-      pool.query(
-        insertSql,
-        [customerId, status, refundReason, refundAmount],
-        (insertErr, insertResult) => {
-          if (insertErr) {
-            console.error("Insert error:", insertErr);
-            return res.status(500).json({ error: insertErr.message });
-          }
-          res.json({ message: 'New record created successfully', result: insertResult });
-        }
-      );
-    } else {
-      // CustomerId exists: Update the existing record
-      const updateSql = `
-        UPDATE account_management_refund
-        SET 
-          refundAmount = ?,
-          refundReason = ?,
-          status = ?
-        WHERE customerId = ?
-      `;
-      pool.query(
-        updateSql,
-        [refundAmount, refundReason, status, customerId],
-        (updateErr, updateResult) => {
-          if (updateErr) {
-            console.error("Update error:", updateErr);
-            return res.status(500).json({ error: updateErr.message });
-          }
-          res.json({ message: 'Record updated successfully', result: updateResult });
-        }
-      );
-    }
-  });
+    res.json({ 
+      message: 'New refund record created successfully with status "Process"', 
+      result: insertResult 
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
@@ -1875,6 +1847,129 @@ app.put('/api/autocardRejection/update-status/:customerId', async (req, res) => 
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+app.get('/api/showPreDeliveryInspection', showPreDeliveryInspection);
+
+
+app.put('/api/preInspectionapproved/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, preDeliveryInspectionReason } = req.body;
+
+  try {
+    // Validate status
+    if (status !== "Approved") {
+      return res.status(400).json({ error: "Invalid status for approval" });
+    }
+
+    // Update or insert PDI record
+    const [existing] = await pool.promise().query(
+      `SELECT * FROM predeliveryinspection WHERE customerId = ?`,
+      [customerId]
+    );
+
+    if (existing.length === 0) {
+      await pool.promise().query(
+        `INSERT INTO predeliveryinspection 
+        (customerId, status, preDeliveryInspectionReason)
+        VALUES (?, ?, ?)`,
+        [customerId, status, preDeliveryInspectionReason || null]
+      );
+    } else {
+      await pool.promise().query(
+        `UPDATE predeliveryinspection
+        SET status = ?, preDeliveryInspectionReason = ?
+        WHERE customerId = ?`,
+        [status, preDeliveryInspectionReason || null, customerId]
+      );
+    }
+
+    res.status(200).json({ message: "PDI approved successfully" });
+  } catch (err) {
+    console.error("Approval error:", err);
+    res.status(500).json({ error: "Failed to approve PDI" });
+  }
+});
+
+
+app.put('/api/preInspectionRejection/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, preDeliveryInspectionReason } = req.body;
+
+   const checkSql = `SELECT * FROM predeliveryinspection WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO predeliveryinspection 
+        (customerId, status, preDeliveryInspectionReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, preDeliveryInspectionReason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE predeliveryinspection
+        SET 
+          preDeliveryInspectionReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [preDeliveryInspectionReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+ 
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+
+app.post('/api/customer/login', (req, res) => {
+  const { customerId } = req.body;
+
+  const query = 'SELECT * FROM customers WHERE customerId = ?';
+  pool.query(query, [customerId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (results.length > 0) {
+      res.json({ success: true, customer: results[0] });
+    } else {
+      res.json({ success: false, message: 'Customer not found' });
+    }
+  });
+});
+
 
 
 // Real-Time Connection with Socket.IO
