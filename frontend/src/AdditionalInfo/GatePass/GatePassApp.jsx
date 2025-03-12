@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { DirectionsCar, Block, AccountBalance } from '@mui/icons-material';
+ 
+import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-import CurrencyRupeeRoundedIcon from '@mui/icons-material/CurrencyRupeeRounded';
-
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
   overflow: auto;
-`;
+ `;
 
 const Title = styled.h1`
   margin-bottom: 2rem;
@@ -65,14 +65,14 @@ const CardContent = styled.div`
 
 const getIconStyles = (type) => {
   const styles = {
-    CashierMhanaement: { background: '#f0f9ff', color: '#0e7490' },
-    Payment: {background: '#e6e6e8', color: '#2c02fa'},
-    CustomerDetails: { background: '#f4f2f5', color: '#0b070d' },
     primary: { background: '#e0f2fe', color: '#0284c7' },
     danger: { background: '#fee2e2', color: '#dc2626' },
     success: { background: '#dcfce7', color: '#16a34a' },
-    warning: { background: '#fcfcd7', color: '#f0f046' }
-  };
+    warning: { background: '#fef3c7', color: '#d97706' },
+    CarAllotment: { background: '#e1f5e6', color: '#0f0569' },
+    CarAllotmentByCustomer: { background: '#ebe6ed', color: '#09913d' },
+    CarAllotmentBOOKING: { background: '#f4f2f5', color: '#0b070d' },
+   };
   return styles[type] || styles.primary;
 };
 
@@ -111,53 +111,46 @@ const CardStatus = styled.div`
   color: #6b7280;
 `;
 
-function CashierApp() {
+
+function GatepassApp() {
   const navigate = useNavigate();
 
   const [statusCards] = useState([
-   
-    
     {
-      id: 'car-booking',
-      title: 'Car Booking',
+      id: 'Approved',
+      title: 'Gatepass Approved',
       count: 80,
-      status: 'Confirmed Booking',
-      icon: DirectionsCar,
-      iconType: 'primary',
-      path: '/car-Booking'
+      status: 'Approved',
+      icon: FlakyRoundedIcon,
+      iconType: 'Approved',
+      path: '/gatepass-approved',
+     
     },
     {
-      id: 'booking-cancel',
-      title: 'Booking Cancel',
+      id: 'Rejected',
+      title: 'Gatepass Rejected',
       count: 80,
-      status: 'Cancelled',
-      icon: Block,
-      iconType: 'danger',
-      path: '/car-booking-cancel'
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'Rejected',
+      path: '/gatepass-rejected',
+     
     },
-    
     {
-      id: 'payment',
-      title: 'Payment',
-      status: 'Credit / Exchange Credit / Finance Credit',
-      icon: CurrencyRupeeRoundedIcon,
-      iconType: 'Payment',
-      path: '/Payment',
-    }, 
-    {
-      id: 'PaymentRefundDebit',
-      title: 'Payment Refund Debit',
-      status: 'RefundDebit ',
-      icon: CurrencyRupeeRoundedIcon,
-      iconType: 'Payment',
-      path: '/PaymentRefundDebit',
-    }, 
-    
+      id: 'pending',
+      title: 'Car Pending for Gatepass',
+      count: 80,
+      status: 'Car gatepass Amount update Request',
+      icon: CarRentalIcon,
+      iconType: 'pending',
+      path: '/car-pending-for-gatepass',
+    },
   ]);
 
   const handleCardClick = (path) => {
     navigate(path);
   };
+
 
   return (
     <Container>
@@ -185,4 +178,8 @@ function CashierApp() {
   );
 }
 
-export default CashierApp;
+export default GatepassApp;
+
+
+
+

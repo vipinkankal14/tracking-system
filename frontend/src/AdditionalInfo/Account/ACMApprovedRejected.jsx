@@ -2,9 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Table, Spinner, Badge } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Button, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import {
+  Button,
+  InputAdornment,
+  Paper,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
 import { SearchIcon } from "lucide-react";
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+  import { Badge as CartBadge } from "@mui/material"; // Import Badge from Material-UI
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
 const ACMApprovedRejected = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,7 +30,9 @@ const ACMApprovedRejected = () => {
   useEffect(() => {
     const fetchCarStocks = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/ACMApprovedRejected"); // API endpoint
+        const response = await axios.get(
+          "http://localhost:5000/api/ACMApprovedRejected"
+        ); // API endpoint
         setCarStocks(response.data);
       } catch (err) {
         setError("Failed to load car stock data.");
@@ -43,8 +56,17 @@ const ACMApprovedRejected = () => {
       (paymentFilter === "approved" && stock.status === "approved") ||
       (paymentFilter === "rejected" && stock.status === "rejected");
 
-    return matchesSearchQuery && matchesPaymentFilter;
+    // Ensure only "approved" or "rejected" statuses are shown
+    const isApprovedOrRejected =
+      stock.status === "approved" || stock.status === "rejected";
+
+    return matchesSearchQuery && matchesPaymentFilter && isApprovedOrRejected;
   });
+
+  const approvedCount = carStocks.filter((stock) => stock.status === "approved").length;
+const rejectedCount = carStocks.filter((stock) => stock.status === "rejected").length;
+
+
 
   const handleCancelClick = (vin) => {
     navigate(`/payment-history/${vin}`);
@@ -52,7 +74,7 @@ const ACMApprovedRejected = () => {
 
   return (
     <>
-      <div style={{ marginTop: '-36px', color: '#071947' }}>
+      <div style={{ marginTop: "-36px", color: "#071947" }}>
         <p className="text-md-start my-4">Approved / Rejected</p>
       </div>
 
@@ -78,38 +100,81 @@ const ACMApprovedRejected = () => {
 
       {/* Paid and Unpaid Buttons */}
       <div className="d-flex justify-content-center justify-content-md-end">
-        <div className="mb-4 d-flex gap-2">
-          <Button
-            variant={paymentFilter === "approved" ? "contained" : "outlined"}
-            color="success"
-            style={{ marginRight: "8px", fontSize: '10px' }}
-            onClick={() => setPaymentFilter("approved")}
-            size="small"
-          >
-            Approved
-          </Button>
-          <Button
-            variant={paymentFilter === "rejected" ? "contained" : "outlined"}
-            color="error"
-            style={{ marginLeft: "8px", fontSize: '10px' }}
-            onClick={() => setPaymentFilter("rejected")}
-            size="small"
+  <div className="mb-4 d-flex gap-2">
+    {/* Approved Button */}
+    <Button
+      variant={paymentFilter === "approved" ? "contained" : "outlined"}
+      color="success"
+      style={{ marginRight: "8px", fontSize: "10px", position: "relative" }}
+      onClick={() => setPaymentFilter("approved")}
+      size="small"
+    >
+      <CartBadge
+        badgeContent={approvedCount}
+        color="error"
+        overlap="circular"
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position badge at top-right
+        sx={{ 
+          "& .MuiBadge-badge": { 
+            top: -4,  // Adjust vertical position
+            right: -8 // Adjust horizontal position
+          } 
+        }}
+      >
+        Approved
+      </CartBadge>
+    </Button>
 
-          >
-            Rejected
-          </Button>
-          <Button
-            variant={paymentFilter === "all" ? "contained" : "outlined"}
-            color="primary"
-            style={{ marginLeft: "8px" , fontSize: '10px'}}
-            onClick={() => setPaymentFilter("all")}
-            size="small"
+    {/* Rejected Button */}
+    <Button
+      variant={paymentFilter === "rejected" ? "contained" : "outlined"}
+      color="error"
+      style={{ marginLeft: "8px", fontSize: "10px", position: "relative" }}
+      onClick={() => setPaymentFilter("rejected")}
+      size="small"
+    >
+      <CartBadge
+        badgeContent={rejectedCount}
+        color="error"
+        overlap="circular"
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ 
+          "& .MuiBadge-badge": { 
+            top: -4,
+            right: -8
+          } 
+        }}
+      >
+        Rejected
+      </CartBadge>
+    </Button>
 
-          >
-            All
-          </Button>
-        </div>
-      </div>
+    {/* All Button */}
+    <Button
+      variant={paymentFilter === "all" ? "contained" : "outlined"}
+      color="primary"
+      style={{ marginLeft: "8px", fontSize: "10px", position: "relative" }}
+      onClick={() => setPaymentFilter("all")}
+      size="small"
+    >
+      <CartBadge
+        badgeContent={approvedCount + rejectedCount}
+        color="error"
+        overlap="circular"
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ 
+          "& .MuiBadge-badge": { 
+            top: -4,
+            right: -18
+          } 
+        }}
+      >
+        All
+      </CartBadge>
+    </Button>
+  </div>
+</div>
+
 
       {/* Loading Spinner */}
       {loading && (
@@ -133,33 +198,85 @@ const ACMApprovedRejected = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ fontSize: "10px", padding: '10px' }} className="d-none d-sm-table-cell">Customer Id</TableCell>
+                <TableCell
+                  style={{ fontSize: "10px", padding: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Customer Id
+                </TableCell>
                 <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
-                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Phone</TableCell>
-                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Email</TableCell>
-                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Model | Variant | Color</TableCell>
-                <TableCell style={{ fontSize: "10px", padding: '10px' }}>Status</TableCell>
-                <TableCell style={{ fontSize: "10px", padding: '10px' }}></TableCell>
+                <TableCell
+                  style={{ fontSize: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Phone
+                </TableCell>
+                <TableCell
+                  style={{ fontSize: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Email
+                </TableCell>
+                <TableCell
+                  style={{ fontSize: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Model | Variant | Color
+                </TableCell>
+                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                  Status
+                </TableCell>
+                <TableCell
+                  style={{ fontSize: "10px", padding: "10px" }}
+                ></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredCarStocks.length > 0 ? (
                 filteredCarStocks.map((stock, index) => (
                   <TableRow key={index}>
-                    <TableCell style={{ fontSize: "10px", padding: '10px' }} className="d-none d-sm-table-cell">{stock.customerId}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }}>{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.email}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.model} | {stock.version} | {stock.color}</TableCell>
-                    <TableCell style={{ padding: '10px' }}>
-                      <Badge bg={stock.status === "approved" ? "success" : "danger"}>
+                    <TableCell
+                      style={{ fontSize: "10px", padding: "10px" }}
+                      className="d-none d-sm-table-cell"
+                    >
+                      {stock.customerId}
+                    </TableCell>
+                    <TableCell
+                      style={{ fontSize: "10px" }}
+                    >{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
+                    <TableCell
+                      style={{ fontSize: "10px" }}
+                      className="d-none d-sm-table-cell"
+                    >
+                      {stock.mobileNumber1}, {stock.mobileNumber2}
+                    </TableCell>
+                    <TableCell
+                      style={{ fontSize: "10px" }}
+                      className="d-none d-sm-table-cell"
+                    >
+                      {stock.email}
+                    </TableCell>
+                    <TableCell
+                      style={{ fontSize: "10px" }}
+                      className="d-none d-sm-table-cell"
+                    >
+                      {stock.model} | {stock.version} | {stock.color}
+                    </TableCell>
+                    <TableCell style={{ padding: "10px" }}>
+                      <Badge
+                        bg={stock.status === "approved" ? "success" : "danger"}
+                      >
                         {stock.status}
                       </Badge>
                     </TableCell>
-                    <TableCell style={{ padding: '10px' }}>
+                    <TableCell style={{ padding: "10px" }}>
                       <ManageAccountsIcon
                         onClick={() => handleCancelClick(stock.customerId)}
-                        style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }}
+                        style={{
+                          marginLeft: "12px",
+                          color: "#9c39e3",
+                          cursor: "pointer",
+                        }}
                       />
                     </TableCell>
                   </TableRow>

@@ -82,11 +82,17 @@ const InsurancePending = () => {
         alert("Insurance approved successfully!");
         handleClose();
         // Refresh the data
-        const newData = await axios.get("http://localhost:5000/api/Insuranceshow");
+        const newData = await axios.get(
+          "http://localhost:5000/api/Insuranceshow"
+        );
         setCustomers(newData.data.data);
       }
     } catch (err) {
-      setError(`Failed to approve insurance: ${err.response?.data?.error || err.message}`);
+      setError(
+        `Failed to approve insurance: ${
+          err.response?.data?.error || err.message
+        }`
+      );
     }
   };
 
@@ -115,11 +121,17 @@ const InsurancePending = () => {
         alert("Insurance rejected successfully!");
         handleClose();
         // Refresh the data
-        const newData = await axios.get("http://localhost:5000/api/Insuranceshow");
+        const newData = await axios.get(
+          "http://localhost:5000/api/Insuranceshow"
+        );
         setCustomers(newData.data.data);
       }
     } catch (err) {
-      setError(`Failed to reject insurance: ${err.response?.data?.error || err.message}`);
+      setError(
+        `Failed to reject insurance: ${
+          err.response?.data?.error || err.message
+        }`
+      );
     }
   };
 
@@ -200,7 +212,7 @@ const InsurancePending = () => {
                 <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
                 <TableCell style={{ fontSize: "10px" }}>Email</TableCell>
                 <TableCell style={{ fontSize: "10px" }}>Car Details</TableCell>
-       
+
                 <TableCell style={{ fontSize: "10px" }}>
                   Insurance Amount
                 </TableCell>
@@ -210,54 +222,56 @@ const InsurancePending = () => {
             </TableHead>
             <TableBody>
               {filteredCustomers.length > 0 ? (
-                filteredCustomers.map((customer) => (
-                  customer.insuranceRequests[0]?.status === "Pending" && (
-                    <TableRow key={customer.customerId}>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {customer.customerId}
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {`${customer.firstName} ${customer.middleName || ""} ${
-                          customer.lastName
-                        }`}
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {customer.email}
-                      </TableCell>
-                     <TableCell
-                                              sx={{
-                                                fontSize: "12px",
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                              }}
-                                            >
-                                              {`${customer.carBooking?.model || "N/A"} | ${
-                                                customer.carBooking?.version || "N/A"
-                                              } | ${customer.carBooking?.color || "N/A"}`}
-                                            </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {customer.insuranceRequests[0]?.insurance_amount || "N/A"}
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        <Badge bg="warning">
-                          {customer.insuranceRequests[0]?.status || "N/A"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        <DescriptionIcon
-                          style={{ cursor: "pointer", color: "#1b1994" }}
-                          onClick={() =>
-                            handleDocumentsIconClick(
-                              customer,
-                              customer.insuranceRequests[0]
-                            )
-                          }
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
-                ))
+                filteredCustomers.map(
+                  (customer) =>
+                    customer.insuranceRequests[0]?.status === "Pending" && (
+                      <TableRow key={customer.customerId}>
+                        <TableCell style={{ fontSize: "11px" }}>
+                          {customer.customerId}
+                        </TableCell>
+                        <TableCell style={{ fontSize: "11px" }}>
+                          {`${customer.firstName} ${
+                            customer.middleName || ""
+                          } ${customer.lastName}`}
+                        </TableCell>
+                        <TableCell style={{ fontSize: "11px" }}>
+                          {customer.email}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            fontSize: "12px",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {`${customer.carBooking?.model || "N/A"} | ${
+                            customer.carBooking?.version || "N/A"
+                          } | ${customer.carBooking?.color || "N/A"}`}
+                        </TableCell>
+                        <TableCell style={{ fontSize: "11px" }}>
+                          {customer.insuranceRequests[0]?.insurance_amount ||
+                            "N/A"}
+                        </TableCell>
+                        <TableCell style={{ fontSize: "11px" }}>
+                          <Badge bg="warning">
+                            {customer.insuranceRequests[0]?.status || "N/A"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell style={{ fontSize: "11px" }}>
+                          <DescriptionIcon
+                            style={{ cursor: "pointer", color: "#1b1994" }}
+                            onClick={() =>
+                              handleDocumentsIconClick(
+                                customer,
+                                customer.insuranceRequests[0]
+                              )
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )
+                )
               ) : (
                 <TableRow>
                   <TableCell colSpan="9" className="text-center">
@@ -319,17 +333,34 @@ const InsurancePending = () => {
                   </TableHead>
                   <TableBody>
                     {[
-                      { name: "RC Document", path: selectedInsurance.rcDocument },
-                      { name: "Sales Invoice", path: selectedInsurance.salesInvoice },
-                      { name: "Identity Proof", path: selectedInsurance.identityProof },
-                      { name: "Address Proof", path: selectedInsurance.addressProof },
+                      {
+                        name: "RC Document",
+                        path: selectedInsurance.rcDocument,
+                      },
+                      {
+                        name: "Sales Invoice",
+                        path: selectedInsurance.salesInvoice,
+                      },
+                      {
+                        name: "Identity Proof",
+                        path: selectedInsurance.identityProof,
+                      },
+                      {
+                        name: "Address Proof",
+                        path: selectedInsurance.addressProof,
+                      },
                       { name: "Form 21", path: selectedInsurance.form21 },
                       { name: "Form 22", path: selectedInsurance.form22 },
                       { name: "Temp Reg", path: selectedInsurance.tempReg },
                       { name: "PUC", path: selectedInsurance.puc },
-                      { name: "Loan Documents", path: selectedInsurance.loanDocuments },
+                      {
+                        name: "Loan Documents",
+                        path: selectedInsurance.loanDocuments,
+                      },
                     ].map((doc, index) => {
-                      const { customerId, fileName } = getDocumentDetails(doc.path);
+                      const { customerId, fileName } = getDocumentDetails(
+                        doc.path
+                      );
                       return (
                         <TableRow key={index}>
                           <TableCell style={{ fontSize: "12px" }}>

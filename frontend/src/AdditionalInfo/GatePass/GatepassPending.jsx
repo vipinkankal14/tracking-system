@@ -16,8 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { SearchIcon } from "lucide-react";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-
+ 
 const GatepassPending = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState([]);

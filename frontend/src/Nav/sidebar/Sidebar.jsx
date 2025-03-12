@@ -20,12 +20,12 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     { icon: <Code2 size={18} />, label: 'Extended Warranty', path: '/extended-warranty-app' },
     { icon: <Code2 size={18} />, label: 'Get Pass', path: '/gatepass-app' },
     { icon: <Code2 size={18} />, label: 'Security Clearance', path: '/securityclearance-app' },
+    { icon: <Code2 size={18} />, label: 'pdi', path: '/pdiApp' },
+
+    
   ]
 
   
-
- 
- 
 
   return (
     <nav className={`sidebar ${isOpen ? 'open' : ''}`}>

@@ -1972,6 +1972,133 @@ app.post('/api/customer/login', (req, res) => {
 
 
 
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+
+app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const {
+    exShowroomPrice,
+    accessories,
+    discount,
+    gstRate,
+    cessRate,
+    coating,
+    fastTag,
+    rto,
+    insurance,
+    extendedWarranty,
+    autoCard,
+  } = req.body;
+
+  if (!customerId) {
+    return res.status(400).json({ error: 'Customer ID is required' });
+  }
+
+  let connection;
+  try {
+    // Get a connection from the pool
+    connection = await pool.promise().getConnection();
+
+    // Start a transaction (use query instead of execute)
+    await connection.query('START TRANSACTION');
+
+    // Fetch invoiceId using customerId
+    const [invoiceSummary] = await connection.query(
+      `SELECT invoice_id FROM invoice_summary WHERE customerId = ?`,
+      [customerId]
+    );
+
+    if (!invoiceSummary.length) {
+      await connection.query('ROLLBACK');
+      return res.status(404).json({ error: 'Invoice not found for the given customer ID' });
+    }
+
+    const invoiceId = invoiceSummary[0].invoice_id;
+
+    // Update on_road_price_details
+    await connection.query(
+      `UPDATE on_road_price_details
+       SET 
+         ex_showroom_price = ?,
+         accessories = ?,
+         discount = ?,
+         subtotal = ex_showroom_price + accessories - discount,
+         gst_rate = ?,
+         gst_amount = subtotal * gst_rate / 100,
+         cess_rate = ?,
+         cess_amount = subtotal * cess_rate / 100,
+         total_on_road_price = subtotal + gst_amount + cess_amount,
+         updatedAt = CURRENT_TIMESTAMP
+       WHERE invoice_id = ?`,
+      [exShowroomPrice, accessories, discount, gstRate, cessRate, invoiceId]
+    );
+
+    // Update additional_charges
+    await connection.query(
+      `UPDATE additional_charges
+       SET 
+         coating = ?,
+         fast_tag = ?,
+         rto = ?,
+         insurance = ?,
+         extended_warranty = ?,
+         auto_card = ?,
+         total_charges = coating + fast_tag + rto + insurance + extended_warranty + auto_card,
+         updatedAt = CURRENT_TIMESTAMP
+       WHERE invoice_id = ?`,
+      [coating, fastTag, rto, insurance, extendedWarranty, autoCard, invoiceId]
+    );
+
+    // Fetch updated totals
+    const [onRoadPrice] = await connection.query(
+      `SELECT total_on_road_price FROM on_road_price_details WHERE invoice_id = ?`,
+      [invoiceId]
+    );
+    const [additionalCharges] = await connection.query(
+      `SELECT total_charges FROM additional_charges WHERE invoice_id = ?`,
+      [invoiceId]
+    );
+
+    const totalOnRoadPrice = parseFloat(onRoadPrice[0].total_on_road_price);
+    const totalCharges = parseFloat(additionalCharges[0].total_charges);
+    const grandTotal = totalOnRoadPrice + totalCharges;
+    const customerAccountBalance = grandTotal;
+
+
+    // Update invoice_summary
+    await connection.query(
+      `UPDATE invoice_summary
+       SET 
+         total_on_road_price = ?,
+         total_charges = ?,
+         grand_total = ?,
+         customer_account_balance = ?,
+         updatedAt = CURRENT_TIMESTAMP
+       WHERE invoice_id = ?`,
+      [totalOnRoadPrice, totalCharges, grandTotal,customerAccountBalance,invoiceId]
+    );
+
+    // Commit the transaction (use query instead of execute)
+    await connection.query('COMMIT');
+
+    res.status(200).json({ message: 'Invoice updated successfully' });
+  } catch (error) {
+    // Rollback the transaction in case of error (use query instead of execute)
+    if (connection) await connection.query('ROLLBACK');
+    console.error('Error updating invoice:', error);
+    res.status(500).json({ error: 'Failed to update invoice', details: error.message });
+  } finally {
+    // Release the connection back to the pool
+    if (connection) connection.release();
+  }
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);

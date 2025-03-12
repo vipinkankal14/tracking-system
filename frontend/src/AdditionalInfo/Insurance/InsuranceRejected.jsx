@@ -310,7 +310,7 @@ const InsuranceRejected = () => {
               </Typography>
 
               <Typography style={{ fontSize: "12px",color:'red' }} >
-                <strong style={{color:'black'}} >Insurance Rejected Reason:</strong>{" "}
+                <strong style={{color:'black'}} >Insurance Rejection Reason:</strong>{" "}
                 {`${selectedInsurance.insuranceReason}`}
               </Typography>
 

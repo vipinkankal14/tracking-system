@@ -63,7 +63,7 @@ import InsuranceApp from "./AdditionalInfo/Insurance/InsuranceApp";
 import AutoCardApp from "./AdditionalInfo/AutoCard/AutoCardApp";
 import RTOApp from "./AdditionalInfo/RTO/RTOApp";
 import SecurityClearanceApp from "./AdditionalInfo/SecurityClearance/SecurityClearanceApp";
-import GatePassApp from "./AdditionalInfo/GeetPass/GatePassApp";
+import GatePassApp from "./AdditionalInfo/GatePass/GatePassApp";
 import CustomerPaymentDetails from "./AdditionalInfo/Account/CustomerPaymentDetails/CustomerPaymentDetails";
 
 
@@ -90,9 +90,9 @@ import ExtendedWarrantyRejected from "./AdditionalInfo/ExtendedWarranty/Extended
 import FastTagApproved from "./AdditionalInfo/FastTag/FastTagApproved";
 import FastTagRejected from "./AdditionalInfo/FastTag/FastTagRejected";
 import FastTagPending from "./AdditionalInfo/FastTag/FastTagPending";
-import GatepassApproved from "./AdditionalInfo/GeetPass/GatepassApproved";
-import GatepassRejected from "./AdditionalInfo/GeetPass/GatepassRejected";
-import GatepassPending from "./AdditionalInfo/GeetPass/GatepassPending";
+import GatepassApproved from "./AdditionalInfo/GatePass/GatepassApproved";
+import GatepassRejected from "./AdditionalInfo/GatePass/GatepassRejected";
+import GatepassPending from "./AdditionalInfo/GatePass/GatepassPending";
 import SecurityclearanceApproved from "./AdditionalInfo/SecurityClearance/SecurityclearanceApproved";
 import SecurityclearanceRejected from "./AdditionalInfo/SecurityClearance/SecurityclearanceRejected";
 import SecurityclearancePending from "./AdditionalInfo/SecurityClearance/SecurityclearancePending";
@@ -106,10 +106,18 @@ import ACMApprovedRejected from "./AdditionalInfo/Account/ACMApprovedRejected";
 import AccessoriesApproval from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesApproval";
 import AccessoriesReject from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesReject";
 import AccessoriesPending from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesPending";
-  
+ 
 
-
-
+import PDIApp from "./AdditionalInfo/PreDeliveryInspection/PADApp";
+import PADPending from "./AdditionalInfo/PreDeliveryInspection/PADPending";
+import PADiRejected from "./AdditionalInfo/PreDeliveryInspection/PADiRejected";
+import PADApproved from "./AdditionalInfo/PreDeliveryInspection/PADApproved";
+import PaymentRefundDebit from "./AdditionalInfo/cashier/PaymentRefundDebit";
+ import CustomerLogout from "./CustomerLogin/CustomerLogout";
+import DashboardCustomer from "./CustomerLogin/DashboardCustomer";
+import CustomerLogin from "./CustomerLogin/CustomerLogin";
+import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails";
+ 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -128,7 +136,7 @@ function App() {
               <Routes>
                 <Route path="/home" element={<Home />} />
             
-                
+  
                 <Route path="/additional-info" element={<AdditionalInfo />} />
                 <Route path="/PersonalInfo" element={<PersonalInfo />} />
                 <Route path="/CarInfo" element={<CarInfo />} />
@@ -195,9 +203,12 @@ function App() {
                 <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
                 <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
                 <Route path="/ACMApprovedRejected" element={<ACMApprovedRejected />} />
+                
+                <Route path="/PaymentRefundDebit" element={<PaymentRefundDebit />} />
 
 
-                 {/* ========================================================================================== */}
+
+                {/* ========================================================================================== */}
                 
 
                 <Route path="/exchange-app" element={<ExchangeApp />} />
@@ -268,6 +279,24 @@ function App() {
                 <Route path="/securityclearance-approved" element={<SecurityclearanceApproved />} />
                 <Route path="/securityclearance-rejected" element={<SecurityclearanceRejected />} />
                 <Route path="/car-pending-for-securityclearance" element={<SecurityclearancePending />} />
+
+                
+                {/* ========================================================================================== */}
+
+                <Route path="/pdiApp" element={<PDIApp />} />
+                <Route path="/PADPending" element={<PADPending />} />
+                <Route path="/PADiRejected" element={<PADiRejected />} />
+                <Route path="/PADApproved" element={<PADApproved />} />
+
+
+                {/* ========================================================================================== */}
+                
+                <Route path="/login" element={<CustomerLogin />} />
+                <Route path="/customer-logout" element={<CustomerLogout />} />
+                <Route path="/dashboard" element={<DashboardCustomer />} />
+                <Route path="/customer/:customerId" element={<CustomerDetails />} /> {/* Customer Details Route */}
+
+                 
 
 
 

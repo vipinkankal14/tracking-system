@@ -77,30 +77,7 @@ const AccessoriesApproval = () => {
     setSelectedOrder(null);
   };
 
-  // Handle insurance approval
-  const handleApprove = async () => {
-    try {
-      setIsActionLoading(true);
-      const response = await axios.put(
-        `http://localhost:5000/api/accessoriesapproval/update-status/${selectedCustomer.customerId}`,
-        { status: "Approval" }
-      );
-
-      if (response.status === 200) {
-        alert("Accessories approved successfully!");
-        handleCloseModal();
-        // Refresh the data
-        const newData = await axios.get(
-          "http://localhost:5000/api/getOrdersWithCustomers"
-        );
-        setCustomers(newData.data.data);
-      }
-    } catch (err) {
-      setError(`Failed to approve: ${err.response?.data?.error || err.message}`);
-    } finally {
-      setIsActionLoading(false);
-    }
-  };
+ 
 
   // Handle insurance rejection
   const handleReject = async () => {
@@ -153,7 +130,7 @@ const AccessoriesApproval = () => {
   return (
     <>
       <div style={{ marginTop: "-36px", color: "#071947" }}>
-        <p className="text-md-start my-4">Accessories Requests</p>
+        <p className="text-md-start my-4">Accessories Approval</p>
       </div>
 
       {/* Search Field */}
@@ -344,15 +321,7 @@ const AccessoriesApproval = () => {
               fontSize: "10px",
             }}
           >
-            <Button
-              variant="contained"
-              size="small"
-              color="success"
-              onClick={handleApprove}
-              disabled={isActionLoading}
-            >
-              {isActionLoading ? "Processing..." : "Approve"}
-            </Button>
+          
             <Button
               variant="contained"
               size="small"

@@ -1,231 +1,573 @@
-
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { Print, Email, Done } from '@mui/icons-material';
-import './scss/SuccessPage.scss';
-
-function SuccessPage() {
-  const location = useLocation();
-  const formData = location.state?.formData;
-  
-  const id = 'CUST123456'; 
-
-  const handlePrint = () => {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    const printDocument = iframe.contentWindow.document;
-
-    // Write the content to the iframe
-    printDocument.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <base href="${window.location.origin}" />
-          <title>Car Booking Receipt</title>
-          <style>
-            body {
-               padding: 20px;
-              max-width: 800px;
-              margin: 0 auto;
-            }
-            .receipt-header {
-              text-align: center;
-              margin-bottom: 30px;
-              border-bottom: 2px solid #333;
-              padding-bottom: 20px;
-            }
-            .section {
-              margin: 20px 0;
-              border-bottom: 1px solid #eee;
-              padding-bottom: 15px;
-            }
-            .section-title {
-              font-size: 1.2em;
-              font-weight: bold;
-              margin-bottom: 15px;
-              color: #333;
-            }
-            @media print {
-              body {
-                padding: 0;
-                margin: 0;
-              }
-              .section {
-                page-break-inside: avoid;
-              }
-            }
-
-            .two-column {
-              display: flex;
-              justify-content: space-between;
-              gap: 20px;
-            }
-
-            .two-column .column {
-              flex: 1;
-              min-width: 0;
-            }
-
-            .receipt-row {
-              display: flex;
-              justify-content: space-between;
-              padding: 4px 0;
-            }
-
-            .receipt-label {
-              font-weight: bold;
-              color: #555;
-            }
-
-            .receipt-value {
-              text-align: right;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="receipt-header">
-            <div class="company-details">
-              <p><strong>Company Name:</strong> Your Company Name</p>
-              <p><strong>Address:</strong> 123 Main Street, City, State, Country</p>
-              <p><strong>Phone:</strong> +1 234 567 890</p>
-              <p><strong>Email:</strong> support@company.com</p>
-              <p><strong>Website:</strong> www.companywebsite.com</p>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">Personal Information</div>
-            <div class="receipt-row">
-              <span class="receipt-label">Name: <span class="receipt-value">${formData.personalInfo.firstName} ${formData.personalInfo.middleName} ${formData.personalInfo.lastName}</span></span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Mobile: <span class="receipt-value">${formData.personalInfo.mobileNumber1}${formData.personalInfo.mobileNumber2 ? `, ${formData.personalInfo.mobileNumber2}` : ''}</span></span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Email: <span class="receipt-value">${formData.personalInfo.email}</span></span>
-            </div>
-            <div class="receipt-row">
-              <span class="receipt-label">Address: <span class="receipt-value">${formData.personalInfo.address}, ${formData.personalInfo.city}, ${formData.personalInfo.state}, ${formData.personalInfo.country}</span></span>
-            </div>
-          </div>
-
-          <div class="section two-column">
-            <div class="column">
-              <div class="section-title">Car Information</div>
-              <div class="receipt-row">
-                <span class="receipt-label">Model:</span>
-                <span class="receipt-value">${formData.CarInfo.model}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Version:</span>
-                <span class="receipt-value">${formData.CarInfo.version}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Color:</span>
-                <span class="receipt-value">${formData.CarInfo.color}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Ex-Showroom Price:</span>
-                <span class="receipt-value">₹${formData.CarInfo.exShowroomPrice}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Booking Amount:</span>
-                <span class="receipt-value">₹${formData.CarInfo.bookingAmount}</span>
-              </div>
-            </div>
-            <div class="column">
-              <div class="section-title">Additional Services</div>
-              <div class="receipt-row">
-                <span class="receipt-label">Exchange:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.exchange}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Finance:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.finance}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Accessories:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.accessories}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Insurance:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.insurance}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Coating:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.coating}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Auto Card:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.auto_card}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Extended Warranty:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.extended_warranty}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Rto tax:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.rto_tax}</span>
-              </div>
-              <div class="receipt-row">
-                <span class="receipt-label">Fast Tag:</span>
-                <span class="receipt-value">${formData.AdditionalInfo.fast_tag}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="receipt-footer">
-            <p>Thank you for your booking!</p>
-            <p>This is an official receipt of your transaction.</p>
-            <p>Customer ID: ${id}</p>
-          </div>
-        </body>
-      </html>
-    `);
-
-    printDocument.close();
-
-    // Trigger printing
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-
-    // Cleanup after printing
-    iframe.contentWindow.onafterprint = () => {
-      document.body.removeChild(iframe);
-    };
-  };
-
-  const handleSendEmail = () => {
-    alert(`An email has been sent to ${formData?.personalInfo?.email || 'the registered email address'}.`);
-  };
-
-  return (
-    <div className="success-page">
-      <h2>Success!</h2>
-      <p>Car booked successfully, {formData.personalInfo.firstName || 'Guest'}!</p>
-      <p>
-        <strong>Customer ID:</strong> {id}
-      </p>
-
-      <div className="options">
-        <button
-          className="btn btn-primary m-2"
-          onClick={handlePrint}
-        >
-          <Print className="icon" />
-          Print
-        </button>
-        <button className="btn btn-info m-2" onClick={handleSendEmail}>
-          <Email className="icon" /> Send via Email
-        </button>
-        <button className="btn btn-success m-2">
-          <Done className="icon" /> Done
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export default SuccessPage;
+ "use client";
+ 
+ import { useState, useEffect } from "react";
+ import axios from "axios";
+ import {
+   Box,
+   Button,
+   InputAdornment,
+   Paper,
+   Table,
+   TableBody,
+   TableCell,
+   TableContainer,
+   TableHead,
+   TableRow,
+   TextareaAutosize,
+   TextField,
+   Typography,
+   CircularProgress,
+   Card,
+   CardContent,
+   Chip,
+   Grid,
+   Divider,
+   Dialog,
+   DialogTitle,
+   DialogContent,
+   DialogActions,
+   useMediaQuery,
+   useTheme,
+   IconButton,
+ } from "@mui/material";
+ import { SearchIcon, DoorClosedIcon as CloseIcon } from "lucide-react";
+ import GppBadRoundedIcon from "@mui/icons-material/GppBadRounded";
+ 
+ const PADPending = () => {
+   const [searchQuery, setSearchQuery] = useState("");
+   const [customers, setCustomers] = useState([]);
+   const [loading, setLoading] = useState(true);
+   const [success, setError] = useState(null);
+   const [showModal, setShowModal] = useState(false);
+   const [selectedCustomer, setSelectedCustomer] = useState(null);
+   const [isConfirmed, setIsConfirmed] = useState(false);
+   const [preDeliveryInspectionReason, setPreDeliveryInspectionReason] =
+     useState("");
+ 
+   const theme = useTheme();
+   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+ 
+   // Fetch customers with Gatepass data
+   useEffect(() => {
+     const fetchCustomers = async () => {
+       try {
+         const response = await axios.get(
+           "http://localhost:5000/api/showPreDeliveryInspection"
+         );
+         setCustomers(response.data.data || []);
+       } catch (err) {
+         setError("Failed to fetch Gatepass data");
+         console.error("Error fetching customers:", err);
+       } finally {
+         setLoading(false);
+       }
+     };
+     fetchCustomers();
+   }, []);
+ 
+   // Filter customers based on search query and pending status
+   const filteredCustomers = customers.filter(
+     (customer) =>
+       customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+   );
+ 
+   // Handle Gatepass approval
+   const handleApprove = async () => {
+     try {
+       const response = await axios.put(
+         `http://localhost:5000/api/preInspectionapproved/${selectedCustomer.customerId}`,
+         {
+           status: "Approved",
+           preDeliveryInspectionReason: null, // Reason is optional for approval
+         }
+       );
+ 
+       if (response.status === 200) {
+         alert("PDI approved successfully!");
+         handleClose();
+ 
+         const newData = await axios.get(
+           "http://localhost:5000/api/showPreDeliveryInspection"
+         );
+         setCustomers(newData.data.data);
+       }
+     } catch (err) {
+       setError(
+         `Failed to approve PDI: ${err.response?.data?.error || err.message}`
+       );
+       console.error("Error:", err);
+     }
+   };
+ 
+   // Handle Gatepass rejection
+   const handleReject = async () => {
+     if (!preDeliveryInspectionReason) {
+       setError("Please provide a reason for rejection.");
+       return;
+     }
+ 
+     try {
+       const response = await axios.put(
+         `http://localhost:5000/api/preInspectionRejection/${selectedCustomer.customerId}`,
+         {
+           status: "Rejected",
+           preDeliveryInspectionReason,
+         }
+       );
+ 
+       if (response.status === 200) {
+         alert("PDI rejected successfully!");
+         handleClose();
+         const newData = await axios.get(
+           "http://localhost:5000/api/showPreDeliveryInspection"
+         );
+         setCustomers(newData.data.data);
+       }
+     } catch (err) {
+       setError(
+         `Failed to reject PDI: ${err.response?.data?.error || err.message}`
+       );
+       console.error("Error:", err);
+     }
+   };
+ 
+   const handleClose = () => {
+     setShowModal(false);
+     setIsConfirmed(false);
+     setPreDeliveryInspectionReason("");
+     setError(null);
+   };
+ 
+   // Format phone numbers for better display
+   const formatPhoneNumber = (phone1, phone2) => {
+     let formattedNumber = phone1 || "";
+     if (phone2) {
+       formattedNumber += phone2 ? ` / ${phone2}` : "";
+     }
+     return formattedNumber || "N/A";
+   };
+ 
+   // Mobile view for customer cards
+   const MobileCustomerCard = ({ customer }) => {
+     return (
+       <Card sx={{ mb: 2, borderLeft: "4px solid rgb(83, 138, 61)" }}>
+         <CardContent>
+           <Grid container spacing={1}>
+             <Grid item xs={9}>
+               <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                 {`${customer.firstName} ${customer.lastName}`}
+               </Typography>
+               <Typography variant="body2" color="text.secondary">
+                 ID: {customer.customerId}
+               </Typography>
+             </Grid>
+             <Grid
+               item
+               xs={3}
+               sx={{
+                 display: "flex",
+                 justifyContent: "flex-end",
+                 alignItems: "flex-start",
+               }}
+             >
+               <IconButton
+                 size="small"
+                 color="success"
+                 onClick={() => {
+                   setSelectedCustomer(customer);
+                   setShowModal(true);
+                 }}
+               >
+                 <GppBadRoundedIcon />
+               </IconButton>
+             </Grid>
+           </Grid>
+ 
+           <Divider sx={{ my: 1 }} />
+ 
+           <Grid container spacing={1}>
+             <Grid item xs={12}>
+               <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                 Contact:{" "}
+                 {formatPhoneNumber(
+                   customer.mobileNumber1,
+                   customer.mobileNumber2
+                 )}
+               </Typography>
+             </Grid>
+             <Grid item xs={12}>
+               <Typography variant="body2">{customer.email}</Typography>
+             </Grid>
+             <Grid item xs={12}>
+               <Typography variant="body2">
+                 Car: {customer.carBooking?.model || "N/A"} |{" "}
+                 {customer.carBooking?.version || "N/A"} |{" "}
+                 {customer.carBooking?.color || "N/A"}
+               </Typography>
+             </Grid>
+             <Grid item xs={12}>
+               <Chip
+                 label="Approved"
+                 color="success"
+                 size="small"
+                 sx={{ mt: 1 }}
+               />
+             </Grid>
+           </Grid>
+         </CardContent>
+       </Card>
+     );
+   };
+ 
+   // Tablet view with simplified table
+   const TabletView = () => (
+     <TableContainer component={Paper}>
+       <Table size="small">
+         <TableHead>
+           <TableRow>
+             <TableCell>Customer</TableCell>
+             <TableCell>Contact</TableCell>
+             <TableCell>Car Details</TableCell>
+             <TableCell>Status</TableCell>
+           </TableRow>
+         </TableHead>
+         <TableBody>
+           {filteredCustomers.map((customer) => (
+             <TableRow key={customer.customerId}>
+               <TableCell>
+                 <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                   {`${customer.firstName} ${customer.lastName}`}
+                 </Typography>
+                 <Typography variant="caption" color="text.secondary">
+                   {customer.customerId}
+                 </Typography>
+                 <Typography variant="caption" display="block">
+                   {customer.email}
+                 </Typography>
+               </TableCell>
+               <TableCell>
+                 {formatPhoneNumber(
+                   customer.mobileNumber1,
+                   customer.mobileNumber2
+                 )}
+               </TableCell>
+               <TableCell>
+                 <Typography variant="body2">
+                   {customer.carBooking?.model || "N/A"}
+                 </Typography>
+                 <Typography variant="caption" color="text.secondary">
+                   {customer.carBooking?.version || "N/A"} |{" "}
+                   {customer.carBooking?.color || "N/A"}
+                 </Typography>
+               </TableCell>
+               <TableCell>
+                 <Box sx={{ display: "flex", alignItems: "center" }}>
+                   <Chip label="Approved" color="success" size="small" />
+                   <IconButton
+                     size="small"
+                     color="success"
+                     onClick={() => {
+                       setSelectedCustomer(customer);
+                       setShowModal(true);
+                     }}
+                     sx={{ ml: 1 }}
+                   >
+                     <GppBadRoundedIcon />
+                   </IconButton>
+                 </Box>
+               </TableCell>
+             </TableRow>
+           ))}
+         </TableBody>
+       </Table>
+     </TableContainer>
+   );
+ 
+   // Desktop view with full table
+   const DesktopView = () => (
+     <TableContainer component={Paper}>
+       <Table>
+         <TableHead>
+           <TableRow>
+             <TableCell>Customer ID</TableCell>
+             <TableCell>Full Name</TableCell>
+             <TableCell>Contact</TableCell>
+             <TableCell>Email</TableCell>
+             <TableCell>Car Details</TableCell>
+             <TableCell>Status</TableCell>
+           </TableRow>
+         </TableHead>
+         <TableBody>
+           {filteredCustomers.map((customer) => (
+             <TableRow
+               key={customer.customerId}
+               sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
+             >
+               <TableCell>{customer.customerId}</TableCell>
+               <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+               <TableCell>
+                 {formatPhoneNumber(
+                   customer.mobileNumber1,
+                   customer.mobileNumber2
+                 )}
+               </TableCell>
+               <TableCell>{customer.email}</TableCell>
+               <TableCell>
+                 {customer.carBooking?.model || "N/A"} |{" "}
+                 {customer.carBooking?.version || "N/A"} |{" "}
+                 {customer.carBooking?.color || "N/A"}
+               </TableCell>
+               <TableCell>
+                 <Box sx={{ display: "flex", alignItems: "center" }}>
+                   <Chip label="Approved" color="success" size="small" />
+                   <IconButton
+                     size="small"
+                     color="success"
+                     onClick={() => {
+                       setSelectedCustomer(customer);
+                       setShowModal(true);
+                     }}
+                     sx={{ ml: 1 }}
+                   >
+                     <GppBadRoundedIcon />
+                   </IconButton>
+                 </Box>
+               </TableCell>
+             </TableRow>
+           ))}
+         </TableBody>
+       </Table>
+     </TableContainer>
+   );
+ 
+   return (
+     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+       <Typography
+         variant="h6"
+         sx={{ mb: 3, color: "#071947", fontWeight: "bold" }}
+       >
+         Pre-Delivery Inspection Approved
+       </Typography>
+ 
+       <Box
+         sx={{
+           mb: 3,
+           display: "flex",
+           flexDirection: { xs: "column", sm: "row" },
+           justifyContent: { xs: "center", sm: "flex-start" },
+           alignItems: { xs: "stretch", sm: "center" },
+         }}
+       >
+         <TextField
+           variant="outlined"
+           placeholder="Search..."
+           label="Search Customers"
+           value={searchQuery}
+           onChange={(e) => setSearchQuery(e.target.value)}
+           fullWidth={isMobile}
+           sx={{ maxWidth: { sm: "300px" } }}
+           InputProps={{
+             startAdornment: (
+               <InputAdornment position="start">
+                 <SearchIcon />
+               </InputAdornment>
+             ),
+           }}
+         />
+       </Box>
+ 
+       {loading ? (
+         <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+           <CircularProgress />
+         </Box>
+       ) : success ? (
+         <Box
+           sx={{
+             p: 2,
+             bgcolor: "success.light",
+             color: "success.dark",
+             borderRadius: 1,
+             my: 2,
+           }}
+         >
+           {success}
+         </Box>
+       ) : filteredCustomers.length === 0 ? (
+         <Box
+           sx={{
+             p: 3,
+             textAlign: "center",
+             bgcolor: "background.paper",
+             borderRadius: 1,
+             border: "1px dashed",
+             borderColor: "divider",
+             my: 2,
+           }}
+         >
+           <Typography>No Approved PDI customers found</Typography>
+         </Box>
+       ) : (
+         <>
+           {/* Mobile view */}
+           {isMobile && (
+             <Box>
+               {filteredCustomers.map((customer) => (
+                 <MobileCustomerCard
+                   key={customer.customerId}
+                   customer={customer}
+                 />
+               ))}
+             </Box>
+           )}
+ 
+           {/* Tablet view */}
+           {isTablet && <TabletView />}
+ 
+           {/* Desktop view */}
+           {!isMobile && !isTablet && <DesktopView />}
+         </>
+       )}
+ 
+       {/* Approved Dialog - Using Material UI Dialog instead of React Bootstrap Modal */}
+       <Dialog
+         open={showModal}
+         onClose={handleClose}
+         fullWidth
+         maxWidth="sm"
+         fullScreen={isMobile}
+       >
+         <DialogTitle
+           sx={{
+             display: "flex",
+             justifyContent: "space-between",
+             alignItems: "center",
+             borderBottom: "1px solid",
+             borderColor: "divider",
+             pb: 1,
+           }}
+         >
+           <Typography variant="h6">Process Pre-Delivery Inspection</Typography>
+           <IconButton
+             edge="end"
+             color="inherit"
+             onClick={handleClose}
+             aria-label="close"
+           >
+             <CloseIcon />
+           </IconButton>
+         </DialogTitle>
+         <DialogContent sx={{ pt: 2, mt: 1 }}>
+           {selectedCustomer && (
+             <Box>
+               <Card variant="outlined" sx={{ mb: 2, p: 2 }}>
+                 <Typography
+                   variant="subtitle1"
+                   sx={{ fontWeight: "bold", mb: 1 }}
+                 >
+                   Customer Details
+                 </Typography>
+                 <Grid container spacing={1}>
+                   <Grid item xs={12} sm={6}>
+                     <Typography variant="body2" color="text.secondary">
+                       Customer ID:
+                     </Typography>
+                     <Typography variant="body1">
+                       {selectedCustomer.customerId}
+                     </Typography>
+                   </Grid>
+                   <Grid item xs={12} sm={6}>
+                     <Typography variant="body2" color="text.secondary">
+                       Name:
+                     </Typography>
+                     <Typography variant="body1">
+                       {selectedCustomer.firstName} {selectedCustomer.lastName}
+                     </Typography>
+                   </Grid>
+                   <Grid item xs={12}>
+                     <Typography variant="body2" color="text.secondary">
+                       Car:
+                     </Typography>
+                     <Typography variant="body1">
+                       {selectedCustomer.carBooking?.model || "N/A"} |{" "}
+                       {selectedCustomer.carBooking?.version || "N/A"} |{" "}
+                       {selectedCustomer.carBooking?.color || "N/A"}
+                     </Typography>
+                   </Grid>
+                 </Grid>
+               </Card>
+ 
+               <Card
+                 variant="outlined"
+                 sx={{ mb: 3, p: 2, bgcolor: "success.light" }}
+               >
+                 <Typography
+                   variant="subtitle1"
+                   sx={{ fontWeight: "bold", mb: 1 }}
+                 >
+                   Approved Reason
+                 </Typography>
+                 <Typography variant="body1" color="success.dark">
+                   {selectedCustomer.predeliveryinspection[0]
+                     ?.PreDeliveryInspectionReason || "No reason provided"}
+                 </Typography>
+               </Card>
+ 
+               <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                 Add Reject Notes
+               </Typography>
+               <TextareaAutosize
+                 minRows={3}
+                 placeholder="Add notes for reject"
+                 value={preDeliveryInspectionReason}
+                 onChange={(e) => setPreDeliveryInspectionReason(e.target.value)}
+                 style={{
+                   width: "100%",
+                   padding: "8px",
+                   borderRadius: "4px",
+                   border: "1px solid #ccc",
+                   fontFamily: "inherit",
+                   fontSize: "14px",
+                 }}
+               />
+ 
+               {success && (
+                 <Box
+                   sx={{
+                     p: 1,
+                     mt: 2,
+                     bgcolor: "success.light",
+                     color: "success.dark",
+                     borderRadius: 1,
+                   }}
+                 >
+                   {success}
+                 </Box>
+               )}
+             </Box>
+           )}
+         </DialogContent>
+         <DialogActions
+           sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}
+         >
+           <Button onClick={handleClose} variant="outlined">
+             Cancel
+           </Button>
+           <Button
+             onClick={handleReject}
+             color="error"
+             disabled={!preDeliveryInspectionReason}
+             variant="contained"
+           >
+             Reject PDI
+           </Button>
+         </DialogActions>
+       </Dialog>
+     </Box>
+   );
+ };
+ 
+ export default PADPending;
+ 

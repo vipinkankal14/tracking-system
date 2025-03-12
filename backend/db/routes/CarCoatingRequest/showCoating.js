@@ -21,8 +21,8 @@ const showCoating = async (req, res) => {
             s.additionalNotes,
             s.coating_amount,
             s.durability,
-            s.created_at,
-            s.updated_at,
+            s.createdAt,
+            s.updatedAt,
             s.status,
             s.coatingReason
         FROM customers c

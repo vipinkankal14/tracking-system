@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { DirectionsCar, Block } from '@mui/icons-material';
- import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
@@ -162,6 +160,24 @@ function AccountApp() {
       icon: PendingOutlinedIcon,
       iconType: 'warning',
       path: '/Payment-refund',
+    },
+    {
+      id: 'Manaement',
+      title: 'Gate Pass Request',
+      count: 80,
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'CashierMhanaement',
+      path: '/ACMApprovedRejected',
+    },
+    {
+      id: 'Manaement',
+      title: 'Gate Pass Request',
+      count: 80,
+      status: 'Rejected',
+      icon: FlakyRoundedIcon,
+      iconType: 'CashierMhanaement',
+      path: '/ACMApprovedRejected',
     },
   ]);
 

@@ -2,12 +2,23 @@ import React, { useState, useEffect } from "react";
 import { Table, Spinner, Badge } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Button, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import {
+  Button,
+  InputAdornment,
+  Paper,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
 import { SearchIcon } from "lucide-react";
-import '../css/CarBookings.scss';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import "../css/CarBookings.scss";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
 const CustomerPaymentDetails = () => {
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [carStocks, setCarStocks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +64,7 @@ const CustomerPaymentDetails = () => {
 
   return (
     <>
-      <div style={{ marginTop: '-36px', color: '#071947' }}>
+      <div style={{ marginTop: "-36px", color: "#071947" }}>
         <p className="text-md-start my-4">CUSTOMER PAYMENT DETAILS</p>
       </div>
 
@@ -83,7 +94,7 @@ const CustomerPaymentDetails = () => {
           <Button
             variant={paymentFilter === "paid" ? "contained" : "outlined"}
             color="success"
-            style={{ marginRight: "8px", fontSize: '10px' }}
+            style={{ marginRight: "8px", fontSize: "10px" }}
             onClick={() => setPaymentFilter("paid")}
             size="small"
           >
@@ -92,20 +103,18 @@ const CustomerPaymentDetails = () => {
           <Button
             variant={paymentFilter === "unpaid" ? "contained" : "outlined"}
             color="error"
-            style={{ marginLeft: "8px", fontSize: '10px' }}
+            style={{ marginLeft: "8px", fontSize: "10px" }}
             onClick={() => setPaymentFilter("unpaid")}
             size="small"
-
           >
             Unpaid
           </Button>
           <Button
             variant={paymentFilter === "all" ? "contained" : "outlined"}
             color="primary"
-            style={{ marginLeft: "8px" , fontSize: '10px'}}
+            style={{ marginLeft: "8px", fontSize: "10px" }}
             onClick={() => setPaymentFilter("all")}
             size="small"
-
           >
             All
           </Button>
@@ -134,37 +143,97 @@ const CustomerPaymentDetails = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell style={{ fontSize: "10px", padding: '10px' }} className="d-none d-sm-table-cell">Customer Id</TableCell>
+                <TableCell
+                  style={{ fontSize: "10px", padding: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Customer Id
+                </TableCell>
                 <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
-                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Phone</TableCell>
-                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Email</TableCell>
-                <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">Model | variant | Color</TableCell>
-                <TableCell style={{ fontSize: "10px", padding: '10px' }}>Status</TableCell>
-                <TableCell style={{ fontSize: "10px", padding: '10px' }}></TableCell>
+                <TableCell
+                  style={{ fontSize: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Phone
+                </TableCell>
+                <TableCell
+                  style={{ fontSize: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Email
+                </TableCell>
+                <TableCell
+                  style={{ fontSize: "10px" }}
+                  className="d-none d-sm-table-cell"
+                >
+                  Model | variant | Color
+                </TableCell>
+                <TableCell style={{ fontSize: "10px", padding: "10px" }}>
+                  Status
+                </TableCell>
+                <TableCell
+                  style={{ fontSize: "10px", padding: "10px" }}
+                ></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredCarStocks.length > 0 ? (
-                filteredCarStocks.map((stock, index) => (
-                  <TableRow key={index}>
-                    <TableCell style={{ fontSize: "10px", padding: '10px' }} className="d-none d-sm-table-cell">{stock.customerId}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }}>{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.mobileNumber1}, {stock.mobileNumber2}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.email}</TableCell>
-                    <TableCell style={{ fontSize: "10px" }} className="d-none d-sm-table-cell">{stock.model} | {stock.version} | {stock.color}</TableCell>
-                    <TableCell style={{ padding: '10px' }}>
-                      <Badge bg={stock.payment_status === "Paid" ? "success" : "danger"}>
-                        {stock.payment_status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell style={{ padding: '10px' }}>
-                      <ManageAccountsIcon
-                        onClick={() => handleCancelClick(stock.customerId)}
-                        style={{ marginLeft: "12px", color: '#9c39e3', cursor: 'pointer' }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
+                filteredCarStocks.map(
+                  (stock, index) =>
+                    stock.status !== "approved" &&
+                    stock.status !== "rejected" && (
+                      <TableRow key={index}>
+                        <TableCell
+                          style={{ fontSize: "10px", padding: "10px" }}
+                          className="d-none d-sm-table-cell"
+                        >
+                          {stock.customerId}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "10px" }}
+                        >{`${stock.firstName} ${stock.middleName} ${stock.lastName}`}</TableCell>
+                        <TableCell
+                          style={{ fontSize: "10px" }}
+                          className="d-none d-sm-table-cell"
+                        >
+                          {stock.mobileNumber1}, {stock.mobileNumber2}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "10px" }}
+                          className="d-none d-sm-table-cell"
+                        >
+                          {stock.email}
+                        </TableCell>
+                        <TableCell
+                          style={{ fontSize: "10px" }}
+                          className="d-none d-sm-table-cell"
+                        >
+                          {stock.model} | {stock.version} | {stock.color}
+                        </TableCell>
+                        <TableCell style={{ padding: "10px" }}>
+                          <Badge
+                            bg={
+                              stock.payment_status === "Paid"
+                                ? "success"
+                                : "danger"
+                            }
+                          >
+                            {stock.payment_status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell style={{ padding: "10px" }}>
+                          <ManageAccountsIcon
+                            onClick={() => handleCancelClick(stock.customerId)}
+                            style={{
+                              marginLeft: "12px",
+                              color: "#9c39e3",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )
+                )
               ) : (
                 <TableRow>
                   <TableCell colSpan="10" className="text-center">

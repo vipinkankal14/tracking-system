@@ -16,11 +16,6 @@ const handlePayment = async (req, res) => {
       return res.status(404).json({ error: "Customer does not exist." });
     }
 
-
-
-    // Variable to store the payment status
-    let paymentStatus;
-
     // Handle debit transaction
     if (debitedAmount) {
       const debitPaymentQuery = `
@@ -34,14 +29,16 @@ const handlePayment = async (req, res) => {
         paymentType,
       ]);
 
+       // Update the customer's account balance in the invoice_summary table
       const updateDebitedBalanceQuery = `
         UPDATE invoice_summary 
-        SET customer_account_balance = customer_account_balance - ? 
+        SET grand_total = grand_total - ?, 
+            customer_account_balance = customer_account_balance - ? 
         WHERE customerId = ?`;
-      await pool.query(updateDebitedBalanceQuery, [debitedAmount, customerId]);
+      await pool.query(updateDebitedBalanceQuery, [debitedAmount, debitedAmount, customerId]);
     }
 
-    // Handle credit transaction (including exchangeCredit and financeCredit)
+    // Handle credit transaction
     if (creditedAmount) {
       const fetchCustomerDetailsQuery = `
         SELECT customer_account_balance, grand_total 
@@ -67,10 +64,13 @@ const handlePayment = async (req, res) => {
       // Calculate adjusted credited amount
       const adjustedCreditedAmount = Math.min(creditedAmount, requiredPayment);
 
+      // Format the adjusted credited amount to 2 decimal places
+      const formattedCreditedAmount = parseFloat(adjustedCreditedAmount.toFixed(2));
+
       // If adjusted credited amount is less than credited amount, inform the user
-      if (adjustedCreditedAmount < creditedAmount) {
+      if (formattedCreditedAmount < creditedAmount) {
         return res.status(400).json({
-          error: `Only ${adjustedCreditedAmount} can be credited, as the total on-road price is already covered by the current balance.`,
+          error: `Only ${formattedCreditedAmount} can be credited, as the total on-road price is already covered by the current balance.`,
         });
       }
 
@@ -79,7 +79,7 @@ const handlePayment = async (req, res) => {
       INSERT INTO cashier (creditedAmount, customerId, paymentDate, transactionType, paymentType) 
       VALUES (?, ?, ?, ?, ?)`;
       await pool.query(creditPaymentQuery, [
-        adjustedCreditedAmount,
+        formattedCreditedAmount,
         customerId,
         paymentDate,
         transactionType, // Use the transactionType from the request body
@@ -90,7 +90,7 @@ const handlePayment = async (req, res) => {
       UPDATE invoice_summary 
       SET customer_account_balance = customer_account_balance + ? 
       WHERE customerId = ?`;
-      await pool.query(updateCreditedBalanceQuery, [adjustedCreditedAmount, customerId]);
+      await pool.query(updateCreditedBalanceQuery, [formattedCreditedAmount, customerId]);
     }
 
     // Fetch updated customer details to check payment status
@@ -107,7 +107,7 @@ const handlePayment = async (req, res) => {
     const { customer_account_balance, grand_total } = updatedCustomerDetails[0];
 
     // Determine payment status
-    paymentStatus = customer_account_balance >= grand_total ? "Paid" : "Unpaid";
+    const paymentStatus = customer_account_balance >= grand_total ? "Paid" : "Unpaid";
 
     // Update the payment_status in the database
     const updatePaymentStatusQuery = `
@@ -147,11 +147,110 @@ const handlePayment = async (req, res) => {
 // Function to fetch a specific customer by ID {setp 1}
 const getCustomerById = async (req, res) => {
   const { id } = req.params;
+
   const query = `
-      SELECT *
+    SELECT 
+      c.*,
+      cb.*,
+      inv.*,
+      ai.*,
+      -- Include exchange data if exchange is 'Yes'
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.rcDocument
+        ELSE NULL
+      END AS rcDocument,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.insurancePolicy
+        ELSE NULL
+      END AS insurancePolicy,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.pucCertificate
+        ELSE NULL
+      END AS pucCertificate,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.identityProof
+        ELSE NULL
+      END AS identityProof,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.addressProof
+        ELSE NULL
+      END AS addressProof,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.loanClearance
+        ELSE NULL
+      END AS loanClearance,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.serviceHistory
+        ELSE NULL
+      END AS serviceHistory,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.carOwnerFullName
+        ELSE NULL
+      END AS carOwnerFullName,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.carMake
+        ELSE NULL
+      END AS carMake,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.carModel
+        ELSE NULL
+      END AS carModel,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.carColor
+        ELSE NULL
+      END AS carColor,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.carRegistration
+        ELSE NULL
+      END AS carRegistration,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.carYear
+        ELSE NULL
+      END AS carYear,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.exchangeAmount
+        ELSE NULL
+      END AS exchangeAmount,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.exchangeReason
+        ELSE NULL
+      END AS exchangeReason,
+      CASE 
+        WHEN ai.exchange = 'Yes' THEN cer.status
+        ELSE NULL
+      END AS exchangeStatus,
+      -- Include loan data if finance is 'Yes'
+      CASE 
+        WHEN ai.finance = 'Yes' THEN l.loan_amount
+        ELSE NULL
+      END AS loan_amount,
+      CASE 
+        WHEN ai.finance = 'Yes' THEN l.interest_rate
+        ELSE NULL
+      END AS interest_rate,
+      CASE 
+        WHEN ai.finance = 'Yes' THEN l.loan_duration
+        ELSE NULL
+      END AS loan_duration,
+      CASE 
+        WHEN ai.finance = 'Yes' THEN l.calculated_emi
+        ELSE NULL
+      END AS calculated_emi,
+       CASE 
+        WHEN ai.finance = 'Yes' THEN l.status
+        ELSE NULL
+      END AS financestatus,
+      CASE 
+        WHEN ai.finance = 'Yes' THEN l.financeReason
+        ELSE NULL
+      END AS financeReason
+      
     FROM customers c
     LEFT JOIN carbooking cb ON c.customerId = cb.customerId
     LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+    LEFT JOIN additional_info ai ON c.customerId = ai.customerId
+    LEFT JOIN car_exchange_requests cer ON c.customerId = cer.customerId
+    LEFT JOIN loans l ON c.customerId = l.customerId
     WHERE c.customerId = ?
   `;
 
@@ -159,7 +258,40 @@ const getCustomerById = async (req, res) => {
     const [result] = await pool.query(query, [id]);
 
     if (result.length > 0) {
-      res.status(200).json(result[0]); // Send the specific customer data as JSON
+      const customerData = result[0];
+
+      // Transform the result into a nested structure
+      const response = {
+        ...customerData,
+        carExchangeRequests: customerData.exchange === 'Yes' ? {
+          rcDocument: customerData.rcDocument,
+          insurancePolicy: customerData.insurancePolicy,
+          pucCertificate: customerData.pucCertificate,
+          identityProof: customerData.identityProof,
+          addressProof: customerData.addressProof,
+          loanClearance: customerData.loanClearance,
+          serviceHistory: customerData.serviceHistory,
+          carOwnerFullName: customerData.carOwnerFullName,
+          carMake: customerData.carMake,
+          carModel: customerData.carModel,
+          carColor: customerData.carColor,
+          carRegistration: customerData.carRegistration,
+          carYear: customerData.carYear,
+          exchangeAmount: customerData.exchangeAmount,
+          exchangeReason: customerData.exchangeReason,
+          status: customerData.exchangeStatus
+        } : null,
+      loans: customerData.finance === 'Yes' ? {
+          loan_amount: customerData.loan_amount,
+          interest_rate: customerData.interest_rate,
+          loan_duration: customerData.loan_duration,
+          calculated_emi: customerData.calculated_emi,
+          financeReason: customerData.financeReason,
+          financestatus : customerData.financestatus
+        } : null
+      };
+
+      res.status(200).json(response); // Send the transformed customer data as JSON
     } else {
       res.status(404).json({ message: 'Customer not found' });
     }
@@ -176,6 +308,7 @@ const getAllCustomers = async (req, res) => {
       SELECT *
     FROM customers c
     LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+    left JOIN account_management ac ON c.customerId = ac.customerId
     LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId;
 `;
 

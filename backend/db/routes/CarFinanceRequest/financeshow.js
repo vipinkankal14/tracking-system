@@ -19,7 +19,7 @@ const financeshow = async (req, res) => {
         l.financeReason,
         l.financeAmount,
         l.calculated_emi,
-        l.created_at AS loan_created,
+        l.createdAt AS loan_created,
         d.id AS document_id,
         d.employed_type,
         d.document_name,
@@ -77,22 +77,39 @@ const financeshow = async (req, res) => {
                     financeAmount: row.financeAmount,
                     calculated_emi: row.calculated_emi,
                     created_at: row.loan_created,
-
                     documents: []
                 });
             }
 
             const loan = customer.loans.find(loan => loan.id === row.loan_id);
 
-            if (row.document_id && loan) {
-                loan.documents.push({
-                    id: row.document_id,
-                    employed_type: row.employed_type,
-                    document_name: row.document_name,
-                    document_path: row.document_path,
-                    uploaded_at: row.document_uploaded
+            
+            if (row.pdi_id) {
 
+                customer.predeliveryinspection.push({
+                id: row.pdi_id, // Include the ID for reference
+                status: row.pdi_status,
+                PreDeliveryInspectionReason: row.PreDeliveryInspectionReason,
+                createdAt: row.pdi_created,
+                updatedAt: row.pdi_updated
                 });
+
+                customersMap.set(row.customerId, customer);
+                
+            } else {
+                const customer = customersMap.get(row.customerId);
+
+                if (row.pdi_id && !customer.predeliveryinspection.some(pdi => pdi.id === row.pdi_id)) {
+            customer.predeliveryinspection.push({
+                id: row.pdi_id,
+                status: row.pdi_status,
+                PreDeliveryInspectionReason: row.PreDeliveryInspectionReason,
+                createdAt: row.pdi_created,
+                updatedAt: row.pdi_updated
+            });
+        }
+
+                
             }
         });
 

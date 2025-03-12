@@ -1,5 +1,6 @@
 import { Bell, Search, Menu, Mountain } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import './navbar.scss'
 
 export default function TopNavbar({ toggleSidebar }) {
   return (
@@ -16,6 +17,12 @@ export default function TopNavbar({ toggleSidebar }) {
           <Mountain className="text-primary" size={28} />
           <span className="ms-2 fw-bold text-dark">Company Name</span>
         </Link> 
+
+        
+        <Link to="/login" className="btn btn-outline-primary ms-auto">
+          Login
+        </Link>
+
       </div>
       
       

@@ -102,43 +102,7 @@ const AccessoriesReject = () => {
     }
   };
 
-  // Handle insurance rejection
-  const handleReject = async () => {
-    if (!isConfirmed) {
-      setError("Please confirm the rejection.");
-      return;
-    }
-
-    if (!accessorieReason) {
-      setError("Please provide a reason for rejection.");
-      return;
-    }
-
-    try {
-      setIsActionLoading(true);
-      const response = await axios.put(
-        `http://localhost:5000/api/accessoriesrejection/update-status/${selectedCustomer.customerId}`,
-        {
-          status: "Rejected",
-          accessorieReason,
-        }
-      );
-
-      if (response.status === 200) {
-        alert("Accessories request rejected successfully!");
-        handleClose();
-        // Refresh the data
-        const newData = await axios.get(
-          "http://localhost:5000/api/getOrdersWithCustomers"
-        );
-        setCustomers(newData.data.data);
-      }
-    } catch (err) {
-      setError(`Failed to reject: ${err.response?.data?.error || err.message}`);
-    } finally {
-      setIsActionLoading(false);
-    }
-  };
+ 
 
   // Close all modals and reset state
   const handleClose = () => {
@@ -153,7 +117,7 @@ const AccessoriesReject = () => {
   return (
     <>
       <div style={{ marginTop: "-36px", color: "#071947" }}>
-        <p className="text-md-start my-4">Accessories Requests</p>
+        <p className="text-md-start my-4">Accessories Reject</p>
       </div>
 
       {/* Search Field */}
@@ -307,8 +271,21 @@ const AccessoriesReject = () => {
       <Modal show={openModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Products</Modal.Title>
+
         </Modal.Header>
         <Modal.Body>
+          <Typography  gutterBottom>
+            Customer: {selectedCustomer?.firstName} {selectedCustomer?.lastName}
+          </Typography>
+          <Typography  gutterBottom>
+            Order ID: {selectedOrder?.orderId}
+          </Typography>
+          
+          <Typography style={{color:'black'}} gutterBottom>
+          Accessorie Rejection Reason  : <span style={{color:'red'}}>{selectedOrder?.accessorieReason}</span>
+          </Typography>
+
+
           <Table>
             <TableHead>
               <TableRow>
@@ -369,54 +346,7 @@ const AccessoriesReject = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Rejection Modal */}
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Typography variant="h6">
-            Reject Accessories Request - {selectedOrder?.orderId}
-          </Typography>
-        </Modal.Header>
-        <Modal.Body>
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Reason for rejection (required)"
-            value={accessorieReason}
-            onChange={(e) => setAccessorieReason(e.target.value)}
-            style={{ width: "100%", marginBottom: "1rem" }}
-          />
-          <div className="d-flex align-items-center gap-2">
-            <input
-              type="checkbox"
-              checked={isConfirmed}
-              onChange={(e) => setIsConfirmed(e.target.checked)}
-            />
-            <span>Confirm rejection</span>
-          </div>
-          {error && <div className="text-danger mt-2">{error}</div>}
-        </Modal.Body>
-        <Modal.Footer>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 2,
-              mt: 2,
-            }}
-          >
-            <Button variant="outlined" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleReject}
-              disabled={!isConfirmed || !accessorieReason}
-            >
-              Confirm Rejection
-            </Button>
-          </Box>
-        </Modal.Footer>
-      </Modal>
+    
     </>
   );
 };

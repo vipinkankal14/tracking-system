@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { TextField, Button, Box } from "@mui/material";
+import { TextField, Button, Box, Typography } from "@mui/material";
 import { AccountCircle } from "@mui/icons-material";
-import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 
 import "../css/Payment.scss";
 
@@ -31,7 +31,9 @@ const Payment = () => {
       setLoading(true);
       setError("");
       try {
-        const response = await fetch(`http://localhost:5000/api/customers/${customerId}`);
+        const response = await fetch(
+          `http://localhost:5000/api/customerspay/${customerId}`
+        );
         if (!response.ok) {
           throw new Error("Customer not found");
         }
@@ -70,8 +72,8 @@ const Payment = () => {
   return (
     <div className="customer-details-container">
       <div className="search-section">
-        <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-          <AccountCircle sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
+        <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+          <AccountCircle sx={{ color: "action.active", mr: 1, my: 0.5 }} />
           <TextField
             id="input-with-sx"
             label="Customer ID"
@@ -79,46 +81,144 @@ const Payment = () => {
             onChange={handleCustomerIdChange}
           />
         </Box>
-        {loading && <p className="loading-message">Loading...</p>}
+        {loading && (
+          <Typography className="loading-message">Loading...</Typography>
+        )}
       </div>
 
-      <div style={{color:'#d4000e'}}>{error && <p className="error-message">{error}</p>}</div>    
+      <div style={{ color: "#d4000e" }}>
+        {error && <p className="error-message">{error}</p>}
+      </div>
 
-      
       <div className="details-section">
         <div className="info-box">
           <h4>Customer Info</h4>
-          <p>
+          <Typography>
             Customer ID: {customerDetails?.customerId}
             {customerDetails?.customerId && (
-              <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px', marginLeft: '5px' }} />
+              <VerifiedRoundedIcon
+                style={{
+                  color: "#092e6b",
+                  fontSize: "15px",
+                  marginLeft: "5px",
+                }}
+              />
             )}
-          </p>
-          <p>Name: {customerDetails?.firstName} {customerDetails?.middleName} {customerDetails?.lastName}</p>
-          <p>Number: {customerDetails?.mobileNumber1} {customerDetails?.mobileNumber2}</p>
-          <p>Email: {customerDetails?.email}</p>
+          </Typography>
+          <Typography>
+            Name: {customerDetails?.firstName} {customerDetails?.middleName}{" "}
+            {customerDetails?.lastName}
+          </Typography>
+          <Typography>
+            Number: {customerDetails?.mobileNumber1}{" "}
+            {customerDetails?.mobileNumber2}
+          </Typography>
+          <Typography>Email: {customerDetails?.email}</Typography>
         </div>
 
         <div className="info-box">
           <h4>Payment Details</h4>
-          <p>Grand total: {customerDetails?.grand_total}</p>
-          <p>Amount Paid by Customer: {customerDetails?.customer_account_balance}</p>
-          <p>Amount Unpaid by Customer: {customerDetails ? customerDetails.customer_account_balance - customerDetails.grand_total : 0}</p>
-
+          <Typography>Grand total: {customerDetails?.grand_total}</Typography>
+          <Typography>
+            Amount Paid by Customer: {customerDetails?.customer_account_balance}
+          </Typography>
+          <Typography>
+            Amount Unpaid by Customer:{" "}
+            {customerDetails
+              ? customerDetails.customer_account_balance -
+                customerDetails.grand_total
+              : 0}
+          </Typography>
         </div>
 
         <div className="info-box">
           <h4>Car Details</h4>
-          <p>Car Model: {customerDetails?.model}</p>
-          <p>Car Color: {customerDetails?.color}</p>
-          <p>Car Variant: {customerDetails?.version}</p>
+          <Typography>Car Model: {customerDetails?.model}</Typography>
+          <Typography>Car Color: {customerDetails?.color}</Typography>
+          <Typography>Car Variant: {customerDetails?.version}</Typography>
         </div>
 
         <div className="info-box">
           <h4>Dealership Advisor</h4>
-          <p>Team Leader: {customerDetails?.team_Leader}</p>
-          <p>Team Member: {customerDetails?.team_Member}</p>
+          <Typography>Team Leader: {customerDetails?.team_Leader}</Typography>
+          <Typography>Team Member: {customerDetails?.team_Member}</Typography>
         </div>
+
+        {customerDetails?.exchange === "Yes" && (
+          <div className="info-box">
+            <h4>Exchange Details</h4>
+
+            <Typography>
+            Exchange Amount: {customerDetails.exchangeAmount || "N/A"}{" "}
+              <span
+                className={
+                  customerDetails.exchangeStatus === "Pending"
+                    ? "warning"
+                    : customerDetails.exchangeStatus === "Approved"
+                    ? "success"
+                    : customerDetails.exchangeStatus === "Rejected"
+                    ? "error"
+                    : ""
+                }
+              >
+                {customerDetails.financestatus || "N/A"}
+              </span>
+            </Typography>
+
+            <Typography>
+            carOwnerFullName Reason: {customerDetails.carOwnerFullName || "N/A"}
+            </Typography>
+            <Typography>
+            car details: {customerDetails.carMake || "N/A"} | {customerDetails.carModel || "N/A"} |  {customerDetails.carColor || "N/A"}
+            </Typography>
+            <Typography>
+            car Registration : {customerDetails.carRegistration || "N/A"}
+            </Typography>
+            <Typography>
+            car Year: {customerDetails.carYear || "N/A"}
+            </Typography>
+           
+           
+            <Typography>
+              Exchange Reason: {customerDetails.exchangeReason || "N/A"}
+            </Typography>
+          </div>
+        )}
+
+        {/* Conditionally render Finance Details */}
+        {customerDetails?.finance === "Yes" && (
+          <div className="info-box">
+            <h4>Finance Details</h4>
+            <Typography>
+              Loan Amount: {customerDetails.loan_amount || "N/A"}{" "}
+              <span
+                className={
+                  customerDetails.financestatus === "Pending"
+                    ? "warning"
+                    : customerDetails.financestatus === "Approval"
+                    ? "success"
+                    : customerDetails.financestatus === "Rejected"
+                    ? "error"
+                    : ""
+                }
+              >
+                {customerDetails.financestatus || "N/A"}
+              </span>
+            </Typography>
+            <Typography>
+              Interest: {customerDetails.interest_rate || "N/A"}
+            </Typography>
+            <Typography>
+              Loan Duration: {customerDetails.loan_duration || "N/A"} Years
+            </Typography>
+            <Typography>
+              Calculated EMI: {customerDetails.calculated_emi || "N/A"}
+            </Typography>
+            <Typography>
+              Finance Reason: {customerDetails.financeReason || "N/A"}
+            </Typography>
+          </div>
+        )}
       </div>
 
       <div className="action-buttons">

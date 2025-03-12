@@ -83,8 +83,10 @@ export default function Confirmation({ data, onSubmit }) {
     try {
       const payload = {
         customerId: data.personalInfo.customerId,
-        invoice_date: new Date().toISOString().split('T')[0], // Current date
-        due_date: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0], // 30 days from now
+        invoice_date: new Date().toISOString().split("T")[0], // Current date
+        due_date: new Date(new Date().setDate(new Date().getDate() + 30))
+          .toISOString()
+          .split("T")[0], // 30 days from now
         total_on_road_price: summaryData.onRoadPriceSummary.Total_On_Road_Price,
         total_charges: summaryData.chargesSummary.Total_Charges,
         grand_total: summaryData.totalAmountForRoadPriceCharges,
@@ -97,7 +99,8 @@ export default function Confirmation({ data, onSubmit }) {
           gst_amount: summaryData.onRoadPriceSummary.GST_Amount,
           cess_rate: summaryData.onRoadPriceSummary.cessRate,
           cess_amount: summaryData.onRoadPriceSummary.Cess_Amount,
-          total_on_road_price: summaryData.onRoadPriceSummary.Total_On_Road_Price,
+          total_on_road_price:
+            summaryData.onRoadPriceSummary.Total_On_Road_Price,
         },
         additional_charges: {
           coating: summaryData.chargesSummary.coating_amount,
@@ -110,11 +113,16 @@ export default function Confirmation({ data, onSubmit }) {
         },
       };
 
-      const response = await axios.post("http://localhost:5000/api/submitInvoice", payload);
+      const response = await axios.post(
+        "http://localhost:5000/api/submitInvoice",
+        payload
+      );
       console.log("Invoice submitted successfully:", response.data);
       onSubmit(); // Call the parent's onSubmit function if needed
     } catch (error) {
-      setError(error.message || "An error occurred while submitting the invoice.");
+      setError(
+        error.message || "An error occurred while submitting the invoice."
+      );
       setOpenModal(true);
       console.error("Error submitting invoice:", error);
     }
@@ -175,9 +183,8 @@ export default function Confirmation({ data, onSubmit }) {
         </Grid>
       </Paper>
 
-      {/* Invoice Tables Section */}
        {/* Invoice Tables Section */}
-       <Grid container spacing={3}>
+      <Grid container spacing={3}>
         {/* Invoice Summary Table */}
         <Grid item xs={12} md={6}>
           <Paper elevation={1} sx={{ p: 3 }}>
@@ -229,7 +236,8 @@ export default function Confirmation({ data, onSubmit }) {
                   </TableRow>
                   <TableRow>
                     <TableCell>
-                      GST ( <span
+                      GST ({" "}
+                      <span
                         style={{
                           color:
                             typeof summaryData.onRoadPriceSummary?.gstRate ===
@@ -239,7 +247,8 @@ export default function Confirmation({ data, onSubmit }) {
                         }}
                       >
                         {summaryData.onRoadPriceSummary?.gstRate || 0}%
-                      </span><span style={{ color: "red" }}> of Subtotal</span> )
+                      </span>
+                      <span style={{ color: "red" }}> of Subtotal</span> )
                     </TableCell>
                     <TableCell align="right">
                       {formatCurrency(
@@ -249,16 +258,19 @@ export default function Confirmation({ data, onSubmit }) {
                   </TableRow>
                   <TableRow>
                     <TableCell>
-                      Cess ( <span
-                       style={{
+                      Cess ({" "}
+                      <span
+                        style={{
                           color:
                             typeof summaryData.onRoadPriceSummary?.cessRate ===
                             "number"
                               ? "red"
                               : "inherit",
                         }}
-                      >{summaryData.onRoadPriceSummary?.cessRate || 0}%
-                      </span><span style={{ color: "red" }} > of Subtotal</span> )
+                      >
+                        {summaryData.onRoadPriceSummary?.cessRate || 0}%
+                      </span>
+                      <span style={{ color: "red" }}> of Subtotal</span> )
                     </TableCell>
                     <TableCell align="right">
                       {formatCurrency(
@@ -363,7 +375,15 @@ export default function Confirmation({ data, onSubmit }) {
       </Grid>
 
       {/* Cost Summary Section */}
-      <Paper elevation={6} sx={{ p: 2, mt: 2, bgcolor: "primary.main", color: "primary.contrastText" }}>
+      <Paper
+        elevation={6}
+        sx={{
+          p: 2,
+          mt: 2,
+          bgcolor: "primary.main",
+          color: "primary.contrastText",
+        }}
+      >
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom align="center">
@@ -374,7 +394,9 @@ export default function Confirmation({ data, onSubmit }) {
               <Grid item xs={12} md={4}>
                 <Typography variant="h6">Total On-Road Price:</Typography>
                 <Typography variant="h6">
-                  {formatCurrency(summaryData.onRoadPriceSummary?.Total_On_Road_Price)}
+                  {formatCurrency(
+                    summaryData.onRoadPriceSummary?.Total_On_Road_Price
+                  )}
                 </Typography>
               </Grid>
               <Grid item xs={12} md={4}>
@@ -395,7 +417,7 @@ export default function Confirmation({ data, onSubmit }) {
       </Paper>
 
       {/* Submit Button */}
-      <Box sx={{ mt: 2, textAlign: 'end' }}>
+      <Box sx={{ mt: 2, textAlign: "end" }}>
         <Button color="secondary" onClick={handleSubmit}>
           Confirm Booking
         </Button>
