@@ -1990,6 +1990,8 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     insurance,
     extendedWarranty,
     autoCard,
+    refundReason, // New field for refund reason
+    refundStatus  // New field for refund status
   } = req.body;
 
   if (!customerId) {
@@ -2001,7 +2003,7 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     // Get a connection from the pool
     connection = await pool.promise().getConnection();
 
-    // Start a transaction (use query instead of execute)
+    // Start a transaction
     await connection.query('START TRANSACTION');
 
     // Fetch invoiceId using customerId
@@ -2016,6 +2018,16 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     }
 
     const invoiceId = invoiceSummary[0].invoice_id;
+
+    // Fetch current accessories amount
+    const [currentOnRoadPrice] = await connection.query(
+      `SELECT accessories FROM on_road_price_details WHERE invoice_id = ?`,
+      [invoiceId]
+    );
+
+    const currentAccessoriesAmount = parseFloat(currentOnRoadPrice[0].accessories);
+    const newAccessoriesAmount = parseFloat(accessories);
+    const refundAmount = newAccessoriesAmount - currentAccessoriesAmount;
 
     // Update on_road_price_details
     await connection.query(
@@ -2066,7 +2078,6 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     const grandTotal = totalOnRoadPrice + totalCharges;
     const customerAccountBalance = grandTotal;
 
-
     // Update invoice_summary
     await connection.query(
       `UPDATE invoice_summary
@@ -2077,15 +2088,27 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
          customer_account_balance = ?,
          updatedAt = CURRENT_TIMESTAMP
        WHERE invoice_id = ?`,
-      [totalOnRoadPrice, totalCharges, grandTotal,customerAccountBalance,invoiceId]
+      [totalOnRoadPrice, totalCharges, grandTotal, customerAccountBalance, invoiceId]
     );
 
-    // Commit the transaction (use query instead of execute)
+    // Save refund details to account_management_refund table if refundAmount is provided
+    if (refundAmount !== 0) {
+      await connection.query(
+        `INSERT INTO account_management_refund (customerId, refundAmount, refundReason, status, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        [customerId, refundAmount, refundReason, refundStatus || 'InProcess'] // Default status is 'InProcess'
+      );
+    }
+
+    // Commit the transaction
     await connection.query('COMMIT');
 
-    res.status(200).json({ message: 'Invoice updated successfully' });
+    res.status(200).json({ 
+      message: 'Invoice updated successfully',
+      refundAmount: refundAmount // Include refundAmount in the response with sign
+    });
   } catch (error) {
-    // Rollback the transaction in case of error (use query instead of execute)
+    // Rollback the transaction in case of error
     if (connection) await connection.query('ROLLBACK');
     console.error('Error updating invoice:', error);
     res.status(500).json({ error: 'Failed to update invoice', details: error.message });
@@ -2094,6 +2117,7 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     if (connection) connection.release();
   }
 });
+
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }

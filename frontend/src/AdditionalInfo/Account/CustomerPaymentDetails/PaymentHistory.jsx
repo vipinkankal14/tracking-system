@@ -16,6 +16,8 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  Modal,
+  Box,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
@@ -24,7 +26,7 @@ function PaymentHistory() {
   const [customerData, setCustomerData] = useState(null);
   const [onRoadPriceSummary, setOnRoadPriceSummary] = useState({});
   const [chargesSummary, setChargesSummary] = useState({});
-  const [invoiceSummary, setInvoiceSummary] = useState({}); // Initialize with default value
+  const [invoiceSummary, setInvoiceSummary] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -57,7 +59,13 @@ function PaymentHistory() {
 
   const [updatedInvoice, setUpdatedInvoice] = useState({
     grand_total: 0,
+    customer_account_balance: 0,
   });
+
+  // Refund Modal State
+  const [openRefundModal, setOpenRefundModal] = useState(false);
+  const [refundReason, setRefundReason] = useState("");
+  const [calculatedRefundAmount, setCalculatedRefundAmount] = useState(0);
 
   // Fetch customer data
   const fetchCustomerData = async () => {
@@ -76,13 +84,11 @@ function PaymentHistory() {
       }
       const data = await response.json();
 
-      // Set data from the API response
       setCustomerData(data.customer);
       setOnRoadPriceSummary(data.onRoadPriceDetails);
       setChargesSummary(data.additionalCharges);
-      setInvoiceSummary(data.invoicesummary); // Ensure invoiceSummary is initialized
+      setInvoiceSummary(data.invoicesummary);
 
-      // Initialize updated values with default values
       setUpdatedOnRoadPrice({
         ex_showroom_price: parseFloat(data.onRoadPriceDetails?.ex_showroom_price) || 0,
         accessories: parseFloat(data.onRoadPriceDetails?.accessories) || 0,
@@ -104,11 +110,9 @@ function PaymentHistory() {
         total_charges: 0,
       });
 
-      // Set grand total from invoiceSummary
       setUpdatedInvoice({
         grand_total: parseFloat(data.invoicesummary?.grand_total) || 0,
-        customer_account_balance: parseFloat(data.invoicesummary?.customer_account_balance
-        ) || 0,
+        customer_account_balance: parseFloat(data.invoicesummary?.customer_account_balance) || 0,
       });
     } catch (err) {
       setError(err.message);
@@ -144,43 +148,80 @@ function PaymentHistory() {
     setTempValue("");
   };
 
+  // Handle Save Changes button click
+  const handleSaveChangesClick = () => {
+    const originalAccessories = parseFloat(onRoadPriceSummary?.accessories) || 0;
+    const newAccessories = parseFloat(updatedOnRoadPrice.accessories) || 0;
+    const refundAmount = newAccessories - originalAccessories;
+
+    if (refundAmount !== 0) {
+      setCalculatedRefundAmount(refundAmount);
+      setRefundReason("");
+      setOpenRefundModal(true);
+    } else {
+      updateInvoiceDetails();
+    }
+  };
+
+  // Handle refund modal submit
+  const handleRefundSubmit = () => {
+    if (!refundReason.trim()) {
+      setSnackbarMessage("Refund reason is required");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    // Set refundStatus to "InProcess" by default
+    const status = "InProcess";
+    updateInvoiceDetails(refundReason, status);
+    setOpenRefundModal(false);
+  };
+
   // Update invoice details
-  const updateInvoiceDetails = async () => {
+  const updateInvoiceDetails = async (reason, status) => {
     try {
+      const body = {
+        exShowroomPrice: updatedOnRoadPrice.ex_showroom_price,
+        accessories: updatedOnRoadPrice.accessories,
+        discount: updatedOnRoadPrice.discount,
+        gstRate: updatedOnRoadPrice.gst_rate,
+        cessRate: updatedOnRoadPrice.cess_rate,
+        coating: updatedCharges.coating,
+        fastTag: updatedCharges.fast_tag,
+        rto: updatedCharges.rto,
+        insurance: updatedCharges.insurance,
+        extendedWarranty: updatedCharges.extended_warranty,
+        autoCard: updatedCharges.auto_card,
+      };
+
+      const originalAccessories = parseFloat(onRoadPriceSummary?.accessories) || 0;
+      const newAccessories = parseFloat(updatedOnRoadPrice.accessories) || 0;
+      const refundAmount = newAccessories - originalAccessories;
+
+      if (refundAmount !== 0) {
+        body.refundReason = reason;
+        body.refundStatus = status;
+      }
+
       const response = await fetch(
         `http://localhost:5000/api/update-invoice/customer/${customerId}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            exShowroomPrice: updatedOnRoadPrice.ex_showroom_price,
-            accessories: updatedOnRoadPrice.accessories,
-            discount: updatedOnRoadPrice.discount,
-            gstRate: updatedOnRoadPrice.gst_rate,
-            cessRate: updatedOnRoadPrice.cess_rate,
-            coating: updatedCharges.coating,
-            fastTag: updatedCharges.fast_tag,
-            rto: updatedCharges.rto,
-            insurance: updatedCharges.insurance,
-            extendedWarranty: updatedCharges.extended_warranty,
-            autoCard: updatedCharges.auto_card,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`Error updating invoice: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
 
-      const data = await response.json();
+      await fetchCustomerData();
       setSnackbarMessage("Invoice updated successfully!");
       setSnackbarSeverity("success");
-      setSnackbarOpen(true);
     } catch (err) {
-      setSnackbarMessage("Failed to update invoice: " + err.message);
+      setSnackbarMessage("Failed to update: " + err.message);
       setSnackbarSeverity("error");
+    } finally {
       setSnackbarOpen(true);
     }
   };
@@ -191,6 +232,28 @@ function PaymentHistory() {
       style: "currency",
       currency: "INR",
     }).format(amount);
+  };
+
+  // Format refund amount with + or -
+  const formatRefundAmount = (amount) => {
+    if (amount > 0) {
+      return `+${formatCurrency(amount)}`; // Positive amount
+    } else if (amount < 0) {
+      return `${formatCurrency(amount)}`; // Negative amount
+    } else {
+      return formatCurrency(amount); // Zero amount
+    }
+  };
+
+  // Get refund title based on amount
+  const getRefundTitle = (amount) => {
+    if (amount > 0) {
+      return "Add On Amount"; // Positive amount
+    } else if (amount < 0) {
+      return "Refund Amount"; // Negative amount
+    } else {
+      return "No Change"; // Zero amount
+    }
   };
 
   // Calculate derived values
@@ -220,7 +283,6 @@ function PaymentHistory() {
     (updatedCharges.extended_warranty || 0) +
     (updatedCharges.auto_card || 0);
 
-  // Use grand_total from invoiceSummary
   const grand_total = invoiceSummary ? parseFloat(invoiceSummary.grand_total) || 0 : 0;
 
   // Editable TableCell component
@@ -426,7 +488,7 @@ function PaymentHistory() {
         </Typography>
 
         <Typography variant="h6" gutterBottom>
-        customer_account_balance
+          Customer Account Balance
         </Typography>
         <Typography align="right" sx={{ fontWeight: "bold" }}>
           {formatCurrency(updatedInvoice.customer_account_balance)}
@@ -437,11 +499,51 @@ function PaymentHistory() {
       <Button
         variant="contained"
         color="primary"
-        onClick={updateInvoiceDetails}
+        onClick={handleSaveChangesClick}
         sx={{ mt: 3 }}
       >
         Save Changes
       </Button>
+
+      {/* Refund Modal */}
+      <Modal
+        open={openRefundModal}
+        onClose={() => setOpenRefundModal(false)}
+        aria-labelledby="refund-modal"
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography variant="h6" gutterBottom>
+            {getRefundTitle(calculatedRefundAmount)} {/* Dynamic title */}
+          </Typography>
+          <Typography gutterBottom>
+            {formatRefundAmount(calculatedRefundAmount)} {/* Formatted amount */}
+          </Typography>
+          <TextField
+            label={calculatedRefundAmount >= 0 ? "Add On Reason" : "Refund Reason"} 
+            fullWidth
+            value={refundReason}
+            onChange={(e) => setRefundReason(e.target.value)}
+            margin="normal"
+            required
+          />
+          <Button
+            variant="contained"
+            onClick={handleRefundSubmit}
+            sx={{ mt: 2 }}
+          >
+            Submit
+          </Button>
+        </Box>
+      </Modal>
 
       {/* Snackbar for Notifications */}
       <Snackbar
