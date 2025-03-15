@@ -503,16 +503,17 @@ app.put('/api/confirmed-order', (req, res) => {
 // frontend\src\cashier\CustomerPaymentDetails\PaymentHistory.jsx
 app.get('/api/PaymentHistory/:customerId', async (req, res) => {
   const { customerId } = req.params;
-
   try {
     // Fetch data from all tables
     const [customer] = await pool.promise().query('SELECT * FROM customers WHERE customerId = ?', [customerId]);
     const [carbooking] = await pool.promise().query('SELECT * FROM carbooking WHERE customerId = ?', [customerId]);
     const [additionalInfo] = await pool.promise().query('SELECT * FROM additional_info WHERE customerId = ?', [customerId]);
     const [cashier] = await pool.promise().query('SELECT * FROM cashier WHERE customerId = ?', [customerId]);
-     const [ordersprebookingdate] = await pool.promise().query('SELECT * FROM orders_prebooking_date WHERE customerId = ?', [customerId]);
+    const [ordersprebookingdate] = await pool.promise().query('SELECT * FROM orders_prebooking_date WHERE customerId = ?', [customerId]);
     const [accountmanagement] = await pool.promise().query('SELECT * FROM account_management WHERE customerId = ?', [customerId]);
+    const [accountmanagementrefund] = await pool.promise().query('SELECT * FROM account_management_refund WHERE customerId = ?', [customerId]);
 
+    
 
     // Fetch invoice summary
     const [invoiceSummaryRows] = await pool.promise().query(
@@ -548,9 +549,10 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
       cashier: cashier,
       invoicesummary: invoiceSummary,
       ordersprebookingdate: ordersprebookingdate[0],
-      onRoadPriceDetails: onRoadPriceDetails[0], // Assuming one entry per invoice
+      onRoadPriceDetails: onRoadPriceDetails[0], 
       additionalCharges: additionalCharges[0],
       accountmanagement: accountmanagement[0],
+      accountmanagementrefund: accountmanagementrefund,
     };
 
     res.json(response);
@@ -1990,8 +1992,8 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     insurance,
     extendedWarranty,
     autoCard,
-    refundReason, // New field for refund reason
-    refundStatus  // New field for refund status
+    refundReason, // Used for all refunds
+    refundStatus  // Applied to all refunds
   } = req.body;
 
   if (!customerId) {
@@ -2000,10 +2002,7 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
 
   let connection;
   try {
-    // Get a connection from the pool
     connection = await pool.promise().getConnection();
-
-    // Start a transaction
     await connection.query('START TRANSACTION');
 
     // Fetch invoiceId using customerId
@@ -2014,20 +2013,23 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
 
     if (!invoiceSummary.length) {
       await connection.query('ROLLBACK');
-      return res.status(404).json({ error: 'Invoice not found for the given customer ID' });
+      return res.status(404).json({ error: 'Invoice not found' });
     }
 
     const invoiceId = invoiceSummary[0].invoice_id;
 
-    // Fetch current accessories amount
+    // Fetch current on_road_price_details and additional_charges
     const [currentOnRoadPrice] = await connection.query(
-      `SELECT accessories FROM on_road_price_details WHERE invoice_id = ?`,
+      `SELECT ex_showroom_price, accessories 
+       FROM on_road_price_details WHERE invoice_id = ?`,
       [invoiceId]
     );
 
-    const currentAccessoriesAmount = parseFloat(currentOnRoadPrice[0].accessories);
-    const newAccessoriesAmount = parseFloat(accessories);
-    const refundAmount = newAccessoriesAmount - currentAccessoriesAmount;
+    const [currentAdditionalCharges] = await connection.query(
+      `SELECT coating, fast_tag, rto, insurance, extended_warranty, auto_card 
+       FROM additional_charges WHERE invoice_id = ?`,
+      [invoiceId]
+    );
 
     // Update on_road_price_details
     await connection.query(
@@ -2047,6 +2049,34 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
       [exShowroomPrice, accessories, discount, gstRate, cessRate, invoiceId]
     );
 
+    // Calculate refunds for ex_showroom_price
+    const oldExShowroomPrice = parseFloat(currentOnRoadPrice[0].ex_showroom_price);
+    const newExShowroomPrice = parseFloat(exShowroomPrice);
+    const exShowroomRefund = newExShowroomPrice - oldExShowroomPrice;
+
+    if (exShowroomRefund !== 0) {
+      await connection.query(
+        `INSERT INTO account_management_refund 
+         (customerId, refundAmount, refundReason, status, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        [customerId, exShowroomRefund, refundReason || 'Ex-Showroom Price Adjustment', refundStatus || 'InProcess']
+      );
+    }
+
+    // Calculate and save accessories refund
+    const currentAccessoriesAmount = parseFloat(currentOnRoadPrice[0].accessories);
+    const newAccessoriesAmount = parseFloat(accessories);
+    const accessoriesRefund = newAccessoriesAmount - currentAccessoriesAmount;
+
+    if (accessoriesRefund !== 0) {
+      await connection.query(
+        `INSERT INTO account_management_refund 
+         (customerId, refundAmount, refundReason, status, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        [customerId, accessoriesRefund, refundReason || 'Accessories Adjustment', refundStatus || 'InProcess']
+      );
+    }
+
     // Update additional_charges
     await connection.query(
       `UPDATE additional_charges
@@ -2063,7 +2093,32 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
       [coating, fastTag, rto, insurance, extendedWarranty, autoCard, invoiceId]
     );
 
-    // Fetch updated totals
+    // Calculate and save refunds for additional charges
+    const chargeFields = [
+      { column: 'coating', name: 'Coating', newValue: coating },
+      { column: 'fast_tag', name: 'FastTag', newValue: fastTag },
+      { column: 'rto', name: 'RTO', newValue: rto },
+      { column: 'insurance', name: 'Insurance', newValue: insurance },
+      { column: 'extended_warranty', name: 'Extended Warranty', newValue: extendedWarranty },
+      { column: 'auto_card', name: 'AutoCard', newValue: autoCard }
+    ];
+
+    for (const field of chargeFields) {
+      const oldValue = parseFloat(currentAdditionalCharges[0][field.column]);
+      const newValue = parseFloat(field.newValue);
+      const refundAmount = newValue - oldValue;
+
+      if (refundAmount !== 0) {
+        await connection.query(
+          `INSERT INTO account_management_refund 
+           (customerId, refundAmount, refundReason, status, createdAt, updatedAt)
+           VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [customerId, refundAmount, refundReason || `${field.name} Adjustment`, refundStatus || 'InProcess']
+        );
+      }
+    }
+
+    // Fetch updated totals and update invoice_summary
     const [onRoadPrice] = await connection.query(
       `SELECT total_on_road_price FROM on_road_price_details WHERE invoice_id = ?`,
       [invoiceId]
@@ -2076,9 +2131,7 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     const totalOnRoadPrice = parseFloat(onRoadPrice[0].total_on_road_price);
     const totalCharges = parseFloat(additionalCharges[0].total_charges);
     const grandTotal = totalOnRoadPrice + totalCharges;
-    const customerAccountBalance = grandTotal;
 
-    // Update invoice_summary
     await connection.query(
       `UPDATE invoice_summary
        SET 
@@ -2088,32 +2141,16 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
          customer_account_balance = ?,
          updatedAt = CURRENT_TIMESTAMP
        WHERE invoice_id = ?`,
-      [totalOnRoadPrice, totalCharges, grandTotal, customerAccountBalance, invoiceId]
+      [totalOnRoadPrice, totalCharges, grandTotal, grandTotal, invoiceId]
     );
 
-    // Save refund details to account_management_refund table if refundAmount is provided
-    if (refundAmount !== 0) {
-      await connection.query(
-        `INSERT INTO account_management_refund (customerId, refundAmount, refundReason, status, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        [customerId, refundAmount, refundReason, refundStatus || 'InProcess'] // Default status is 'InProcess'
-      );
-    }
-
-    // Commit the transaction
     await connection.query('COMMIT');
-
-    res.status(200).json({ 
-      message: 'Invoice updated successfully',
-      refundAmount: refundAmount // Include refundAmount in the response with sign
-    });
+    res.status(200).json({ message: 'Invoice updated successfully' });
   } catch (error) {
-    // Rollback the transaction in case of error
     if (connection) await connection.query('ROLLBACK');
     console.error('Error updating invoice:', error);
     res.status(500).json({ error: 'Failed to update invoice', details: error.message });
   } finally {
-    // Release the connection back to the pool
     if (connection) connection.release();
   }
 });
