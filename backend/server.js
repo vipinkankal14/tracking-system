@@ -2159,6 +2159,58 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
+app.put("/api/updateRefund", async (req, res) => {
+  const { id, status, transactionType, refundReason } = req.body;
+
+  // Validate required fields
+  if (!id || !status) {
+    return res.status(400).json({ message: "ID and status are required" });
+  }
+
+  // Validate status
+  if (!["Completed", "Failed"].includes(status)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
+
+  // Validate transaction type for Completed status
+  if (status === "Completed" && !transactionType) {
+    return res.status(400).json({ message: "Transaction type is required for completed refunds" });
+  }
+
+  // Validate refund reason for Failed status
+  if (status === "Failed" && !refundReason) {
+    return res.status(400).json({ message: "Refund reason is required for failed refunds" });
+  }
+
+  try {
+    // Prepare SQL query
+    const query = `
+      UPDATE account_management_refund
+      SET
+        status = ?,
+        transactionType = ?,
+        refundReason = ?
+      WHERE id = ?
+    `;
+
+    // Execute query
+    const [result] = await pool
+      .promise()
+      .execute(query, [status, transactionType, refundReason, id]);
+
+    // Check if refund was updated
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Refund not found" });
+    }
+
+    // Return success response
+    res.status(200).json({ message: "Refund updated successfully" });
+  } catch (err) {
+    console.error("Error updating refund:", err);
+    res.status(500).json({ message: "Failed to update refund" });
+  }
+});
+
 
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {

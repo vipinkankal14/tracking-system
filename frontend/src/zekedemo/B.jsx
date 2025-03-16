@@ -1043,14 +1043,7 @@ function PaymentHistory() {
             </Button>
           )}
 
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            onClick={() => setShowRefundModal(true)}
-          >
-            REFUND
-          </Button>
+         
 
           <Button
             size="small"
@@ -1266,3 +1259,47 @@ function PaymentHistory() {
 }
 
 export default PaymentHistory;
+
+
+
+<div>
+          <Typography variant="h6">Refund History</Typography>
+          {accountmanagementrefund?.map((refund, index) => (
+            <Paper key={refund.id} sx={{ p: 2, mb: 2 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div>
+                  <Typography>
+                    <strong>Amount:</strong>{" "}
+                    {formatCurrency(refund.refundAmount)}
+                  </Typography>
+                  <Typography>
+                    <strong>Status:</strong>{" "}
+                    <span
+                      style={{
+                        color:
+                          refund.status === "Completed"
+                            ? "green"
+                            : refund.status === "InProcess"
+                            ? "orange"
+                            : "red",
+                      }}
+                    >
+                      {refund.status}
+                    </span>
+                  </Typography>
+                  <Typography>
+                    <strong>Reason:</strong> {refund.refundReason}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="caption">
+                    {new Date(refund.createdAt).toLocaleDateString()}
+                  </Typography>
+                </div>
+              </div>
+            </Paper>
+          ))}
+</div>
+        
+
+        

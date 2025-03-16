@@ -69,7 +69,7 @@ import CustomerPaymentDetails from "./AdditionalInfo/Account/CustomerPaymentDeta
 
 import CashierApp from "./AdditionalInfo/cashier/CashierApp";
 import AccountApp from "./AdditionalInfo/Account/AccountApp";
-import PaymentRefund from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentRefund";
+import PaymentRefund from "./AdditionalInfo/cashier/PaymentRefund";
 import CarExchangeRejected from "./AdditionalInfo/Exchange/CarExchangeRejected";
 import FinancePending from "./AdditionalInfo/Finance/FinancePending";
 import FinanceRejected from "./AdditionalInfo/Finance/FinanceRejected";
@@ -112,11 +112,11 @@ import PDIApp from "./AdditionalInfo/PreDeliveryInspection/PADApp";
 import PADPending from "./AdditionalInfo/PreDeliveryInspection/PADPending";
 import PADiRejected from "./AdditionalInfo/PreDeliveryInspection/PADiRejected";
 import PADApproved from "./AdditionalInfo/PreDeliveryInspection/PADApproved";
-import PaymentRefundDebit from "./AdditionalInfo/cashier/PaymentRefundDebit";
- import CustomerLogout from "./CustomerLogin/CustomerLogout";
+import CustomerLogout from "./CustomerLogin/CustomerLogout";
 import DashboardCustomer from "./CustomerLogin/DashboardCustomer";
 import CustomerLogin from "./CustomerLogin/CustomerLogin";
 import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails";
+import PaymentRefundAddOn from "./AdditionalInfo/cashier/PaymentRefundAddOn";
  
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -175,6 +175,10 @@ function App() {
                 <Route path="/order-edit-and-confirmed/:customerId" element={<OrderEditAndConfirmed />} />
                 <Route path="/payment-details" element={<PaymentDetails />} />
                 <Route path="/payment-successful" element={<PaymentSuccessful />} />
+                <Route path="/payment-refund" element={<PaymentRefund />} />
+                
+                <Route path="/payment-refund-add-on" element={<PaymentRefundAddOn />} />
+                
 
                 {/* ========================================================================================== */}
 
@@ -197,16 +201,14 @@ function App() {
 
                 <Route path="/account-app" element={<AccountApp />} />
                 <Route path="/cashier-app" element={<CashierApp />} />
-                <Route path="/payment-refund" element={<PaymentRefund />} />
                 <Route path="/payment-clear" element={<PaymentClear />} />
                 <Route path="/payment-pending" element={<PaymentPending />} />
                 <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
                 <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
                 <Route path="/ACMApprovedRejected" element={<ACMApprovedRejected />} />
                 
-                <Route path="/PaymentRefundDebit" element={<PaymentRefundDebit />} />
-
-
+              
+                
 
                 {/* ========================================================================================== */}
                 

@@ -21,6 +21,7 @@ import {
   Checkbox,
   FormControlLabel,
   CardContent,
+  Chip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
@@ -29,7 +30,22 @@ import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 
 import axios from "axios";
 import "../css/PaymentHistory.scss";
- 
+
+// Mapping function for transactionType
+const formatTransactionType = (type) => {
+  switch (type) {
+    case "exchangeCredit":
+      return "Exchange Credit";
+    case "financeCredit":
+      return "Finance Credit";
+    case "credit":
+      return "Credit";
+    case "debit":
+      return "Debit";
+    default:
+      return type; // Fallback for unknown types
+  }
+};
 
 function PaymentHistory() {
   const { customerId } = useParams();
@@ -46,6 +62,10 @@ function PaymentHistory() {
   const [additionalInfoData, setAdditionalInfoData] = useState([]);
   const [carBookingData, setCarBookingData] = useState([]);
   const [accountmanagementrefund, setAccountmanagementrefund] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [accountmanagement, setAccountmanagement] = useState([]);
+  const [selectedStatusRefund, setSelectedStatusRefund] = useState(null);
+  const [payments, setPayments] = useState([]);
 
   // Refund Modal State
   const [openRefundModal, setOpenRefundModal] = useState(false);
@@ -81,7 +101,6 @@ function PaymentHistory() {
     auto_card: 0,
     total_charges: 0,
   });
-
   const [updatedInvoice, setUpdatedInvoice] = useState({
     grand_total: 0,
     customer_account_balance: 0,
@@ -106,6 +125,8 @@ function PaymentHistory() {
     city = "N/A",
     state = "N/A",
     country = "N/A",
+    aadhaarNumber = "N/A",
+    panNumber = "N/A",
   } = customerData || {};
 
   const {
@@ -159,6 +180,7 @@ function PaymentHistory() {
       setCarBookingData(data.carbooking);
       setAdditionalInfoData(data.additionalInfo);
       setInvoiceSummary(data.invoicesummary);
+      setAccountmanagement(data.accountmanagement);
       setOrdersprebookingdate(data.ordersprebookingdate);
       setAccountmanagementrefund(data.accountmanagementrefund);
       setOnRoadPriceSummary(data.onRoadPriceDetails);
@@ -193,6 +215,17 @@ function PaymentHistory() {
         customer_account_balance:
           parseFloat(data.invoicesummary?.customer_account_balance) || 0,
       });
+
+      setPayments(
+        data.cashier.map((item) => ({
+          id: item.id,
+          debitedAmount: Number(item.debitedAmount) || 0,
+          creditedAmount: Number(item.creditedAmount) || 0,
+          paymentDate: item.paymentDate,
+          transactionType: item.transactionType,
+          paymentType: item.paymentType,
+        }))
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -203,6 +236,34 @@ function PaymentHistory() {
   useEffect(() => {
     fetchCustomerData();
   }, [customerId]);
+
+  const handleUpdateStatus = async (status) => {
+    try {
+      const payload = {
+        status,
+        cancellationReason: status === "rejected" ? cancellationReason : null,
+      };
+      console.log("Sending payload:", payload); // Log the payload
+
+      const response = await axios.put(
+        `http://localhost:5000/api/account/update-status/${customerId}`,
+        payload
+      );
+
+      console.log("Backend response:", response.data); // Log the response
+      if (response.status === 200) {
+        alert(`Status updated to ${status} successfully!`);
+        if (status === "rejected") {
+          setShowModal(false);
+          setCancellationReason("");
+        }
+        fetchCustomerData();
+      }
+    } catch (err) {
+      console.error("Error updating status:", err); // Log the error
+      setError(`Failed to update status: ${err.message}`);
+    }
+  };
 
   // Handle edit start
   const handleEditStart = (section, field, value) => {
@@ -319,61 +380,29 @@ function PaymentHistory() {
         refundReason: reason, // Pass the refund reason dynamically
         refundStatus: status, // Pass the refund status
       };
-  
+
       const response = await fetch(
         `http://localhost:5000/api/update-invoice/customer/${customerId}`,
         {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         }
       );
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update invoice');
+        throw new Error(errorData.error || "Failed to update invoice");
       }
-  
+
       await fetchCustomerData();
-      setSnackbarMessage('Invoice updated successfully!');
-      setSnackbarSeverity('success');
+      setSnackbarMessage("Invoice updated successfully!");
+      setSnackbarSeverity("success");
     } catch (err) {
-      setSnackbarMessage('Failed to update: ' + err.message);
-      setSnackbarSeverity('error');
+      setSnackbarMessage("Failed to update: " + err.message);
+      setSnackbarSeverity("error");
     } finally {
       setSnackbarOpen(true);
-    }
-  };
-
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }).format(amount);
-  };
-
-  
-
-  // Format refund amount with + or -
-  const formatRefundAmount = (amount) => {
-    if (amount > 0) {
-      return `+${formatCurrency(amount)}`; // Positive amount
-    } else if (amount < 0) {
-      return `${formatCurrency(amount)}`; // Negative amount
-    } else {
-      return formatCurrency(amount); // Zero amount
-    }
-  };
-
-  // Get refund title based on amount
-  const getRefundTitle = (amount) => {
-    if (amount > 0) {
-      return "Add On Amount"; // Positive amount
-    } else if (amount < 0) {
-      return "Refund Amount"; // Negative amount
-    } else {
-      return "No Change"; // Zero amount
     }
   };
 
@@ -449,14 +478,145 @@ function PaymentHistory() {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
+  // Filter logic
+  const filteredPayments =
+    accountmanagementrefund?.filter((refund) => {
+      const amount = parseFloat(refund.refundAmount) || 0;
+      const statusMatch = !selectedStatus || refund.status === selectedStatus;
+      return amount > 0 && statusMatch; // Positive amounts only
+    }) || [];
+
+  // Status counts calculation
+  const statusCounts = {
+    All: filteredPayments.length,
+    Completed:
+      accountmanagementrefund?.filter(
+        (refund) =>
+          refund.status === "Completed" && parseFloat(refund.refundAmount) > 0
+      ).length || 0,
+    InProcess:
+      accountmanagementrefund?.filter(
+        (refund) =>
+          refund.status === "InProcess" && parseFloat(refund.refundAmount) > 0
+      ).length || 0,
+    Failed:
+      accountmanagementrefund?.filter(
+        (refund) =>
+          refund.status === "Failed" && parseFloat(refund.refundAmount) > 0
+      ).length || 0,
+  };
+
+  const filteredPaymentsRefund =
+    accountmanagementrefund?.filter((refund) => {
+      const amount = parseFloat(refund.refundAmount) || 0;
+      const statusMatch =
+        !selectedStatusRefund || refund.status === selectedStatusRefund;
+      return amount < 0 && statusMatch; // Negative amounts only
+    }) || [];
+
+  // Corrected status counts calculation
+  const statusCountsrefund = {
+    All: filteredPaymentsRefund.length,
+    Completed: filteredPaymentsRefund.filter(
+      (refund) => refund.status === "Completed"
+    ).length,
+    InProcess: filteredPaymentsRefund.filter(
+      (refund) => refund.status === "InProcess"
+    ).length,
+    Failed: filteredPaymentsRefund.filter(
+      (refund) => refund.status === "Failed"
+    ).length,
+  };
+
+  // Format refund amount with + or -
+  const formatRefundAmount = (amount) => {
+    if (amount > 0) {
+      return `+${formatCurrency(amount)}`; // Positive amount
+    } else if (amount < 0) {
+      return `${formatCurrency(amount)}`; // Negative amount
+    } else {
+      return formatCurrency(amount); // Zero amount
+    }
+  };
+
+  // Get refund title based on amount
+  const getRefundTitle = (amount) => {
+    if (amount > 0) {
+      return "Add On Amount"; // Positive amount
+    } else if (amount < 0) {
+      return "Refund Amount"; // Negative amount
+    } else {
+      return "No Change"; // Zero amount
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2, // Ensures 2 decimal places
+      maximumFractionDigits: 2, // Limits to 2 decimal places
+    }).format(Number(amount)); // Convert to number for safety
+  };
+
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
-    <div className="payment-history" style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom>
-        Payment History for {customerData?.firstName} {customerData?.lastName}
-      </Typography>
+    <div className="payment-history">
+      <div className="header">
+        {accountmanagement?.status && (
+          <Typography
+            style={{
+              fontSize: "14px",
+              fontStyle: "italic",
+              color: "red",
+            }}
+          >
+            Re-Mark
+          </Typography>
+        )}
+
+        {accountmanagement?.status && (
+          <Typography
+            style={{
+              fontSize: "14px",
+
+              marginLeft: "10px",
+            }}
+          >
+            Status:{" "}
+            <span style={{ color: "red" }}>
+              {accountmanagement?.status || "N/A"}
+            </span>
+          </Typography>
+        )}
+        {accountmanagement?.status === "rejected" && (
+          <Typography
+            style={{
+              fontSize: "14px",
+              marginLeft: "10px",
+            }}
+          >
+            Reason:{" "}
+            <span style={{ color: "red" }}>
+              {accountmanagement?.cancellationReason || "No reason provided"}
+            </span>
+          </Typography>
+        )}
+        <Typography variant="h6">
+          Payment History for{" "}
+          <span style={{ color: "red" }}>{`${firstName || ""} ${
+            lastName || ""
+          }`}</span>{" "}
+          <br /> <span>Customer Type:</span>{" "}
+          <span>
+            {customertype
+              ? customertype.charAt(0).toUpperCase() + customertype.slice(1)
+              : "N/A"}
+          </span>
+        </Typography>
+      </div>
 
       <div className="details-container">
         <Grid container spacing={3}>
@@ -482,11 +642,7 @@ function PaymentHistory() {
                         />
                       </TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <strong>Customer Type:</strong> {customertype || "N/A"}
-                      </TableCell>
-                    </TableRow>
+
                     <TableRow>
                       <TableCell>
                         <strong>Full Name:</strong>{" "}
@@ -532,7 +688,20 @@ function PaymentHistory() {
                     <TableRow>
                       <TableCell>
                         <strong>State:</strong>{" "}
-                        {`${state || "N/A"}, ${country || "N/A"}`}
+                        {`${city || "N/A"}, ${state || "N/A"}, ${
+                          country || "N/A"
+                        }`}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Aadhaar Number:</strong>{" "}
+                        {`${aadhaarNumber || "N/A"}`}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <strong>PAN Number:</strong> {`${panNumber || "N/A"}`}
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -722,7 +891,7 @@ function PaymentHistory() {
 
         <Grid container spacing={3}>
           {/* On-Road Price Details Table */}
-          <Grid item xs={12} md={12}>
+          <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
                 On-Road Price Details
@@ -801,7 +970,7 @@ function PaymentHistory() {
           </Grid>
 
           {/* Additional Charges Table */}
-          <Grid item xs={12} md={12}>
+          <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
                 Additional Charges
@@ -878,242 +1047,692 @@ function PaymentHistory() {
               </TableContainer>
             </Paper>
           </Grid>
+
+          <Grid item xs={12} md={12}>
+            <div style={{ display: "flex", justifyContent: "end" }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSaveChangesClick}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </Grid>
         </Grid>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={1} sx={{ p: 2,  display: "flex", flexDirection: "column" }}>
-              <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-                Refund History
-              </Typography>
+          
+        {(() => {
+          const filteredRefunds = accountmanagementrefund
+            ?.filter(refund => {
+              const amountValid = Number(refund.refundAmount) < 0;
+              const statusMatch = !selectedStatusRefund || refund.status === selectedStatusRefund;
+              return amountValid && statusMatch;
+            }) || [];
 
-              <TableContainer sx={{ flex: 1, overflow: "auto" }}>
-                <Table stickyHeader size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell ><strong>Amount</strong></TableCell>
-                      <TableCell><strong>Status</strong></TableCell>
-                      <TableCell><strong>Reason</strong></TableCell>
-                      <TableCell align="right"><strong>Date</strong></TableCell>
-                    </TableRow>
-                  </TableHead>
+            return filteredRefunds.length > 0 ? (
+              <Grid item xs={12} md={12}>
+              <Paper
+                elevation={1}
+                sx={{ p: 2, display: "flex", flexDirection: "column" }}
+              >
+                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                  Refund History
+                </Typography>
 
-                  <TableBody>
-                    {accountmanagementrefund?.length > 0 ? (
-                      accountmanagementrefund.map((refund) => (
-                        <TableRow key={refund.id} hover>
-                          <TableCell>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: (theme) => 
-                                  refund.refundAmount < 0 
-                                    ? theme.palette.error.main 
-                                    : 'text.primary',
-                                fontWeight: refund.refundAmount < 0 ? 500 : 'normal'
-                              }}
-                            >
-                              {formatCurrency(refund.refundAmount)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              style={{
-                                color:
-                                  refund.status === "Completed"
-                                    ? "#16a34a"
-                                    : refund.status === "InProcess"
-                                    ? "#d97706"
-                                    : "#dc2626",
-                              }}
-                            >
-                              {refund.status}
-                            </span>
-                          </TableCell>
-                          <TableCell sx={{ 
-  whiteSpace: 'normal',
-  wordWrap: 'break-word',
-  maxWidth: { xs: '120px', sm: '160px', md: '192px' }, // Responsive width
-  py: 1.5 // Vertical padding
-}}>
-  <Typography variant="body2" sx={{ 
-    display: '-webkit-box',
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: 'vertical',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    lineHeight: 1.4 // Tighter line spacing
-  }}>
-    {refund.refundReason}
-  </Typography>
-</TableCell>
-                          <TableCell align="right">
-                            <Typography variant="caption" color="textSecondary">
-                              {new Date(refund.createdAt).toLocaleDateString()}
+                {/* Status Filter Chips */}
+
+                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                  {["All", "Completed", "InProcess", "Failed"].map((status) => (
+                    <Chip
+                      key={status}
+                      label={`${status} (${statusCountsrefund[status] || 0})`}
+                      onClick={() =>
+                        setSelectedStatusRefund(
+                          status === "All" ? null : status
+                        )
+                      }
+                      color={
+                        selectedStatusRefund === status ? "primary" : "default"
+                      }
+                      variant={
+                        selectedStatusRefund === status ? "filled" : "outlined"
+                      }
+                      sx={{
+                        cursor: "pointer",
+                        fontWeight: selectedStatusRefund === status ? 600 : 400,
+                        // Status-specific colors
+                        ...(status === "All" && {
+                          backgroundColor:
+                            selectedStatusRefund === status
+                              ? "#3f51b5"
+                              : "#f5f5f5",
+                          color:
+                            selectedStatusRefund === status
+                              ? "#fff"
+                              : "rgba(0, 0, 0, 0.87)",
+                          border:
+                            selectedStatusRefund !== status
+                              ? "1px solid #e0e0e0"
+                              : "none",
+                        }),
+                        ...(status === "Completed" && {
+                          backgroundColor:
+                            selectedStatusRefund === status
+                              ? "#16a34a"
+                              : "#f0fdf4",
+                          color:
+                            selectedStatusRefund === status
+                              ? "#fff"
+                              : "#166534",
+                          border:
+                            selectedStatusRefund !== status
+                              ? "1px solid #bbf7d0"
+                              : "none",
+                        }),
+                        ...(status === "InProcess" && {
+                          backgroundColor:
+                            selectedStatusRefund === status
+                              ? "#d97706"
+                              : "#fffbeb",
+                          color:
+                            selectedStatusRefund === status
+                              ? "#fff"
+                              : "#92400e",
+                          border:
+                            selectedStatusRefund !== status
+                              ? "1px solid #fde68a"
+                              : "none",
+                        }),
+                        ...(status === "Failed" && {
+                          backgroundColor:
+                            selectedStatusRefund === status
+                              ? "#dc2626"
+                              : "#fef2f2",
+                          color:
+                            selectedStatusRefund === status
+                              ? "#fff"
+                              : "#991b1b",
+                          border:
+                            selectedStatusRefund !== status
+                              ? "1px solid #fecaca"
+                              : "none",
+                        }),
+                        // Hover effects
+                        "&:hover": {
+                          opacity: 0.9,
+                          transform: "scale(1.03)",
+                          transition: "all 0.2s ease-in-out",
+                        },
+                        // Active state
+                        "&:active": {
+                          transform: "scale(0.98)",
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+
+                <TableContainer sx={{ flex: 1, overflow: "auto" }}>
+                  <Table stickyHeader size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>
+                          <strong>Amount</strong>
+                        </TableCell>
+                        <TableCell>
+                          <strong>Status</strong>
+                        </TableCell>
+                        <TableCell>
+                          <strong>Reason</strong>
+                        </TableCell>
+                        <TableCell align="right">
+                          <strong>Date</strong>
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {accountmanagementrefund?.filter((refund) => {
+                        const amountValid = Number(refund.refundAmount) < 0;
+                        const statusMatch =
+                          !selectedStatusRefund ||
+                          refund.status === selectedStatusRefund;
+                        return amountValid && statusMatch;
+                      })?.length > 0 ? (
+                        accountmanagementrefund
+                          .filter((refund) => {
+                            const amountValid = Number(refund.refundAmount) < 0;
+                            const statusMatch =
+                              !selectedStatusRefund ||
+                              refund.status === selectedStatusRefund;
+                            return amountValid && statusMatch;
+                          })
+                          .map((refund) => (
+                            <TableRow key={refund.id} hover>
+                              <TableCell>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    color: (theme) => theme.palette.error.main,
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  {formatCurrency(refund.refundAmount)}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <span
+                                  style={{
+                                    color:
+                                      refund.status === "Completed"
+                                        ? "#16a34a"
+                                        : refund.status === "InProcess"
+                                        ? "#d97706"
+                                        : "#dc2626",
+                                  }}
+                                >
+                                  {refund.status}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {refund.refundReason}
+                                </Typography>
+                              </TableCell>
+                              <TableCell align="right">
+                                <Typography
+                                  variant="caption"
+                                  color="textSecondary"
+                                >
+                                  {new Date(
+                                    refund.createdAt
+                                  ).toLocaleDateString()}
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                            <Typography variant="body2" color="textSecondary">
+                              No refund history available
                             </Typography>
                           </TableCell>
                         </TableRow>
-                      ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                <Box
+                  sx={{
+                    mt: 2,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    pr: 2,
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: "bold",
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    <span style={{ color: "black" }}>Total Refunds</span> :{" "}
+                    {formatCurrency(
+                      accountmanagementrefund
+                        ?.filter((refund) => {
+                          const amountValid = Number(refund.refundAmount) < 0;
+                          const statusMatch =
+                            !selectedStatusRefund ||
+                            refund.status === selectedStatusRefund;
+                          return amountValid && statusMatch;
+                        })
+                        ?.reduce(
+                          (sum, refund) => sum + Number(refund.refundAmount),
+                          0
+                        ) || 0.
+                    )}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid> 
+          ) : null;
+        })()}
+
+          {/* Add-On Payment History */}
+          {(() => {
+            const filteredRefunds =
+              accountmanagementrefund?.filter((refund) => {
+                const amount = parseFloat(refund.refundAmount) || 0;
+                const statusMatch =
+                  !selectedStatus || refund.status === selectedStatus;
+                return amount > 0 && statusMatch;
+              }) || [];
+
+            return (
+              filteredRefunds.length > 0 && (
+                <Grid item xs={12} md={12}>
+                  <Paper
+                    elevation={1}
+                    sx={{ p: 2, display: "flex", flexDirection: "column" }}
+                  >
+                    <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                      Add-On Payment History
+                    </Typography>
+
+                    {/* Status Filter Chips */}
+                    <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                      {["All", "Completed", "InProcess", "Failed"].map(
+                        (status) => (
+                          <Chip
+                            key={status}
+                            label={`${status} (${statusCounts[status]})`}
+                            onClick={() =>
+                              setSelectedStatus(
+                                status === "All" ? null : status
+                              )
+                            }
+                            color={
+                              selectedStatus === status ? "primary" : "default"
+                            }
+                            variant={
+                              selectedStatus === status ? "filled" : "outlined"
+                            }
+                            sx={{
+                              cursor: "pointer",
+                              fontWeight:
+                                selectedStatusRefund === status ? 600 : 400,
+
+                              // Background colors based on status
+                              ...(status === "All" && {
+                                backgroundColor:
+                                  selectedStatus === status
+                                    ? "#3f51b5"
+                                    : "#f5f5f5",
+                                color:
+                                  selectedStatus === status
+                                    ? "#fff"
+                                    : "inherit",
+                              }),
+                              ...(status === "Completed" && {
+                                backgroundColor:
+                                  selectedStatus === status
+                                    ? "#16a34a"
+                                    : "#f0fdf4",
+                                color:
+                                  selectedStatus === status
+                                    ? "#fff"
+                                    : "#166534",
+                              }),
+                              ...(status === "InProcess" && {
+                                backgroundColor:
+                                  selectedStatus === status
+                                    ? "#d97706"
+                                    : "#fffbeb",
+                                color:
+                                  selectedStatus === status
+                                    ? "#fff"
+                                    : "#92400e",
+                              }),
+                              ...(status === "Failed" && {
+                                backgroundColor:
+                                  selectedStatus === status
+                                    ? "#dc2626"
+                                    : "#fef2f2",
+                                color:
+                                  selectedStatus === status
+                                    ? "#fff"
+                                    : "#991b1b",
+                              }),
+                              "&:hover": {
+                                opacity: 0.9,
+                              },
+                            }}
+                          />
+                        )
+                      )}
+                    </Box>
+
+                    <TableContainer sx={{ flex: 1, overflow: "auto" }}>
+                      <Table stickyHeader size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Amount</strong>
+                            </TableCell>
+                            <TableCell>
+                              <strong>Status</strong>
+                            </TableCell>
+                            <TableCell>
+                              <strong>Reason</strong>
+                            </TableCell>
+                            <TableCell align="right">
+                              <strong>Date</strong>
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {accountmanagementrefund?.filter((refund) => {
+                            const amount = parseFloat(refund.refundAmount) || 0;
+                            const statusMatch =
+                              !selectedStatus ||
+                              refund.status === selectedStatus;
+                            return amount > 0 && statusMatch;
+                          })?.length > 0 ? (
+                            accountmanagementrefund
+                              .filter((refund) => {
+                                const amount =
+                                  parseFloat(refund.refundAmount) || 0;
+                                const statusMatch =
+                                  !selectedStatus ||
+                                  refund.status === selectedStatus;
+                                return amount > 0 && statusMatch;
+                              })
+                              .map((refund) => {
+                                const amount =
+                                  Math.abs(parseFloat(refund.refundAmount)) ||
+                                  0;
+                                return (
+                                  <TableRow key={refund.id} hover>
+                                    <TableCell>
+                                      <Typography
+                                        variant="body2"
+                                        sx={{
+                                          color: (theme) =>
+                                            theme.palette.success.main,
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        +{formatCurrency(amount)}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell>
+                                      <span
+                                        style={{
+                                          color:
+                                            refund.status === "Completed"
+                                              ? "#16a34a"
+                                              : refund.status === "InProcess"
+                                              ? "#d97706"
+                                              : "#dc2626",
+                                        }}
+                                      >
+                                        {refund.status}
+                                      </span>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Typography variant="body2">
+                                        {refund.refundReason}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell align="right">
+                                      <Typography
+                                        variant="caption"
+                                        color="textSecondary"
+                                      >
+                                        {new Date(
+                                          refund.createdAt
+                                        ).toLocaleDateString()}
+                                      </Typography>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })
+                          ) : (
+                            <TableRow>
+                              <TableCell
+                                colSpan={4}
+                                align="center"
+                                sx={{ py: 4 }}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  color="textSecondary"
+                                >
+                                  No payment history available
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+
+                    <Box
+                      sx={{
+                        mt: 2,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        pr: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: "bold",
+                          color: (theme) => theme.palette.success.main,
+                        }}
+                      >
+                        <span style={{ color: "black" }}>Total Add-On</span> : +
+                        {formatCurrency(
+                          Math.abs(
+                            accountmanagementrefund?.reduce((sum, refund) => {
+                              const amount =
+                                parseFloat(refund.refundAmount) || 0;
+                              const statusMatch =
+                                !selectedStatus ||
+                                refund.status === selectedStatus;
+                              return amount > 0 && statusMatch
+                                ? sum + amount
+                                : sum;
+                            }, 0) || 0
+                          )
+                        )}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                </Grid>
+              )
+            );
+          })()}
+
+        </Grid>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <Grid container spacing={3}>
+          {/* Invoice Details */}
+          <Grid item xs={12} md={8}>
+            <Paper className="lines" style={{ flex: 1, padding: 16 }}>
+              <Typography
+                style={{
+                  borderBottom: "1px solid #ccc",
+                  paddingBottom: "10px",
+                  marginBottom: "10px",
+                  color: "#030547",
+                  padding: "10px",
+                }}
+              >
+                Payment Details
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Payment ID</TableCell>
+                      <TableCell>Credited Amount</TableCell>
+                      <TableCell>Payment Date</TableCell>
+                      <TableCell>Transaction Type</TableCell>
+                      <TableCell>Payment Type</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {payments.length > 0 ? (
+                      <>
+                        {payments
+                          .filter(
+                            (payment) =>
+                              payment.creditedAmount &&
+                              payment.creditedAmount > 0
+                          )
+                          .map((payment) => (
+                            <TableRow key={payment.id}>
+                              <TableCell>{payment.id}</TableCell>
+                              <TableCell>
+                                {payment.creditedAmount.toFixed(2)}
+                              </TableCell>
+                              <TableCell>
+                                {new Date(payment.paymentDate).toLocaleString()}
+                              </TableCell>
+                              <TableCell>
+                                {formatTransactionType(payment.transactionType)}
+                              </TableCell>
+                              <TableCell>{payment.paymentType}</TableCell>
+                            </TableRow>
+                          ))}
+                      </>
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                          <Typography variant="body2" color="textSecondary">
-                            No refund history available
-                          </Typography>
+                        <TableCell colSpan={5} align="center">
+                          No credited payments found
                         </TableCell>
                       </TableRow>
                     )}
                   </TableBody>
-
                 </Table>
               </TableContainer>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  pr: 2,
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: "bold",
+                    color: (theme) => theme.palette.success.main,
+                  }}
+                >
+                  <span style={{ color: "black" }}>Total</span> :{" "}
+                  {formatCurrency(
+                    payments
+                      .filter(
+                        (payment) =>
+                          payment.creditedAmount && payment.creditedAmount > 0
+                      )
+                      .reduce(
+                        (total, payment) => total + payment.creditedAmount,
+                        0
+                      )
+                      .toFixed(2)
+                  )}
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Paper className="lines" style={{ flex: 1, padding: 16 }}>
+              <Typography
+                variant="subtitle2"
+                style={{
+                  borderBottom: "1px solid #ccc",
+                  paddingBottom: "10px",
+                  marginBottom: "10px",
+                  color: "#030547",
+                  padding: "10px",
+                }}
+              >
+                Updated Amount
+              </Typography>
+
+              {/* Amount Details Group */}
+              <div style={{ marginBottom: 20 }}>
+                {[
+                  { label: "Total On-Road Price", value: total_on_road_price },
+                  { label: "Total Charges", value: total_charges },
+                  { label: "Grand Total", value: updatedInvoice.grand_total },
+                  {
+                    label: "Unpaid Amount",
+                    value:
+                      grand_total !== "N/A" &&
+                      updatedInvoice.customer_account_balance !== "N/A"
+                        ? grand_total - updatedInvoice.customer_account_balance
+                        : 0,
+                  },
+                ].map((item, index) => (
+                  <Typography
+                    key={index}
+                    sx={{
+                      fontSize: 12,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 1.5,
+                    }}
+                  >
+                    <strong>{item.label}:</strong>
+                    <span style={{ color: "red" }}>
+                      {formatCurrency(item.value) || "N/A"}
+                    </span>
+                  </Typography>
+                ))}
+              </div>
+
+              {/* Customer Balance Section */}
+              <Typography
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                  color: "#030547",
+                }}
+              >
+                <strong>Customer Balance:</strong>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>
+                    {formatCurrency(updatedInvoice.customer_account_balance)}
+                  </span>
+                  {payment_status === "Paid" ? (
+                    <CheckCircleOutlineRoundedIcon sx={{ color: "#4CAF50" }} />
+                  ) : payment_status === "Unpaid" ? (
+                    <WatchLaterOutlinedIcon sx={{ color: "#FF9800" }} />
+                  ) : null}
+                </div>
+              </Typography>
+
+              {/* Date Information */}
+              <Typography
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 12,
+                  gap: 1,
+                  flexWrap: "wrap",
+                }}
+              >
+                <div>
+                  <strong>Invoice Date:</strong>{" "}
+                  {formatDate(invoice_date || "N/A")}
+                </div>
+                <div>
+                  <strong>Due Date:</strong> {formatDate(due_date || "N/A")}
+                </div>
+              </Typography>
             </Paper>
           </Grid>
         </Grid>
-
-       
       </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {/* Updated Amount */}
-        <Paper className="lines" style={{ flex: 1, padding: "10px" }}>
-          <Typography
-            style={{
-              borderBottom: "1px solid #ccc",
-              paddingBottom: "10px",
-              marginBottom: "10px",
-              color: "#030547",
-            }}
-          >
-            <strong>Updated Amount</strong>
-          </Typography>
-
-          {/* Total On-Road Price */}
-          <Typography
-            style={{
-              fontSize: "10px",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: "5px",
-            }}
-          >
-            <strong style={{ color: "black" }}>Total On-Road Price: </strong>
-            <span style={{ color: "red" }}>
-              {formatCurrency(total_on_road_price) || "N/A"}
-            </span>
-          </Typography>
-
-          {/* Total Charges */}
-          <Typography
-            style={{
-              fontSize: "10px",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: "5px",
-            }}
-          >
-            <strong style={{ color: "black" }}>Total Charges: </strong>
-            <span style={{ color: "red" }}>
-              {formatCurrency(total_charges) || "N/A"}
-            </span>
-          </Typography>
-
-          {/* Grand Total */}
-          <Typography
-            style={{
-              fontSize: "10px",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: "5px",
-            }}
-          >
-            <strong style={{ color: "black" }}>Grand Total: </strong>
-            <span style={{ color: "red" }}>
-              {formatCurrency(updatedInvoice.grand_total) || "N/A"}
-            </span>
-          </Typography>
-
-          {/* Unpaid Amount */}
-          <Typography
-            style={{
-              fontSize: "10px",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: "5px",
-            }}
-          >
-            <strong style={{ color: "black" }}>Unpaid Amount: </strong>
-            <span style={{ color: "red" }}>
-              {grand_total !== "N/A" &&
-              updatedInvoice.customer_account_balance !== "N/A"
-                ? formatCurrency(
-                    grand_total - updatedInvoice.customer_account_balance
-                  )
-                : formatCurrency(0)}
-            </span>
-          </Typography>
-
-          {/* Customer Balance */}
-          <Typography
-            style={{
-              paddingBottom: "10px",
-              marginBottom: "10px",
-              color: "#030547",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <strong>Customer Balance: </strong>
-            <span>
-              {formatCurrency(updatedInvoice.customer_account_balance)}
-            </span>
-            {payment_status === "Paid" ? (
-              <CheckCircleOutlineRoundedIcon style={{ color: "#4CAF50" }} />
-            ) : payment_status === "Unpaid" ? (
-              <WatchLaterOutlinedIcon style={{ color: "#FF9800" }} />
-            ) : (
-              "N/A"
-            )}
-          </Typography>
-
-          {/* Invoice and Due Date */}
-          <Typography
-            component="div"
-            sx={{
-              fontSize: "10px",
-              display: "flex",
-              gap: 1,
-              justifyContent: { xs: "space-between" },
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <strong>Invoice Date: </strong>
-              {formatDate(invoice_date || "N/A")}
-            </div>
-            <div>
-              <strong>Due Date: </strong>
-              {formatDate(due_date || "N/A")}
-            </div>
-          </Typography>
-        </Paper>
-      </div>
-
-      {/* Save Button */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSaveChangesClick}
-        sx={{ mt: 3 }}
-      >
-        Save Changes
-      </Button>
 
       <div
         style={{
@@ -1123,7 +1742,7 @@ function PaymentHistory() {
           justifyContent: "end",
         }}
       >
-        {status !== "approved" && (
+        {accountmanagement?.status !== "approved" && (
           <Button
             size="small"
             variant="contained"
@@ -1134,7 +1753,7 @@ function PaymentHistory() {
           </Button>
         )}
 
-        {status !== "rejected" && (
+        {accountmanagement?.status !== "rejected" && (
           <Button
             size="small"
             variant="contained"
