@@ -2007,7 +2007,7 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
 
     // Fetch invoiceId using customerId
     const [invoiceSummary] = await connection.query(
-      `SELECT invoice_id FROM invoice_summary WHERE customerId = ?`,
+      `SELECT invoice_id, grand_total, customer_account_balance FROM invoice_summary WHERE customerId = ?`,
       [customerId]
     );
 
@@ -2017,6 +2017,8 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
     }
 
     const invoiceId = invoiceSummary[0].invoice_id;
+    const currentGrandTotal = parseFloat(invoiceSummary[0].grand_total);
+    const currentCustomerAccountBalance = parseFloat(invoiceSummary[0].customer_account_balance);
 
     // Fetch current on_road_price_details and additional_charges
     const [currentOnRoadPrice] = await connection.query(
@@ -2130,7 +2132,13 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
 
     const totalOnRoadPrice = parseFloat(onRoadPrice[0].total_on_road_price);
     const totalCharges = parseFloat(additionalCharges[0].total_charges);
-    const grandTotal = totalOnRoadPrice + totalCharges;
+    const newGrandTotal = totalOnRoadPrice + totalCharges;
+
+    // Calculate the difference between the new and old grandTotal
+    const grandTotalDifference = newGrandTotal - currentGrandTotal;
+
+    // Update the customer_account_balance by adding the difference
+    const newCustomerAccountBalance = currentCustomerAccountBalance + grandTotalDifference;
 
     await connection.query(
       `UPDATE invoice_summary
@@ -2141,7 +2149,7 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
          customer_account_balance = ?,
          updatedAt = CURRENT_TIMESTAMP
        WHERE invoice_id = ?`,
-      [totalOnRoadPrice, totalCharges, grandTotal, grandTotal, invoiceId]
+      [totalOnRoadPrice, totalCharges, newGrandTotal, newCustomerAccountBalance, invoiceId]
     );
 
     await connection.query('COMMIT');
