@@ -356,7 +356,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                 }}
               >
                 <Typography version="h5" component="h1">
-                  Car AutoCard Services
+                  Car Booking details
                 </Typography>
               </Box>
               <Stack

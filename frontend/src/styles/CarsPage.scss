@@ -1,0 +1,166 @@
+// Variables
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$background-color: #f8f9fa;
+$border-color: #e0e0e0;
+$font-family: 'Arial', sans-serif;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin responsive-grid($columns) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: 20px;
+}
+
+// Base Styles
+.cars-page {
+  font-family: $font-family;
+  background-color: $background-color;
+  padding: 20px 0;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .page-header {
+    text-align: center;
+    padding: 40px 0;
+    background-color: #fff;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: $secondary-color;
+    }
+  }
+
+  .filter-section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .filter-container {
+      .filter-header {
+        @include flex-center;
+        margin-bottom: 20px;
+
+        i {
+          margin-right: 10px;
+          color: $primary-color;
+        }
+
+        span {
+          font-size: 1.2rem;
+          color: #333;
+        }
+      }
+
+      .filter-options {
+        @include responsive-grid(3);
+
+        .filter-group {
+          label {
+            display: block;
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 8px;
+          }
+
+          select,
+          input[type="range"],
+          input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid $border-color;
+            border-radius: 4px;
+            font-size: 1rem;
+          }
+
+          .search-input {
+            position: relative;
+
+            i {
+              position: absolute;
+              left: 10px;
+              top: 50%;
+              transform: translateY(-50%);
+              color: $secondary-color;
+            }
+
+            input[type="text"] {
+              padding-left: 30px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .car-listing-section {
+    .listing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      p {
+        font-size: 1rem;
+        color: $secondary-color;
+      }
+
+      select {
+        padding: 8px;
+        border: 1px solid $border-color;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+    }
+
+    .car-grid {
+      @include responsive-grid(3);
+    }
+  }
+}
+
+// Responsive Styles
+@media (max-width: 768px) {
+  .cars-page {
+    .filter-section {
+      .filter-options {
+        @include responsive-grid(1);
+      }
+    }
+
+    .car-listing-section {
+      .car-grid {
+        @include responsive-grid(2);
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .cars-page {
+    .car-listing-section {
+      .car-grid {
+        @include responsive-grid(1);
+      }
+    }
+  }
+}

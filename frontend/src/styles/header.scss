@@ -1,0 +1,35 @@
+.header {
+  .logo-container {
+    flex-grow: 1;
+    
+    .logo-icon {
+      margin-right: 10px;
+      font-size: 2rem;
+    }
+    
+    .logo-text {
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  }
+  
+  .nav-links {
+    display: flex;
+    align-items: center;
+    
+    .nav-link {
+      margin-right: 10px;
+    }
+    
+    .login-button {
+      margin-left: 10px;
+      border-color: white;
+    }
+  }
+  
+  .menu-button {
+    margin-left: auto;
+  }
+}
+

@@ -41,7 +41,7 @@ const getCustomerLoans = async (req, res) => {
             FROM loans l
             LEFT JOIN customer_documents cd ON l.id = cd.loan_id
             WHERE l.customerId = ?
-            ORDER BY l.created_at DESC, cd.uploaded_at DESC
+            ORDER BY l.createdAt DESC, cd.uploaded_at DESC
         `;
 
         const [rows] = await pool.query(sqlQuery, [customerId]);
@@ -57,7 +57,7 @@ const getCustomerLoans = async (req, res) => {
                     interest_rate: row.interest_rate,
                     loan_duration: row.loan_duration,
                     calculated_emi: row.calculated_emi,
-                    created_at: row.created_at,
+                    createdAt: row.created_at,
                     documents: []
                 };
                 

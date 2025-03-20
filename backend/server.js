@@ -2220,6 +2220,48 @@ app.put("/api/updateRefund", async (req, res) => {
 });
 
 
+
+
+app.get("/api/carstocks", async (req, res) => {
+  try {
+    const [rows] = await pool.promise().query("SELECT * FROM carstocks");
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching car stocks:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+app.get("/api/cars/:carId", async (req, res) => {
+  try {
+    const carId = req.params.carId;
+    const [rows] = await pool.promise().query("SELECT * FROM carstocks WHERE id = ?", [carId]);
+    if (rows.length > 0) {
+      res.json(rows[0]);
+    } else {
+      res.status(404).json({ error: "Car not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching car details:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+ 
+
+// Fetch suggested products
+app.get("/api/suggested-products", async (req, res) => {
+  try {
+    const [rows] = await pool.promise().query("SELECT * FROM carstocks LIMIT 6");
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching suggested products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);

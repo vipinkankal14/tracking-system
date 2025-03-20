@@ -1,0 +1,99 @@
+.footer {
+  background-color: #263238;
+  color: #fff;
+  margin-top: auto;
+  padding: 20px 0;
+
+  .footer-heading {
+    color: #fff;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+
+  .social-icons {
+    margin-top: 15px;
+
+    .MuiIconButton-root {
+      color: #fff;
+      margin-right: 10px;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin-bottom: 10px;
+
+      a {
+        color: #ccc;
+        transition: color 0.3s ease;
+        text-decoration: none; // Remove underline by default
+
+        &:hover {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .contact-info {
+    margin-bottom: 15px;
+
+    .contact-icon {
+      color: #1976d2;
+      margin-right: 12px;
+      margin-top: -14px;
+    }
+  }
+
+  .hours {
+    margin-top: 15px;
+    line-height: 1.6;
+  }
+
+  .footer-divider {
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 20px 0;
+  }
+
+  .copyright {
+    padding: 10px 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+}
+
+// Mobile View Adjustments
+@media (max-width: 768px) {
+  .footer {
+    text-align: center; // Center-align content for mobile
+
+    .footer-links {
+      li {
+        display: block; // Ensure links are stacked vertically
+        margin-bottom: 15px;
+
+        a {
+          font-size: 1rem; // Increase font size for better readability
+          text-decoration: underline; // Add underline for mobile links
+        }
+      }
+    }
+
+    .social-icons {
+      justify-content: center; // Center-align social icons
+    }
+
+    .contact-info,
+    .hours {
+      text-align: center; // Center-align contact info and hours
+    }
+  }
+}

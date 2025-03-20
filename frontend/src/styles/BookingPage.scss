@@ -1,0 +1,283 @@
+// Variables
+$primary-color: #2a2a2a;
+$secondary-color: #666;
+$accent-color: #d4af37;
+$border-color: #e0e0e0;
+$background-light: #f9f9f9;
+
+// Mixins
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+.booking-page {
+  padding: 2rem 0;
+  background-color: white;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .breadcrumb {
+    margin-bottom: 2rem;
+    
+    a {
+      color: $secondary-color;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+
+  .booking-title {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+
+    @include mobile {
+      font-size: 2rem;
+    }
+  }
+
+  .booking-container {
+    display: flex;
+    gap: 2rem;
+
+    @include mobile {
+      flex-direction: column;
+    }
+  }
+
+  // Booking Form Styles
+  .booking-form-container {
+    flex: 2;
+
+    .booking-form-box {
+      background: $background-light;
+      padding: 2rem;
+      border-radius: 8px;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+
+      @include mobile {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group {
+        position: relative;
+
+        &.full-width {
+          grid-column: 1 / -1;
+        }
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          color: $primary-color;
+          font-weight: 500;
+        }
+
+        input, select {
+          width: 100%;
+          padding: 0.8rem;
+          border: 1px solid $border-color;
+          border-radius: 4px;
+          font-size: 1rem;
+
+          &:focus {
+            outline: none;
+            border-color: $accent-color;
+            box-shadow: 0 0 0 2px rgba($accent-color, 0.2);
+          }
+        }
+      }
+    }
+
+    .input-icon {
+      position: relative;
+
+      i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $secondary-color;
+      }
+
+      input {
+        padding-left: 2.5rem;
+      }
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+
+      @include mobile {
+        flex-direction: column;
+      }
+
+      .payment-method {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border: 2px solid $border-color;
+        border-radius: 4px;
+        cursor: pointer;
+
+        input[type="radio"] {
+          margin: 0;
+        }
+
+        label {
+          margin: 0;
+          cursor: pointer;
+        }
+
+        &:hover, & input:checked + label {
+          border-color: $accent-color;
+          background-color: rgba($accent-color, 0.05);
+        }
+      }
+    }
+
+    .btn-primary {
+      background-color: $accent-color;
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: darken($accent-color, 10%);
+      }
+    }
+  }
+
+  // Order Summary Styles
+  .order-summary-container {
+    flex: 1;
+
+    .order-summary {
+      background: $background-light;
+      padding: 2rem;
+      border-radius: 8px;
+      position: sticky;
+      top: 2rem;
+
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .car-summary {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        .car-thumbnail {
+          width: 100px;
+          height: 70px;
+          border-radius: 4px;
+          overflow: hidden;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .car-details {
+          h3 {
+            margin: 0;
+            font-size: 1.1rem;
+          }
+
+          p {
+            margin: 0.25rem 0 0;
+            color: $secondary-color;
+          }
+        }
+      }
+
+      .rental-details {
+        .detail-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+          color: $secondary-color;
+
+          i {
+            color: $primary-color;
+          }
+        }
+      }
+
+      .price-breakdown {
+        .price-item {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.5rem;
+          padding: 0.5rem 0;
+          border-bottom: 1px solid $border-color;
+
+          .item-name {
+            color: $secondary-color;
+          }
+        }
+      }
+
+      .total-price {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding: 1rem 0;
+      }
+
+      .terms-note {
+        color: $secondary-color;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-top: 1rem;
+      }
+    }
+  }
+
+  // Divider
+  .divider {
+    height: 1px;
+    background: $border-color;
+    margin: 2rem 0;
+  }
+}

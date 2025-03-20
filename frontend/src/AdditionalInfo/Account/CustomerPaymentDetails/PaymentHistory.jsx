@@ -460,12 +460,14 @@ function PaymentHistory() {
           />
         ) : (
           <>
-            <IconButton
-              size="small"
-              onClick={() => handleEditStart(section, field, value)}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
+            {payment_status !== "Unpaid" && (
+              <IconButton
+                size="small"
+                onClick={() => handleEditStart(section, field, value)}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
             {formatCurrency(value)}
           </>
         )}
@@ -1062,246 +1064,262 @@ function PaymentHistory() {
         </Grid>
 
         <Grid container spacing={3}>
-          
-        {(() => {
-          const filteredRefunds = accountmanagementrefund
-            ?.filter(refund => {
-              const amountValid = Number(refund.refundAmount) < 0;
-              const statusMatch = !selectedStatusRefund || refund.status === selectedStatusRefund;
-              return amountValid && statusMatch;
-            }) || [];
+          {(() => {
+            const filteredRefunds =
+              accountmanagementrefund?.filter((refund) => {
+                const amountValid = Number(refund.refundAmount) < 0;
+                const statusMatch =
+                  !selectedStatusRefund ||
+                  refund.status === selectedStatusRefund;
+                return amountValid && statusMatch;
+              }) || [];
 
             return filteredRefunds.length > 0 ? (
               <Grid item xs={12} md={12}>
-              <Paper
-                elevation={1}
-                sx={{ p: 2, display: "flex", flexDirection: "column" }}
-              >
-                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-                  Refund History
-                </Typography>
+                <Paper
+                  elevation={1}
+                  sx={{ p: 2, display: "flex", flexDirection: "column" }}
+                >
+                  <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                    Refund History
+                  </Typography>
 
-                {/* Status Filter Chips */}
+                  {/* Status Filter Chips */}
 
-                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                  {["All", "Completed", "InProcess", "Failed"].map((status) => (
-                    <Chip
-                      key={status}
-                      label={`${status} (${statusCountsrefund[status] || 0})`}
-                      onClick={() =>
-                        setSelectedStatusRefund(
-                          status === "All" ? null : status
-                        )
-                      }
-                      color={
-                        selectedStatusRefund === status ? "primary" : "default"
-                      }
-                      variant={
-                        selectedStatusRefund === status ? "filled" : "outlined"
-                      }
+                  <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                    {["All", "Completed", "InProcess", "Failed"].map(
+                      (status) => (
+                        <Chip
+                          key={status}
+                          label={`${status} (${
+                            statusCountsrefund[status] || 0
+                          })`}
+                          onClick={() =>
+                            setSelectedStatusRefund(
+                              status === "All" ? null : status
+                            )
+                          }
+                          color={
+                            selectedStatusRefund === status
+                              ? "primary"
+                              : "default"
+                          }
+                          variant={
+                            selectedStatusRefund === status
+                              ? "filled"
+                              : "outlined"
+                          }
+                          sx={{
+                            cursor: "pointer",
+                            fontWeight:
+                              selectedStatusRefund === status ? 600 : 400,
+                            // Status-specific colors
+                            ...(status === "All" && {
+                              backgroundColor:
+                                selectedStatusRefund === status
+                                  ? "#3f51b5"
+                                  : "#f5f5f5",
+                              color:
+                                selectedStatusRefund === status
+                                  ? "#fff"
+                                  : "rgba(0, 0, 0, 0.87)",
+                              border:
+                                selectedStatusRefund !== status
+                                  ? "1px solid #e0e0e0"
+                                  : "none",
+                            }),
+                            ...(status === "Completed" && {
+                              backgroundColor:
+                                selectedStatusRefund === status
+                                  ? "#16a34a"
+                                  : "#f0fdf4",
+                              color:
+                                selectedStatusRefund === status
+                                  ? "#fff"
+                                  : "#166534",
+                              border:
+                                selectedStatusRefund !== status
+                                  ? "1px solid #bbf7d0"
+                                  : "none",
+                            }),
+                            ...(status === "InProcess" && {
+                              backgroundColor:
+                                selectedStatusRefund === status
+                                  ? "#d97706"
+                                  : "#fffbeb",
+                              color:
+                                selectedStatusRefund === status
+                                  ? "#fff"
+                                  : "#92400e",
+                              border:
+                                selectedStatusRefund !== status
+                                  ? "1px solid #fde68a"
+                                  : "none",
+                            }),
+                            ...(status === "Failed" && {
+                              backgroundColor:
+                                selectedStatusRefund === status
+                                  ? "#dc2626"
+                                  : "#fef2f2",
+                              color:
+                                selectedStatusRefund === status
+                                  ? "#fff"
+                                  : "#991b1b",
+                              border:
+                                selectedStatusRefund !== status
+                                  ? "1px solid #fecaca"
+                                  : "none",
+                            }),
+                            // Hover effects
+                            "&:hover": {
+                              opacity: 0.9,
+                              transform: "scale(1.03)",
+                              transition: "all 0.2s ease-in-out",
+                            },
+                            // Active state
+                            "&:active": {
+                              transform: "scale(0.98)",
+                            },
+                          }}
+                        />
+                      )
+                    )}
+                  </Box>
+
+                  <TableContainer sx={{ flex: 1, overflow: "auto" }}>
+                    <Table stickyHeader size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>
+                            <strong>Amount</strong>
+                          </TableCell>
+                          <TableCell>
+                            <strong>Status</strong>
+                          </TableCell>
+                          <TableCell>
+                            <strong>Reason</strong>
+                          </TableCell>
+                          <TableCell align="right">
+                            <strong>Date</strong>
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {accountmanagementrefund?.filter((refund) => {
+                          const amountValid = Number(refund.refundAmount) < 0;
+                          const statusMatch =
+                            !selectedStatusRefund ||
+                            refund.status === selectedStatusRefund;
+                          return amountValid && statusMatch;
+                        })?.length > 0 ? (
+                          accountmanagementrefund
+                            .filter((refund) => {
+                              const amountValid =
+                                Number(refund.refundAmount) < 0;
+                              const statusMatch =
+                                !selectedStatusRefund ||
+                                refund.status === selectedStatusRefund;
+                              return amountValid && statusMatch;
+                            })
+                            .map((refund) => (
+                              <TableRow key={refund.id} hover>
+                                <TableCell>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      color: (theme) =>
+                                        theme.palette.error.main,
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {formatCurrency(refund.refundAmount)}
+                                  </Typography>
+                                </TableCell>
+                                <TableCell>
+                                  <span
+                                    style={{
+                                      color:
+                                        refund.status === "Completed"
+                                          ? "#16a34a"
+                                          : refund.status === "InProcess"
+                                          ? "#d97706"
+                                          : "#dc2626",
+                                    }}
+                                  >
+                                    {refund.status}
+                                  </span>
+                                </TableCell>
+                                <TableCell>
+                                  <Typography variant="body2">
+                                    {refund.refundReason}
+                                  </Typography>
+                                </TableCell>
+                                <TableCell align="right">
+                                  <Typography
+                                    variant="caption"
+                                    color="textSecondary"
+                                  >
+                                    {new Date(
+                                      refund.createdAt
+                                    ).toLocaleDateString()}
+                                  </Typography>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                        ) : (
+                          <TableRow>
+                            <TableCell
+                              colSpan={4}
+                              align="center"
+                              sx={{ py: 4 }}
+                            >
+                              <Typography variant="body2" color="textSecondary">
+                                No refund history available
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  <Box
+                    sx={{
+                      mt: 2,
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      pr: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle1"
                       sx={{
-                        cursor: "pointer",
-                        fontWeight: selectedStatusRefund === status ? 600 : 400,
-                        // Status-specific colors
-                        ...(status === "All" && {
-                          backgroundColor:
-                            selectedStatusRefund === status
-                              ? "#3f51b5"
-                              : "#f5f5f5",
-                          color:
-                            selectedStatusRefund === status
-                              ? "#fff"
-                              : "rgba(0, 0, 0, 0.87)",
-                          border:
-                            selectedStatusRefund !== status
-                              ? "1px solid #e0e0e0"
-                              : "none",
-                        }),
-                        ...(status === "Completed" && {
-                          backgroundColor:
-                            selectedStatusRefund === status
-                              ? "#16a34a"
-                              : "#f0fdf4",
-                          color:
-                            selectedStatusRefund === status
-                              ? "#fff"
-                              : "#166534",
-                          border:
-                            selectedStatusRefund !== status
-                              ? "1px solid #bbf7d0"
-                              : "none",
-                        }),
-                        ...(status === "InProcess" && {
-                          backgroundColor:
-                            selectedStatusRefund === status
-                              ? "#d97706"
-                              : "#fffbeb",
-                          color:
-                            selectedStatusRefund === status
-                              ? "#fff"
-                              : "#92400e",
-                          border:
-                            selectedStatusRefund !== status
-                              ? "1px solid #fde68a"
-                              : "none",
-                        }),
-                        ...(status === "Failed" && {
-                          backgroundColor:
-                            selectedStatusRefund === status
-                              ? "#dc2626"
-                              : "#fef2f2",
-                          color:
-                            selectedStatusRefund === status
-                              ? "#fff"
-                              : "#991b1b",
-                          border:
-                            selectedStatusRefund !== status
-                              ? "1px solid #fecaca"
-                              : "none",
-                        }),
-                        // Hover effects
-                        "&:hover": {
-                          opacity: 0.9,
-                          transform: "scale(1.03)",
-                          transition: "all 0.2s ease-in-out",
-                        },
-                        // Active state
-                        "&:active": {
-                          transform: "scale(0.98)",
-                        },
+                        fontWeight: "bold",
+                        color: (theme) => theme.palette.error.main,
                       }}
-                    />
-                  ))}
-                </Box>
-
-                <TableContainer sx={{ flex: 1, overflow: "auto" }}>
-                  <Table stickyHeader size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>
-                          <strong>Amount</strong>
-                        </TableCell>
-                        <TableCell>
-                          <strong>Status</strong>
-                        </TableCell>
-                        <TableCell>
-                          <strong>Reason</strong>
-                        </TableCell>
-                        <TableCell align="right">
-                          <strong>Date</strong>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {accountmanagementrefund?.filter((refund) => {
-                        const amountValid = Number(refund.refundAmount) < 0;
-                        const statusMatch =
-                          !selectedStatusRefund ||
-                          refund.status === selectedStatusRefund;
-                        return amountValid && statusMatch;
-                      })?.length > 0 ? (
+                    >
+                      <span style={{ color: "black" }}>Total Refunds</span> :{" "}
+                      {formatCurrency(
                         accountmanagementrefund
-                          .filter((refund) => {
+                          ?.filter((refund) => {
                             const amountValid = Number(refund.refundAmount) < 0;
                             const statusMatch =
                               !selectedStatusRefund ||
                               refund.status === selectedStatusRefund;
                             return amountValid && statusMatch;
                           })
-                          .map((refund) => (
-                            <TableRow key={refund.id} hover>
-                              <TableCell>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    color: (theme) => theme.palette.error.main,
-                                    fontWeight: 500,
-                                  }}
-                                >
-                                  {formatCurrency(refund.refundAmount)}
-                                </Typography>
-                              </TableCell>
-                              <TableCell>
-                                <span
-                                  style={{
-                                    color:
-                                      refund.status === "Completed"
-                                        ? "#16a34a"
-                                        : refund.status === "InProcess"
-                                        ? "#d97706"
-                                        : "#dc2626",
-                                  }}
-                                >
-                                  {refund.status}
-                                </span>
-                              </TableCell>
-                              <TableCell>
-                                <Typography variant="body2">
-                                  {refund.refundReason}
-                                </Typography>
-                              </TableCell>
-                              <TableCell align="right">
-                                <Typography
-                                  variant="caption"
-                                  color="textSecondary"
-                                >
-                                  {new Date(
-                                    refund.createdAt
-                                  ).toLocaleDateString()}
-                                </Typography>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                            <Typography variant="body2" color="textSecondary">
-                              No refund history available
-                            </Typography>
-                          </TableCell>
-                        </TableRow>
+                          ?.reduce(
+                            (sum, refund) => sum + Number(refund.refundAmount),
+                            0
+                          ) || 0
                       )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-                <Box
-                  sx={{
-                    mt: 2,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                    pr: 2,
-                  }}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: "bold",
-                      color: (theme) => theme.palette.error.main,
-                    }}
-                  >
-                    <span style={{ color: "black" }}>Total Refunds</span> :{" "}
-                    {formatCurrency(
-                      accountmanagementrefund
-                        ?.filter((refund) => {
-                          const amountValid = Number(refund.refundAmount) < 0;
-                          const statusMatch =
-                            !selectedStatusRefund ||
-                            refund.status === selectedStatusRefund;
-                          return amountValid && statusMatch;
-                        })
-                        ?.reduce(
-                          (sum, refund) => sum + Number(refund.refundAmount),
-                          0
-                        ) || 0.
-                    )}
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid> 
-          ) : null;
-        })()}
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            ) : null;
+          })()}
 
           {/* Add-On Payment History */}
           {(() => {
@@ -1540,7 +1558,6 @@ function PaymentHistory() {
               )
             );
           })()}
-
         </Grid>
       </div>
 
@@ -1660,6 +1677,33 @@ function PaymentHistory() {
                 {[
                   { label: "Total On-Road Price", value: total_on_road_price },
                   { label: "Total Charges", value: total_charges },
+                  {
+                    label: "Total Refunds",
+                    value:
+                      accountmanagementrefund
+                        ?.filter((refund) => {
+                          const amountValid = Number(refund.refundAmount) < 0;
+                          const statusMatch =
+                            !selectedStatusRefund ||
+                            refund.status === selectedStatusRefund;
+                          return amountValid && statusMatch;
+                        })
+                        ?.reduce(
+                          (sum, refund) => sum + Number(refund.refundAmount),
+                          0
+                        ) || 0,
+                  },
+                  {
+                    label: "Total Add-On",
+                    value: Math.abs(
+                      accountmanagementrefund?.reduce((sum, refund) => {
+                        const amount = parseFloat(refund.refundAmount) || 0;
+                        const statusMatch =
+                          !selectedStatus || refund.status === selectedStatus;
+                        return amount > 0 && statusMatch ? sum + amount : sum;
+                      }, 0) || 0
+                    ),
+                  },
                   { label: "Grand Total", value: updatedInvoice.grand_total },
                   {
                     label: "Unpaid Amount",
@@ -1681,8 +1725,14 @@ function PaymentHistory() {
                     }}
                   >
                     <strong>{item.label}:</strong>
-                    <span style={{ color: "red" }}>
-                      {formatCurrency(item.value) || "N/A"}
+                    <span
+                      style={{
+                        color: item.label === "Total Refunds" ? "red" : "green",
+                      }}
+                    >
+                      {item.value !== undefined && item.value !== null
+                        ? formatCurrency(item.value)
+                        : "N/A"}
                     </span>
                   </Typography>
                 ))}

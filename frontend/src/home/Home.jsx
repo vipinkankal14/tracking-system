@@ -48,6 +48,7 @@ export function Home() {
       model: "",
       version: "",
       color: "",
+      fuelType: "",
       teamLeader: "",
       teamMember: "",
     },

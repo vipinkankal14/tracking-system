@@ -1,574 +1,309 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import {
-  Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Grid,
-  TextField,
-  IconButton,
-  CircularProgress,
-  Snackbar,
-  Alert,
-  Modal,
-  Box,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-
-function PaymentHistory() {
-  const { customerId } = useParams();
-  const [customerData, setCustomerData] = useState(null);
-  const [onRoadPriceSummary, setOnRoadPriceSummary] = useState({});
-  const [chargesSummary, setChargesSummary] = useState({});
-  const [invoiceSummary, setInvoiceSummary] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
-  // State for editable fields
-  const [editingField, setEditingField] = useState(null);
-  const [tempValue, setTempValue] = useState("");
-  const [updatedOnRoadPrice, setUpdatedOnRoadPrice] = useState({
-    ex_showroom_price: 0,
-    accessories: 0,
-    discount: 0,
-    gst_rate: 0,
-    cess_rate: 0,
-    subtotal: 0,
-    gst_amount: 0,
-    cess_amount: 0,
-    total_on_road_price: 0,
-  });
-  const [updatedCharges, setUpdatedCharges] = useState({
-    coating: 0,
-    fast_tag: 0,
-    rto: 0,
-    insurance: 0,
-    extended_warranty: 0,
-    auto_card: 0,
-    total_charges: 0,
-  });
-
-  const [updatedInvoice, setUpdatedInvoice] = useState({
-    grand_total: 0,
-    customer_account_balance: 0,
-  });
+import { Routes, Route } from "react-router-dom";
+import Sidebar from "./Nav/sidebar/Sidebar";
+import TopNavbar from "./Nav/Topnav-bar/Navbar";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Nav/sidebar/Sidebar.scss';
+import { useState, Suspense } from "react";
+import './App.css';
+ 
+import AddCarStock from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/AddCarStock";
+import CarAllotmentByCustomer from "./AdditionalInfo/carStocks/AllotmentAndNotAllotment/CarAllotmentByCustomer";
+import CarStockShow from "./AdditionalInfo/carStocks/CarAllotment/CarStockShow";
+import BookingAmount from "./AdditionalInfo/carStocks/discount/BookingAmount";
+import CarNotAllotmentByCustomer from "./AdditionalInfo/carStocks/AllotmentAndNotAllotment/CarNotAllotmentByCustomer";
+import DiscountForCarAndAdditional from "./AdditionalInfo/carStocks/discount/DiscountForCarAndAdditional";
+import CarAllotment from "./AdditionalInfo/carStocks/CarAllotment/CarAllotment";
+import CarApp from "./AdditionalInfo/carStocks/CarApp";
+import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
+import CarManagement from "./AdditionalInfo/carStocks/CarManagement/CarManagement";
+import AllotmentStatusApp from "./AdditionalInfo/carStocks/AllotmentStatus/AllotmentStatusApp";
+import DiscountApp from "./AdditionalInfo/carStocks/discount/DiscountApp";
 
 
-  // Refund Modal State
-  const [openRefundModal, setOpenRefundModal] = useState(false);
-  const [refundReason, setRefundReason] = useState("");
-  const [calculatedRefundAmount, setCalculatedRefundAmount] = useState(0);
+import CarInfo from "./CustomerAdd/CarInfo";
+import Confirmation from "./CustomerAdd/Confirmation";
+import OrderInfo from "./CustomerAdd/OrderInfo";
+import PersonalInfo from "./CustomerAdd/PersonalInfo";
+import { Home } from "./home/Home";
 
-  // Fetch customer data
-  const fetchCustomerData = async () => {
-    if (!customerId) {
-      setError("Customer ID is undefined.");
-      setLoading(false);
-      return;
-    }
+import Demo from "./zekedemo/Demo";
+import AdditionalInfo from "./CustomerAdd/AdditionalInfoApp/AdditionalInfo";
+import SuccessPage from "./CustomerAdd/SuccessPage";
 
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/PaymentHistory/${customerId}`
-      );
-      if (!response.ok) {
-        throw new Error(`Error fetching customer data: ${response.status}`);
-      }
-      const data = await response.json();
 
-      setCustomerData(data.customer);
-      setOnRoadPriceSummary(data.onRoadPriceDetails);
-      setChargesSummary(data.additionalCharges);
-      setInvoiceSummary(data.invoicesummary);
+import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/PaymentHistory";
+import PaymentClear from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentClear";
+import PaymentPending from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentPending";
 
-      setUpdatedOnRoadPrice({
-        ex_showroom_price: parseFloat(data.onRoadPriceDetails?.ex_showroom_price) || 0,
-        accessories: parseFloat(data.onRoadPriceDetails?.accessories) || 0,
-        discount: parseFloat(data.onRoadPriceDetails?.discount) || 0,
-        gst_rate: parseFloat(data.onRoadPriceDetails?.gst_rate) || 0,
-        cess_rate: parseFloat(data.onRoadPriceDetails?.cess_rate) || 0,
-        subtotal: 0,
-        gst_amount: 0,
-        cess_amount: 0,
-        total_on_road_price: 0,
-      });
-      setUpdatedCharges({
-        coating: parseFloat(data.additionalCharges?.coating) || 0,
-        fast_tag: parseFloat(data.additionalCharges?.fast_tag) || 0,
-        rto: parseFloat(data.additionalCharges?.rto) || 0,
-        insurance: parseFloat(data.additionalCharges?.insurance) || 0,
-        extended_warranty: parseFloat(data.additionalCharges?.extended_warranty) || 0,
-        auto_card: parseFloat(data.additionalCharges?.auto_card) || 0,
-        total_charges: 0,
-      });
 
-      setUpdatedInvoice({
-        grand_total: parseFloat(data.invoicesummary?.grand_total) || 0,
-        customer_account_balance: parseFloat(data.invoicesummary?.customer_account_balance) || 0,
-      });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+import Payment from "./AdditionalInfo/cashier/Payments/Payment";
+import CarBookings from "./AdditionalInfo/cashier/CarBooking/CarBookings";
+import CarBookingCancel from "./AdditionalInfo/cashier/CarBookingCancel/CarBookingCancel";
+ import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
+import { OrderEditAndConfirmed } from "./AdditionalInfo/cashier/CarBookingCancel/OrderEditAndConfirmed";
+import PaymentDetails from "./AdditionalInfo/cashier/Payments/PaymentDetails";
+import PaymentSuccessful from "./AdditionalInfo/cashier/Payments/PaymentSuccessful";
+
+
+ import AccessorieApp from "./AdditionalInfo/Accessories/AccessorieApp";
+import { AccessorieUpload } from "./AdditionalInfo/Accessories/AddedUploadView/AccessorieUpload";
+import AddAccessories from "./AdditionalInfo/Accessories/AddedUploadView/AddAccessories";
+import AccessorieView from "./AdditionalInfo/Accessories/AddedUploadView/AccessorieView";
+import { AccessoriesDiscount } from "./AdditionalInfo/Accessories/Discount/AccessoriesDiscount";
+ import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
+ 
+ 
+import ExchangeApp from "./AdditionalInfo/Exchange/ExchangeApp";
+import CarExchange from "./AdditionalInfo/Exchange/CarExchange";
+import CarRequest from "./AdditionalInfo/Exchange/CarRequest";
+import CoatingApp from "./AdditionalInfo/Coating/CoatingApp";
+import ExtendedWarrantyApp from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyApp";
+ import FinanceApp from "./AdditionalInfo/Finance/FinanceApp";
+import InsuranceApp from "./AdditionalInfo/Insurance/InsuranceApp";
+import AutoCardApp from "./AdditionalInfo/AutoCard/AutoCardApp";
+import RTOApp from "./AdditionalInfo/RTO/RTOApp";
+import SecurityClearanceApp from "./AdditionalInfo/SecurityClearance/SecurityClearanceApp";
+import GatePassApp from "./AdditionalInfo/GatePass/GatePassApp";
+import CustomerPaymentDetails from "./AdditionalInfo/Account/CustomerPaymentDetails/CustomerPaymentDetails";
+
+
+import CashierApp from "./AdditionalInfo/cashier/CashierApp";
+import AccountApp from "./AdditionalInfo/Account/AccountApp";
+import PaymentRefund from "./AdditionalInfo/cashier/PaymentRefund";
+import CarExchangeRejected from "./AdditionalInfo/Exchange/CarExchangeRejected";
+import FinancePending from "./AdditionalInfo/Finance/FinancePending";
+import FinanceRejected from "./AdditionalInfo/Finance/FinanceRejected";
+import FinanceApproved from "./AdditionalInfo/Finance/FinanceApproved";
+import InsuranceApproved from "./AdditionalInfo/Insurance/InsuranceApproved";
+import InsuranceRejected from "./AdditionalInfo/Insurance/InsuranceRejected";
+import InsurancePending from "./AdditionalInfo/Insurance/InsurancePending";
+ 
+ 
+ 
+import AutocardRejected from "./AdditionalInfo/AutoCard/AutocardRejected";
+import AutocardPending from "./AdditionalInfo/AutoCard/AutocardPending";
+import FastTagApp from "./AdditionalInfo/FastTag/FastTagApp";
+import AutocardApproved from "./AdditionalInfo/AutoCard/AutocardApproved";
+import ExtendedWarrantyApproved from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyApproved";
+import ExtendedWarrantyPending from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyPending";
+import ExtendedWarrantyRejected from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyRejected";
+import FastTagApproved from "./AdditionalInfo/FastTag/FastTagApproved";
+import FastTagRejected from "./AdditionalInfo/FastTag/FastTagRejected";
+import FastTagPending from "./AdditionalInfo/FastTag/FastTagPending";
+import GatepassApproved from "./AdditionalInfo/GatePass/GatepassApproved";
+import GatepassRejected from "./AdditionalInfo/GatePass/GatepassRejected";
+import GatepassPending from "./AdditionalInfo/GatePass/GatepassPending";
+import SecurityclearanceApproved from "./AdditionalInfo/SecurityClearance/SecurityclearanceApproved";
+import SecurityclearanceRejected from "./AdditionalInfo/SecurityClearance/SecurityclearanceRejected";
+import SecurityclearancePending from "./AdditionalInfo/SecurityClearance/SecurityclearancePending";
+import RTOApproved from "./AdditionalInfo/RTO/RTOApproved";
+import RTORejected from "./AdditionalInfo/RTO/RTORejected";
+import RTOPending from "./AdditionalInfo/RTO/RTOPending";
+import CoatingApproved from "./AdditionalInfo/Coating/CoatingApproved";
+import CoatingRejected from "./AdditionalInfo/Coating/CoatingRejected";
+import CoatingPending from "./AdditionalInfo/Coating/CoatingPending";
+import ACMApprovedRejected from "./AdditionalInfo/Account/ACMApprovedRejected";
+import AccessoriesApproval from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesApproval";
+import AccessoriesReject from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesReject";
+import AccessoriesPending from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesPending";
+ 
+
+import PDIApp from "./AdditionalInfo/PreDeliveryInspection/PADApp";
+import PADPending from "./AdditionalInfo/PreDeliveryInspection/PADPending";
+import PADiRejected from "./AdditionalInfo/PreDeliveryInspection/PADiRejected";
+import PADApproved from "./AdditionalInfo/PreDeliveryInspection/PADApproved";
+import CustomerLogout from "./CustomerLogin/CustomerLogout";
+import DashboardCustomer from "./CustomerLogin/DashboardCustomer";
+import CustomerLogin from "./CustomerLogin/CustomerLogin";
+import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails";
+import PaymentRefundAddOn from "./AdditionalInfo/cashier/PaymentRefundAddOn";
+ 
+function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
-
-  useEffect(() => {
-    fetchCustomerData();
-  }, [customerId]);
-
-  // Handle edit start
-  const handleEditStart = (section, field, value) => {
-    setEditingField(`${section}.${field}`);
-    setTempValue(value);
-  };
-
-  // Handle edit save
-  const handleEditSave = (section, field) => {
-    if (section === "onRoad") {
-      setUpdatedOnRoadPrice((prev) => ({
-        ...prev,
-        [field]: parseFloat(tempValue) || 0,
-      }));
-    } else if (section === "charges") {
-      setUpdatedCharges((prev) => ({
-        ...prev,
-        [field]: parseFloat(tempValue) || 0,
-      }));
-    }
-    setEditingField(null);
-    setTempValue("");
-  };
-
-  // Handle Save Changes button click
-  const handleSaveChangesClick = () => {
-    const originalAccessories = parseFloat(onRoadPriceSummary?.accessories) || 0;
-    const newAccessories = parseFloat(updatedOnRoadPrice.accessories) || 0;
-    const refundAmount = newAccessories - originalAccessories;
-
-    if (refundAmount !== 0) {
-      setCalculatedRefundAmount(refundAmount);
-      setRefundReason("");
-      setOpenRefundModal(true);
-    } else {
-      updateInvoiceDetails();
-    }
-  };
-
-  // Handle refund modal submit
-  const handleRefundSubmit = () => {
-    if (!refundReason.trim()) {
-      setSnackbarMessage("Refund reason is required");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-      return;
-    }
-
-    // Set refundStatus to "InProcess" by default
-    const status = "InProcess";
-    updateInvoiceDetails(refundReason, status);
-    setOpenRefundModal(false);
-  };
-
-  // Update invoice details
-  const updateInvoiceDetails = async (reason, status) => {
-    try {
-      const body = {
-        exShowroomPrice: updatedOnRoadPrice.ex_showroom_price,
-        accessories: updatedOnRoadPrice.accessories,
-        discount: updatedOnRoadPrice.discount,
-        gstRate: updatedOnRoadPrice.gst_rate,
-        cessRate: updatedOnRoadPrice.cess_rate,
-        coating: updatedCharges.coating,
-        fastTag: updatedCharges.fast_tag,
-        rto: updatedCharges.rto,
-        insurance: updatedCharges.insurance,
-        extendedWarranty: updatedCharges.extended_warranty,
-        autoCard: updatedCharges.auto_card,
-      };
-
-      const originalAccessories = parseFloat(onRoadPriceSummary?.accessories) || 0;
-      const newAccessories = parseFloat(updatedOnRoadPrice.accessories) || 0;
-      const refundAmount = newAccessories - originalAccessories;
-
-      if (refundAmount !== 0) {
-        body.refundReason = reason;
-        body.refundStatus = status;
-      }
-
-      const response = await fetch(
-        `http://localhost:5000/api/update-invoice/customer/${customerId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }
-      );
-
-      if (!response.ok) throw new Error(`Error: ${response.status}`);
-
-      await fetchCustomerData();
-      setSnackbarMessage("Invoice updated successfully!");
-      setSnackbarSeverity("success");
-    } catch (err) {
-      setSnackbarMessage("Failed to update: " + err.message);
-      setSnackbarSeverity("error");
-    } finally {
-      setSnackbarOpen(true);
-    }
-  };
-
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }).format(amount);
-  };
-
-  // Format refund amount with + or -
-  const formatRefundAmount = (amount) => {
-    if (amount > 0) {
-      return `+${formatCurrency(amount)}`; // Positive amount
-    } else if (amount < 0) {
-      return `${formatCurrency(amount)}`; // Negative amount
-    } else {
-      return formatCurrency(amount); // Zero amount
-    }
-  };
-
-  // Get refund title based on amount
-  const getRefundTitle = (amount) => {
-    if (amount > 0) {
-      return "Add On Amount"; // Positive amount
-    } else if (amount < 0) {
-      return "Refund Amount"; // Negative amount
-    } else {
-      return "No Change"; // Zero amount
-    }
-  };
-
-  // Calculate derived values
-  const calculateDerivedValues = (onRoadPrice) => {
-    const exShowroomPrice = parseFloat(onRoadPrice?.ex_showroom_price) || 0;
-    const accessories = parseFloat(onRoadPrice?.accessories) || 0;
-    const discount = parseFloat(onRoadPrice?.discount) || 0;
-    const gstRate = parseFloat(onRoadPrice?.gst_rate) || 0;
-    const cessRate = parseFloat(onRoadPrice?.cess_rate) || 0;
-
-    const subtotal = exShowroomPrice + accessories - discount;
-    const gst_amount = subtotal * (gstRate / 100);
-    const cess_amount = subtotal * (cessRate / 100);
-    const total_on_road_price = subtotal + gst_amount + cess_amount;
-
-    return { subtotal, gst_amount, cess_amount, total_on_road_price };
-  };
-
-  const { subtotal, gst_amount, cess_amount, total_on_road_price } =
-    calculateDerivedValues(updatedOnRoadPrice);
-
-  const total_charges =
-    (updatedCharges.coating || 0) +
-    (updatedCharges.fast_tag || 0) +
-    (updatedCharges.rto || 0) +
-    (updatedCharges.insurance || 0) +
-    (updatedCharges.extended_warranty || 0) +
-    (updatedCharges.auto_card || 0);
-
-  const grand_total = invoiceSummary ? parseFloat(invoiceSummary.grand_total) || 0 : 0;
-
-  // Editable TableCell component
-  const EditableTableCell = ({ section, field, value }) => (
-    <TableCell align="right">
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          justifyContent: "flex-end",
-        }}
-      >
-        {editingField === `${section}.${field}` ? (
-          <TextField
-            type="number"
-            variant="standard"
-            value={tempValue}
-            onChange={(e) => setTempValue(e.target.value)}
-            onBlur={() => handleEditSave(section, field)}
-            autoFocus
-            inputProps={{ style: { textAlign: "right", width: "100px" } }}
-          />
-        ) : (
-          <>
-            <IconButton
-              size="small"
-              onClick={() => handleEditStart(section, field, value)}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-            {formatCurrency(value)}
-          </>
-        )}
-      </div>
-    </TableCell>
-  );
-
-  if (loading) return <CircularProgress />;
-  if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
-    <div className="payment-history" style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom>
-        Payment History for {customerData?.firstName} {customerData?.lastName}
-      </Typography>
+    <>
+      <div className="main-layout noto-sans">
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+        <TopNavbar toggleSidebar={toggleSidebar} />
+        <main className="main-content" style={{ overflow: 'hidden' }}>
+          <div className="container-fluid px-0">
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                
 
-      <div className="details-container" >
+                
+                <Route path="/home" element={<Home />} />
+  
+                <Route path="/additional-info" element={<AdditionalInfo />} />
+                <Route path="/PersonalInfo" element={<PersonalInfo />} />
+                <Route path="/CarInfo" element={<CarInfo />} />
+                <Route path="/OrderInfo" element={<OrderInfo />} />
+                <Route path="/added-upload-viewapp" element={<AddedUploadViewApp />} />
+                <Route path="/Confirmation" element={<Confirmation />} />
+                <Route path="/success-page" element={<SuccessPage />} />
 
-      <Grid container spacing={3}>
-        
 
-        {/* On-Road Price Details Table */}
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              On-Road Price Details
-            </Typography>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      Amount (₹)
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Ex-showroom Price</TableCell>
-                    <EditableTableCell
-                      section="onRoad"
-                      field="ex_showroom_price"
-                      value={updatedOnRoadPrice.ex_showroom_price || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Accessories</TableCell>
-                    <EditableTableCell
-                      section="onRoad"
-                      field="accessories"
-                      value={updatedOnRoadPrice.accessories || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Discount</TableCell>
-                    <EditableTableCell
-                      section="onRoad"
-                      field="discount"
-                      value={updatedOnRoadPrice.discount || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Subtotal</TableCell>
-                    <TableCell align="right">{formatCurrency(subtotal)}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      GST ({updatedOnRoadPrice.gst_rate || 0}%)
-                    </TableCell>
-                    <TableCell align="right">{formatCurrency(gst_amount)}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      Cess ({updatedOnRoadPrice.cess_rate || 0}%)
-                    </TableCell>
-                    <TableCell align="right">{formatCurrency(cess_amount)}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Total On-Road Price</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      {formatCurrency(total_on_road_price)}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
+            
+                {/* ========================================================================================== */}
 
-        {/* Additional Charges Table */}
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Additional Charges
-            </Typography>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Charges</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      Amount (₹)
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Coating</TableCell>
-                    <EditableTableCell
-                      section="charges"
-                      field="coating"
-                      value={updatedCharges.coating || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>FastTag</TableCell>
-                    <EditableTableCell
-                      section="charges"
-                      field="fast_tag"
-                      value={updatedCharges.fast_tag || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>RTO</TableCell>
-                    <EditableTableCell
-                      section="charges"
-                      field="rto"
-                      value={updatedCharges.rto || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Insurance</TableCell>
-                    <EditableTableCell
-                      section="charges"
-                      field="insurance"
-                      value={updatedCharges.insurance || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Extended Warranty</TableCell>
-                    <EditableTableCell
-                      section="charges"
-                      field="extended_warranty"
-                      value={updatedCharges.extended_warranty || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Auto Card</TableCell>
-                    <EditableTableCell
-                      section="charges"
-                      field="auto_card"
-                      value={updatedCharges.auto_card || 0}
-                    />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Total Charges</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      {formatCurrency(total_charges)}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
 
-      </Grid>
-     
+                <Route path="/car-app" element={<CarApp />} />
+                <Route path="/car-stock-show" element={<CarStockShow />} />
+                <Route path="/car-allotment-by-customer" element={<CarAllotmentByCustomer />} />
+                <Route path="/Add-Car-Stock" element={<AddCarStock />} />
+                <Route path="/booking-amount" element={<BookingAmount />} />
+                <Route path="/car-notallotment-ByCustomer" element={<CarNotAllotmentByCustomer />} />
+                <Route path="/discount-for-car-and-additional" element={<DiscountForCarAndAdditional />} />
+                <Route path="/upload-car-excel" element={<UploadCarEXCEL />} />
+                <Route path="/car-management" element={<CarManagement />} />
+                <Route path="/allotment-status-app" element={<AllotmentStatusApp />} />
+                <Route path="/discount-app" element={<DiscountApp />} />
+                <Route path="/car-allotment/:vin" element={<CarAllotment />} />
+    
+
+                {/* ========================================================================================== */}
+
+                
+                <Route path="/cashier-app" element={<CashierApp />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/car-Booking" element={<CarBookings />} />
+                <Route path="/car-booking-cancel" element={<CarBookingCancel />} />
+                <Route path="/order-cancel/:customerId" element={<OrderEditAndCancel />} />
+                <Route path="/order-edit-and-confirmed/:customerId" element={<OrderEditAndConfirmed />} />
+                <Route path="/payment-details" element={<PaymentDetails />} />
+                <Route path="/payment-successful" element={<PaymentSuccessful />} />
+                <Route path="/payment-refund" element={<PaymentRefund />} />
+                <Route path="/payment-refund-add-on" element={<PaymentRefundAddOn />} />
+                
+
+                {/* ========================================================================================== */}
+
+                <Route path="/accessorie-app" element={<AccessorieApp />} />
+                <Route path="/accessories-discount-main" element={<AccessoriesDiscount />} />
+                <Route path="/accessorie-upload" element={<AccessorieUpload />} />
+                <Route path="/add-accessories" element={<AddAccessories />} />
+                <Route path="/accessorie-view" element={<AccessorieView />} />
+                <Route path="/accessories-Approval" element={<AccessoriesApproval />} />
+                <Route path="/accessories-Reject" element={<AccessoriesReject />} />
+                <Route path="/accessories-Reject" element={<AccessoriesReject />} />
+                <Route path="/accessories-Pending" element={<AccessoriesPending />} />
+
+                               
+                 {/* ========================================================================================== */}
+
+                <Route path="/account-app" element={<AccountApp />} />
+                <Route path="/cashier-app" element={<CashierApp />} />
+                <Route path="/payment-clear" element={<PaymentClear />} />
+                <Route path="/payment-pending" element={<PaymentPending />} />
+                <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
+                <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
+                <Route path="/ACMApprovedRejected" element={<ACMApprovedRejected />} />
+
+                
+
+                {/* ========================================================================================== */}
+                
+
+                <Route path="/exchange-app" element={<ExchangeApp />} />
+                <Route path="/car-Exchange" element={<CarExchange />} />
+                <Route path="/car-Request" element={<CarRequest />} />
+                <Route path="/car-Exchange-Rejected" element={<CarExchangeRejected />} />
+
+                {/* ========================================================================================== */}
+
+                <Route path="/finance-app" element={<FinanceApp />} />
+                <Route path="/finance-approved" element={<FinanceApproved />} />
+                <Route path="/finance-rejected" element={<FinanceRejected />} />
+                <Route path="/car-pending-for-finance" element={<FinancePending />} />
+
+                {/* ========================================================================================== */}
+
+                <Route path="/insurance-app" element={<InsuranceApp />} />
+                <Route path="/insurance-approved" element={<InsuranceApproved />} />
+                <Route path="/insurance-rejected" element={<InsuranceRejected />} />
+                <Route path="/car-pending-for-Insurance" element={<InsurancePending />} />
+
+                {/* ========================================================================================== */}
+
+                <Route path="/autocard-app" element={<AutoCardApp />} />
+                <Route path="/autocard-approved" element={<AutocardApproved />} />
+                <Route path="/autocard-rejected" element={<AutocardRejected />} />
+                <Route path="/car-pending-for-autocard" element={<AutocardPending/>} />
+
+                {/* ========================================================================================== */}
+                
+                <Route path="/RTO-app" element={<RTOApp />} /> 
+                <Route path="/RTO-approved" element={<RTOApproved />} />
+                <Route path="/RTO-rejected" element={<RTORejected />} />
+                <Route path="/car-pending-for-RTO" element={<RTOPending />} />
+                
+                {/* ========================================================================================== */}
+
+                <Route path="/fast-tag-app" element={<FastTagApp />} />
+                <Route path="/fast-tag-approved" element={<FastTagApproved />} />
+                <Route path="/fast-tag-rejected" element={<FastTagRejected />} />
+                <Route path="/car-pending-for-fast-tag" element={<FastTagPending />} />
+
+                {/* ========================================================================================== */}
+
+                <Route path="/gatepass-app" element={<GatePassApp />} />
+                <Route path="/gatepass-approved" element={<GatepassApproved />} />
+                <Route path="/gatepass-rejected" element={<GatepassRejected />} />
+                <Route path="/car-pending-for-gatepass" element={<GatepassPending />} />
+                
+                {/* ========================================================================================== */}
+
+                <Route path="/coating-app" element={<CoatingApp />} />
+                <Route path="/coating-approved" element={<CoatingApproved />} />
+                <Route path="/coating-rejected" element={<CoatingRejected />} />
+                <Route path="/car-pending-for-coating" element={<CoatingPending />} />
+
+                {/* ========================================================================================== */}
+
+                <Route path="/extended-warranty-app" element={<ExtendedWarrantyApp />} />
+                <Route path="/extended-warranty-approved" element={<ExtendedWarrantyApproved />} />
+                <Route path="/extended-warranty-rejected" element={<ExtendedWarrantyRejected />} />
+                <Route path="/car-pending-for-extended-warranty" element={<ExtendedWarrantyPending />} />
+
+                
+                {/* ========================================================================================== */}
+
+                <Route path="/securityclearance-app" element={<SecurityClearanceApp />} />
+                <Route path="/securityclearance-approved" element={<SecurityclearanceApproved />} />
+                <Route path="/securityclearance-rejected" element={<SecurityclearanceRejected />} />
+                <Route path="/car-pending-for-securityclearance" element={<SecurityclearancePending />} />
+
+                
+                {/* ========================================================================================== */}
+
+                <Route path="/pdiApp" element={<PDIApp />} />
+                <Route path="/PADPending" element={<PADPending />} />
+                <Route path="/PADiRejected" element={<PADiRejected />} />
+                <Route path="/PADApproved" element={<PADApproved />} />
+
+
+                {/* ========================================================================================== */}
+                
+                <Route path="/login" element={<CustomerLogin />} />
+                <Route path="/customer-logout" element={<CustomerLogout />} />
+                <Route path="/dashboard" element={<DashboardCustomer />} />
+                <Route path="/customer/:customerId" element={<CustomerDetails />} /> {/* Customer Details Route */}
+
+                 
+ 
+                <Route path="/Demo" element={<Demo />} />
+              </Routes>
+            </Suspense>
+          </div>
+        </main>
       </div>
-
-      {/* Grand Total Section */}
-      <Paper elevation={3} sx={{ p: 2, mt: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Grand Total
-        </Typography>
-        <Typography align="right" sx={{ fontWeight: "bold" }}>
-          {formatCurrency(updatedInvoice.grand_total)}
-        </Typography>
-
-        <Typography variant="h6" gutterBottom>
-          Customer Account Balance
-        </Typography>
-        <Typography align="right" sx={{ fontWeight: "bold" }}>
-          {formatCurrency(updatedInvoice.customer_account_balance)}
-        </Typography>
-      </Paper>
-
-      {/* Save Button */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSaveChangesClick}
-        sx={{ mt: 3 }}
-      >
-        Save Changes
-      </Button>
-
-      {/* Refund Modal */}
-      <Modal
-        open={openRefundModal}
-        onClose={() => setOpenRefundModal(false)}
-        aria-labelledby="refund-modal"
-      >
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 400,
-          bgcolor: 'background.paper',
-          boxShadow: 24,
-          p: 4,
-        }}>
-          <Typography variant="h6" gutterBottom>
-            {getRefundTitle(calculatedRefundAmount)} {/* Dynamic title */}
-          </Typography>
-          <Typography gutterBottom>
-            {formatRefundAmount(calculatedRefundAmount)} {/* Formatted amount */}
-          </Typography>
-          <TextField
-            label={calculatedRefundAmount >= 0 ? "Add On Reason" : "Refund Reason"} 
-            fullWidth
-            value={refundReason}
-            onChange={(e) => setRefundReason(e.target.value)}
-            margin="normal"
-            required
-          />
-          <Button
-            variant="contained"
-            onClick={handleRefundSubmit}
-            sx={{ mt: 2 }}
-          >
-            Submit
-          </Button>
-        </Box>
-      </Modal>
-
-      {/* Snackbar for Notifications */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </div>
+    </>
   );
 }
 
-export default PaymentHistory;
+export default App;

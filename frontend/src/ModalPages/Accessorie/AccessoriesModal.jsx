@@ -71,7 +71,7 @@ export function AccessoriesModal({
       <Box component={Paper} sx={{ width: { xs: "100%", sm: "60vh" }, height: { xs: "100%", sm: "99%" }, marginBottom: { sm: "4px" } }}>
         <Stack spacing={1} sx={{ p: 2, maxWidth: 600, height: { xs: "100%", sm: "100%" }, borderRadius: 2 }}>
           <Box textAlign="center" sx={{ p: 2, width: "55vh", justifyContent: "start", alignItems: "center", display: "flex" }}>
-            <Typography variant="h5" component="h1">Car Coating Services</Typography>
+            <Typography variant="h5" component="h1">Accessories</Typography>
           </Box>
           <Stack spacing={2} sx={{ p: 1, m: 0.6, maxWidth: 600, height: "79vh", overflowY: "auto", borderRadius: 2, bgcolor: "background.paper" }}>
             <Stack spacing={4}>

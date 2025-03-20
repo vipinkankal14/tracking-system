@@ -1,7 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@mui/material";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import {
+  Button,
+  TextField,
+  Radio,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Alert,
+} from "@mui/material";
+import {
+  VerifiedRounded,
+  AttachMoney,
+  CreditCard,
+  Wifi,
+  AccountBalance,
+  SwapHoriz,
+  AccountBalanceWallet,
+  CurrencyRupee,
+  CheckCircleOutline,
+  CancelOutlined,
+  Send,
+  ArrowBack,
+} from "@mui/icons-material";
 import "../css/PaymentDetails.scss";
 
 const PaymentDetails = () => {
@@ -10,14 +32,13 @@ const PaymentDetails = () => {
   const { customerId, customerName, accountBalance, customer } = location.state || {};
 
   const [formData, setFormData] = useState({
-    transactionType: "debit",
+    transactionType: "credit",
     amount: "",
     paymentType: "cash",
   });
 
   const [newBalance, setNewBalance] = useState(parseFloat(accountBalance) || 0);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     if (!customerId || !customerName || !customer) {
@@ -28,20 +49,19 @@ const PaymentDetails = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError("");
-    setSuccess("");
+    setMessage({ type: "", text: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { transactionType, amount, paymentType } = formData;
     const parsedAmount = parseFloat(amount);
-  
+
     if (!parsedAmount || parsedAmount <= 0) {
-      setError("Please enter a valid positive amount.");
+      setMessage({ type: "error", text: "Please enter a valid positive amount." });
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/payments", {
         method: "POST",
@@ -49,28 +69,30 @@ const PaymentDetails = () => {
         body: JSON.stringify({
           customerId,
           debitedAmount: transactionType === "debit" ? parsedAmount : null,
-          creditedAmount: transactionType === "credit" || transactionType === "exchangeCredit" || transactionType === "financeCredit" ? parsedAmount : null,
+          creditedAmount: transactionType !== "debit" ? parsedAmount : null,
           paymentType,
-          transactionType, // Ensure transactionType is included in the request body
+          transactionType,
         }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to process payment.");
       }
-  
-      const updatedBalance =
-        transactionType === "debit"
-          ? newBalance - parsedAmount
-          : newBalance + parsedAmount;
-  
+
+      const updatedBalance = transactionType === "debit"
+        ? newBalance - parsedAmount
+        : newBalance + parsedAmount;
+
       setNewBalance(updatedBalance);
-      setFormData({ transactionType: "debit", paymentType: "cash", amount: "" });
-      setSuccess(
-        `Payment of ₹${parsedAmount} ${transactionType === "debit" ? "debited" : "credited"} successfully.`
-      );
-  
+      setFormData({ transactionType: "credit", paymentType: "cash", amount: "" });
+      setMessage({
+        type: "success",
+        text: `Payment of ₹${parsedAmount} ${
+          transactionType === "debit" ? "debited" : "credited"
+        } successfully.`,
+      });
+
       setTimeout(() => {
         navigate("/payment-successful", {
           state: { transactionType, amount: parsedAmount, updatedBalance, customerId, customerName, customer },
@@ -78,100 +100,101 @@ const PaymentDetails = () => {
         });
       }, 2000);
     } catch (err) {
-      setError(err.message || "An error occurred while processing the payment.");
+      setMessage({ type: "error", text: err.message || "An error occurred while processing the payment." });
     }
   };
 
   return (
-    <div className="payment-details-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'center' }}>
-      <p style={{ color: '' }}>Payment Details</p>
-      <p
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '5px',
-        }}
-      >
-        <strong>Customer ID: {customerId}</strong>
-        {customerId && (
-          <VerifiedRoundedIcon style={{ color: '#092e6b', fontSize: '15px' }} />
-        )}
-      </p>
-      <p><strong>Name:</strong> {customerName} </p>
-      <p><strong>Total On-Road Price:</strong> {customer} </p>
-      <p><strong>Account Balance:</strong> ₹{Number(newBalance).toFixed(2)}</p>
+    <div className="payment-details-container">
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <IconButton onClick={() => navigate("/Payment")} sx={{ color: "#092e6b" }}>
+          <ArrowBack />
+        </IconButton>
+        <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <AttachMoney fontSize="small" /> Payment Details
+        </span>
+      </div>
+      <br />
 
-      <form className="payment-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div className="mb-1">
-          <label htmlFor="paymentType" className="form-label">
-            Payment Type
-          </label>
-          <select
-            id="paymentType"
-            name="paymentType"
-            value={formData.paymentType}
-            onChange={handleChange}
-            className="form-select"
-          >
-            <option value="cash">Cash</option>
-            <option value="card">Card</option>
-            <option value="online">Online</option>
-          </select>
-        </div>
+      <div className="customer-info">
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <p className="info-item">
+              <strong>Customer ID:</strong> {customerId}
+              <VerifiedRounded sx={{ fontSize: 18, color: "#092e6b", ml: 1 }} />
+            </p>
+            <p className="info-item"><strong>Name:</strong> {customerName}</p>
+            <p className="info-item"><strong>Total On-Road Price:</strong> {customer}</p>
+            <p className="info-item">
+              <AccountBalanceWallet sx={{ fontSize: 18, mr: 1 }} />
+              <strong>Balance:</strong> ₹{newBalance.toFixed(2)}
+            </p>
+          </Grid>
+        </Grid>
+      </div>
 
-        <div className="mb-1">
-          <label htmlFor="transactionType" className="form-label">
-            Transaction Type
-          </label>
-          <select
-            id="transactionType"
-            name="transactionType"
-            value={formData.transactionType}
-            onChange={handleChange}
-            className="form-select"
-          >
-            <option value="debit">Debit</option>
-            <option value="credit">Credit</option>
-            <option value="exchangeCredit">Exchange Credit</option>
-            <option value="financeCredit">Finance Credit</option>
-          </select>
-        </div>
+      <form className="payment-form" onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <h4 className="section-title"><CreditCard sx={{ mr: 1 }} /> Payment Method</h4>
+            <div className="radio-group">
+              {["cash", "card", "UPI"].map((type) => (
+                <FormControlLabel
+                  key={type}
+                  value={type}
+                  control={<Radio />}
+                  label={<div className="radio-label">{type === "cash" ? <AttachMoney sx={{ mr: 1 }} /> : type === "card" ? <CreditCard sx={{ mr: 1 }} /> : <Wifi sx={{ mr: 1 }} />} {type.charAt(0).toUpperCase() + type.slice(1)}</div>}
+                  checked={formData.paymentType === type}
+                  onChange={handleChange}
+                  name="paymentType"
+                />
+              ))}
+            </div>
+          </Grid>
 
-        <div className="form-group mb-1">
-          <label htmlFor="amount" className="form-label">
-            Amount
-          </label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
-            placeholder="Enter amount"
-            className="form-control"
-            min="0"
-            step="0.01"
-          />
-        </div>
-        <div className="form-group mb-3" style={{ display: 'flex', gap: '10px' }}>
-          <Button type="submit" variant="contained">Submit Payment</Button>
-          <Button
-            onClick={() => {
-              setFormData({ transactionType: "debit", amount: "" }); // Clear form data
-              setError(""); // Clear error messages
-              setSuccess(""); // Clear success messages
-              navigate("/Payment"); // Navigate to the desired route
-            }}
-            variant="outlined"
-          >
-            Cancel
-          </Button>
-        </div>
-        <div style={{ color: '#d4000e', fontSize: '14px', marginTop: '-20px' }}>
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
-        </div>
+          <Grid item xs={12} md={6}>
+            <h4 className="section-title"><AccountBalance sx={{ mr: 1 }} /> Transaction Type</h4>
+            <div className="radio-group">
+              {["credit", "exchangeCredit", "financeCredit"].map((type) => (
+                <FormControlLabel
+                  key={type}
+                  value={type}
+                  control={<Radio />}
+                  label={<div className="radio-label">{type === "credit" ? <AccountBalanceWallet sx={{ mr: 1 }} /> : type === "exchangeCredit" ? <SwapHoriz sx={{ mr: 1 }} /> : <AccountBalance sx={{ mr: 1 }} />} {type.replace("Credit", " Credit")}</div>}
+                  checked={formData.transactionType === type}
+                  onChange={handleChange}
+                  name="transactionType"
+                />
+              ))}
+            </div>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Amount"
+              variant="outlined"
+              type="number"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: <InputAdornment position="start"><CurrencyRupee /></InputAdornment>,
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} display="flex" justifyContent="space-between">
+            <Button type="submit" variant="contained" color="primary" >Process Payment</Button>
+            <Button variant="outlined" color="error" startIcon={<CancelOutlined />} onClick={() => navigate("/Payment")}>Cancel</Button>
+          </Grid>
+
+          {message.text && (
+            <Grid item xs={12}>
+              <Alert severity={message.type === "error" ? "error" : "success"}>{message.text}</Alert>
+            </Grid>
+          )}
+        </Grid>
       </form>
     </div>
   );
