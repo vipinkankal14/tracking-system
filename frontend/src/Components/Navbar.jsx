@@ -169,10 +169,12 @@ function Navbar() {
           sx={{
             mx: 1,
             color: location.pathname === link.path ? 'primary.main' : 'text.secondary',
+            textDecoration: 'none',
             fontWeight: location.pathname === link.path ? 600 : 400,
             '&:hover': {
               color: 'primary.main',
             }
+            
             
           }}
         >

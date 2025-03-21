@@ -23,9 +23,8 @@ const OrderInfo = ({ data, updateData }) => {
   };
 
   return (
-    <div>
-      {/* Two Mutually Exclusive Checkboxes */}
-      <Grid container spacing={2} style={{ marginTop: "-1rem",marginLeft:"1px" }}>
+    <>
+       <Grid container spacing={2}>
         <Grid item xs={12} sm={12}>
           <FormControlLabel
             control={
@@ -135,7 +134,7 @@ const OrderInfo = ({ data, updateData }) => {
           </Grid>
         </Grid>
       )}
-    </div>
+    </>
   );
 };
 

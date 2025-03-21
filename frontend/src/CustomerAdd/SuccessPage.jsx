@@ -319,7 +319,7 @@ const SuccessPage = () => {
 
   // Handle Done button click
   const handleDone = () => {
-    navigate("/home"); // Navigate to the home page or another desired route
+    navigate("/"); // Navigate to the home page or another desired route
   };
 
   return (

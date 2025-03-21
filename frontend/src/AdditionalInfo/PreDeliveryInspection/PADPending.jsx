@@ -84,7 +84,7 @@ const PADPending = () => {
       const response = await axios.put(
         `http://localhost:5000/api/preInspectionapproved/${selectedCustomer.customerId}`,
         {
-          status: "Approved",
+          status: "Approval",
           preDeliveryInspectionReason: null, // Reason is optional for approval
         }
       );
@@ -123,7 +123,7 @@ const PADPending = () => {
       );
 
       if (response.status === 200) {
-        alert("PDI rejected successfully!");
+        alert("PDI Rejected successfully!");
         handleClose();
         const newData = await axios.get(
           "http://localhost:5000/api/showPreDeliveryInspection"
@@ -349,6 +349,7 @@ const PADPending = () => {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+      
       <Typography
         variant="h6"
         sx={{ mb: 3, color: "#071947", fontWeight: "bold" }}
@@ -463,6 +464,7 @@ const PADPending = () => {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
+
         <DialogContent sx={{ pt: 2, mt: 1 }}>
           {selectedCustomer && (
             <Box>
@@ -537,6 +539,7 @@ const PADPending = () => {
             </Box>
           )}
         </DialogContent>
+
         <DialogActions
           sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}
         >
@@ -555,6 +558,7 @@ const PADPending = () => {
             Reject PDI
           </Button>
         </DialogActions>
+
       </Dialog>
     </Box>
   );

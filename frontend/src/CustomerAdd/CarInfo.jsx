@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { Person } from "@mui/icons-material";
 
-const CarInfo = ({ personalInfo, data , updateData }) => {
+const CarInfo = ({ personalInfo, data, updateData }) => {
   const [carStocks, setCarStocks] = useState([]);
   const [open, setOpen] = useState(false);
   const [confirmationChecked, setConfirmationChecked] = useState(false);
@@ -30,30 +30,6 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
       .then((data) => setCarStocks(data))
       .catch((error) => console.error("Error fetching car stocks:", error));
   }, []);
-
-  // Reset dependent fields when carType changes
-  useEffect(() => {
-    if (data.carType) {
-      updateData("model", "");
-      updateData("version", "");
-      updateData("color", "");
-    }
-  }, [data.carType]);
-
-  // Reset dependent fields when model changes
-  useEffect(() => {
-    if (data.model) {
-      updateData("version", "");
-      updateData("color", "");
-    }
-  }, [data.model]);
-
-  // Reset dependent fields when version changes
-  useEffect(() => {
-    if (data.version) {
-      updateData("color", "");
-    }
-  }, [data.version]);
 
   // Update prices when car details change
   useEffect(() => {
@@ -74,7 +50,14 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
         updateData("cardiscount", selectedCar.cardiscount || "");
       }
     }
-  }, [data.carType, data.model, data.version, data.color, carStocks, updateData]);
+  }, [
+    data.carType,
+    data.model,
+    data.version,
+    data.color,
+    carStocks,
+    updateData,
+  ]);
 
   // Handle change for Select components
   const handleChange = (name, value) => {
@@ -104,6 +87,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
     const payload = {
       customerId: personalInfo.customerId,
       team_Leader: data.team_Leader,
+      bookingType: data.bookingType,
       team_Member: data.team_Member,
       carType: data.carType,
       model: data.model,
@@ -145,46 +129,70 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
 
   return (
     <div className="space-y-6 p-4">
-      {/* Dealership Advisor */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Dealership Advisor</h3>
+        <h3 className="text-lg font-semibold">Booking Type</h3>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
-              <InputLabel id="team_Leader-label">Team Leader</InputLabel>
+              <InputLabel id="bookingType-label">Booking Type</InputLabel>
               <Select
-                label="Team Leader"
-                labelId="team_Leader-label"
-                value={data.team_Leader}
-                onChange={(e) =>  handleChange("team_Leader", e.target.value)}
+                label="BookingType"
+                labelId="bookingType-label"
+                value={data.bookingType}
+                onChange={(e) => handleChange("bookingType", e.target.value)}
                 version="outlined"
               >
-                <MenuItem value="">Select Team Leader</MenuItem>
-                <MenuItem value="leader1">Leader 1</MenuItem>
-                <MenuItem value="leader2">Leader 2</MenuItem>
-                <MenuItem value="leader3">Leader 3</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <InputLabel id="team_Member-label">Team Member</InputLabel>
-              <Select
-                label="Team Member"
-                labelId="team_Member-label"
-                value={data.team_Member}
-                onChange={(e) => handleChange("team_Member", e.target.value)}
-                version="outlined"
-              >
-                <MenuItem value="">Select Team Member</MenuItem>
-                <MenuItem value="member1">Member 1</MenuItem>
-                <MenuItem value="member2">Member 2</MenuItem>
-                <MenuItem value="member3">Member 3</MenuItem>
+                <MenuItem value="">Select Booking Type</MenuItem>
+                <MenuItem value="Online">Online</MenuItem>
+                <MenuItem value="Dealership Advisor">Dealership Advisor</MenuItem>
               </Select>
             </FormControl>
           </Grid>
         </Grid>
       </div>
+      <br />
+      {data.bookingType === "Dealership Advisor" && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Dealership Advisor</h3>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel id="team_Leader-label">Team Leader</InputLabel>
+                <Select
+                  label="Team Leader"
+                  labelId="team_Leader-label"
+                  value={data.team_Leader}
+                  onChange={(e) => handleChange("team_Leader", e.target.value)}
+                  version="outlined"
+                >
+                  <MenuItem value="">Select Team Leader</MenuItem>
+                  <MenuItem value="leader1">Leader 1</MenuItem>
+                  <MenuItem value="leader2">Leader 2</MenuItem>
+                  <MenuItem value="leader3">Leader 3</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel id="team_Member-label">Team Member</InputLabel>
+                <Select
+                  label="Team Member"
+                  labelId="team_Member-label"
+                  value={data.team_Member}
+                  onChange={(e) => handleChange("team_Member", e.target.value)}
+                  version="outlined"
+                >
+                  <MenuItem value="">Select Team Member</MenuItem>
+                  <MenuItem value="member1">Member 1</MenuItem>
+                  <MenuItem value="member2">Member 2</MenuItem>
+                  <MenuItem value="member3">Member 3</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </div>
+      )}
+
       <br />
       {/* Car Details */}
       <div className="row g-2">
@@ -390,7 +398,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           <Typography version="subtitle2" gutterBottom>
                             Required Information:
                           </Typography>
-                 
+
                           <Typography version="body2">
                             Full Name: {personalInfo?.firstName}{" "}
                             {personalInfo?.middleName} {personalInfo?.lastName}
@@ -417,8 +425,12 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                             color: "black",
                           }}
                         >
-                          Dealership Advisor: {data.team_Member} |{" "}
-                          {data.team_Leader}
+                           Booking Type:{" "}
+                          {data.bookingType === "Dealership Advisor" ? (
+                            <>Dealership Advisor: {data.team_Member} | {data.team_Leader}</>
+                          ) : (
+                            "Online"
+                          )}
                         </Typography>
                         <Typography
                           version="h5"
@@ -485,7 +497,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           </Grid>
                           <Grid item xs={6}>
                             <Typography version="body1">
-                              {selectedCar.mileage} km
+                              {selectedCar.mileage}
                             </Typography>
                           </Grid>
 
@@ -496,7 +508,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           </Grid>
                           <Grid item xs={6}>
                             <Typography version="body1">
-                              {selectedCar.groundClearance} mm
+                              {selectedCar.groundClearance}
                             </Typography>
                           </Grid>
 
@@ -522,7 +534,7 @@ const CarInfo = ({ personalInfo, data , updateData }) => {
                           ) : (
                             <Grid item xs={6}>
                               <Typography version="body1">
-                                {selectedCar.engineCapacity} cc
+                                {selectedCar.engineCapacity}
                               </Typography>
                             </Grid>
                           )}

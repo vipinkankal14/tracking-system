@@ -53,6 +53,7 @@ const { showCoating } = require('./db/routes/CarCoatingRequest/showCoating');
 const { showExtendedWarranty } = require('./db/routes/CarExWarrantyRequest/showExtendedWarranty');
 const { showAutocard } = require('./db/routes/CarAutocardRequest/showAutocard');
 const { showPreDeliveryInspection } = require('./db/routes/PreDeliveryInspection/showPreDeliveryInspection');
+const { ShowSecurityclearance } = require('./db/routes/ShowSecurityclearance/ShowSecurityclearance');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -1860,7 +1861,7 @@ app.put('/api/preInspectionapproved/:customerId', async (req, res) => {
 
   try {
     // Validate status
-    if (status !== "Approved") {
+    if (status !== "Approval") {
       return res.status(400).json({ error: "Invalid status for approval" });
     }
 
@@ -1953,6 +1954,11 @@ app.put('/api/preInspectionRejection/:customerId', async (req, res) => {
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
+app.get('/api/ShowSecurityclearance', ShowSecurityclearance);
+
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
 app.post('/api/customer/login', (req, res) => {
@@ -1973,10 +1979,7 @@ app.post('/api/customer/login', (req, res) => {
 });
 
 
-
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
-
-
 
 app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
   const { customerId } = req.params;
@@ -2163,8 +2166,6 @@ app.put('/api/update-invoice/customer/:customerId', async (req, res) => {
   }
 });
 
-
-
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.put("/api/updateRefund", async (req, res) => {
@@ -2220,8 +2221,6 @@ app.put("/api/updateRefund", async (req, res) => {
 });
 
 
-
-
 app.get("/api/carstocks", async (req, res) => {
   try {
     const [rows] = await pool.promise().query("SELECT * FROM carstocks");
@@ -2248,7 +2247,8 @@ app.get("/api/cars/:carId", async (req, res) => {
   }
 });
 
- 
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
 
 // Fetch suggested products
 app.get("/api/suggested-products", async (req, res) => {
@@ -2260,6 +2260,10 @@ app.get("/api/suggested-products", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
 
 
 // Real-Time Connection with Socket.IO

@@ -1,431 +1,109 @@
-// Variables
-$primary-color: #1976d2;
-$secondary-color: #f5f5f5;
-$text-primary: #333;
-$text-secondary: #666;
-$card-border-radius: 8px;
-$transition-speed: 0.3s;
-$mobile-breakpoint: 480px;
-$tablet-breakpoint: 768px;
-$desktop-breakpoint: 1024px;
-$large-desktop-breakpoint: 1280px;
-
-// Mixins
-@mixin flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-@mixin card-hover {
-  transition: all $transition-speed ease;
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
-}
-
-@mixin mobile {
-  @media (max-width: #{$tablet-breakpoint - 1px}) {
-    @content;
-  }
-}
-
-@mixin tablet {
-  @media (min-width: #{$tablet-breakpoint}) and (max-width: #{$desktop-breakpoint - 1px}) {
-    @content;
-  }
-}
-
-@mixin desktop {
-  @media (min-width: #{$desktop-breakpoint}) {
-    @content;
-  }
-}
-
-
-
-// Main container
 .car-tabs-container {
-  width: 100%;
-  padding: 1rem 0;
-  background-color: $secondary-color;
+  padding: 20px;
   
-  @include tablet {
-    padding: 1.5rem 0;
-  }
-  
-  @include desktop {
-    padding: 2rem 0;
-  }
-
- 
-}
-
-// Title
-.car-tabs-title {
-  margin-bottom: 1.5rem !important;
-  font-weight: 600;
-  color: $text-primary;
-  font-size: 1.5rem !important;
-  
-  @include tablet {
-    font-size: 1.75rem !important;
-    margin-bottom: 1.75rem !important;
+  .car-tabs-title {
+    margin-bottom: 24px;
+    color: #040278;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: large;
   }
   
-  @include desktop {
-    font-size: 2rem !important;
-    margin-bottom: 2rem !important;
-  }
-}
-
-// Tabs wrapper
-.tabs-wrapper {
-  display: flex;
-  justify-content: center;
-   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-
-// CenteredTabs.scss
-
-.tabs-wrapper {
-  @include mobile {
-    padding: 0 8px;
-  }
-}
-
-.car-tabs {
-
-  .MuiTabs-indicator {
-    display: none !important;
-  }
-
-  @include mobile {
-    // Override default flex layout
-    .MuiTabs-flexContainer {
-      display: grid !important;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-
-    // Remove scrollbar and default tab styling
-    .MuiTabs-scroller {
-      overflow: visible !important;
-    }
-  }
-
-  @include desktop() {
-    // Override default flex layout
-    .MuiTabs-flexContainer {
-      display: grid !important;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    // Remove scrollbar and default tab styling
-    .MuiTabs-scroller {
-      overflow: visible !important;
-    }
-  }
-
-  @include tablet() {
-    // Override default flex layout
-    .MuiTabs-flexContainer {
-      display: grid !important;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    // Remove scrollbar and default tab styling
-    .MuiTabs-scroller {
-      overflow: visible !important;
-    }
-  }
-
-  .car-tab-item {
-    @include mobile {
-      // Tab grid item styling
-      min-width: auto !important;
-      width: 100%;
-      padding: 12px !important;
-      margin: 0 !important;
-      border: 2px solid rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      background: white;
-      transition: all 0.2s ease;
-      position: relative;
-
+  .tabs-wrapper {
+    margin-bottom: 20px;
     
-
-      // Selected state
-      &.Mui-selected {
-        border-color: $primary-color;
-        background: rgba($primary-color, 0.05);
-        color: $primary-color;
-        
-        &::after {
-          color: $primary-color;
-        }
-      }
-    }
-
-    @include desktop() {
-      // Tab grid item styling
-      min-width: auto !important;
-      width: 100%;
-      padding: 12px !important;
-      margin: 0 !important;
-      border: 2px solid rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      background: white;
-      transition: all 0.2s ease;
-      position: relative;
-
- 
+    .car-tabs {
+      border-bottom: 1px solid #e0e0e0;
       
-      // Selected state
-      &.Mui-selected {
-        border-color: $primary-color;
-        background: rgba($primary-color, 0.05);
-        color: $primary-color;
+      .car-tab-item {
+        font-weight: 500;
+        min-width: 120px;
         
-        
-        &::after {
-          color: $primary-color;
+        &.Mui-selected {
+          color: #040278;
         }
       }
     }
   }
   
+  .car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    
+    .car-grid-item {
+      .car-card {
+        height: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+        
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .car-card-content {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          
+          .car-image {
+            height: 160px;
+            background-color: #f5f5f5;
+            margin-bottom: 16px;
+            border-radius: 4px;
+          }
+          
+          .car-details {
+            flex: 1;
+            
+            .car-name {
+              font-weight: 600;
+              margin-bottom: 4px;
+            }
+            
+            .car-type {
+              color: #666;
+              margin-bottom: 12px;
+            }
+            
+            .spec-text {
+              display: flex;
+              align-items: center;
+              margin-bottom: 8px;
+              font-size: 14px;
+              
+              .spec-icon {
+                margin-right: 8px;
+              }
+            }
+            
+            .car-price {
+              margin: 16px 0;
+              color: #040278;
+            }
+            
+            .car-actions {
+              display: flex;
+              gap: 10px;
+              margin-top: auto;
+              justify-content: space-between;
+              
+              .view-details-btn {
+                border-color: #040278;
+                color: #040278;
+              }
+              
+              .book-now-btn {
+                background-color: #040278;
+                
+                &:hover {
+                  background-color: #030160;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
  
-
-// Tab Panel
-.tab-panel {
-  width: 100%;
-  
-  .tab-panel-content {
-    padding: 0.75rem;
-    
-    @include tablet {
-      padding: 1.5rem;
-    }
-    
-    @include desktop {
-      padding: 2rem;
-    }
-  }
-}
-
-// Grid layout
-.car-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1rem;
-  justify-content: center;
-  
-  @media (min-width: 600px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-  }
-  
-  @media (min-width: 960px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-  
-  @media (min-width: 1280px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.car-grid-item {
-  display: flex;
-  justify-content: center;
-}
-
-// Card styling
-.car-card {
-  width: 100%;
-  max-width: 360px;
-  border-radius: $card-border-radius;
-  border: 2px solid rgba($primary-color, 0.2);
-  @include card-hover;
-  
-  @include mobile {
-    max-width: 100%;
-  }
-
-  .car-card-content {
-    padding: 0.75rem !important;
-    
-    @include tablet {
-      padding: 1rem !important;
-    }
-    
-    @include desktop {
-      padding: 1.25rem !important;
-    }
-  }
-
-  .car-image {
-    height: 140px;
-    background-image: url('');
-    background-size: cover;
-    background-position: center;
-    border-radius: $card-border-radius;
-    margin-bottom: 0.75rem;
-    
-    @include tablet {
-      height: 160px;
-      margin-bottom: 1rem;
-    }
-    
-    @include desktop {
-      height: 180px;
-      margin-bottom: 1.25rem;
-    }
-  }
-
-  .car-details {
-    @include mobile {
-      display: flex;
-      flex-direction: column;
-    }
-  }
-
-  .car-name {
-    font-size: 1.1rem;
-    margin-bottom: 0.25rem;
-    
-    @include tablet {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-    }
-  }
-
-  .car-type {
-    color: $text-secondary;
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
-    
-    @include tablet {
-      font-size: 0.9rem;
-      margin-bottom: 0.75rem;
-    }
-  }
-
-  .car-specs {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
-    margin-bottom: 0.75rem;
-    
-    @include mobile {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 0.5rem 1rem;
-    }
-    
-    @include tablet {
-      margin-bottom: 1rem;
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 0.5rem 1rem;
-    }
-    
-    .spec-item {
-      display: flex;
-      align-items: center;
-      font-size: 0.8rem;
-      
-      @include tablet {
-        font-size: 0.9rem;
-      }
-      
-      .spec-icon {
-        margin-right: 0.5rem;
-      }
-      
-      .spec-text {
-        color: $text-secondary;
-      }
-    }
-  }
-
-  .car-price {
-    color: $primary-color;
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    
-    @include tablet {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-    }
-  }
-
-  .car-actions {
-    display: flex;
-    gap: 0.5rem;
-    
-    @include mobile {
-      flex-direction: column;
-    }
-    
-    @include tablet {
-      gap: 0.75rem;
-    }
-
-    .view-details-btn, .book-now-btn {
-      font-weight: bold;
-      padding: 0.4rem 0;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      flex: 1;
-      
-      @include tablet {
-        padding: 0.5rem 0;
-        font-size: 0.9rem;
-      }
-    }
-
-   
-  }
-}
-
-// Mobile-specific inline layout
-@include mobile {
-  .car-card {
-    .car-card-content {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    // For very small screens, make the layout more compact
-    @media (max-width: #{$mobile-breakpoint}) {
-      .car-image {
-        height: 120px;
-      }
-      
-      .car-name {
-        font-size: 1rem;
-      }
-      
-      .car-type, .spec-item, .car-actions button {
-        font-size: 0.75rem;
-      }
-      
-      .car-price {
-        font-size: 1rem;
-      }
-    }
-  }
-}
-

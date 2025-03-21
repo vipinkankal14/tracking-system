@@ -181,17 +181,8 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
   };
 
   return (
-    <div
-      style={{
-        padding: "1rem",
-        marginTop: "1rem",
-        marginBottom: "1rem",
-        border: "1px solid #ccc",
-        borderRadius: "5px",
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <Grid container spacing={2} style={{ marginTop: "-1rem" }}>
+    <Grid container xs={12} sm={12} md={12}>
+      <Grid container spacing={6}>
         {services.map((service) => (
           <Grid
             item
@@ -199,7 +190,7 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
             sm={6}
             md={4}
             key={service.name}
-            style={{ marginBottom: "1rem" }}
+            style={{ justifyContent:'space-between' ,display:'flex',alignItems:'center',alignContent:'center'}}
           >
             <FormControl fullWidth>
               <FormLabel component="legend">{service.label}</FormLabel>
@@ -540,7 +531,7 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
 
        
       )}
-    </div>
+    </Grid>
   );
 }
 

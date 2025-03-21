@@ -18,6 +18,7 @@ import {
 import { Person, Business } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
 import "../styles/login.scss";
+import Sidebar from "../Nav/sidebar/Sidebar";
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -205,6 +206,7 @@ const LoginPage = () => {
             </form>
           </TabPanel>
         </Paper>
+        <Sidebar />
       </Container>
     </div>
   );

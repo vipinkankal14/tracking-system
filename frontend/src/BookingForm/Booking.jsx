@@ -1,14 +1,17 @@
+"use client";
+
 import React from "react";
 import clsx from "clsx";
+
+import { Button, Modal, Box, Typography, Container } from "@mui/material";
+import { Check, ChevronRight } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import PersonalInfo from "../CustomerAdd/PersonalInfo";
 import CarInfo from "../CustomerAdd/CarInfo";
 import OrderInfo from "../CustomerAdd/OrderInfo";
 import Confirmation from "../CustomerAdd/Confirmation";
-import { Button, Modal, Box, Typography } from "@mui/material"; // Added Modal, Box, Typography
-import { Check, ChevronRight } from "lucide-react";
-import "../CustomerAdd/scss/MultiStepForm.scss";
-import { useNavigate } from "react-router-dom";
 import AdditionalInfo from "../CustomerAdd/AdditionalInfoApp/AdditionalInfo";
+import "./MultiStepForm.scss";
 
 const steps = [
   { id: 1, name: "Personal Info" },
@@ -18,8 +21,11 @@ const steps = [
   { id: 5, name: "Confirmation" },
 ];
 
-export function Home() {
+function Booking() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const carData = location.state?.carData || {};
+
   const [currentStep, setCurrentStep] = React.useState(1);
   const [successModalOpen, setSuccessModalOpen] = React.useState(false);
   const [errorModalOpen, setErrorModalOpen] = React.useState(false);
@@ -44,13 +50,14 @@ export function Home() {
       address: "",
     },
     carInfo: {
-      carType: "",
-      model: "",
-      version: "",
-      color: "",
-      fuelType: "",
+      carType: carData.carType || "",
+      model: carData.model || "",
+      version: carData.version || "",
+      color: carData.color || "",
+      fuelType: carData.fuelType || "",
       teamLeader: "",
       teamMember: "",
+      bookingType: "",
     },
     orderInfo: {
       orderDate: "NO",
@@ -230,27 +237,25 @@ export function Home() {
         {steps.find((step) => step.id === currentStep)?.name}
       </h6>
 
-      {/* Main Content // Main Content and Navigation Buttons */}
-
-      <main style={{ height: "100%", overflowY: "auto" }}>
+      {/* Main Content */}
+      <main style={{ overflowY: "auto" }}>
         <style>
           {`
-      main::-webkit-scrollbar {
-        display: none;
-      }
-    `}
+          main::-webkit-scrollbar {
+            display: none;
+          }
+        `}
         </style>
-        <div>{renderStep()}</div>
-
-        {/* Navigation Buttons */}
-        <div
+        <Container maxWidth="lg" sx={{mt:'7px' }}>{renderStep()}</Container>
+        <Container
+          maxWidth="lg"
           style={{
             display: "flex",
             justifyContent: "space-between",
             gap: "1rem",
             width: "100%",
             paddingTop: "0.5rem",
-            marginTop: "10px",
+            marginTop: "18px",
           }}
         >
           <Button
@@ -282,8 +287,11 @@ export function Home() {
               Next
             </Button>
           )}
-        </div>
+        </Container>
       </main>
+      <br />
+      <br />
+      <br />
       {/* Success Modal */}
       <Modal open={successModalOpen} onClose={() => setSuccessModalOpen(false)}>
         <Box
@@ -352,3 +360,5 @@ export function Home() {
     </div>
   );
 }
+
+export default Booking;

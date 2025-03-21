@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
-import { Tabs, Tab, Typography, Card, CardContent, Button } from "@mui/material";
-import "../Car/CenteredTabs.scss";
-import { useNavigate } from "react-router-dom";
+"use client"
+
+import { useState, useEffect } from "react"
+import { Tabs, Tab, Typography, Card, CardContent, Button } from "@mui/material"
+import "./CenteredTabs.scss"
+import { useNavigate } from "react-router-dom"
 
 function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, ...other } = props
   return (
     <div
       role="tabpanel"
@@ -16,42 +18,46 @@ function TabPanel(props) {
     >
       {value === index && <div className="tab-panel-content">{children}</div>}
     </div>
-  );
+  )
 }
 
 const CenteredTabs = () => {
-  const [value, setValue] = useState(0);
-  const [carStocks, setCarStocks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [value, setValue] = useState(0)
+  const [carStocks, setCarStocks] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchCarStocks = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/carstocks");
+        const response = await fetch("http://localhost:5000/api/carstocks")
         if (!response.ok) {
-          throw new Error("Failed to fetch car stocks");
+          throw new Error("Failed to fetch car stocks")
         }
-        const data = await response.json();
-        setCarStocks(data);
+        const data = await response.json()
+        setCarStocks(data)
       } catch (error) {
-        setError(error.message);
+        setError(error.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchCarStocks();
-  }, []);
+    fetchCarStocks()
+  }, [])
 
   const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+    setValue(newValue)
+  }
 
   const handleViewDetails = (car) => {
-    navigate(`/car/${encodeURIComponent(car.id)}`); // Use car.id
-  };
+    navigate(`/car/${encodeURIComponent(car.id)}`)
+  }
+
+  const handleBookNow = (car) => {
+    navigate("/booking", { state: { carData: car } })
+  }
 
   const tabContent = [
     {
@@ -70,14 +76,14 @@ const CenteredTabs = () => {
       label: "Electric",
       content: carStocks.filter((car) => car.fuelType === "Electric Vehicles (EVs)"),
     },
-  ];
+  ]
 
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>Loading...</Typography>
   }
 
   if (error) {
-    return <Typography>Error: {error}</Typography>;
+    return <Typography>Error: {error}</Typography>
   }
 
   return (
@@ -96,9 +102,9 @@ const CenteredTabs = () => {
               aria-controls={`tabpanel-${index}`}
               className="car-tab-item"
               sx={{
-                '& .MuiTabs-indicator': {
-                  display: 'none'
-                }
+                "& .MuiTabs-indicator": {
+                  display: "none",
+                },
               }}
             />
           ))}
@@ -115,30 +121,46 @@ const CenteredTabs = () => {
                     <div className="car-image"></div>
                     <div className="car-details">
                       <Typography variant="h6" className="car-name">
-                        {car.model} {car.version} {car.color} 
+                        {car.model} {car.version} {car.color}
                       </Typography>
                       <Typography variant="body2" className="car-type">
                         {car.carType}
                       </Typography>
-                    
-                        
-                      <Typography className="spec-text"> <span className="spec-icon">⚡</span>{car.mileage} Mileage</Typography>
-                      
-                      <Typography className="spec-text"> <span className="spec-icon">🚀</span>{car.engineCapacity} Engine</Typography>
-                      
-                      <Typography className="spec-text"><span className="spec-icon">💺</span>5 Seats</Typography>
-                      
 
+                      <Typography className="spec-text">
+                        {" "}
+                        <span className="spec-icon">⚡</span>
+                        {car.mileage} Mileage
+                      </Typography>
 
-                       
+                      <Typography className="spec-text">
+                        {" "}
+                        <span className="spec-icon">🚀</span>
+                        {car.engineCapacity} Engine
+                      </Typography>
+
+                      <Typography className="spec-text">
+                        <span className="spec-icon">💺</span>5 Seats
+                      </Typography>
+
                       <Typography variant="h6" className="car-price">
-                        Starting from  ₹{car.exShowroomPrice}
+                        Starting from ₹{car.exShowroomPrice}
                       </Typography>
                       <div className="car-actions">
-                        <Button variant="outlined" color="primary" className="view-details-btn" onClick={() => handleViewDetails(car)}>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          className="view-details-btn"
+                          onClick={() => handleViewDetails(car)}
+                        >
                           View Details
                         </Button>
-                        <Button variant="contained" color="primary" className="book-now-btn">
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          className="book-now-btn"
+                          onClick={() => handleBookNow(car)}
+                        >
                           Book Now
                         </Button>
                       </div>
@@ -151,7 +173,8 @@ const CenteredTabs = () => {
         </TabPanel>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default CenteredTabs;
+export default CenteredTabs
+

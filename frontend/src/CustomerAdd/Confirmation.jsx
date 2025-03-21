@@ -129,7 +129,7 @@ export default function Confirmation({ data, onSubmit }) {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 2 }}>
+    <Container maxWidth="lg">
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -179,8 +179,6 @@ export default function Confirmation({ data, onSubmit }) {
               <strong>Car Details:</strong> {data.carInfo.model},{" "}
               {data.carInfo.version}, {data.carInfo.color}
             </Typography>
-          
-
             
           </Grid>
         </Grid>
