@@ -71,8 +71,8 @@ const PADPending = () => {
   // Filter customers based on search query and pending status
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.predeliveryinspection[0]?.status !== "approved" &&
-      customer.predeliveryinspection[0]?.status !== "rejected" &&
+      customer.predeliveryinspection[0]?.status !== "Approval" &&
+      customer.predeliveryinspection[0]?.status !== "Rejected" &&
       (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -90,7 +90,7 @@ const PADPending = () => {
       );
 
       if (response.status === 200) {
-        alert("PDI approved successfully!");
+        alert("PDI Approval successfully!");
         handleClose();
 
         const newData = await axios.get(
@@ -119,8 +119,11 @@ const PADPending = () => {
         {
           status: "Rejected",
           preDeliveryInspectionReason,
+
         }
       );
+
+      
 
       if (response.status === 200) {
         alert("PDI Rejected successfully!");

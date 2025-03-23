@@ -66,7 +66,7 @@ const PADiRejected = () => {
   // Filter customers based on search query and rejected status
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.predeliveryinspection[0]?.status === "rejected" &&
+      customer.predeliveryinspection[0]?.status === "Rejected" &&
       (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())),
@@ -78,7 +78,7 @@ const PADiRejected = () => {
       const response = await axios.put(
         `http://localhost:5000/api/preInspectionapproved/${selectedCustomer.customerId}`,
         {
-          status: "Approved",
+          status: "Approval",
           preDeliveryInspectionReason: null, // Reason is optional for approval
         },
       )
@@ -403,7 +403,7 @@ const PADiRejected = () => {
                 </Grid>
               </Card>
 
-              <Card variant="outlined" sx={{ mb: 3, p: 2, bgcolor: "error.light" }}>
+              <Card variant="outlined" sx={{ mb: 3, p: 2, bgcolor: "white" }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
                   Rejection Reason
                 </Typography>

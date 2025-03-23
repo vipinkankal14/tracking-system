@@ -79,9 +79,21 @@ const ShowSecurityclearance = async (req, res) => {
             pre.status AS pdi_status,
             pre.PreDeliveryInspectionReason,
             pre.createdAt AS pdi_created,
-            pre.updatedAt AS pdi_updated
+            pre.updatedAt AS pdi_updated,
 
-            
+            sc.id AS sc_id,
+            sc.status AS sc_status,
+            sc.securityClearanceReason,
+            sc.createdAt AS sc_created,
+            sc.updatedAt AS sc_updated,
+
+            gp.id AS gp_id,
+            gp.status AS gp_status,
+            gp.gatepassReason,
+            gp.createdAt AS gp_created,
+            gp.updatedAt AS gp_updated
+
+             
             
 
         FROM customers c
@@ -106,7 +118,11 @@ const ShowSecurityclearance = async (req, res) => {
         LEFT JOIN orders_accessories_request oa
             ON c.customerId = oa.customerId
         LEFT JOIN predeliveryinspection pre
-            on c.customerId = pre.customerId;
+            on c.customerId = pre.customerId
+        LEFT JOIN management_security_clearance sc
+            on c.customerId = sc.customerId
+        LEFT JOIN gate_pass gp
+            on c.customerId = gp.customerId;
     `;
 
     try {
@@ -116,7 +132,7 @@ const ShowSecurityclearance = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 data: [],
-                message: 'No Pre-Delivery Inspection requests found.',
+                message: 'No Security Clearance requests found.',
             });
         }
 
@@ -150,7 +166,9 @@ const ShowSecurityclearance = async (req, res) => {
                         auto_card: row.auto_card,
                         created_at: row.additional_info_created
                     },
-                    predeliveryinspection: []
+                    predeliveryinspection: [],
+                    management_security_clearance: [],
+                    gate_pass : []
 
                 };
 
@@ -238,14 +256,33 @@ const ShowSecurityclearance = async (req, res) => {
 
                 if (row.pdi_id && !customer.predeliveryinspection.some(predeliveryinspection => predeliveryinspection.id === row.pdi_id)) {
                     customer.predeliveryinspection.push({
-                    id : row.pdi_id,
-                    status: row.pdi_status,
-                    PreDeliveryInspectionReason: row.PreDeliveryInspectionReason,
-                    createdAt: row.pdi_created,
-                    updatedAt: row.pdi_updated
- 
-                });
-            }
+                        id: row.pdi_id,
+                        status: row.pdi_status,
+                        PreDeliveryInspectionReason: row.PreDeliveryInspectionReason,
+                        createdAt: row.pdi_created,
+                        updatedAt: row.pdi_updated
+                    });
+                }
+                    
+                if (row.sc_id && !customer.management_security_clearance.some(management_security_clearance => management_security_clearance.id === row.sc_id)) {
+                    customer.management_security_clearance.push({
+                    id : row.sc_id,
+                    status: row.sc_status,
+                    securityClearanceReason: row.securityClearanceReason,
+                    createdAt: row.sc_created,
+                    updatedAt: row.sc_updated
+                    });
+                }
+
+                if (row.gp_id && !customer.gate_pass.some(gate_pass => gate_pass.id === row.gp_id)) {
+                    customer.gate_pass.push({
+                    id : row.gp_id,
+                    status: row.gp_status,
+                    gatepassReason: row.gatepassReason,
+                    createdAt: row.gp_created,
+                    updatedAt: row.gp_updated
+                    });
+                }
             }
         });
 
@@ -267,6 +304,11 @@ const ShowSecurityclearance = async (req, res) => {
             const extendedWarrantyCheck = additionalInfo.extended_warranty === 'No' || (additionalInfo.extended_warranty === 'Yes' && customer.car_extended_warranty_requests.status === 'Approval');
             const autoCardCheck = additionalInfo.auto_card === 'No' || (additionalInfo.auto_card === 'Yes' && customer.car_autocard_requests.status === 'Approval');
 
+            // Check if any predeliveryinspection entry has pdi_status as 'Approved'
+            const pdiApproved = customer.predeliveryinspection.some(pdi => pdi.status === 'Approval');
+            const gatePassApproved = customer.gate_pass.some(gp => gp.status === 'Approval');
+
+
             // Return true only if all conditions are satisfied
             return (
                 financeCheck &&
@@ -276,7 +318,9 @@ const ShowSecurityclearance = async (req, res) => {
                 rtoCheck &&
                 insuranceCheck &&
                 extendedWarrantyCheck &&
-                autoCardCheck
+                autoCardCheck &&
+                pdiApproved &&
+                gatePassApproved
             );
         });
 
@@ -287,12 +331,12 @@ const ShowSecurityclearance = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching Pre-Delivery Inspection requests:', error);
+        console.error('Error fetching Security Clearance requests:', error);
 
         // Return a generic error message to avoid exposing sensitive details
         res.status(500).json({
             success: false,
-            message: 'An error occurred while fetching Pre-Delivery-Inspection requests.',
+            message: 'An error occurred while fetching Security Clearance requests.',
             error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
         });
     }

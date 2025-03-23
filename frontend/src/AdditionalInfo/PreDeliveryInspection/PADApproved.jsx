@@ -67,7 +67,7 @@ const [success, setSuccess ] = useState(null);
   // Filter customers based on search query and Approved status
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.predeliveryinspection[0]?.status === "approved" &&
+      customer.predeliveryinspection[0]?.status === "Approval" &&
       (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())),

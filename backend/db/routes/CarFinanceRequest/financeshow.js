@@ -32,7 +32,7 @@ const financeshow = async (req, res) => {
     LEFT JOIN loans l ON c.customerId = l.customerId
     LEFT JOIN carbooking cr ON c.customerId = cr.customerId
     LEFT JOIN customer_documents d ON l.id = d.loan_id
-`;
+    `;
 
     try {
         const [results] = await pool.query(query);
@@ -40,12 +40,11 @@ const financeshow = async (req, res) => {
         if (results.length === 0) {
             return res.status(200).json({
                 success: true,
-                data: [], // Return an empty array instead of a 404
+                data: [],
                 message: 'No car exchange requests found.',
             });
         }
 
-        // Transform the flat result set into the desired nested structure
         const customersMap = new Map();
 
         results.forEach(row => {
@@ -66,56 +65,43 @@ const financeshow = async (req, res) => {
 
             const customer = customersMap.get(row.customerId);
 
-            if (row.loan_id && !customer.loans.some(loan => loan.id === row.loan_id)) {
-                customer.loans.push({
-                    id: row.loan_id,
-                    loan_amount: row.loan_amount,
-                    interest_rate: row.interest_rate,
-                    loan_duration: row.loan_duration,
-                    status: row.status,
-                    financeReason: row.financeReason,
-                    financeAmount: row.financeAmount,
-                    calculated_emi: row.calculated_emi,
-                    created_at: row.loan_created,
-                    documents: []
-                });
-            }
+            // Process loan data
+            if (row.loan_id) {
+                let loan = customer.loans.find(loan => loan.id === row.loan_id);
+                if (!loan) {
+                    loan = {
+                        id: row.loan_id,
+                        loan_amount: row.loan_amount,
+                        interest_rate: row.interest_rate,
+                        loan_duration: row.loan_duration,
+                        status: row.status,
+                        financeReason: row.financeReason,
+                        financeAmount: row.financeAmount,
+                        calculated_emi: row.calculated_emi,
+                        created_at: row.loan_created,
+                        documents: []
+                    };
+                    customer.loans.push(loan);
+                }
 
-            const loan = customer.loans.find(loan => loan.id === row.loan_id);
-
-            
-            if (row.pdi_id) {
-
-                customer.predeliveryinspection.push({
-                id: row.pdi_id, // Include the ID for reference
-                status: row.pdi_status,
-                PreDeliveryInspectionReason: row.PreDeliveryInspectionReason,
-                createdAt: row.pdi_created,
-                updatedAt: row.pdi_updated
-                });
-
-                customersMap.set(row.customerId, customer);
-                
-            } else {
-                const customer = customersMap.get(row.customerId);
-
-                if (row.pdi_id && !customer.predeliveryinspection.some(pdi => pdi.id === row.pdi_id)) {
-            customer.predeliveryinspection.push({
-                id: row.pdi_id,
-                status: row.pdi_status,
-                PreDeliveryInspectionReason: row.PreDeliveryInspectionReason,
-                createdAt: row.pdi_created,
-                updatedAt: row.pdi_updated
-            });
-        }
-
-                
+                // Process document data
+                if (row.document_id) {
+                    const existingDoc = loan.documents.find(doc => doc.id === row.document_id);
+                    if (!existingDoc) {
+                        loan.documents.push({
+                            id: row.document_id,
+                            employed_type: row.employed_type,
+                            document_name: row.document_name,
+                            document_path: row.document_path,
+                            uploaded_at: row.document_uploaded
+                        });
+                    }
+                }
             }
         });
 
         const customersArray = Array.from(customersMap.values());
 
-        // Return the transformed results
         res.status(200).json({
             success: true,
             data: customersArray,
@@ -123,8 +109,6 @@ const financeshow = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching car exchange requests:', error);
-
-        // Return a generic error message to avoid exposing sensitive details
         res.status(500).json({
             success: false,
             message: 'An error occurred while fetching car exchange requests.',

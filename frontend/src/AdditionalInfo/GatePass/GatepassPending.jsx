@@ -1,37 +1,68 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Modal, Badge } from "react-bootstrap";
 import axios from "axios";
 import {
   Box,
   Button,
   InputAdornment,
   Paper,
+  Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextareaAutosize,
   TextField,
   Typography,
+  CircularProgress,
+  useMediaQuery,
+  useTheme,
+  Card,
+  CardContent,
+  Chip,
+  Grid,
+  Divider,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+  TextareaAutosize,
 } from "@mui/material";
-import { SearchIcon } from "lucide-react";
+import { Search as SearchIcon, ExpandMore as ExpandMoreIcon, CheckCircle, Cancel, HourglassEmpty } from "@mui/icons-material";
  
+
+import GppBadRoundedIcon from "@mui/icons-material/GppBadRounded";
+import CloseIcon from '@mui/icons-material/Close';
+
+
 const GatepassPending = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [expandedRow, setExpandedRow] = useState(null);
+  const [statusData, setStatusData] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [ex_Reason, setEx_Reason] = useState("");
+    const [gatepassReason, setGatepassReason] = useState("");
+    const [isConfirmed, setIsConfirmed] = useState(false);
+
+    const [success, setSuccess] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+
+
+
+
+
+
 
   // Fetch customers with Gatepass data
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/showGatepass");
+        const response = await axios.get("http://localhost:5000/api/GatePassShow");
         setCustomers(response.data.data || []);
       } catch (err) {
         setError("Failed to fetch Gatepass data");
@@ -43,185 +74,726 @@ const GatepassPending = () => {
     fetchCustomers();
   }, []);
 
-  // Filter customers based on search query and pending status
+  // Generate status data when a row is expanded
+  useEffect(() => {
+    if (expandedRow) {
+      const selectedCustomer = customers.find(customer => customer.customerId === expandedRow);
+      if (selectedCustomer) {
+        const { additional_info, loans, orders_accessories_request, car_fasttag_requests, car_insurance_requests, car_extended_warranty_requests, car_autocard_requests, predeliveryinspection,gate_pass} = selectedCustomer;
+
+        const statusData = [];
+
+        if (additional_info.finance === "Yes" && loans) {
+          statusData.push({
+            id: "finance",
+            name: "Finance",
+            status: loans.status,
+            reason: loans.financeReason,
+            createdAt: loans.createdAt,
+            updatedAt: loans.updatedAt,
+          });
+        }
+
+        if (additional_info.accessories === "Yes" && orders_accessories_request) {
+          statusData.push({
+            id: "accessories",
+            name: "Accessories",
+            status: orders_accessories_request.status,
+            reason: orders_accessories_request.accessorieReason,
+            createdAt: orders_accessories_request.createdAt,
+            updatedAt: orders_accessories_request.updatedAt,
+          });
+        }
+
+        if (additional_info.fast_tag === "Yes" && car_fasttag_requests) {
+          statusData.push({
+            id: "fast_tag",
+            name: "Fast Tag",
+            status: car_fasttag_requests.status,
+            reason: car_fasttag_requests.fastTagReason,
+            createdAt: car_fasttag_requests.createdAt,
+            updatedAt: car_fasttag_requests.updatedAt,
+          });
+        }
+
+        if (additional_info.insurance === "Yes" && car_insurance_requests) {
+          statusData.push({
+            id: "insurance",
+            name: "Insurance",
+            status: car_insurance_requests.status,
+            reason: car_insurance_requests.insuranceReason,
+            createdAt: car_insurance_requests.createdAt,
+            updatedAt: car_insurance_requests.updatedAt,
+          });
+        }
+
+        if (additional_info.extended_warranty === "Yes" && car_extended_warranty_requests) {
+          statusData.push({
+            id: "extended_warranty",
+            name: "Extended Warranty",
+            status: car_extended_warranty_requests.status,
+            reason: car_extended_warranty_requests.ex_Reason,
+            createdAt: car_extended_warranty_requests.createdAt,
+            updatedAt: car_extended_warranty_requests.updatedAt,
+          });
+        }
+
+        if (additional_info.auto_card === "Yes" && car_autocard_requests) {
+          statusData.push({
+            id: "auto_card",
+            name: "Auto Card",
+            status: car_autocard_requests.status,
+            reason: car_autocard_requests.autoCardReason,
+            createdAt: car_autocard_requests.createdAt,
+            updatedAt: car_autocard_requests.updatedAt,
+          });
+        }
+
+        if (predeliveryinspection && predeliveryinspection.length > 0) {
+          predeliveryinspection.forEach(pdi => {
+            statusData.push({
+              id: pdi.id,
+              name: "Pre-Delivery Inspection",
+              status: pdi.status,
+              reason: pdi.PreDeliveryInspectionReason,
+              createdAt: pdi.createdAt,
+              updatedAt: pdi.updatedAt,
+            });
+          });
+        } 
+
+        if (gate_pass && gate_pass.length > 0) {
+          gate_pass.forEach(sc => {
+            statusData.push({
+              id: sc.id,
+              name: "gate_pass",
+              status: sc.status,
+              reason: sc.gatepassReason,
+              createdAt: sc.createdAt,
+              updatedAt: sc.updatedAt,
+            });
+          });
+        }
+
+        
+
+        setStatusData(statusData);
+      }
+    }
+  }, [expandedRow, customers]);
+
+  // Filter customers based on search query
   const filteredCustomers = customers.filter(
     (customer) =>
+      customer.gate_pass[0]?.status !== "Approval" &&
+      customer.gate_pass[0]?.status !== "Rejected" &&
       (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      customer.gatepassRequests?.some(req => req.status === "Pending")
+        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  // Handle Gatepass approval
-  const handleApprove = async () => {
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/gatepassApproval/${selectedCustomer.customerId}`,
-        { status: "Approved" }
-      );
 
-      if (response.status === 200) {
-        alert("Gatepass approved successfully!");
-        handleClose();
-        const newData = await axios.get("http://localhost:5000/api/showGatepass");
-        setCustomers(newData.data.data);
-      }
-    } catch (err) {
-      setError(`Failed to approve Gatepass: ${err.response?.data?.error || err.message}`);
-      console.error("Error:", err);
-    }
+  // Handle row expansion
+  const handleRowExpand = (customerId) => {
+    setExpandedRow(expandedRow === customerId ? null : customerId);
   };
 
-  // Handle Gatepass rejection
-  const handleReject = async () => {
-    if (!ex_Reason) {
-      setError("Please provide a reason for rejection.");
-      return;
+  // Status icon component
+  const StatusIcon = ({ status }) => {
+    if (status === "Approval" || status === "Completed") {
+      return <CheckCircle sx={{ color: 'success.main' }} />;
+    } else if (status === "Rejected") {
+      return <Cancel sx={{ color: 'error.main' }} />;
+    } else if (status === "Pending") {
+      return <HourglassEmpty sx={{ color: 'warning.main' }} />;
     }
+    return <HourglassEmpty sx={{ color: 'text.disabled' }} />;
+  };
 
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/gatepassRejection/${selectedCustomer.customerId}`,
-        {
-          status: "Rejected",
-          ex_Reason,
+  // Format date for better display
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+
+
+   // Handle Gatepass approval
+    const handleApprove = async () => {
+      try {
+        const response = await axios.put(
+          `http://localhost:5000/api/GatePassapproved/${selectedCustomer.customerId}`,
+          {
+            status: "Approval",
+            gatepassReason: null, // Reason is optional for approval
+          }
+        );
+  
+        if (response.status === 200) {
+          alert("Gate Pass approved successfully!");
+          handleClose();
+  
+          const newData = await axios.get(
+            "http://localhost:5000/api/GatePassShow"
+          );
+          setCustomers(newData.data.data);
         }
-      );
-
-      if (response.status === 200) {
-        alert("Gatepass rejected successfully!");
-        handleClose();
-        const newData = await axios.get("http://localhost:5000/api/showGatepass");
-        setCustomers(newData.data.data);
+      } catch (err) {
+        setError(
+          `Failed to approve Gate Pass: ${err.response?.data?.error || err.message}`
+        );
+        console.error("Error:", err);
       }
-    } catch (err) {
-      setError(`Failed to reject Gatepass: ${err.response?.data?.error || err.message}`);
-      console.error("Error:", err);
-    }
+    };
+  
+    // Handle Gatepass rejection
+    const handleReject = async () => {
+      if (!gatepassReason) {
+        setError("Please provide a reason for rejection.");
+        return;
+      }
+  
+      try {
+        const response = await axios.put(
+          `http://localhost:5000/api/GatePassRejection/${selectedCustomer.customerId}`,
+          {
+            status: "Rejected",
+            gatepassReason,
+          }
+        );
+  
+        if (response.status === 200) {
+          alert("Gate Pass rejected successfully!");
+          handleClose();
+          const newData = await axios.get(
+            "http://localhost:5000/api/GatePassShow"
+          );
+          setCustomers(newData.data.data);
+        }
+      } catch (err) {
+        setError(
+          `Failed to reject Gate Pass: ${err.response?.data?.error || err.message}`
+        );
+        console.error("Error:", err);
+      }
+    };
+  
+    const handleClose = () => {
+      setShowModal(false);
+      setIsConfirmed(false);
+      setGatepassReason("");
+      setError(null);
+    };
+  
+
+
+
+
+
+  // Mobile view for customer cards
+  const MobileCustomerCard = ({ customer }) => {
+    const isExpanded = expandedRow === customer.customerId;
+    
+    return (
+      <Card sx={{ mb: 2, border: isExpanded ? `1px solid ${theme.palette.primary.main}` : 'none' }}>
+        <CardContent>
+          <Grid container spacing={1}>
+            <Grid item xs={8}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                {`${customer.firstName} ${customer.lastName}`}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                ID: {customer.customerId}
+              </Typography>
+            </Grid>
+            <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <IconButton
+                  size="small"
+                  color="warning"
+                  onClick={() => {
+                    setSelectedCustomer(customer);
+                    setShowModal(true);
+                  }}
+                  sx={{ ml: 1 }}
+                >
+                  <GppBadRoundedIcon />
+                </IconButton>
+              </Box>
+            </Grid>
+          </Grid>
+          
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            {customer.email}
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 0.5 }}>
+            Car: {customer.carBooking?.model || "N/A"}
+          </Typography>
+          
+          <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
+
+            <Button
+              onClick={() => handleRowExpand(customer.customerId)}
+              variant={isExpanded ? "contained" : "outlined"}
+              size="small"
+              color={isExpanded ? "primary" : "inherit"}
+            >
+              {isExpanded ? "Hide Details" : "View"}
+            </Button>
+            <Chip label="Pending" color="warning" size="small" />
+
+          </Box>
+          
+          {isExpanded && (
+            <Box sx={{ mt: 2 }}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Status Details
+              </Typography>
+              
+              {statusData.length > 0 ? (
+                statusData.map((status) => (
+                  <Card key={status.id} variant="outlined" sx={{ mb: 1, p: 1 }}>
+                    <Grid container alignItems="center" spacing={1}>
+                      <Grid item xs={6}>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                          {status.name}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <StatusIcon status={status.status} />
+                          
+                        </Box>
+                      </Grid>
+                      
+                      <Grid item xs={12}>
+                        <Typography variant="caption" color="text.secondary">
+                          Updated: {formatDate(status.updatedAt)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Card>
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No status data available
+                </Typography>
+              )}
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+    );
   };
 
-  const handleClose = () => {
-    setShowModal(false);
-    setIsConfirmed(false);
-    setEx_Reason("");
-    setError(null);
-  };
-
-  return (
-    <>
-      <div style={{ marginTop: "-36px", color: "#071947" }}>
-        <Typography className="text-md-start my-4">Gatepass Pending</Typography>
-      </div>
-      
-      <div className="d-flex justify-content-center justify-content-md-start">
-        <div className="mb-4">
-          <TextField
-            variant="outlined"
-            placeholder="Search..."
-            label="Search Customers"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Loading and error states remain the same */}
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell style={{ fontSize: "10px" }}>Customer ID</TableCell>
-              <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
-              <TableCell style={{ fontSize: "10px" }}>Email</TableCell>
-              <TableCell style={{ fontSize: "10px" }}>Car Details</TableCell>
-               <TableCell style={{ fontSize: "10px" }}>Status</TableCell>
-              <TableCell style={{ fontSize: "10px" }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredCustomers.map((customer) => (
-              <TableRow key={customer.customerId}>
-                <TableCell style={{ fontSize: "11px" }}>{customer.customerId}</TableCell>
-                <TableCell style={{ fontSize: "11px" }}>
-                  {`${customer.firstName} ${customer.lastName}`}
-                </TableCell>
-                <TableCell style={{ fontSize: "11px" }}>{customer.email}</TableCell>
-                <TableCell style={{ fontSize: "11px" }}>
-                  {customer.carBooking?.model || "N/A"}
-                </TableCell>
-                <TableCell style={{ fontSize: "11px" }}>
-                  <Badge bg="warning">
-                    {customer.gatepassRequests[0]?.status || "N/A"}
-                  </Badge>
-                </TableCell>
+  // Desktop view with table
+  const DesktopView = () => (
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Customer ID</TableCell>
+            <TableCell>Full Name</TableCell>
+            <TableCell>Email</TableCell>
+            <TableCell>Car Details</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filteredCustomers.map((customer) => (
+            <React.Fragment key={customer.customerId}>
+              <TableRow sx={{ 
+                backgroundColor: expandedRow === customer.customerId ? 'rgba(0, 0, 0, 0.04)' : 'inherit',
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.08)' }
+              }}>
+                <TableCell>{customer.customerId}</TableCell>
+                <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+                <TableCell>{customer.email}</TableCell>
+                <TableCell>{customer.carBooking?.model || "N/A"}</TableCell>
+               
                 <TableCell>
                   <Button
-                    onClick={() => {
-                      setSelectedCustomer(customer);
-                      setShowModal(true);
-                    }}
-                    variant="text"
+                    onClick={() => handleRowExpand(customer.customerId)}
+                    variant={expandedRow === customer.customerId ? "contained" : "outlined"}
                     size="small"
+                    color={expandedRow === customer.customerId ? "primary" : "inherit"}
                   >
-                    Manage
+                    {expandedRow === customer.customerId ? "Hide" : "View"}
                   </Button>
                 </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
 
-      {/* Approval/Rejection Modal */}
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Typography>Process Gatepass for {selectedCustomer?.customerId}</Typography>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedCustomer && (
-            <>
-              <Typography>Customer: {selectedCustomer.firstName} {selectedCustomer.lastName}</Typography>
-              <Typography>Amount: ₹{selectedCustomer.gatepassRequests[0]?.amount}</Typography>
-              
-              {selectedCustomer.gatepassRequests[0]?.status === "Pending" && (
-                <TextareaAutosize
-                  minRows={3}
-                  placeholder="Rejection reason (required)"
-                  value={ex_Reason}
-                  onChange={(e) => setEx_Reason(e.target.value)}
-                  style={{ width: "100%", marginTop: "1rem" }}
-                />
+                <TableCell>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Chip label="Pending" color="warning" size="small" />
+                    <IconButton
+                      size="small"
+                      color="warning"
+                      onClick={() => {
+                        setSelectedCustomer(customer);
+                        setShowModal(true);
+                      }}
+                      sx={{ ml: 1 }}
+                    >
+                      <GppBadRoundedIcon />
+                    </IconButton>
+                  </Box>
+                </TableCell>
+
+              </TableRow>
+              {expandedRow === customer.customerId && (
+                <TableRow>
+                  <TableCell colSpan={6} sx={{ p: 0, borderBottom: 'none' }}>
+                    <Box sx={{ p: 4, backgroundColor: '#f9f9f9' }}>
+                      <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 'bold' }}>
+                        Status Details for Customer: {customer.customerId}
+                      </Typography>
+                      {statusData.length > 0 ? (
+                        <TableContainer component={Paper} variant="outlined">
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Service</TableCell>
+                                <TableCell>Status</TableCell>
+ 
+                                 <TableCell>Created At</TableCell>
+                                <TableCell>Updated At</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {statusData.map((status) => (
+                                <TableRow key={status.id}>
+                                  <TableCell>{status.name}</TableCell>
+                                  <TableCell>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                      <StatusIcon status={status.status} />
+                                      <Typography variant="body2" sx={{ ml: 2 }}>
+                                        {status.status}
+                                      </Typography>
+                                    </Box>
+                                  </TableCell>
+                                   <TableCell>{formatDate(status.createdAt)}</TableCell>
+                                  <TableCell>{formatDate(status.updatedAt)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No status data available for this customer
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                </TableRow>
               )}
-            </>
+            </React.Fragment>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+
+
+
+  return (
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+      <Typography variant="h6" sx={{ mb: 3, color: "#071947", fontWeight: 'bold' }}>
+      Gate Pass Pending
+      </Typography>
+
+      <Box sx={{ 
+        mb: 3, 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: { xs: 'center', sm: 'flex-start' },
+        alignItems: { xs: 'stretch', sm: 'center' }
+      }}>
+        <TextField
+          variant="outlined"
+          placeholder="Search..."
+          label="Search Customers"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          fullWidth={isMobile}
+          sx={{ maxWidth: { sm: '300px' } }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Box sx={{ 
+          p: 2, 
+          bgcolor: 'error.light', 
+          color: 'error.dark', 
+          borderRadius: 1,
+          my: 2
+        }}>
+          {error}
+        </Box>
+      ) : filteredCustomers.length === 0 ? (
+        <Box sx={{ 
+          p: 3, 
+          textAlign: 'center', 
+          bgcolor: 'background.paper', 
+          borderRadius: 1,
+          border: '1px dashed',
+          borderColor: 'divider',
+          my: 2
+        }}>
+          <Typography>No customers found matching your search criteria</Typography>
+        </Box>
+      ) : (
+        <>
+          {/* Mobile view */}
+          {isMobile && (
+            <Box>
+              {filteredCustomers.map((customer) => (
+                <MobileCustomerCard key={customer.customerId} customer={customer} />
+              ))}
+            </Box>
           )}
-          {error && <Typography color="error">{error}</Typography>}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button 
-            onClick={handleReject} 
-            color="error"
-            disabled={!ex_Reason}
-          >
-            Reject
-          </Button>
-          <Button 
-            onClick={handleApprove} 
-            color="success"
-          >
-            Approve
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+          
+          {/* Tablet view - simplified table */}
+          {isTablet && (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Customer</TableCell>
+                    <TableCell>Car</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredCustomers.map((customer) => (
+                    <React.Fragment key={customer.customerId}>
+                      <TableRow sx={{ 
+                        backgroundColor: expandedRow === customer.customerId ? 'rgba(0, 0, 0, 0.04)' : 'inherit',
+                        '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.08)' }
+                      }}>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                            {`${customer.firstName} ${customer.lastName}`}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {customer.customerId}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>{customer.carBooking?.model || "N/A"}</TableCell>
+                        <TableCell>
+                          <Chip label="Pending" color="warning" size="small" />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            onClick={() => handleRowExpand(customer.customerId)}
+                            variant={expandedRow === customer.customerId ? "contained" : "outlined"}
+                            size="small"
+                            color={expandedRow === customer.customerId ? "primary" : "inherit"}
+                          >
+                            {expandedRow === customer.customerId ? "Hide" : "View"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      {expandedRow === customer.customerId && (
+                        <TableRow>
+                          <TableCell colSpan={4} sx={{ p: 0, borderBottom: 'none' }}>
+                            <Box sx={{ p: 2, backgroundColor: '#f9f9f9' }}>
+                              {statusData.length > 0 ? (
+                                <Grid container spacing={2}>
+                                  {statusData.map((status) => (
+                                    <Grid item xs={12} key={status.id}>
+                                      <Card variant="outlined">
+                                        <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+                                          <Grid container spacing={1}>
+                                            <Grid item xs={6}>
+                                              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                                                {status.name}
+                                              </Typography>
+                                            </Grid>
+                                            <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <StatusIcon status={status.status} />
+                                                <Typography variant="body2" sx={{ ml: 0.5 }}>
+                                                  {status.status}
+                                                </Typography>
+                                              </Box>
+                                            </Grid>
+                                         
+                                            <Grid item xs={12}>
+                                              <Typography variant="caption" color="text.secondary">
+                                                Updated: {formatDate(status.updatedAt)}
+                                              </Typography>
+                                            </Grid>
+                                          </Grid>
+                                        </CardContent>
+                                      </Card>
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              ) : (
+                                <Typography variant="body2" color="text.secondary">
+                                  No status data available
+                                </Typography>
+                              )}
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+          
+          {/* Desktop view - full table */}
+          {!isMobile && !isTablet && <DesktopView />}
+        </>
+      )}
+
+
+      
+            {/*"Pending" Dialog - Using Material UI Dialog instead of React Bootstrap Modal */}
+            <Dialog
+              open={showModal}
+              onClose={handleClose}
+              fullWidth
+              maxWidth="sm"
+              fullScreen={isMobile}
+            >
+              <DialogTitle
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                  pb: 1,
+                }}
+              >
+                <Typography variant="h6">Gate Pass Pending</Typography>
+                <IconButton
+                  edge="end"
+                  color="inherit"
+                  onClick={handleClose}
+                  aria-label="close"
+                >
+                  <CloseIcon />
+                </IconButton>
+              </DialogTitle>
+      
+              <DialogContent sx={{ pt: 2, mt: 1 }}>
+                {selectedCustomer && (
+                  <Box>
+                    <Card variant="outlined" sx={{ mb: 2, p: 2 }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ fontWeight: "bold", mb: 1 }}
+                      >
+                        Customer Details
+                      </Typography>
+                      <Grid container spacing={1}>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2" color="text.secondary">
+                            Customer ID:
+                          </Typography>
+                          <Typography variant="body1">
+                            {selectedCustomer.customerId}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2" color="text.secondary">
+                            Name:
+                          </Typography>
+                          <Typography variant="body1">
+                            {selectedCustomer.firstName} {selectedCustomer.lastName}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Typography variant="body2" color="text.secondary">
+                            Car:
+                          </Typography>
+                          <Typography variant="body1">
+                            {selectedCustomer.carBooking?.model || "N/A"} |{" "}
+                            {selectedCustomer.carBooking?.version || "N/A"} |{" "}
+                            {selectedCustomer.carBooking?.color || "N/A"}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Card>
+      
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                      Reject Notes
+                    </Typography>
+                    <TextareaAutosize
+                      minRows={3}
+                      placeholder="Add notes for reject"
+                      value={gatepassReason}
+                      onChange={(e) => setGatepassReason(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "4px",
+                        border: "1px solid #ccc",
+                        fontFamily: "inherit",
+                        fontSize: "14px",
+                      }}
+                    />
+      
+                    {success && (
+                      <Box
+                        sx={{
+                          p: 1,
+                          mt: 2,
+                          bgcolor: "success.light",
+                          color: "success.dark",
+                          borderRadius: 1,
+                        }}
+                      >
+                        {success}
+                      </Box>
+                    )}
+                  </Box>
+                )}
+              </DialogContent>
+      
+              <DialogActions
+                sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}
+              >
+                <Button onClick={handleClose} variant="outlined">
+                  Cancel
+                </Button>
+                <Button onClick={handleApprove} variant="contained" color="success">
+                Approve
+                </Button>
+              <Button
+                        onClick={handleReject}
+                   color="error"
+                  disabled={!gatepassReason}
+                  variant="contained"
+                >
+                  Reject
+                </Button>
+              </DialogActions>
+      
+            </Dialog>
+    </Box>
   );
 };
 

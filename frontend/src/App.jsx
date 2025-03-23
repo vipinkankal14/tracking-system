@@ -351,7 +351,8 @@ function AppContent() {
         <Route path="/autocard-app" element={<AutoCardApp />} />
         <Route path="/autocard-approved" element={<AutocardApproved />} />
         <Route path="/autocard-rejected" element={<AutocardRejected />} />
-        <Route path="/car-pending-for-autocard" element={<AutocardPending/>} />
+          <Route path="/car-pending-for-autocard" element={<AutocardPending />} />
+        
 
         {/* ========================================================================================== */}
         

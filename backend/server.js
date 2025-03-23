@@ -54,6 +54,7 @@ const { showExtendedWarranty } = require('./db/routes/CarExWarrantyRequest/showE
 const { showAutocard } = require('./db/routes/CarAutocardRequest/showAutocard');
 const { showPreDeliveryInspection } = require('./db/routes/PreDeliveryInspection/showPreDeliveryInspection');
 const { ShowSecurityclearance } = require('./db/routes/ShowSecurityclearance/ShowSecurityclearance');
+const { GatePassShow } = require('./db/routes/GatePass/GatePassShow');
  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -1956,10 +1957,201 @@ app.put('/api/preInspectionRejection/:customerId', async (req, res) => {
 
 app.get('/api/ShowSecurityclearance', ShowSecurityclearance);
 
+app.put('/api/Securityclearanceapproved/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, securityClearanceReason } = req.body;
+
+  try {
+    // Validate status
+    if (status !== "Approval") {
+      return res.status(400).json({ error: "Invalid status for approval" });
+    }
+
+    // Update or insert PDI record
+    const [existing] = await pool.promise().query(
+      `SELECT * FROM management_security_clearance WHERE customerId = ?`,
+      [customerId]
+    );
+
+    if (existing.length === 0) {
+      await pool.promise().query(
+        `INSERT INTO management_security_clearance 
+        (customerId, status, securityClearanceReason)
+        VALUES (?, ?, ?)`,
+        [customerId, status, securityClearanceReason || null]
+      );
+    } else {
+      await pool.promise().query(
+        `UPDATE management_security_clearance
+        SET status = ?, securityClearanceReason = ?
+        WHERE customerId = ?`,
+        [status, securityClearanceReason || null, customerId]
+      );
+    }
+
+    res.status(200).json({ message: "Security Clearance approved successfully" });
+  } catch (err) {
+    console.error("Approval error:", err);
+    res.status(500).json({ error: "Failed to approve Security Clearance" });
+  }
+});
+
+
+app.put('/api/SecurityclearanceRejection/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, securityClearanceReason } = req.body;
+
+   const checkSql = `SELECT * FROM management_security_clearance WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO management_security_clearance 
+        (customerId, status, securityClearanceReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, securityClearanceReason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE management_security_clearance
+        SET 
+          securityClearanceReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [securityClearanceReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
+app.get('/api/GatePassShow', GatePassShow);
+
+app.put('/api/GatePassapproved/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, gatepassReason } = req.body;
+
+  try {
+    // Validate status
+    if (status !== "Approval") {
+      return res.status(400).json({ error: "Invalid status for approval" });
+    }
+
+    // Update or insert PDI record
+    const [existing] = await pool.promise().query(
+      `SELECT * FROM gate_pass WHERE customerId = ?`,
+      [customerId]
+    );
+
+    if (existing.length === 0) {
+      await pool.promise().query(
+        `INSERT INTO gate_pass 
+        (customerId, status, gatepassReason)
+        VALUES (?, ?, ?)`,
+        [customerId, status, gatepassReason || null]
+      );
+    } else {
+      await pool.promise().query(
+        `UPDATE gate_pass
+        SET status = ?, gatepassReason = ?
+        WHERE customerId = ?`,
+        [status, gatepassReason || null, customerId]
+      );
+    }
+
+    res.status(200).json({ message: "Gate Pass approved successfully" });
+  } catch (err) {
+    console.error("Approval error:", err);
+    res.status(500).json({ error: "Failed to approve Gate Pass" });
+  }
+});
+
+
+app.put('/api/GatePassRejection/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { status, gatepassReason } = req.body;
+
+   const checkSql = `SELECT * FROM gate_pass WHERE customerId = ?`;
+
+  pool.query(checkSql, [customerId], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error("Database error:", checkErr);
+      return res.status(500).json({ error: checkErr.message });
+    }
+
+    if (checkResult.length === 0) {
+      // Insert new record
+      const insertSql = `
+        INSERT INTO gate_pass 
+        (customerId, status, gatepassReason) 
+        VALUES (?, ?, ?)
+      `;
+      pool.query(
+        insertSql,
+        [customerId, status, gatepassReason],
+        (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).json({ error: insertErr.message });
+          }
+          res.json({ message: 'New record created successfully', result: insertResult });
+        }
+      );
+    } else {
+      // Update existing record
+      const updateSql = `
+        UPDATE gate_pass
+        SET 
+          gatepassReason = ?,
+          status = ?
+        WHERE customerId = ?
+      `;
+      pool.query(
+        updateSql,
+        [gatepassReason, status, customerId],
+        (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Update error:", updateErr);
+            return res.status(500).json({ error: updateErr.message });
+          }
+          res.json({ message: 'Record updated successfully', result: updateResult });
+        }
+      );
+    }
+  });
+});
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.post('/api/customer/login', (req, res) => {
   const { customerId } = req.body;

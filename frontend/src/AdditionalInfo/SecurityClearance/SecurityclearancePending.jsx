@@ -43,8 +43,9 @@ const SecurityclearancePending = () => {
   const [expandedRow, setExpandedRow] = useState(null);
   const [statusData, setStatusData] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [preDeliveryInspectionReason, setPreDeliveryInspectionReason] = useState("");
-  
+    const [securityClearanceReason, setSecurityClearanceReason] = useState("");
+    const [isConfirmed, setIsConfirmed] = useState(false);
+
     const [success, setSuccess] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const theme = useTheme();
@@ -78,7 +79,7 @@ const SecurityclearancePending = () => {
     if (expandedRow) {
       const selectedCustomer = customers.find(customer => customer.customerId === expandedRow);
       if (selectedCustomer) {
-        const { additional_info, loans, orders_accessories_request, car_fasttag_requests, car_insurance_requests, car_extended_warranty_requests, car_autocard_requests, predeliveryinspection  } = selectedCustomer;
+        const { additional_info, loans, orders_accessories_request, car_fasttag_requests, car_insurance_requests, car_extended_warranty_requests, car_autocard_requests, predeliveryinspection,management_security_clearance,gate_pass  } = selectedCustomer;
 
         const statusData = [];
 
@@ -159,8 +160,23 @@ const SecurityclearancePending = () => {
               updatedAt: pdi.updatedAt,
             });
           });
-        }
+        } 
 
+       
+
+        if (gate_pass && gate_pass.length > 0) {
+          gate_pass.forEach(gp => {
+            statusData.push({
+              id : gp.gp_id,
+              name: "Gate Pass",
+              status: gp.status,
+              gatepassReason: gp.gatepassReason,
+              createdAt: gp.createdAt,
+              updatedAt: gp.updatedAt
+            });
+          });
+        }
+        
         setStatusData(statusData);
       }
     }
@@ -169,10 +185,13 @@ const SecurityclearancePending = () => {
   // Filter customers based on search query
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+      customer.management_security_clearance[0]?.status !== "Approval" &&
+      customer.management_security_clearance[0]?.status !== "Rejected" &&
+      (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
 
   // Handle row expansion
   const handleRowExpand = (customerId) => {
@@ -204,15 +223,15 @@ const SecurityclearancePending = () => {
     const handleApprove = async () => {
       try {
         const response = await axios.put(
-          `http://localhost:5000/api/preInspectionapproved/${selectedCustomer.customerId}`,
+          `http://localhost:5000/api/Securityclearanceapproved/${selectedCustomer.customerId}`,
           {
-            status: "Approved",
-            preDeliveryInspectionReason: null, // Reason is optional for approval
+            status: "Approval",
+            securityClearanceReason: null, // Reason is optional for approval
           }
         );
   
         if (response.status === 200) {
-          alert("PDI approved successfully!");
+          alert("Security Clearance approved successfully!");
           handleClose();
   
           const newData = await axios.get(
@@ -222,7 +241,7 @@ const SecurityclearancePending = () => {
         }
       } catch (err) {
         setError(
-          `Failed to approve PDI: ${err.response?.data?.error || err.message}`
+          `Failed to approve Security Clearance: ${err.response?.data?.error || err.message}`
         );
         console.error("Error:", err);
       }
@@ -230,22 +249,22 @@ const SecurityclearancePending = () => {
   
     // Handle Gatepass rejection
     const handleReject = async () => {
-      if (!preDeliveryInspectionReason) {
+      if (!securityClearanceReason) {
         setError("Please provide a reason for rejection.");
         return;
       }
   
       try {
         const response = await axios.put(
-          `http://localhost:5000/api/preInspectionRejection/${selectedCustomer.customerId}`,
+          `http://localhost:5000/api/SecurityclearanceRejection/${selectedCustomer.customerId}`,
           {
             status: "Rejected",
-            preDeliveryInspectionReason,
+            securityClearanceReason,
           }
         );
   
         if (response.status === 200) {
-          alert("PDI rejected successfully!");
+          alert("Security Clearance rejected successfully!");
           handleClose();
           const newData = await axios.get(
             "http://localhost:5000/api/ShowSecurityclearance"
@@ -254,7 +273,7 @@ const SecurityclearancePending = () => {
         }
       } catch (err) {
         setError(
-          `Failed to reject PDI: ${err.response?.data?.error || err.message}`
+          `Failed to reject Security Clearance: ${err.response?.data?.error || err.message}`
         );
         console.error("Error:", err);
       }
@@ -263,11 +282,10 @@ const SecurityclearancePending = () => {
     const handleClose = () => {
       setShowModal(false);
       setIsConfirmed(false);
-      setPreDeliveryInspectionReason("");
+      setSecurityClearanceReason("");
       setError(null);
     };
   
-
 
 
 
@@ -485,7 +503,7 @@ const SecurityclearancePending = () => {
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       <Typography variant="h6" sx={{ mb: 3, color: "#071947", fontWeight: 'bold' }}>
-      Security clearance Pending
+      Security Clearance Pending
       </Typography>
 
       <Box sx={{ 
@@ -726,8 +744,8 @@ const SecurityclearancePending = () => {
                     <TextareaAutosize
                       minRows={3}
                       placeholder="Add notes for reject"
-                      value={preDeliveryInspectionReason}
-                      onChange={(e) => setPreDeliveryInspectionReason(e.target.value)}
+                      value={securityClearanceReason}
+                      onChange={(e) => setSecurityClearanceReason(e.target.value)}
                       style={{
                         width: "100%",
                         padding: "8px",
@@ -761,12 +779,13 @@ const SecurityclearancePending = () => {
                 <Button onClick={handleClose} variant="outlined">
                   Cancel
                 </Button>
-                <Button variant="contained" color="success">
-                  Approve
+                <Button onClick={handleApprove} variant="contained" color="success">
+                Approve
                 </Button>
-                <Button
+              <Button
+                        onClick={handleReject}
                    color="error"
-                  disabled={!preDeliveryInspectionReason}
+                  disabled={!securityClearanceReason}
                   variant="contained"
                 >
                   Reject
