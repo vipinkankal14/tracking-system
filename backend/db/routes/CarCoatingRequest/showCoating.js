@@ -73,8 +73,8 @@ const showCoating = async (req, res) => {
                     additionalNotes: row.additionalNotes,
                     coating_amount: row.coating_amount,
                     durability: row.durability,
-                    created_at: row.created_at,
-                    updated_at: row.updated_at,
+                    createdAt: row.createdAt,
+                    updatedAt: row.updatedAt,
                     status: row.status,
                     coatingReason: row.coatingReason
                 });
