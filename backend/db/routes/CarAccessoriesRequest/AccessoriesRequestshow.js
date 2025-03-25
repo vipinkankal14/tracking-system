@@ -10,6 +10,8 @@ const AccessoriesRequestshow = async (req, res) => {
       c.middleName,
       c.lastName,
       c.email,
+      c.mobileNumber1,
+      c.mobileNumber2,
       c.created_at AS customer_created,
       cr.model,
       cr.version,
@@ -19,6 +21,8 @@ const AccessoriesRequestshow = async (req, res) => {
       o.status,
       o.accessorieReason,
       o.accessorieRecipes,
+      o.updatedAt,
+      o.createdAt,
       p.category,
       p.name,
       p.price
@@ -51,6 +55,8 @@ const AccessoriesRequestshow = async (req, res) => {
           middleName: row.middleName,
           lastName: row.lastName,
           email: row.email,
+          mobileNumber1: row.mobileNumber1,
+          mobileNumber2: row.mobileNumber2,
           created_at: row.customer_created,
           carBooking: {
             model: row.model,
@@ -72,6 +78,8 @@ const AccessoriesRequestshow = async (req, res) => {
           status: row.status,
           accessorieReason: row.accessorieReason,
           accessorieRecipes: row.accessorieRecipes,
+          updatedAt: row.updatedAt,
+          createdAt: row.createdAt,
           products: [],
         };
         customer.orders.push(order);
