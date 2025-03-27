@@ -55,7 +55,10 @@ const { showAutocard } = require('./db/routes/CarAutocardRequest/showAutocard');
 const { showPreDeliveryInspection } = require('./db/routes/PreDeliveryInspection/showPreDeliveryInspection');
 const { ShowSecurityclearance } = require('./db/routes/ShowSecurityclearance/ShowSecurityclearance');
 const { GatePassShow } = require('./db/routes/GatePass/GatePassShow');
- 
+const { getConfirmedBookings } = require('./db/routes/BookingsConfirmed/Confirmed');
+const { getcanceledBookings } = require('./db/routes/BookingsConfirmed/Canceled');
+const { getCarRequestForCustomers } = require('./db/routes/CarManagement/CarRequestForCustomers');
+  
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
 // Use the payment routes
@@ -439,7 +442,7 @@ app.put('/api/cancel-order', (req, res) => {
   const { customerId, cancellationReason, isConfirmed } = req.body;
 
   // Determine the new values based on the status
-  const status = 'cancel';
+  const status = 'canceled';
   const newCancellationReason = 'confirmed' === status ? null : cancellationReason; // Clear if status is 'confirmed'
   const newIsConfirmed = 'confirmed' === status ? false : isConfirmed; // Clear if status is 'confirmed'
 
@@ -2454,6 +2457,13 @@ app.get("/api/suggested-products", async (req, res) => {
 });
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+app.get('/api/bookings/confirmed', getConfirmedBookings);
+app.get('/api/bookings/canceled', getcanceledBookings);
+app.get('/api/Customers/Request', getCarRequestForCustomers);
+
+
+
 
 
 
