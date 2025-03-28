@@ -12,7 +12,7 @@ const AccessoriesRequestshow = async (req, res) => {
       c.email,
       c.mobileNumber1,
       c.mobileNumber2,
-      c.created_at AS customer_created,
+      c.createdAt AS customer_created,
       cr.model,
       cr.version,
       cr.color,

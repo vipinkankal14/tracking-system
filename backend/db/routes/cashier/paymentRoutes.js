@@ -323,6 +323,7 @@ const getAllCustomers = async (req, res) => {
   }
 };
 
+
 // Use async/await instead of callback functions
 const getAllCashierTransactions = async (req, res) => {
   try {

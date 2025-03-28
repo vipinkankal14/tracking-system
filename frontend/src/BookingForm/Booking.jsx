@@ -48,6 +48,7 @@ function Booking() {
       state: "",
       country: "",
       address: "",
+      status: "confirmed",
     },
     carInfo: {
       carType: carData.carType || "",
@@ -110,12 +111,21 @@ function Booking() {
 
   const handleSubmit = async () => {
     try {
+      // Add status: "confirmed" to personalInfo before submission
+      const formDataWithStatus = {
+        ...formData,
+        personalInfo: {
+          ...formData.personalInfo,
+          status: "confirmed",
+        },
+      };
+
       const response = await fetch("http://localhost:5000/api/submit-form", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formDataWithStatus), 
       });
 
       if (!response.ok) {
@@ -125,6 +135,9 @@ function Booking() {
 
       const result = await response.json();
       console.log("Form submission result:", result);
+
+      // Update local formData state with the confirmed status
+      setFormData(formDataWithStatus);
       setSuccessModalOpen(true);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -246,7 +259,9 @@ function Booking() {
           }
         `}
         </style>
-        <Container maxWidth="lg" sx={{mt:'7px' }}>{renderStep()}</Container>
+        <Container maxWidth="lg" sx={{ mt: "7px" }}>
+          {renderStep()}
+        </Container>
         <Container
           maxWidth="lg"
           style={{
@@ -318,7 +333,17 @@ function Booking() {
             variant="contained"
             onClick={() => {
               setSuccessModalOpen(false);
-              navigate("/success-page", { state: { formData } });
+              navigate("/success-page", {
+                state: {
+                  formData: {
+                    ...formData,
+                    personalInfo: {
+                      ...formData.personalInfo,
+                      status: "confirmed",
+                    },
+                  },
+                },
+              });
             }}
             style={{ backgroundColor: "#040278", color: "white" }}
           >

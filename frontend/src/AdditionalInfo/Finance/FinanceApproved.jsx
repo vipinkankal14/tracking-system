@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Badge, Spinner } from "react-bootstrap";
 import axios from "axios";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
-  Button,
-  TextField,
-  InputAdornment,
   Paper,
   TableContainer,
   Table,
@@ -12,115 +10,277 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Typography,
-  Box,
   Card,
   CardContent,
+  Typography,
+  TextField,
+  InputAdornment,
+  Button,
+  Box,
+  Collapse,
+  IconButton,
   Chip,
-  Grid,
+  Modal,
+  Checkbox,
+  FormControlLabel,
   TextareaAutosize,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-import DescriptionIcon from "@mui/icons-material/Description";
+  Divider,
+  Grid,
+  CircularProgress,
+ } from "@mui/material";
+import {
+  Search as SearchIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+  Description as DescriptionIcon,
+  Close as CloseIcon
+} from "@mui/icons-material";
 
-const FinanceApproved = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [financeReason, setFinanceReason] = useState("");
-  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
-  const [selectedLoan, setSelectedLoan] = useState(null);
+// Mobile Card Row Component for Finance
+const FinanceMobileCard = ({ customer, handleDetailsClick, handleReject }) => {
+  const [expanded, setExpanded] = useState(false);
+  const loan = customer.loans && customer.loans.length > 0 ? customer.loans[0] : null;
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/api/financeshow"
-        );
-        if (response.data && Array.isArray(response.data.data)) {
-          setCustomers(response.data.data);
-        } else {
-          throw new Error("Invalid data format: Expected an array.");
-        }
-      } catch (err) {
-        setError("Failed to load customer data.");
-        console.error("Error fetching customers:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCustomers();
-  }, []);
-
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+  return (
+    <Card sx={{ mb: 2, border: `1px solid #4caf50` }}> {/* Approved status color */}
+      <CardContent>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            {customer.customerId}
+          </Typography>
+          <Chip 
+            label="Approved" 
+            size="small" 
+            sx={{ 
+              backgroundColor: "#4caf50",
+              color: "white"
+            }}
+          />
+        </Box>
+        
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          {`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}
+        </Typography>
+        
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+          <Button 
+            size="small" 
+            startIcon={<DescriptionIcon />}
+            onClick={() => handleDetailsClick(customer, loan)}
+          >
+            Documents
+          </Button>
+          <IconButton size="small" onClick={() => setExpanded(!expanded)}>
+            {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </Box>
+        
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Box sx={{ mt: 2 }}>
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="body2">
+              <strong>Email:</strong> {customer.email}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              <strong>Car Details:</strong> {customer.model || "N/A"} | {customer.version || "N/A"} | {customer.color || "N/A"}
+            </Typography>
+            {loan && (
+              <>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>Loan ID:</strong> {loan.id}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Amount:</strong> {loan.loan_amount}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Interest Rate:</strong> {loan.interest_rate}
+                </Typography>
+              </>
+            )}
+            
+            <Box sx={{ mt: 2 }}>
+              <Button 
+                variant="contained" 
+                size="small" 
+                color="error"
+                onClick={() => handleReject(customer)}
+                fullWidth
+              >
+                Reject Approval
+              </Button>
+            </Box>
+          </Box>
+        </Collapse>
+      </CardContent>
+    </Card>
   );
+};
 
-  const handleErrorIconClick = (customer) => {
-    setSelectedCustomer(customer);
-    setShowModal(true);
-  };
+// Tablet Row Component for Finance
+const FinanceTabletRow = ({ customer, handleDetailsClick, handleReject }) => {
+  const [open, setOpen] = useState(false);
+  const loan = customer.loans && customer.loans.length > 0 ? customer.loans[0] : null;
 
-  const handleRefundConfirmation = async () => {
-    if (!isConfirmed) {
-      setError("Please confirm the finance rejected.");
-      return;
-    }
+  return (
+    <>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{customer.customerId}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+        <TableCell>{loan?.loan_amount || "N/A"}</TableCell>
+        <TableCell>
+          <Chip 
+            label="Approved" 
+            size="small" 
+            sx={{ 
+              backgroundColor: "#4caf50",
+              color: "white"
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <IconButton
+              size="small"
+              onClick={() => handleDetailsClick(customer, loan)}
+            >
+              <DescriptionIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => handleReject(customer)}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Loan Details
+              </Typography>
+              {loan && (
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="body2">
+                      <strong>Email:</strong> {customer.email}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2">
+                      <strong>Car Details:</strong> {customer.model || "N/A"} | {customer.version || "N/A"}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
 
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/finance/update-status/${selectedCustomer.customerId}`,
-        {
-          status: "Rejected",
-          financeReason,
-        }
-      );
+// Desktop Row Component for Finance
+const FinanceDesktopRow = ({ customer, handleDetailsClick, handleReject }) => {
+  const [open, setOpen] = useState(false);
+  const loan = customer.loans && customer.loans.length > 0 ? customer.loans[0] : null;
 
-      if (response.status === 200) {
-        alert("Finance status updated successfully!");
-        setShowModal(false);
-        setFinanceReason("");
-        setIsConfirmed(false);
-        setError(null);
-      }
-    } catch (err) {
-      setError(
-        `Failed to update finance status: ${
-          err.response?.data?.error || err.message
-        }`
-      );
-    }
-  };
+  return (
+    <>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{customer.customerId}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}</TableCell>
+        <TableCell>{customer.email}</TableCell>
+        <TableCell>{customer.model || "N/A"} | {customer.version || "N/A"} | {customer.color || "N/A"}</TableCell>
+        <TableCell>{loan?.loan_amount || "N/A"}</TableCell>
+        <TableCell>
+          <Chip 
+            label="Approved" 
+            size="small" 
+            sx={{ 
+              backgroundColor: "#4caf50",
+              color: "white"
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <IconButton
+              size="small"
+              onClick={() => handleDetailsClick(customer, loan)}
+              title="View Documents"
+            >
+              <DescriptionIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => handleReject(customer)}
+              title="Reject Approval"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Loan Details
+              </Typography>
+              {loan && (
+                <Grid container spacing={2}>
+                  <Grid item xs={4}>
+                    <Typography variant="body2">
+                      <strong>Loan ID:</strong> {loan.id}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography variant="body2">
+                      <strong>Interest Rate:</strong> {loan.interest_rate}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography variant="body2">
+                      <strong>Duration:</strong> {loan.loan_duration}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
 
-  const handleClose = () => {
-    setShowModal(false);
-    setShowDocumentsModal(false);
-    setIsConfirmed(false);
-    setFinanceReason("");
-    setError(null);
-  };
-
-  const handleDocumentsIconClick = (customer, loan) => {
-    setSelectedCustomer(customer);
-    setSelectedLoan(loan);
-    setShowDocumentsModal(true);
-  };
-
+// Finance Documents Modal
+const FinanceDocumentsModal = ({ open, handleClose, selectedCustomer, selectedLoan }) => {
   const getDocumentDetails = (document_path) => {
     if (!document_path) return { customerId: null, fileName: null };
 
@@ -132,206 +292,372 @@ const FinanceApproved = () => {
     return { customerId, fileName };
   };
 
-  // Card view for mobile
-  const renderMobileView = () => {
-    return (
-      <Box sx={{ mt: 2 }}>
-        {filteredCustomers.length > 0 ? (
-          filteredCustomers.map(
-            (customer, index) =>
-              customer.loans?.[0]?.status === "Approval" && (
-                <Card key={index} sx={{ mb: 2, boxShadow: 2 }}>
-                  <CardContent>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                      <Typography variant="subtitle2">
-                        ID: {customer.customerId}
-                      </Typography>
-                      <Chip 
-                        label={customer.loans?.[0]?.status || "N/A"} 
-                        color="success" 
-                        size="small" 
-                      />
-                    </Box>
-                    
-                    <Typography variant="body2">
-                      <strong>Name:</strong> {customer.firstName} {customer.middleName}{" "}
-                      {customer.lastName}
-                    </Typography>
-                    
-                    <Typography variant="body2">
-                      <strong>Email:</strong> {customer.email}
-                    </Typography>
-                    
-                    <Typography variant="body2">
-                      <strong>Car:</strong> {customer.model} | {customer.version} | {customer.color}
-                    </Typography>
-                    
-                    {customer.loans?.length > 0 && (
-                      <Box sx={{ mt: 1, p: 1, bgcolor: "#f5f5f5", borderRadius: 1 }}>
-                        <Typography variant="body2">
-                          <strong>Loan ID:</strong> {customer.loans[0].id}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Amount:</strong> {customer.loans[0].loan_amount}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Interest Rate:</strong> {customer.loans[0].interest_rate}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Duration:</strong> {customer.loans[0].loan_duration}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>EMI:</strong> {customer.loans[0].calculated_emi}
-                        </Typography>
-                      </Box>
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="finance-documents-modal-title"
+    >
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: { xs: '90%', sm: '80%', md: '70%' },
+        maxHeight: '90vh',
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: 2,
+        overflow: 'auto'
+      }}>
+        <Typography id="finance-documents-modal-title" variant="h6" component="h2">
+          Approved Finance Documents
+        </Typography>
+        
+        {selectedCustomer && selectedLoan && (
+          <>
+            <Box sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Customer ID:</strong> {selectedCustomer.customerId}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Status:</strong>{" "}
+                    <Chip 
+                      label="Approved" 
+                      size="small" 
+                      sx={{ 
+                        backgroundColor: "#4caf50",
+                        color: "white"
+                      }}
+                    />
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Full Name:</strong>{" "}
+                    {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Email:</strong> {selectedCustomer.email}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Car Details:</strong>{" "}
+                    {`${selectedCustomer.model || "N/A"} | ${selectedCustomer.version || "N/A"} | ${selectedCustomer.color || "N/A"}`}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Loan Amount:</strong> {selectedLoan.loan_amount}
+                  </Typography>
+                </Grid>
+              </Grid>
+              
+              <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+                Documents
+              </Typography>
+              <TableContainer component={Paper}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Document Name</TableCell>
+                      <TableCell>View Document</TableCell>
+                      <TableCell>Uploaded At</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedLoan.documents && selectedLoan.documents.length > 0 ? (
+                      selectedLoan.documents.map((document, index) => {
+                        const { customerId, fileName } = getDocumentDetails(document.document_path);
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>{document.document_name}</TableCell>
+                            <TableCell>
+                              {fileName ? (
+                                <a
+                                  href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(fileName)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    color: "blue",
+                                    textDecoration: "underline",
+                                  }}
+                                >
+                                  View Document
+                                </a>
+                              ) : (
+                                "N/A"
+                              )}
+                            </TableCell>
+                            <TableCell>{new Date(document.uploaded_at).toLocaleString()}</TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} align="center">
+                          No documents found.
+                        </TableCell>
+                      </TableRow>
                     )}
-                    
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
-                      {customer.loans?.length > 0 && (
-                        <DescriptionIcon
-                          sx={{ cursor: "pointer", mr: 1 }}
-                          onClick={() => handleDocumentsIconClick(customer, customer.loans[0])}
-                        />
-                      )}
-                      <ErrorOutlineIcon
-                        sx={{ cursor: "pointer" }}
-                        onClick={() => handleErrorIconClick(customer)}
-                      />
-                    </Box>
-                  </CardContent>
-                </Card>
-              )
-          )
-        ) : (
-          <Typography align="center">No records found.</Typography>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button onClick={handleClose} variant="outlined">
+                Close
+              </Button>
+            </Box>
+          </>
         )}
       </Box>
-    );
-  };
+    </Modal>
+  );
+};
 
-  // Table view for desktop
-  const renderDesktopView = () => {
-    return (
-      <TableContainer component={Paper} sx={{ mt: 2, overflowX: "auto" }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                Customer ID
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                Full Name
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                Email
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                Car Details
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                Loans
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                Status
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px", padding: "10px" }}></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredCustomers.length > 0 ? (
-              filteredCustomers.map(
-                (customer, index) =>
-                  customer.loans?.[0]?.status === "Approval" && (
-                    <TableRow key={index}>
-                      <TableCell sx={{ fontSize: "12px" }}>
-                        {customer.customerId}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                        {customer.firstName} {customer.middleName}{" "}
-                        {customer.lastName}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                        {customer.email}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                        {customer.model} | {customer.version} | {customer.color}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                        {customer.loans?.length > 0
-                          ? customer.loans.map((loan, loanIndex) => (
-                              <div key={loanIndex}>
-                                <strong>Loan ID:</strong> {loan.id} <br />
-                                <strong>Amount:</strong> {loan.loan_amount} <br />
-                                <strong>Interest Rate:</strong>{" "}
-                                {loan.interest_rate} <br />
-                                <strong>Duration:</strong> {loan.loan_duration}{" "}
-                                <br />
-                                <strong>EMI:</strong> {loan.calculated_emi} <br />
-                              </div>
-                            ))
-                          : "No loans available"}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "12px", padding: "10px" }}>
-                        <Chip 
-                          label={customer.loans?.[0]?.status || "N/A"} 
-                          color="success" 
-                          size="small" 
-                        />
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "12px" }}>
-                        {customer.loans?.length > 0
-                          ? customer.loans.map((loan, loanIndex) => (
-                              <DescriptionIcon
-                                key={loanIndex}
-                                sx={{ cursor: "pointer", mr: 1 }}
-                                onClick={() =>
-                                  handleDocumentsIconClick(customer, loan)
-                                }
-                              />
-                            ))
-                          : "No actions"}
+// Rejection Modal Component
+const RejectionModal = ({ open, handleClose, selectedCustomer, handleConfirmReject }) => {
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [error, setError] = useState(null);
 
-                        <ErrorOutlineIcon
-                          sx={{ cursor: "pointer" }}
-                          onClick={() => handleErrorIconClick(customer)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
-              )
-            ) : (
-              <TableRow>
-                <TableCell colSpan={7} align="center">
-                  No records found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    );
+  const confirmReject = () => {
+    if (!isConfirmed) {
+      setError("Please confirm the rejection");
+      return;
+    }
+
+    if (!rejectReason) {
+      setError("Please provide a reason for rejection");
+      return;
+    }
+
+    handleConfirmReject(selectedCustomer, rejectReason);
+    handleClose();
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography 
-        variant="h6" 
-        align="center" 
-        sx={{ color: "#071947", mb: 2 }}
-      >
-        Car Finance Approved
-      </Typography>
-
-      {/* Search Bar - Responsive */}
-      <Box sx={{ 
-        display: "flex", 
-        justifyContent: { xs: "center", md: "flex-start" },
-        mb: 3
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="rejection-modal-title"
+    >
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: { xs: '90%', sm: '80%', md: '50%' },
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: 2
       }}>
+        <Typography id="rejection-modal-title" variant="h6" component="h2">
+          Reject Approved Finance Request
+        </Typography>
+        
+        {selectedCustomer && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body1">
+              <strong>Customer ID:</strong> {selectedCustomer.customerId}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Customer:</strong>{" "}
+              {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+            </Typography>
+          </Box>
+        )}
+        
+        <Box sx={{ mt: 3 }}>
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Reason for rejecting this approved request (required)"
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              resize: "vertical",
+            }}
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            required
+          />
+          
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isConfirmed}
+                onChange={(e) => setIsConfirmed(e.target.checked)}
+              />
+            }
+            label="I confirm the rejection of this approved finance request"
+            sx={{ mt: 2 }}
+          />
+          
+          {error && (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
+        </Box>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+          <Button onClick={handleClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmReject} 
+            variant="contained" 
+            color="error"
+            disabled={!isConfirmed || !rejectReason}
+          >
+            Confirm Rejection
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
+};
+
+// Main Component
+const FinanceApproved = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [financeCustomers, setFinanceCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Modal states
+  const [financeDocumentsModalOpen, setFinanceDocumentsModalOpen] = useState(false);
+  const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedLoan, setSelectedLoan] = useState(null);
+
+  // Fetch data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch finance data
+        const financeResponse = await axios.get("http://localhost:5000/api/financeshow");
+        if (financeResponse.data && Array.isArray(financeResponse.data.data)) {
+          setFinanceCustomers(financeResponse.data.data);
+        } else {
+          throw new Error("Invalid finance data format");
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        setError(`Failed to load data: ${err.message}`);
+        console.error("Error fetching data:", err);
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
+  // Filter customers based on search query and status (only Approved)
+  const getFilteredFinanceCustomers = () => {
+    return financeCustomers.filter(
+      (customer) => 
+        (customer.customerId?.toString().includes(searchQuery) ||
+         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        customer.loans?.some(loan => loan.status === "Approval")
+    );
+  };
+
+  // Handle finance documents modal
+  const handleFinanceDocumentsClick = (customer, loan) => {
+    setSelectedCustomer(customer);
+    setSelectedLoan(loan);
+    setFinanceDocumentsModalOpen(true);
+  };
+
+  // Handle reject click
+  const handleRejectClick = (customer) => {
+    setSelectedCustomer(customer);
+    setRejectionModalOpen(true);
+  };
+
+  // Handle confirm reject action for finance
+  const handleFinanceConfirmReject = async (customer, reason) => {
+    try {
+      setLoading(true);
+      
+      const response = await axios.put(
+        `http://localhost:5000/api/finance/update-status/${customer.customerId}`,
+        {
+          status: "Rejected",
+          financeReason: reason
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Approved finance request has been rejected!");
+        
+        // Close any open modals
+        setFinanceDocumentsModalOpen(false);
+        setRejectionModalOpen(false);
+        
+        // Refresh the data
+        const newData = await axios.get("http://localhost:5000/api/financeshow");
+        setFinanceCustomers(newData.data.data);
+        
+        setLoading(false);
+      }
+    } catch (err) {
+      setError(`Failed to reject finance: ${err.response?.data?.error || err.message}`);
+      setLoading(false);
+    }
+  };
+
+  // Close modals
+  const handleCloseModals = () => {
+    setFinanceDocumentsModalOpen(false);
+    setRejectionModalOpen(false);
+    setSelectedCustomer(null);
+    setSelectedLoan(null);
+  };
+
+  return (
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+      <Typography variant="h5" sx={{ mb: 3, color: "#071947", display: 'flex', alignItems: 'center' }}>
+        <AccountBalanceIcon sx={{ mr: 1 }} /> Approved Finance Requests
+      </Typography>
+      
+      <Box
+        sx={{
+          mt: 3,
+          mb: 3,
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: { xs: "center", sm: "flex-start" },
+          alignItems: { xs: "stretch", sm: "center" },
+        }}
+      >
         <TextField
           variant="outlined"
-          placeholder="Search..."
-          label="Search Car Finance"
+          placeholder="Search by ID, name..."
+          size={isMobile ? "small" : "medium"}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           InputProps={{
@@ -341,287 +667,70 @@ const FinanceApproved = () => {
               </InputAdornment>
             ),
           }}
-          sx={{ width: "100%", maxWidth: "400px" }}
+          sx={{ width: { xs: '100%', sm: '350px' } }}
         />
       </Box>
-
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
+      
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
         </Box>
-      )}
-
-      {error && !loading && (
-        <Typography color="error" align="center">
-          {error}
-        </Typography>
-      )}
-
-      {!loading && !error && (
+      ) : error ? (
+        <Box sx={{ textAlign: 'center', color: 'error.main', my: 4 }}>
+          <Typography>{error}</Typography>
+        </Box>
+      ) : (
         <>
-          {/* Conditional rendering based on screen size */}
-          {isMobile ? renderMobileView() : renderDesktopView()}
-        </>
-      )}
-
-      {/* Finance rejected Modal */}
-      <Modal
-        show={showModal}
-        onHide={handleClose}
-        centered
-        backdrop="static"
-        keyboard={false}
-        animation={false}
-      >
-        <Modal.Header closeButton>
-          <Typography>
-            <strong>Finance Amount for:</strong>{" "}
-            {selectedCustomer?.customerId || "N/A"}{" "}
-            {selectedCustomer?.customerId && (
-              <VerifiedRoundedIcon
-                sx={{
-                  color: "#092e6b",
-                  fontSize: "15px",
-                  mt: "-3px",
-                  mr: "-4px",
-                }}
-              />
-            )}
-          </Typography>
-        </Modal.Header>
-
-        <Modal.Body>
-          {selectedCustomer ? (
+          {/* Mobile View - Card Layout */}
+          {isMobile && (
             <Box>
-              <Typography sx={{ fontSize: "12px" }}>
-                <strong>Full Name:</strong>{" "}
-                {`${selectedCustomer.firstName} ${selectedCustomer.middleName} ${selectedCustomer.lastName}`}
-              </Typography>
-
-              <Typography sx={{ fontSize: "12px" }}>
-                <strong>Current Finance Amount:</strong>{" "}
-                {selectedCustomer.loans?.[0]?.financeAmount || "N/A"}
-              </Typography>
-
-              <Typography sx={{ fontSize: "12px", color: "red" }}>
-                <strong style={{ color: "black" }}>
-                  Finance Reason Rejected:
-                </strong>{" "}
-                {selectedCustomer.loans?.[0]?.financeReason || "N/A"}
-              </Typography>
-            </Box>
-          ) : (
-            <Typography>No customer selected.</Typography>
-          )}
-
-          <Box sx={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            gap: "10px", 
-            mt: 2,
-            alignItems: "center" 
-          }}>
-            <TextareaAutosize
-              minRows={3}
-              placeholder="Reason for finance rejected (optional)"
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                resize: "vertical",
-              }}
-              value={financeReason}
-              onChange={(e) => setFinanceReason(e.target.value)}
-            />
-
-            <Box sx={{ 
-              display: "flex", 
-              alignItems: "center", 
-              width: "100%", 
-              justifyContent: "flex-start" 
-            }}>
-              <input
-                type="checkbox"
-                id="confirmCheckbox"
-                checked={isConfirmed}
-                onChange={(e) => setIsConfirmed(e.target.checked)}
-                style={{ cursor: "pointer" }}
-              />
-              <label
-                htmlFor="confirmCheckbox"
-                style={{
-                  marginLeft: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-              >
-                I confirm the finance rejected
-              </label>
-            </Box>
-          </Box>
-          
-          {error && (
-            <Typography
-              sx={{
-                color: "red",
-                fontSize: "12px",
-                mt: 1,
-                textAlign: "center",
-              }}
-            >
-              {error}
-            </Typography>
-          )}
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5 }}>
-            <Button variant="outlined" size="small" onClick={handleClose}>
-              Close
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={!isConfirmed}
-              onClick={handleRefundConfirmation}
-            >
-              Confirm
-            </Button>
-          </Box>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Finance Documents Modal */}
-      <Modal
-        show={showDocumentsModal}
-        onHide={handleClose}
-        centered
-        backdrop="static"
-        keyboard={false}
-        animation={false}
-        size={isMobile ? "sm" : "lg"}
-      >
-        <Modal.Header closeButton>
-          <Typography fontSize={12}>
-            <strong>Finance Documents for:</strong>{" "}
-            {selectedCustomer?.customerId || "N/A"}{" "}
-            {selectedCustomer?.customerId && (
-              <VerifiedRoundedIcon
-                sx={{
-                  color: "#092e6b",
-                  fontSize: "15px",
-                  mt: "-3px",
-                  mr: "-4px",
-                }}
-              />
-            )}
-          </Typography>
-        </Modal.Header>
-
-        <Modal.Body>
-          {selectedCustomer && (
-            <Typography fontSize={12} sx={{ mb: 2 }}>
-              <strong>Full Name:</strong>{" "}
-              {`${selectedCustomer.firstName} ${selectedCustomer.middleName} ${selectedCustomer.lastName}`}
-            </Typography>
-          )}
-          
-          {isMobile ? (
-            // Mobile view for documents
-            <Box>
-              {selectedLoan?.documents?.length > 0 ? (
-                selectedLoan.documents.map((document, index) => {
-                  const { customerId, fileName } = getDocumentDetails(
-                    document.document_path
-                  );
-                  return (
-                    <Card key={index} sx={{ mb: 1, p: 1 }}>
-                      <Typography variant="body2">
-                        <strong>Document:</strong> {document.document_name}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Uploaded:</strong> {new Date(document.uploaded_at).toLocaleString()}
-                      </Typography>
-                      {fileName && (
-                        <Button 
-                          variant="text" 
-                          size="small"
-                          href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(fileName)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{ mt: 1 }}
-                        >
-                          View Document
-                        </Button>
-                      )}
-                    </Card>
-                  );
-                })
+              {getFilteredFinanceCustomers().length > 0 ? (
+                getFilteredFinanceCustomers().map((customer) => (
+                  <FinanceMobileCard 
+                    key={customer.customerId}
+                    customer={customer}
+                    handleDetailsClick={handleFinanceDocumentsClick}
+                    handleReject={handleRejectClick}
+                  />
+                ))
               ) : (
-                <Typography align="center">No documents found.</Typography>
+                <Box sx={{ textAlign: 'center', my: 4 }}>
+                  <Typography>No approved finance requests found.</Typography>
+                </Box>
               )}
             </Box>
-          ) : (
-            // Desktop view for documents
-            <TableContainer>
+          )}
+          
+          {/* Tablet View - Simplified Table */}
+          {isTablet && (
+            <TableContainer component={Paper}>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontSize: "10px" }}>
-                      Document Name
-                    </TableCell>
-                    <TableCell sx={{ fontSize: "10px" }}>
-                      View Document
-                    </TableCell>
-                    <TableCell sx={{ fontSize: "10px" }}>
-                      Uploaded At
-                    </TableCell>
+                    <TableCell width="50px" />
+                    <TableCell>Customer ID</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {selectedLoan?.documents?.length > 0 ? (
-                    selectedLoan.documents.map((document, index) => {
-                      const { customerId, fileName } = getDocumentDetails(
-                        document.document_path
-                      );
-                      return (
-                        <TableRow key={index}>
-                          <TableCell sx={{ fontSize: "10px" }}>
-                            {document.document_name}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: "10px" }}>
-                            {fileName ? (
-                              <a
-                                href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
-                                  fileName
-                                )}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  color: "blue",
-                                  textDecoration: "underline",
-                                }}
-                              >
-                                View Document
-                              </a>
-                            ) : (
-                              "N/A"
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: "10px" }}>
-                            {new Date(document.uploaded_at).toLocaleString()}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
+                  {getFilteredFinanceCustomers().length > 0 ? (
+                    getFilteredFinanceCustomers().map((customer) => (
+                      customer.loans.filter(loan => loan.status === "Approval").map((loan) => (
+                        <FinanceTabletRow 
+                          key={`${customer.customerId}-${loan.id}`}
+                          customer={customer}
+                          handleDetailsClick={handleFinanceDocumentsClick}
+                          handleReject={handleRejectClick}
+                        />
+                      ))
+                    ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3} align="center">
-                        No documents found.
+                      <TableCell colSpan={6} sx={{ textAlign: 'center' }}>
+                        No approved finance requests found.
                       </TableCell>
                     </TableRow>
                   )}
@@ -629,20 +738,64 @@ const FinanceApproved = () => {
               </Table>
             </TableContainer>
           )}
-
-          {error && (
-            <Typography color="error" sx={{ mt: 1 }}>
-              {error}
-            </Typography>
+          
+          {/* Desktop View - Full Table */}
+          {isDesktop && (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell width="50px" />
+                    <TableCell>Customer ID</TableCell>
+                    <TableCell>Full Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Car Details</TableCell>
+                    <TableCell>Loan Amount</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {getFilteredFinanceCustomers().length > 0 ? (
+                    getFilteredFinanceCustomers().map((customer) => (
+                      customer.loans.filter(loan => loan.status === "Approval").map((loan) => (
+                        <FinanceDesktopRow 
+                          key={`${customer.customerId}-${loan.id}`}
+                          customer={customer}
+                          handleDetailsClick={handleFinanceDocumentsClick}
+                          handleReject={handleRejectClick}
+                        />
+                      ))
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} sx={{ textAlign: 'center' }}>
+                        No approved finance requests found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Button variant="outlined" onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        </>
+      )}
+      
+      {/* Finance Documents Modal */}
+      <FinanceDocumentsModal 
+        open={financeDocumentsModalOpen}
+        handleClose={handleCloseModals}
+        selectedCustomer={selectedCustomer}
+        selectedLoan={selectedLoan}
+      />
+      
+      {/* Rejection Modal */}
+      <RejectionModal 
+        open={rejectionModalOpen}
+        handleClose={handleCloseModals}
+        selectedCustomer={selectedCustomer}
+        handleConfirmReject={handleFinanceConfirmReject}
+      />
     </Box>
   );
 };

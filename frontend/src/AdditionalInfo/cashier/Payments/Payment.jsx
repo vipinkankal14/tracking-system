@@ -231,6 +231,8 @@ const Payment = () => {
           Proceed to Payment
         </Button>
       </div>
+
+      
     </div>
   );
 };

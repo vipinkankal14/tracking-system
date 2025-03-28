@@ -118,23 +118,20 @@ function CashierApp() {
   const [statusCards] = useState([
     {
       id: "car-booking",
-      title: "Car Booking",
-      count: 80,
-      status: "Confirmed Booking",
+      title: "CAR BOOKING MANAGEMENT",
+      status: "Confirmed / Canceled",
       icon: DirectionsCar,
       iconType: "primary",
       path: "/car-Booking",
     },
     {
-      id: "booking-cancel",
-      title: "Booking Cancel",
-      count: 80,
-      status: "Cancelled",
-      icon: Block,
-      iconType: "danger",
-      path: "/car-booking-cancel",
+      id: "payment",
+      title: "Payment",
+      status: "Credit / Exchange Credit / Finance Credit",
+      icon: CurrencyRupeeRoundedIcon,
+      iconType: "Payment",
+      path: "/Payment",
     },
-
     {
       id: "Refund",
       title: "Refund Payment",
@@ -153,14 +150,7 @@ function CashierApp() {
       iconType: "warning",
       path: "/payment-refund-add-on",
     },
-    {
-      id: "payment",
-      title: "Payment",
-      status: "Credit / Exchange Credit / Finance Credit",
-      icon: CurrencyRupeeRoundedIcon,
-      iconType: "Payment",
-      path: "/Payment",
-    },
+
   ]);
 
   const handleCardClick = (path) => {

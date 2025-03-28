@@ -695,6 +695,7 @@ app.get('/api/car/:vin', (req, res) => {
   });
 });
 
+
 // Express route to update car allotment status // frontend\src\carStocks\CarAllotment.jsx
 app.put('/api/car/update/:vin', (req, res) => {
   const { vin } = req.params;
@@ -721,6 +722,47 @@ app.put('/api/car/update/:vin', (req, res) => {
   });
 });
 
+app.put('/api/car/customer/:vin', (req, res) => {
+  const { vin } = req.params;
+  const { customerId, allotmentCarStatus, cancellationReason } = req.body;
+
+  if (!['Allocated', 'Not Allocated'].includes(allotmentCarStatus)) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Invalid allotment status' 
+    });
+  }
+
+  const query = `UPDATE carstocks 
+    SET customerId = ?, 
+        allotmentCarStatus = ?, 
+        cancellationReason = ? 
+    WHERE vin = ?`;
+
+  pool.query(query, 
+    [customerId, allotmentCarStatus, cancellationReason, vin], 
+    (err, result) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({
+          success: false,
+          message: 'Database error'
+        });
+      }
+
+      if (result.affectedRows > 0) {
+        res.status(200).json({
+          success: true,
+          message: 'Car stock updated successfully'
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: 'Car not found'
+        });
+      }
+  });
+});
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }

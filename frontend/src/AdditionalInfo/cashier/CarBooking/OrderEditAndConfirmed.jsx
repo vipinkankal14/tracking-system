@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 
-export const OrderEditAndCancel = () => {
+export const OrderEditAndConfirmed  = () => {
   const { customerId } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -119,37 +119,31 @@ export const OrderEditAndCancel = () => {
   };
 
   // Cancel Order Handler
-  const handleCancelOrder = async () => {
-    if (!isConfirmed) {
-      alert("Please confirm the cancellation before proceeding.");
-      return;
-    }
-
+  const handleConfirmedOrder = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/cancel-order", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          customerId,
-          cancellationReason,
-          isConfirmed: true,
-        }),
-      });
+        const response = await fetch('http://localhost:5000/api/confirmed-order', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                customerId
+            }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to cancel the order.");
-      }
+        if (!response.ok) {
+            throw new Error('Failed to cancel the order.');
+        }
 
-      const data = await response.json();
-      alert(data.message);
-      navigate("/car-Booking");
-      closeModal();
+        const data = await response.json();
+        alert(data.message);
+        navigate('/car-booking-cancel');
     } catch (error) {
-      console.error("Error:", error.message);
+        console.error('Error:', error.message);
     }
-  };
+};
+
+
 
   const handleBack = () => window.history.back();
 
@@ -345,12 +339,12 @@ export const OrderEditAndCancel = () => {
             onClick={openModal}
             style={{
               color: "white",
-              backgroundColor: "red",
-              border: "1px solid red",
+              backgroundColor: "green",
+              border: "1px solid green",
               width: isMobile ? "100%" : "auto", // Full width on mobile
             }}
           >
-            Cancel Order
+            Confirmed Order
           </Button>
 
           <Button
@@ -379,7 +373,7 @@ export const OrderEditAndCancel = () => {
       >
         <Modal.Header closeButton>
           <Typography>
-            <strong>Cancel Order for:</strong> {customerId || "N/A"}{" "}
+            <strong>Confirmed Order for:</strong> {customerId || "N/A"}{" "}
             {customerId && (
               <VerifiedRoundedIcon
                 style={{
@@ -393,7 +387,7 @@ export const OrderEditAndCancel = () => {
           </Typography>
         </Modal.Header>
         <Modal.Body>
-          <Typography>Are you sure you want to cancel the order?</Typography>
+          <Typography>Are you sure you want to Confirmed the order?</Typography>
           <TextareaAutosize
             minRows={3}
             placeholder="Reason for cancellation (optional)"
@@ -439,15 +433,15 @@ export const OrderEditAndCancel = () => {
           <Button
             variant="contained"
             size="small"
-            onClick={handleCancelOrder}
+            onClick={handleConfirmedOrder}
             style={{
               color: "white",
-              backgroundColor: "red",
-              border: "1px solid red",
+              backgroundColor: "green",
+              border: "1px solid green",
               width: isMobile ? "100%" : "auto", // Full width on mobile
             }}
           >
-            Cancel Order
+            Confirmed Order
           </Button>
 
           {/* Back Button */}

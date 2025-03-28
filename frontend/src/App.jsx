@@ -17,11 +17,9 @@ import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/Add
 import Confirmation from "./CustomerAdd/Confirmation";
 import CarApp from "./AdditionalInfo/carStocks/CarApp";
 import CarStockShow from "./AdditionalInfo/carStocks/CarAllotment/CarStockShow";
-import CarAllotmentByCustomer from "./AdditionalInfo/carStocks/AllotmentAndNotAllotment/CarAllotmentByCustomer";
-import AddCarStock from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/AddCarStock";
+ import AddCarStock from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/AddCarStock";
 import BookingAmount from "./AdditionalInfo/carStocks/discount/BookingAmount";
-import CarNotAllotmentByCustomer from "./AdditionalInfo/carStocks/AllotmentAndNotAllotment/CarNotAllotmentByCustomer"
-import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
+ import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
 import DiscountForCarAndAdditional from "./AdditionalInfo/carStocks/discount/DiscountForCarAndAdditional";
 import CarManagement from "./AdditionalInfo/carStocks/CarManagement/CarManagement";
 import AllotmentStatusApp from "./AdditionalInfo/carStocks/AllotmentStatus/AllotmentStatusApp";
@@ -30,9 +28,8 @@ import CarAllotment from "./AdditionalInfo/carStocks/CarAllotment/CarAllotment";
 import CashierApp from "./AdditionalInfo/cashier/CashierApp";
 import Payment from "./AdditionalInfo/cashier/Payments/Payment";
 import CarBookings from "./AdditionalInfo/cashier/CarBooking/CarBookings";
-import CarBookingCancel from "./AdditionalInfo/cashier/CarBookingCancel/CarBookingCancel";
-import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
-import { OrderEditAndConfirmed } from "./AdditionalInfo/cashier/CarBookingCancel/OrderEditAndConfirmed";
+ import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
+import { OrderEditAndConfirmed } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndConfirmed";
 import PaymentDetails from "./AdditionalInfo/cashier/Payments/PaymentDetails";
 import PaymentSuccessful from "./AdditionalInfo/cashier/Payments/PaymentSuccessful";
 import PaymentRefund from "./AdditionalInfo/cashier/PaymentRefund";
@@ -46,14 +43,9 @@ import AccessoriesApproval from "./AdditionalInfo/Accessories/AccessoriesApprove
 import AccessoriesReject from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesReject";
 import AccessoriesPending from "./AdditionalInfo/Accessories/AccessoriesApproveRejectPending/AccessoriesPending";
 import AccountApp from "./AdditionalInfo/Account/AccountApp";
-import PaymentClear from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentClear";
-import PaymentPending from "./AdditionalInfo/Account/PaidAndUnpaidAndRefund/PaymentPending";
 import CustomerPaymentDetails from "./AdditionalInfo/Account/CustomerPaymentDetails/CustomerPaymentDetails";
 import ACMApprovedRejected from "./AdditionalInfo/Account/ACMApprovedRejected";
 import ExchangeApp from "./AdditionalInfo/Exchange/ExchangeApp";
-import CarExchange from "./AdditionalInfo/Exchange/CarExchange";
-import CarRequest from "./AdditionalInfo/Exchange/CarRequest";
-import CarExchangeRejected from "./AdditionalInfo/Exchange/CarExchangeRejected";
 import FinanceApp from "./AdditionalInfo/Finance/FinanceApp";
 import FinanceApproved from "./AdditionalInfo/Finance/FinanceApproved";
 import FinanceRejected from "./AdditionalInfo/Finance/FinanceRejected";
@@ -99,6 +91,9 @@ import PDIApp from "./AdditionalInfo/PreDeliveryInspection/PADApp";
 import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails";
 import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/PaymentHistory";
 import GatepassApp from "./AdditionalInfo/GatePass/GatePassApp";
+import ExchangeApproved from "./AdditionalInfo/Exchange/ExchangeApproved";
+import ExchangeRejected from "./AdditionalInfo/Exchange/ExchangeRejected";
+import ExchangePending from "./AdditionalInfo/Exchange/ExchangePending";
 
 
 function App() {
@@ -123,11 +118,9 @@ function AppContent() {
     "/Payment-refund",
     "/payment-refund-add-on",
     "/car-booking-cancel",
-    "/order-edit-and-confirmed",
-    "/car-allotment/:vin",
+     "/car-allotment/:vin",
     "/order-cancel/:customerId",
-    "/order-edit-and-confirmed/:customerId",
-    "/customer/:customerId",
+     "/customer/:customerId",
     "/car/:carId",
     "/additional-info",
     "/PersonalInfo",
@@ -162,8 +155,7 @@ function AppContent() {
     "/car-Booking",
     "/car-booking-cancel",
     "/order-cancel/:customerId",
-    "/order-edit-and-confirmed/:customerId",
-    "/payment-details",
+     "/payment-details",
     "/payment-successful",
     "/payment-refund",
     "/payment-refund-add-on",
@@ -183,9 +175,9 @@ function AppContent() {
     "/payment-history/:customerId",
     "/ACMApprovedRejected",
     "/exchange-app",
-    "/car-Exchange",
-    "/car-Request",
-    "/car-Exchange-Rejected",
+    "/exchange-pending",
+    "/exchange-approved",
+    "/exchange-rejected",
     "/finance-app",
     "/finance-approved",
     "/finance-rejected",
@@ -236,7 +228,7 @@ function AppContent() {
   );
   return (
     <div className="app-container">
-      <Navbar />
+      {shouldShowFooter && <Navbar />}
       <main>
         <Routes>
           
@@ -273,11 +265,9 @@ function AppContent() {
 
         <Route path="/car-app" element={<CarApp />} />
         <Route path="/car-stock-show" element={<CarStockShow />} />
-        <Route path="/car-allotment-by-customer" element={<CarAllotmentByCustomer />} />
-        <Route path="/Add-Car-Stock" element={<AddCarStock />} />
+         <Route path="/Add-Car-Stock" element={<AddCarStock />} />
         <Route path="/booking-amount" element={<BookingAmount />} />
-        <Route path="/car-notallotment-ByCustomer" element={<CarNotAllotmentByCustomer />} />
-        <Route path="/discount-for-car-and-additional" element={<DiscountForCarAndAdditional />} />
+         <Route path="/discount-for-car-and-additional" element={<DiscountForCarAndAdditional />} />
         <Route path="/upload-car-excel" element={<UploadCarEXCEL />} />
         <Route path="/car-management" element={<CarManagement />} />
         <Route path="/allotment-status-app" element={<AllotmentStatusApp />} />
@@ -291,8 +281,7 @@ function AppContent() {
         <Route path="/cashier-app" element={<CashierApp />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/car-Booking" element={<CarBookings />} />
-        <Route path="/car-booking-cancel" element={<CarBookingCancel />} />
-        <Route path="/order-cancel/:customerId" element={<OrderEditAndCancel />} />
+         <Route path="/order-cancel/:customerId" element={<OrderEditAndCancel />} />
         <Route path="/order-edit-and-confirmed/:customerId" element={<OrderEditAndConfirmed />} />
         <Route path="/payment-details" element={<PaymentDetails />} />
         <Route path="/payment-successful" element={<PaymentSuccessful />} />
@@ -316,10 +305,11 @@ function AppContent() {
 
         <Route path="/account-app" element={<AccountApp />} />
         <Route path="/cashier-app" element={<CashierApp />} />
-        <Route path="/payment-clear" element={<PaymentClear />} />
-        <Route path="/payment-pending" element={<PaymentPending />} />
+  
         <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
         <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
+        <Route path="/payment-history/:vin" element={<PaymentHistory />} />
+
         <Route path="/ACMApprovedRejected" element={<ACMApprovedRejected />} />
 
         
@@ -328,9 +318,9 @@ function AppContent() {
         
 
         <Route path="/exchange-app" element={<ExchangeApp />} />
-        <Route path="/car-Exchange" element={<CarExchange />} />
-        <Route path="/car-Request" element={<CarRequest />} />
-        <Route path="/car-Exchange-Rejected" element={<CarExchangeRejected />} />
+        <Route path="/exchange-pending" element={<ExchangePending />} />
+        <Route path="/exchange-approved" element={<ExchangeApproved />} />
+        <Route path="/exchange-rejected" element={<ExchangeRejected />} />
 
         {/* ========================================================================================== */}
 

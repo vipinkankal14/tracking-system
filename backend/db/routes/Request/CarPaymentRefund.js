@@ -12,7 +12,7 @@ const getAllAccountManagementRefund = async (req, res) => {
             c.middleName,
             c.lastName,
             c.email,
-            c.created_at AS customer_created,
+            c.createdAt AS customer_created,
             cr.model,
             cr.version,
             cr.color,

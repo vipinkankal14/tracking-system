@@ -1,285 +1,820 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Modal, Badge } from "react-bootstrap";
 import axios from "axios";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
-  Box,
-  Button,
-  InputAdornment,
   Paper,
-  TableBody,
-  TableCell,
   TableContainer,
+  Table,
   TableHead,
+  TableBody,
   TableRow,
-  TextareaAutosize,
-  TextField,
+  TableCell,
+  Card,
+  CardContent,
   Typography,
+  TextField,
+  InputAdornment,
+  Button,
+  Box,
+  Collapse,
+  IconButton,
+  Chip,
+  Modal,
+  Checkbox,
+  FormControlLabel,
+  TextareaAutosize,
+  Divider,
+  Grid,
+  CircularProgress
 } from "@mui/material";
-import { SearchIcon } from "lucide-react";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import {
+  Search as SearchIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+  Description as DescriptionIcon,
+  VerifiedRounded as VerifiedRoundedIcon,
+  Check as CheckIcon,
+  Close as CloseIcon,
+  CreditCard as CreditCardIcon
+} from "@mui/icons-material";
 
+// Mobile Card Row Component for Autocard
+const AutocardMobileCard = ({ customer, handleDetailsClick, handleApprove }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending": return "#f57c00";
+      case "Approval": return "#4caf50";
+      case "Rejected": return "#f44336";
+      default: return "#9e9e9e";
+    }
+  };
+
+  const autocardRequest = customer.autocardRequests[0];
+
+  return (
+    <Card sx={{ mb: 2, border: `1px solid ${getStatusColor(autocardRequest?.status)}` }}>
+      <CardContent>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            {customer.customerId}
+          </Typography>
+          <Chip 
+            label={autocardRequest?.status || "N/A"} 
+            size="small" 
+            sx={{ 
+              backgroundColor: getStatusColor(autocardRequest?.status),
+              color: "white"
+            }}
+          />
+        </Box>
+        
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          {`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}
+        </Typography>
+        
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+          <Button 
+            size="small" 
+            startIcon={<DescriptionIcon />}
+            onClick={() => handleDetailsClick(customer, autocardRequest)}
+          >
+            Details
+          </Button>
+          <IconButton size="small" onClick={toggleExpand}>
+            {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </Box>
+        
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Box sx={{ mt: 2 }}>
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="body2">
+              <strong>Email:</strong> {customer.email}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+            </Typography>
+            {autocardRequest?.autocardAmount && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                <strong>Amount:</strong> {autocardRequest?.autocardAmount}
+              </Typography>
+            )}
+       
+            
+            <Typography variant="body2" sx={{ mt: 1 , mb: 1, fontWeight: 'bold' , color: 'red'}}>
+              <strong style={{color:'black'}} >Rejection Reason :</strong>  {autocardRequest?.autoCardReason || "N/A"}
+            </Typography>
+
+            <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+              <Button 
+                variant="contained" 
+                size="small" 
+                color="success"
+                onClick={() => handleApprove(customer)}
+              >
+                Approve
+              </Button>
+          
+            </Box>
+          </Box>
+        </Collapse>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Tablet Row Component for Autocard
+const AutocardTabletRow = ({ customer, handleDetailsClick, handleApprove }) => {
+  const [open, setOpen] = useState(false);
+  const autocardRequest = customer.autocardRequests[0];
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending": return "#f57c00";
+      case "Approval": return "#4caf50";
+      case "Rejected": return "#f44336";
+      default: return "#9e9e9e";
+    }
+  };
+
+  return (
+    <>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{customer.customerId}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+        <TableCell>{autocardRequest?.autocardAmount || "N/A"}</TableCell>
+        <TableCell>
+          <Chip 
+            label={autocardRequest?.status || "N/A"} 
+            size="small" 
+            sx={{ 
+              backgroundColor: getStatusColor(autocardRequest?.status),
+              color: "white"
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => handleDetailsClick(customer, autocardRequest)}
+          >
+            <DescriptionIcon />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+              Autocard  Details
+              </Typography>
+              <Grid container spacing={2}>
+                
+
+                
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Email:</strong> {customer.email}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Created At:</strong> {autocardRequest?.createdAt ? new Date(autocardRequest.createdAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Updated At:</strong> {autocardRequest?.updatedAt ? new Date(autocardRequest.updatedAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+      
+        
+                <Grid item xs={12}>
+                <Typography variant="body2" sx={{ mt: 1 , mb: 1, fontWeight: 'bold' , color: 'red'}}>
+              <strong style={{color:'black'}} >Rejection Reason :</strong>  {autocardRequest?.autoCardReason || "N/A"}
+                  </Typography>
+                  </Grid>
+              </Grid>
+
+          
+
+              
+              <Box sx={{ mt: 2, mb: 2, display: "flex", gap: 1 }}>
+                <Button 
+                  variant="contained" 
+                  size="small" 
+                  color="success"
+                  onClick={() => handleApprove(customer)}
+                >
+                  Approve
+                </Button>
+ 
+              </Box>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
+
+// Desktop Row Component for Autocard
+const AutocardDesktopRow = ({ customer, handleDetailsClick, handleApprove }) => {
+  const [open, setOpen] = useState(false);
+  const autocardRequest = customer.autocardRequests[0];
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending": return "#f57c00";
+      case "Approval": return "#4caf50";
+      case "Rejected": return "#f44336";
+      default: return "#9e9e9e";
+    }
+  };
+
+  return (
+    <>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{customer.customerId}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}</TableCell>
+        <TableCell>{customer.email}</TableCell>
+        <TableCell>{customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}</TableCell>
+        <TableCell>{autocardRequest?.autocardAmount || "N/A"}</TableCell>
+        <TableCell>
+          <Chip 
+            label={autocardRequest?.status || "N/A"} 
+            size="small" 
+            sx={{ 
+              backgroundColor: getStatusColor(autocardRequest?.status),
+              color: "white"
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <IconButton
+              size="small"
+              onClick={() => handleDetailsClick(customer, autocardRequest)}
+              title="View Details"
+            >
+              <DescriptionIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              color="success"
+              onClick={() => handleApprove(customer)}
+              title="Approve"
+            >
+              <CheckIcon />
+            </IconButton>
+            
+          </Box>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Additional Details
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Created At:</strong> {autocardRequest?.createdAt ? new Date(autocardRequest.createdAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Updated At:</strong> {autocardRequest?.updatedAt ? new Date(autocardRequest.updatedAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body1">
+                    <strong>Confirm Benefits:</strong> {autocardRequest?.confirmBenefits || "N/A"}
+                  </Typography>
+                </Grid>
+
+                
+                <Grid item xs={12}>
+                <Typography variant="body2" sx={{  fontWeight: 'bold' , color: 'red'}}>
+              <strong style={{color:'black'}} >Rejection Reason :</strong>  {autocardRequest?.autoCardReason || "N/A"}
+                  </Typography>
+                </Grid>
+          
+                  
+
+                  
+              </Grid>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
+
+// Autocard Details Modal
+const AutocardDetailsModal = ({ open, handleClose, selectedCustomer, selectedAutocard, handleApprove }) => {
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="autocard-details-modal-title"
+    >
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: { xs: '90%', sm: '80%', md: '70%' },
+        maxHeight: '90vh',
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: 2,
+        overflow: 'auto'
+      }}>
+        <Typography id="autocard-details-modal-title" variant="h6" component="h2">
+          Autocard Details
+        </Typography>
+        
+        {selectedCustomer && selectedAutocard && (
+          <>
+            <Box sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Customer ID:</strong> {selectedCustomer.customerId}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Status:</strong>{" "}
+                    <Chip 
+                      label={selectedAutocard.status} 
+                      size="small" 
+                      sx={{ 
+                        backgroundColor: 
+                          selectedAutocard.status === "Pending" ? "#f57c00" : 
+                          selectedAutocard.status === "Approval" ? "#4caf50" : 
+                          selectedAutocard.status === "Rejected" ? "#f44336" : 
+                          "#9e9e9e",
+                        color: "white"
+                      }}
+                    />
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Full Name:</strong>{" "}
+                    {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Email:</strong> {selectedCustomer.email}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Car Details:</strong>{" "}
+                    {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Autocard Amount:</strong> {selectedAutocard.autocardAmount}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Created At:</strong>{" "}
+                    {selectedAutocard.createdAt ? new Date(selectedAutocard.createdAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Updated At:</strong>{" "}
+                    {selectedAutocard.updatedAt ? new Date(selectedAutocard.updatedAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body1">
+                    <strong>Confirm Benefits:</strong> {selectedAutocard.confirmBenefits || "N/A"}
+                  </Typography>
+                </Grid>
+             
+              </Grid>
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+            
+   
+              <Button onClick={handleClose} variant="outlined">
+                Close
+              </Button>
+            </Box>
+          </>
+        )}
+      </Box>
+    </Modal>
+  );
+};
+
+// Rejection Modal Component
+const RejectionModal = ({ open, handleClose, selectedCustomer, selectedAutocard, handleConfirmReject }) => {
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [error, setError] = useState(null);
+
+  const confirmReject = () => {
+    if (!isConfirmed) {
+      setError("Please confirm the rejection");
+      return;
+    }
+
+    if (!rejectReason) {
+      setError("Please provide a reason for rejection");
+      return;
+    }
+
+    handleConfirmReject(selectedCustomer, rejectReason);
+    handleClose();
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="rejection-modal-title"
+    >
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: { xs: '90%', sm: '80%', md: '50%' },
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: 2
+      }}>
+        <Typography id="rejection-modal-title" variant="h6" component="h2" sx={{ display: 'flex', alignItems: 'center' }}>
+          <strong>Reject Autocard Request:</strong>{" "}
+          {selectedCustomer?.customerId || "N/A"}{" "}
+          {selectedCustomer?.customerId && (
+            <VerifiedRoundedIcon
+              sx={{
+                color: "#092e6b",
+                fontSize: "15px",
+                ml: 1
+              }}
+            />
+          )}
+        </Typography>
+        
+        {selectedCustomer && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body1">
+              <strong>Customer:</strong>{" "}
+              {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+            </Typography>
+            {selectedAutocard && (
+              <Typography variant="body1">
+                <strong>Amount:</strong>{" "}
+                {selectedAutocard.autocardAmount}
+              </Typography>
+            )}
+          </Box>
+        )}
+        
+        <Box sx={{ mt: 3 }}>
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Reason for rejection (required)"
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              resize: "vertical",
+            }}
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            required
+          />
+          
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isConfirmed}
+                onChange={(e) => setIsConfirmed(e.target.checked)}
+              />
+            }
+            label="I confirm the rejection of this Autocard request"
+            sx={{ mt: 2 }}
+          />
+          
+          {error && (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
+        </Box>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+          <Button onClick={handleClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmReject} 
+            variant="contained" 
+            color="error"
+            disabled={!isConfirmed || !rejectReason}
+          >
+            Confirm Rejection
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
+};
+
+// Main Component
 const AutocardRejected = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [customers, setCustomers] = useState([]);
+  const [autocardCustomers, setAutocardCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+
+  // Modal states
+  const [autocardDetailsModalOpen, setAutocardDetailsModalOpen] = useState(false);
+  const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [autoCardReason, setAutoCardReason] = useState("");
-  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [selectedAutocard, setSelectedAutocard] = useState(null);
 
-  // Fetch customers with autocard data
+  // Fetch data
   useEffect(() => {
-    const fetchCustomers = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/showAutocard");
-        if (response.data && Array.isArray(response.data.data)) {
-          setCustomers(response.data.data);
+        setLoading(true);
+        
+        // Fetch autocard data
+        const autocardResponse = await axios.get("http://localhost:5000/api/showAutocard");
+        if (autocardResponse.data && Array.isArray(autocardResponse.data.data)) {
+          setAutocardCustomers(autocardResponse.data.data);
         } else {
-          throw new Error("Invalid data format: Expected an array.");
+          throw new Error("Invalid autocard data format");
         }
+        
+        setLoading(false);
       } catch (err) {
-        setError("Failed to fetch autocard customer data.");
-        console.error("Error fetching customers:", err);
-      } finally {
+        setError(`Failed to load data: ${err.message}`);
+        console.error("Error fetching data:", err);
         setLoading(false);
       }
     };
-    fetchCustomers();
+    
+    fetchData();
   }, []);
 
-  // Filter customers based on search query and pending status
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      customer.autocardRequests?.length > 0 &&
-      customer.autocardRequests[0]?.status === "Rejected"
-  );
-
-  // Handle documents icon click
-  const handleDocumentsIconClick = (customer, autocard) => {
-    setSelectedCustomer(customer);
-    setSelectedAutocard(autocard);
-    setShowDocumentsModal(true);
+  // Filter customers based on search query and Rejected status
+  const getFilteredAutocardCustomers = () => {
+    return autocardCustomers.filter(
+      (customer) => 
+        (customer.customerId?.toString().includes(searchQuery) ||
+         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        customer.autocardRequests?.length > 0 &&
+        customer.autocardRequests[0]?.status === "Rejected"
+    );
   };
 
-  // Handle autocard approval
-  const handleApprove = async () => {
+  // Handle autocard details modal
+  const handleAutocardDetailsClick = (customer, autocard) => {
+    setSelectedCustomer(customer);
+    setSelectedAutocard(autocard);
+    setAutocardDetailsModalOpen(true);
+  };
+
+ 
+
+  // Handle approve action for autocard
+  const handleAutocardApprove = async (customer) => {
     try {
+      setLoading(true);
+      
       const response = await axios.put(
-        `http://localhost:5000/api/autocardApproval/update-status/${selectedCustomer.customerId}`,
+        `http://localhost:5000/api/autocardApproval/update-status/${customer.customerId}`,
         { status: "Approval" }
       );
 
       if (response.status === 200) {
         alert("Autocard approved successfully!");
-        handleClose();
+        
+        // Close any open modals
+        setAutocardDetailsModalOpen(false);
+        
         // Refresh the data
         const newData = await axios.get("http://localhost:5000/api/showAutocard");
-        setCustomers(newData.data.data);
+        setAutocardCustomers(newData.data.data);
+        
+        setLoading(false);
       }
     } catch (err) {
       setError(`Failed to approve autocard: ${err.response?.data?.error || err.message}`);
-      console.error("Error:", err);
+      setLoading(false);
     }
   };
 
  
 
-  // Close all modals and reset state
-  const handleClose = () => {
-    setShowModal(false);
-    setShowDocumentsModal(false);
-    setIsConfirmed(false);
-    setAutoCardReason("");
-    setError(null);
-  };
-
   return (
-    <>
-      <div style={{ marginTop: "-36px", color: "#071947" }}>
-        <Typography className="text-md-start my-4">Autocard Rejected</Typography>
-      </div>
-      <div className="d-flex justify-content-center justify-content-md-start">
-        <div className="mb-4">
-          <TextField
-            variant="outlined"
-            placeholder="Search..."
-            label="Search Customers"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </div>
-      </div>
-
-      {loading && (
-        <div className="text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-      )}
-
-      {error && (
-        <div className="text-center text-danger">
-          <p>{error}</p>
-        </div>
-      )}
-
-      {!loading && !error && (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ padding: "10px", fontSize: "10px" }}>Customer ID</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Email</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Car Details</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Autocard Amount</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Status</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredCustomers.length > 0 ? (
-                filteredCustomers.map((customer) => (
-                  <TableRow key={customer.customerId}>
-                    <TableCell style={{ fontSize: "11px" }}>{customer.customerId}</TableCell>
-                    <TableCell
-                      style={{
-                        fontSize: "11px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        maxWidth: "180px",
-                        verticalAlign: "middle",
-                        padding: "8px",
-                      }}
-                      title={`${customer.firstName}${customer.middleName ? ` ${customer.middleName}` : ""} ${customer.lastName}`}
-                    >
-                      {`${customer.firstName}${customer.middleName ? ` ${customer.middleName}` : ""} ${customer.lastName}`}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "11px" }}>{customer.email}</TableCell>
-                    <TableCell
-                      sx={{
-                        fontSize: "12px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {`${customer.carBooking?.model || "N/A"} | ${customer.carBooking?.version || "N/A"} | ${customer.carBooking?.color || "N/A"}`}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "11px" }}>
-                      {customer.autocardRequests[0]?.autocardAmount || "N/A"}
-                    </TableCell>
-                    <TableCell style={{ fontSize: "11px" }}>
-                      <Badge bg="danger">
-                        {customer.autocardRequests[0]?.status || "N/A"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell style={{ fontSize: "11px" }}>
-                      <Button
-                        style={{
-                          cursor: "pointer",
-                          color: "#1b1994",
-                          textTransform: "none",
-                          padding: "6px 12px",
-                          fontSize: "0.875rem",
-                        }}
-                        onClick={() =>
-                          handleDocumentsIconClick(customer, customer.autocardRequests[0])
-                        }
-                        variant="text"
-                      >
-                        Autocard Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+      <Typography variant="h5" sx={{ mb: 3, color: "#071947", display: 'flex', alignItems: 'center' }}>
+        Rejected Autocard Requests
+      </Typography>
+      
+      <Box
+        sx={{
+          mt: 3,
+          mb: 3,
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: { xs: "center", sm: "flex-start" },
+          alignItems: { xs: "stretch", sm: "center" },
+        }}
+      >
+        <TextField
+          variant="outlined"
+          placeholder="Search by ID, name..."
+          size={isMobile ? "small" : "medium"}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ width: { xs: '100%', sm: '350px' } }}
+        />
+      </Box>
+      
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Box sx={{ textAlign: 'center', color: 'error.main', my: 4 }}>
+          <Typography>{error}</Typography>
+        </Box>
+      ) : (
+        <>
+          {/* Mobile View - Card Layout */}
+          {isMobile && (
+            <Box>
+              {getFilteredAutocardCustomers().length > 0 ? (
+                getFilteredAutocardCustomers().map((customer) => (
+                  <AutocardMobileCard 
+                    key={customer.customerId}
+                    customer={customer}
+                    handleDetailsClick={handleAutocardDetailsClick}
+                    handleApprove={handleAutocardApprove}
+                   />
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan="7" className="text-center">
-                    No records found.
-                  </TableCell>
-                </TableRow>
+                <Box sx={{ textAlign: 'center', my: 4 }}>
+                  <Typography>No Rejected autocard requests found.</Typography>
+                </Box>
               )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      {/* Documents Modal */}
-      <Modal
-        show={showDocumentsModal}
-        onHide={handleClose}
-        centered
-        backdrop="static"
-        keyboard={false}
-        animation={false}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Autocard Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedAutocard && (
-            <>
-              <Typography style={{ fontSize: "12px" }}>
-                <strong>Customer ID:</strong> {selectedCustomer.customerId}
-              </Typography>
-              <Typography style={{ fontSize: "12px" }}>
-                <strong>Full Name:</strong>{" "}
-                {`${selectedCustomer.firstName}${selectedCustomer.middleName ? ` ${selectedCustomer.middleName}` : ""} ${selectedCustomer.lastName}`}
-              </Typography>
-              <Typography style={{ fontSize: "12px" }}>
-                <strong>Autocard Amount:</strong> {selectedAutocard.autocardAmount}
-              </Typography>
-               
-              <Typography style={{ fontSize: "12px" }}>
-                <strong>AutoCard Reason:</strong> {selectedAutocard.confirmBenefits}
-              </Typography>
-
-              <Typography style={{ fontSize: "12px",color:'red' }}>
-                <strong style={{color:'black'}}>Autocard Rejection Reason:</strong>{" "}
-                {selectedAutocard.autoCardReason}
-              </Typography>
-             
-              <Typography style={{ fontSize: "12px" }}>
-                <strong>Created At:</strong>{" "}
-                {new Date(selectedAutocard.createdAt).toLocaleString()}
-              </Typography>
-              <Typography style={{ fontSize: "12px" }}>
-                <strong>Updated At:</strong>{" "}
-                {new Date(selectedAutocard.updatedAt).toLocaleString()}
-              </Typography>
-            </>
+            </Box>
           )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
-            <Button variant="contained" color="success" size="small" onClick={handleApprove}>
-              Approve
-            </Button>
-           
-            <Button variant="contained" color="primary" size="small" onClick={handleClose}>
-              Close
-            </Button>
-          </Box>
-        </Modal.Footer>
-      </Modal>
+          
+          {/* Tablet View - Simplified Table */}
+          {isTablet && (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell width="50px" />
+                    <TableCell>Customer ID</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {getFilteredAutocardCustomers().length > 0 ? (
+                    getFilteredAutocardCustomers().map((customer) => (
+                      <AutocardTabletRow 
+                        key={customer.customerId}
+                        customer={customer}
+                        handleDetailsClick={handleAutocardDetailsClick}
+                        handleApprove={handleAutocardApprove}
+                       />
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} sx={{ textAlign: 'center' }}>
+                        No Rejected autocard requests found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+          
+          {/* Desktop View - Full Table */}
+          {isDesktop && (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell width="50px" />
+                    <TableCell>Customer ID</TableCell>
+                    <TableCell>Full Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Car Details</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {getFilteredAutocardCustomers().length > 0 ? (
+                    getFilteredAutocardCustomers().map((customer) => (
+                      <AutocardDesktopRow 
+                        key={customer.customerId}
+                        customer={customer}
+                        handleDetailsClick={handleAutocardDetailsClick}
+                        handleApprove={handleAutocardApprove}
+                       />
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} sx={{ textAlign: 'center' }}>
+                        No Rejected autocard requests found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </>
+      )}
+      
+      {/* Autocard Details Modal */}
+      <AutocardDetailsModal 
+        open={autocardDetailsModalOpen}
+        handleClose={() => setAutocardDetailsModalOpen(false)}
+        selectedCustomer={selectedCustomer}
+        selectedAutocard={selectedAutocard}
+        handleApprove={handleAutocardApprove}
+       />
+      
  
-    </>
+    </Box>
   );
 };
 

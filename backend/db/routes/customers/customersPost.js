@@ -11,8 +11,8 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
         customerId, firstName, middleName, lastName, 
         mobileNumber1, mobileNumber2, customerType, 
         birthDate, email, aadhaarNumber, panNumber, 
-        city, state, country, address
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        city, state, country, address, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
       [
         personalInfo.customerId,
         personalInfo.firstName,
@@ -28,7 +28,8 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
         personalInfo.city,
         personalInfo.state,
         personalInfo.country,
-        personalInfo.address
+        personalInfo.address,
+        personalInfo.status
       ]
     );
 
@@ -41,7 +42,7 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         personalInfo.customerId,
-        orderInfo.orderDate || null,
+        orderInfo.orderDate || "No",
         orderInfo.tentativeDate || null,
         orderInfo.preferredDate || null,
         orderInfo.requestDate || null,

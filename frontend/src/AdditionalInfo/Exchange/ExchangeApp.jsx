@@ -125,7 +125,7 @@ function ExchangeApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/car-Exchange',
+      path: '/exchange-approved',
      
     },
     {
@@ -135,7 +135,7 @@ function ExchangeApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/car-Exchange-Rejected',
+      path: '/exchange-rejected',
      
     },
     {
@@ -145,7 +145,7 @@ function ExchangeApp() {
       status: 'Car Exchange Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-request',
+      path: '/exchange-pending',
      
     },
      

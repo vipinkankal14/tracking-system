@@ -11,6 +11,9 @@ const showexchange = async (req, res) => {
             c.firstName,
             c.middleName,
             c.lastName,
+            c.email,
+            c.mobileNumber1,
+            c.mobileNumber2,
             s.rcDocument,
             s.insurancePolicy,
             s.pucCertificate,
@@ -26,7 +29,9 @@ const showexchange = async (req, res) => {
             s.carYear,
             s.status,
             s.exchangeAmount,
-            s.exchangeReason
+            s.exchangeReason,
+            s.createdAt,
+            s.updatedAt
         FROM 
             customers c
         LEFT JOIN 

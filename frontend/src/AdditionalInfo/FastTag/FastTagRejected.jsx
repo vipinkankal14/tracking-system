@@ -1,41 +1,472 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spinner, Modal, Badge } from "react-bootstrap";
 import axios from "axios";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
-  Button,
-
-  InputAdornment,
-
   Paper,
-  TableBody,
-  TableCell,
   TableContainer,
+  Table,
   TableHead,
+  TableBody,
   TableRow,
-  TextareaAutosize,
-  TextField,
+  TableCell,
+  Card,
+  CardContent,
   Typography,
+  TextField,
+  InputAdornment,
+  Button,
+  Box,
+  Collapse,
+  IconButton,
+  Chip,
+  Modal,
+  Checkbox,
+  FormControlLabel,
+  TextareaAutosize,
+  Divider,
+  Grid,
+  CircularProgress
 } from "@mui/material";
-import { SearchIcon } from "lucide-react";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-import DescriptionIcon from "@mui/icons-material/Description";
+import {
+  Search as SearchIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+  Description as DescriptionIcon,
+  VerifiedRounded as VerifiedRoundedIcon,
+  Check as CheckIcon,
+  Close as CloseIcon
+} from "@mui/icons-material";
 
+// Mobile Card Row Component
+const MobileCardRow = ({ customer, handleDocumentsClick, handleApprove }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending": return "#f57c00";
+      case "Approval": return "#4caf50";
+      case "Rejected": return "#f44336";
+      default: return "#9e9e9e";
+    }
+  };
+
+  return (
+    <Card sx={{ mb: 2, border: `1px solid ${getStatusColor(customer.insuranceRequests[0]?.status)}` }}>
+      <CardContent>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            {customer.customerId}
+          </Typography>
+          <Chip 
+            label={customer.insuranceRequests[0]?.status || "N/A"} 
+            size="small" 
+            sx={{ 
+              backgroundColor: getStatusColor(customer.insuranceRequests[0]?.status),
+              color: "white"
+            }}
+          />
+        </Box>
+        
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          {`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}
+        </Typography>
+        
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+          <Button 
+            size="small" 
+            startIcon={<DescriptionIcon />}
+            onClick={() => handleDocumentsClick(customer, customer.insuranceRequests[0])}
+          >
+            Documents
+          </Button>
+          <IconButton size="small" onClick={toggleExpand}>
+            {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </Box>
+        
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Box sx={{ mt: 2 }}>
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="body2">
+              <strong>Email:</strong> {customer.email}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+            </Typography>
+            {customer.insuranceRequests[0]?.fasttag_amount && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                <strong>Fast-Tag Amount:</strong> {customer.insuranceRequests[0]?.fasttag_amount}
+              </Typography>
+            )}
+            {customer.insuranceRequests[0]?.fasttagReason && (
+              <Typography variant="body2" sx={{ mt: 1, color: "error.main" }}>
+                <strong>Rejection Reason:</strong> {customer.insuranceRequests[0]?.fasttagReason}
+              </Typography>
+            )}
+            
+            <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+              <Button 
+                variant="contained" 
+                size="small" 
+                color="success"
+                onClick={() => handleApprove(customer)}
+              >
+                Approve
+              </Button>
+              
+            </Box>
+          </Box>
+        </Collapse>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Tablet Row Component
+const TabletRow = ({ customer, handleDocumentsClick, handleApprove }) => {
+  const [open, setOpen] = useState(false);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending": return "#f57c00";
+      case "Approval": return "#4caf50";
+      case "Rejected": return "#f44336";
+      default: return "#9e9e9e";
+    }
+  };
+
+  return (
+    <>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{customer.customerId}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+        <TableCell>
+          <Chip 
+            label={customer.insuranceRequests[0]?.status || "N/A"} 
+            size="small" 
+            sx={{ 
+              backgroundColor: getStatusColor(customer.insuranceRequests[0]?.status),
+              color: "white"
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => handleDocumentsClick(customer, customer.insuranceRequests[0])}
+          >
+            <DescriptionIcon />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Details
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Email:</strong> {customer.email}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Fast-Tag Amount:</strong> {customer.insuranceRequests[0]?.fasttag_amount || "N/A"}
+                  </Typography>
+                </Grid>
+                {customer.insuranceRequests[0]?.fasttagReason && (
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="error">
+                      <strong>Rejection Reason:</strong> {customer.insuranceRequests[0]?.fasttagReason}
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+              
+              <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                <Button 
+                  variant="contained" 
+                  size="small" 
+                  color="success"
+                  onClick={() => handleApprove(customer)}
+                >
+                  Approve
+                </Button>
+                
+              </Box>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
+
+// Desktop Row Component
+const DesktopRow = ({ customer, handleDocumentsClick, handleApprove }) => {
+  const [open, setOpen] = useState(false);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending": return "#f57c00";
+      case "Approval": return "#4caf50";
+      case "Rejected": return "#f44336";
+      default: return "#9e9e9e";
+    }
+  };
+
+  return (
+    <>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{customer.customerId}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}</TableCell>
+        <TableCell>{customer.email}</TableCell>
+        <TableCell>{customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}</TableCell>
+        <TableCell>{customer.insuranceRequests[0]?.fasttag_amount || "N/A"}</TableCell>
+        <TableCell>
+          <Chip 
+            label={customer.insuranceRequests[0]?.status || "N/A"} 
+            size="small" 
+            sx={{ 
+              backgroundColor: getStatusColor(customer.insuranceRequests[0]?.status),
+              color: "white"
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <IconButton
+              size="small"
+              onClick={() => handleDocumentsClick(customer, customer.insuranceRequests[0])}
+            >
+              <DescriptionIcon />
+            </IconButton>
+        
+            <Button 
+                              variant="contained" 
+                          size="small" 
+                          
+                              color="success"
+                              onClick={() => handleApprove(customer)}
+                              >
+                Approve
+                            </Button>
+          </Box>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Additional Details
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={4}>
+                  <Typography variant="body2">
+                    <strong>Created At:</strong> {customer.insuranceRequests[0]?.createdAt ? new Date(customer.insuranceRequests[0].createdAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body2">
+                    <strong>Updated At:</strong> {customer.insuranceRequests[0]?.updatedAt ? new Date(customer.insuranceRequests[0].updatedAt).toLocaleString() : "N/A"}
+                  </Typography>
+                </Grid>
+                {customer.insuranceRequests[0]?.fasttagReason && (
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="error">
+                      <strong>Rejection Reason:</strong> {customer.insuranceRequests[0]?.fasttagReason}
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
+
+// Document Modal Component
+const DocumentsModal = ({ open, handleClose, selectedCustomer, selectedInsurance }) => {
+  // Extract document details from the file path
+  const getDocumentDetails = (document_path) => {
+    if (!document_path) return { customerId: null, fileName: null };
+
+    const fullPath = document_path.replace(/\\/g, "/");
+    const pathParts = fullPath.split("/");
+    const customerId = pathParts[pathParts.length - 2];
+    const fileName = pathParts[pathParts.length - 1];
+
+    return { customerId, fileName };
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="documents-modal-title"
+      aria-describedby="documents-modal-description"
+    >
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: { xs: '90%', sm: '80%', md: '70%' },
+        maxHeight: '90vh',
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: 2,
+        overflow: 'auto'
+      }}>
+        <Typography id="documents-modal-title" variant="h6" component="h2">
+          Fast-Tag Documents
+        </Typography>
+        
+        {selectedCustomer && selectedInsurance && (
+          <>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body1">
+                <strong>Customer ID:</strong> {selectedCustomer.customerId}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Full Name:</strong>{" "}
+                {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Fast-Tag Amount:</strong>{" "}
+                {selectedInsurance.fasttag_amount || selectedInsurance.insurance_amount || "N/A"}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Created At:</strong>{" "}
+                {selectedInsurance.createdAt ? new Date(selectedInsurance.createdAt).toLocaleString() : "N/A"}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Updated At:</strong>{" "}
+                {selectedInsurance.updatedAt ? new Date(selectedInsurance.updatedAt).toLocaleString() : "N/A"}
+              </Typography>
+              
+              {selectedInsurance.fasttagReason && (
+                <Typography variant="body1" sx={{ color: "error.main", mt: 1 }}>
+                  <strong>Rejection Reason:</strong>{" "}
+                  {selectedInsurance.fasttagReason}
+                </Typography>
+              )}
+            </Box>
+
+            <TableContainer component={Paper} sx={{ mt: 3 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Document Name</TableCell>
+                    <TableCell>View Document</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {[
+                    { name: "RC Document", path: selectedInsurance.rcDocument },
+                    { name: "PAN Document", path: selectedInsurance.panDocument },
+                    { name: "Passport Photo", path: selectedInsurance.passportPhoto },
+                    { name: "Address Proof", path: selectedInsurance.aadhaarDocument },
+                  ].map((doc, index) => {
+                    const { customerId, fileName } = getDocumentDetails(doc.path);
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>{doc.name}</TableCell>
+                        <TableCell>
+                          {fileName ? (
+                            <a
+                              href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
+                                fileName
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "blue",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              View Document
+                            </a>
+                          ) : (
+                            "N/A"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+              <Button onClick={handleClose} variant="outlined">
+                Close
+              </Button>
+            </Box>
+          </>
+        )}
+      </Box>
+    </Modal>
+  );
+};
+ 
+
+// Main Component
 const FastTagRejected = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  
+  // Modal states
+  const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
+  const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [fasttagReason, setFasttagReason] = useState("");
-  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [selectedInsurance, setSelectedInsurance] = useState(null);
 
   // Fetch customers with insurance data
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(
           "http://localhost:5000/api/fastTagshow"
         );
@@ -54,294 +485,196 @@ const FastTagRejected = () => {
     fetchCustomers();
   }, []);
 
-  // Filter customers based on search query
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Handle error icon click
-  const handleErrorIconClick = (customer) => {
-    setSelectedCustomer(customer);
-    setShowModal(true);
+  // Filter customers based on search query and status "Rejected"
+  const getFilteredCustomers = () => {
+    return customers.filter(
+      (customer) => 
+        customer.insuranceRequests[0]?.status === "Rejected" &&
+        (
+          customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          customer.email?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    );
   };
 
-  // Handle insurance approval
-  const handleApprove = async () => {
+  const filteredCustomers = getFilteredCustomers();
+
+  // Handle documents modal
+  const handleDocumentsClick = (customer, insurance) => {
+    setSelectedCustomer(customer);
+    setSelectedInsurance(insurance);
+    setDocumentsModalOpen(true);
+  };
+
+ 
+
+  // Handle approve action
+  const handleApprove = async (customer) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/fastapproval/update-status/${selectedCustomer.customerId}`,
+        `http://localhost:5000/api/fastapproval/update-status/${customer.customerId}`,
         { status: "Approval" }
       );
 
       if (response.status === 200) {
-        alert("Insurance approved successfully!");
-        handleClose();
+        alert("Fast-Tag approved successfully!");
         // Refresh the data
         const newData = await axios.get("http://localhost:5000/api/fastTagshow");
         setCustomers(newData.data.data);
       }
     } catch (err) {
-      setError(`Failed to approve insurance: ${err.response?.data?.error || err.message}`);
+      setError(`Failed to approve Fast-Tag: ${err.response?.data?.error || err.message}`);
     }
   };
 
  
 
-  // Close all modals and reset state
-  const handleClose = () => {
-    setShowModal(false);
-    setShowDocumentsModal(false);
-    setIsConfirmed(false);
-    setFasttagReason("");
-    setError(null);
-  };
-
-  // Handle documents icon click
-  const handleDocumentsIconClick = (customer, insurance) => {
-    setSelectedCustomer(customer);
-    setSelectedInsurance(insurance);
-    setShowDocumentsModal(true);
-  };
-
-  // Extract document details from the file path
-  const getDocumentDetails = (document_path) => {
-    if (!document_path) return { customerId: null, fileName: null };
-
-    const fullPath = document_path.replace(/\\/g, "/");
-    const pathParts = fullPath.split("/");
-    const customerId = pathParts[pathParts.length - 2];
-    const fileName = pathParts[pathParts.length - 1];
-
-    return { customerId, fileName };
-  };
-
   return (
-    <>
-      <div style={{ marginTop: "-36px", color: "#071947" }}>
-        <p className="text-md-start my-4">Fast-Tag Rejected</p>
-      </div>
-      <div className="d-flex justify-content-center justify-content-md-start">
-        <div className="mb-4">
-          <TextField
-            variant="outlined"
-            placeholder="Search..."
-            label="Search Customers"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </div>
-      </div>
-
-      {loading && (
-        <div className="text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-      )}
-
-      {error && (
-        <div className="text-center text-danger">
-          <p>{error}</p>
-        </div>
-      )}
-
-      {!loading && !error && (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ padding: "10px", fontSize: "10px" }}>
-                  Customer ID
-                </TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Full Name</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Email</TableCell>
-                              <TableCell style={{ fontSize: "10px" }}>Car Details </TableCell>
-              
-                <TableCell style={{ fontSize: "10px" }}>
-                  Fasttag Amount
-                </TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Status</TableCell>
-                <TableCell style={{ fontSize: "10px" }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+    <div style={{ padding: "20px" }}>
+      <Typography variant="h5" sx={{ mb: 3, color: "#071947" }}>
+        Fast-Tag Management Rejected
+      </Typography>
+      
+       <Grid
+             container
+             justifyContent={isMobile ? "center" : "flex-start"}
+             sx={{ mb: 3 }}
+           >
+             <Grid item xs={12} sm={6} md={4}>
+               <TextField
+               fullWidth
+               variant="outlined"
+               placeholder="Search by ID, name, or email..."
+               size={isMobile ? "small" : "medium"}
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               InputProps={{
+                 startAdornment: (
+                   <InputAdornment position="start">
+                     <SearchIcon />
+                   </InputAdornment>
+                 ),
+               }}
+               />  
+             </Grid>
+           </Grid>
+      
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Box sx={{ textAlign: 'center', color: 'error.main', my: 4 }}>
+          <Typography>{error}</Typography>
+        </Box>
+      ) : (
+        <>
+          {/* Mobile View - Card Layout */}
+          {isMobile && (
+            <Box>
               {filteredCustomers.length > 0 ? (
                 filteredCustomers.map((customer) => (
-                  customer.insuranceRequests[0]?.status === "Rejected" && (
-                    <TableRow key={customer.customerId}>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {customer.customerId}
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {`${customer.firstName} ${customer.middleName || ""} ${
-                          customer.lastName
-                        }`}
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {customer.email}
-                      </TableCell>
-                <TableCell style={{ fontSize: "11px" }}>
-                                       {customer.carBooking?.model || "N/A"} |  {customer.carBooking?.version || "N/A"} |  {customer.carBooking?.color || "N/A"}
-                                     </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        {customer.insuranceRequests[0]?.fasttag_amount || "N/A"}
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        <Badge bg="danger">
-                          {customer.insuranceRequests[0]?.status || "N/A"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell style={{ fontSize: "11px" }}>
-                        <DescriptionIcon
-                          style={{ cursor: "pointer", color: "#1b1994" }}
-                          onClick={() =>
-                            handleDocumentsIconClick(
-                              customer,
-                              customer.insuranceRequests[0]
-                            )
-                          }
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
+                  <MobileCardRow 
+                    key={customer.customerId}
+                    customer={customer}
+                    handleDocumentsClick={handleDocumentsClick}
+                    handleApprove={handleApprove}
+                   />
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan="9" className="text-center">
-                    No records found.
-                  </TableCell>
-                </TableRow>
+                <Typography sx={{ textAlign: 'center', my: 4 }}>
+                  No Rejected records found.
+                </Typography>
               )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      {/* Documents Modal */}
-      <Modal
-        show={showDocumentsModal}
-        onHide={handleClose}
-        centered
-        backdrop="static"
-        keyboard={false}
-        animation={false}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Insurance Documents</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedInsurance && (
-            <>
-              <Typography>
-                <strong>Customer ID:</strong> {selectedCustomer.customerId}
-              </Typography>
-              <Typography>
-                <strong>Full Name:</strong>{" "}
-                {`${selectedCustomer.firstName} ${selectedCustomer.middleName} ${selectedCustomer.lastName}`}
-              </Typography>
-              <Typography>
-                <strong>Insurance Amount:</strong>{" "}
-                {selectedInsurance.fasttag_amount}
-              </Typography>
-              <Typography>
-                <strong>Created At:</strong>{" "}
-                {new Date(selectedInsurance.createdAt).toLocaleString()}
-              </Typography>
-              <Typography>
-                <strong>Updated At:</strong>{" "}
-                {new Date(selectedInsurance.updatedAt).toLocaleString()}
-              </Typography>
-                <Typography style={{fontSize: "12px", color: "red"}} >
-                                <strong style={{color:'black'}}  >Fast-tag Rejected Reason:</strong>{" "}
-                                { selectedInsurance.fasttagReason || "N/A"}
-                              </Typography>
-
-              <TableContainer component={Paper} style={{ marginTop: "10px" }}>
-                <Table>
-                  <TableHead>
+            </Box>
+          )}
+          
+          {/* Tablet View - Simplified Table */}
+          {isTablet && (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell width="50px" />
+                    <TableCell>Customer ID</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredCustomers.length > 0 ? (
+                    filteredCustomers.map((customer) => (
+                      <TabletRow 
+                        key={customer.customerId}
+                        customer={customer}
+                        handleDocumentsClick={handleDocumentsClick}
+                        handleApprove={handleApprove}
+                       />
+                    ))
+                  ) : (
                     <TableRow>
-                      <TableCell style={{ fontSize: "12px" }}>
-                        Document Name
-                      </TableCell>
-                      <TableCell style={{ fontSize: "12px" }}>
-                        View Document
+                      <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
+                        No Rejected records found.
                       </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {[
-                      { name: "RC Document", path: selectedInsurance.rcDocument },
-                      { name: "PAN Document", path: selectedInsurance.panDocument },
-                      { name: "Passport Photo", path: selectedInsurance.passportPhoto },
-                      { name: "Address Proof", path: selectedInsurance.aadhaarDocument},
-                  
-                    ].map((doc, index) => {
-                      const { customerId, fileName } = getDocumentDetails(doc.path);
-                      return (
-                        <TableRow key={index}>
-                          <TableCell style={{ fontSize: "12px" }}>
-                            {doc.name}
-                          </TableCell>
-                          <TableCell style={{ fontSize: "12px" }}>
-                            {fileName ? (
-                              <a
-                                href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
-                                  fileName
-                                )}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  color: "blue",
-                                  textDecoration: "underline",
-                                }}
-                              >
-                                View Document
-                              </a>
-                            ) : (
-                              "N/A"
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => {
-              setShowDocumentsModal(false);
-              setShowModal(true);
-            }}
-          >
-            Rejected
-          </Button>
-          <Button variant="success" onClick={handleApprove}>
-            Approved
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-    
-    </>
+          
+          {/* Desktop View - Full Table */}
+          {isDesktop && (
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell width="50px" />
+                    <TableCell>Customer ID</TableCell>
+                    <TableCell>Full Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Car Details</TableCell>
+                    <TableCell>Fast-Tag Amount</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredCustomers.length > 0 ? (
+                    filteredCustomers.map((customer) => (
+                      <DesktopRow 
+                        key={customer.customerId}
+                        customer={customer}
+                        handleDocumentsClick={handleDocumentsClick}
+                        handleApprove={handleApprove}
+                       />
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} sx={{ textAlign: 'center' }}>
+                        No Rejected records found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </>
+      )}
+      
+      {/* Documents Modal */}
+      <DocumentsModal 
+        open={documentsModalOpen}
+        handleClose={() => setDocumentsModalOpen(false)}
+        selectedCustomer={selectedCustomer}
+        selectedInsurance={selectedInsurance}
+      />
+ 
+    </div>
   );
 };
 

@@ -5,6 +5,7 @@ import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
 import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
+import PaymentSummary from './PaymentSummary/PaymentSummary';
 
 const Container = styled.div`
   padding: 2rem 1rem;
@@ -118,8 +119,7 @@ function AccountApp() {
   const [statusCards] = useState([
     {
       id: 'CashierManaement',
-      title: 'Cashier Manaement',
-     
+      title: 'Account Manaement',
       status: 'Approved / Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'CashierMhanaement',
@@ -127,49 +127,23 @@ function AccountApp() {
     },
      
     {
-      id: 'CustomerPaymentDetails',
-      title: 'Customer Payment Details',
+      id: 'Payment Dashboard',
+      title: 'Payment Dashboard',
       status: 'Paid / Unpaid / Refund',
       icon: PersonSearchRoundedIcon,
       iconType: 'CustomerDetails',
       path: '/customer-payment-details'
     },
+ 
     {
-      id: 'payment',
-      title: 'Payment Clear',
-      count: 80,
-      status: 'All Payments Paid',
-      icon: AssuredWorkloadRoundedIcon,
-      iconType: 'success',
-      path: '/Payment-Clear',
-    },
-    {
-      id: 'pending',
-      title: 'Payment pending',
-      count: 80,
-      status: 'All Payments unpaid',
-      icon: PendingOutlinedIcon,
-      iconType: 'warning',
-      path: '/Payment-pending',
-    }, 
-    {
-      id: 'Manaement',
+      id: 'gatepass-app',
       title: 'Gate Pass Request',
-      count: 80,
-      status: 'Rejected',
+       status: 'Pending / Approved / Rejected',
       icon: FlakyRoundedIcon,
-      iconType: 'CashierMhanaement',
-      path: '/ACMApprovedRejected',
+      iconType: 'gatepass-app',
+      path: '/gatepass-app',
     },
-    {
-      id: 'Manaement',
-      title: 'Gate Pass Request',
-      count: 80,
-      status: 'Rejected',
-      icon: FlakyRoundedIcon,
-      iconType: 'CashierMhanaement',
-      path: '/ACMApprovedRejected',
-    },
+ 
   ]);
 
   const handleCardClick = (path) => {
@@ -198,6 +172,7 @@ function AccountApp() {
           </Card>
         ))}
       </Grid>
+      <PaymentSummary />
     </Container>
   );
 }
