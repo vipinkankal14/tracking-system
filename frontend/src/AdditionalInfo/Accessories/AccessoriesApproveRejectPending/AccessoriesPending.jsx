@@ -371,32 +371,46 @@ const AccessoriesDetailsModal = ({
                   </Typography>
                 </Grid>
            
+             
+
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Full Name:</strong>{" "}
                     {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
                   </Typography>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Mobile Number:</strong>{" "}
                     {selectedCustomer.mobileNumber1}, {selectedCustomer.mobileNumber2}
                   </Typography>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Email:</strong> {selectedCustomer.email}
                   </Typography>
                 </Grid>
+
+               
 
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Car Details:</strong>{" "}
                     {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
                   </Typography>
+                  <Typography variant="body1">
+                  <strong>VIN Number:</strong>{" "}
+
+                     {`${selectedCustomer.stockInfo?.vin || "N/A"}`}
+                  </Typography>
+                  <Typography variant="body1">
+                  <strong>Chassis Number:</strong>{" "}
+
+                     {`${selectedCustomer.stockInfo?.chassisNumber || "N/A"}`}
+                  </Typography>
+                  <Typography variant="body1">
+                  <strong>Engine Number:</strong>{" "}
+
+                     {`${selectedCustomer.stockInfo?.engineNumber || "N/A"}`}
+                  </Typography>
                 </Grid>
+             
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Total Amount:</strong> ₹{selectedOrder.totalAmount}
@@ -417,7 +431,7 @@ const AccessoriesDetailsModal = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {selectedOrder.products.map((product) => (
+                    {selectedOrder.products?.map((product) => (
                       <TableRow key={product.id}>
                         <TableCell>{product.category}</TableCell>
                         <TableCell>{product.name}</TableCell>
@@ -430,8 +444,20 @@ const AccessoriesDetailsModal = ({
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
- 
-  
+              <Button 
+                variant="contained" 
+                color="success"
+                onClick={() => handleApprove(selectedCustomer)}
+              >
+                Approve
+              </Button>
+              <Button 
+                variant="contained" 
+                color="error"
+                onClick={() => handleReject(selectedCustomer, selectedOrder)}
+              >
+                Reject
+              </Button>
               <Button onClick={handleClose} variant="outlined">
                 Close
               </Button>
@@ -585,22 +611,23 @@ const AccessoriesPending = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  // Fetch data
+  // Fetch data from your backend API
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const response = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
         
-        if (response.data && Array.isArray(response.data.data)) {
-          // Filter to show only Pending requests by default
+        if (response.data && response.data.success && Array.isArray(response.data.data)) {
+          // Filter customers with pending accessories requests
           const pendingCustomers = response.data.data.filter(customer => 
-            customer.orders && customer.orders.some(order => order.status === "Pending")
+            customer.accessoriesRequests && 
+            customer.accessoriesRequests.some(request => request.status === "Pending")
           );
           
           setAccessoriesCustomers(pendingCustomers);
         } else {
-          throw new Error("Invalid data format");
+          throw new Error(response.data?.message || "Invalid data format");
         }
 
         setLoading(false);
@@ -614,26 +641,27 @@ const AccessoriesPending = () => {
     fetchData();
   }, []);
 
-  // Filter customers based on search query (only Pending shown)
+  // Filter customers based on search query
   const getFilteredAccessoriesCustomers = () => {
-    return accessoriesCustomers.filter(customer => 
+    return accessoriesCustomers.filter(customer =>
       (customer.customerId?.toString().includes(searchQuery) ||
-       customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
+        customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     );
   };
-
+  
   // Handle accessories details modal
-  const handleAccessoriesDetailsClick = (order, customer) => {
-    setSelectedOrder(order);
+  const handleAccessoriesDetailsClick = (request, customer) => {
+    setSelectedOrder(request);
     setSelectedCustomer(customer);
     setAccessoriesDetailsModalOpen(true);
   };
 
   // Handle reject click
-  const handleRejectClick = (customer, order) => {
+  const handleRejectClick = (customer, request) => {
     setSelectedCustomer(customer);
-    setSelectedOrder(order);
+    setSelectedOrder(request);
     setRejectionModalOpen(true);
   };
 
@@ -641,6 +669,15 @@ const AccessoriesPending = () => {
   const handleAccessoriesApprove = async (customer) => {
     try {
       setLoading(true);
+      // Find the pending accessories request for this customer
+      const pendingRequest = customer.accessoriesRequests?.find(
+        req => req.status === "Pending"
+      );
+      
+      if (!pendingRequest) {
+        throw new Error("No pending accessories request found for this customer");
+      }
+
       const response = await axios.put(
         `http://localhost:5000/api/accessoriesapproval/update-status/${customer.customerId}`,
         { status: "Approval" }
@@ -650,10 +687,11 @@ const AccessoriesPending = () => {
         alert("Accessories approved successfully!");
         setAccessoriesDetailsModalOpen(false);
         
-        // Refresh the data to show updated status
-        const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        const pendingCustomers = newData.data.data.filter(customer => 
-          customer.orders && customer.orders.some(order => order.status === "Pending")
+        // Refresh the data
+        const newResponse = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
+        const pendingCustomers = newResponse.data.data.filter(customer => 
+          customer.accessoriesRequests && 
+          customer.accessoriesRequests.some(request => request.status === "Pending")
         );
         setAccessoriesCustomers(pendingCustomers);
       }
@@ -679,10 +717,11 @@ const AccessoriesPending = () => {
       if (response.status === 200) {
         alert("Accessories rejected successfully!");
         
-        // Refresh the data to show updated status
-        const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        const pendingCustomers = newData.data.data.filter(customer => 
-          customer.orders && customer.orders.some(order => order.status === "Pending")
+        // Refresh the data
+        const newResponse = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
+        const pendingCustomers = newResponse.data.data.filter(customer => 
+          customer.accessoriesRequests && 
+          customer.accessoriesRequests.some(request => request.status === "Pending")
         );
         setAccessoriesCustomers(pendingCustomers);
       }
@@ -744,13 +783,13 @@ const AccessoriesPending = () => {
             <Box>
               {getFilteredAccessoriesCustomers().length > 0 ? (
                 getFilteredAccessoriesCustomers().map((customer) =>
-                  customer.orders
-                    .filter(order => order.status === "Pending")
-                    .map((order) => (
+                  customer.accessoriesRequests
+                    ?.filter(request => request.status === "Pending")
+                    .map((request) => (
                       <AccessoriesMobileCard
-                        key={`${customer.customerId}-${order.orderId}`}
+                        key={`${customer.customerId}-${request.id}`}
                         customer={customer}
-                        order={order}
+                        order={request}
                         handleDetailsClick={handleAccessoriesDetailsClick}
                         handleApprove={handleAccessoriesApprove}
                         handleReject={handleRejectClick}
@@ -782,13 +821,13 @@ const AccessoriesPending = () => {
                 <TableBody>
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
-                      customer.orders
-                        .filter(order => order.status === "Pending")
-                        .map((order) => (
+                      customer.accessoriesRequests
+                        ?.filter(request => request.status === "Pending")
+                        .map((request) => (
                           <AccessoriesTabletRow
-                            key={`${customer.customerId}-${order.orderId}`}
+                            key={`${customer.customerId}-${request.id}`}
                             customer={customer}
-                            order={order}
+                            order={request}
                             handleDetailsClick={handleAccessoriesDetailsClick}
                             handleApprove={handleAccessoriesApprove}
                             handleReject={handleRejectClick}
@@ -826,13 +865,13 @@ const AccessoriesPending = () => {
                 <TableBody>
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
-                      customer.orders
-                        .filter(order => order.status === "Pending")
-                        .map((order) => (
+                      customer.accessoriesRequests
+                        ?.filter(request => request.status === "Pending")
+                        .map((request) => (
                           <AccessoriesDesktopRow
-                            key={`${customer.customerId}-${order.orderId}`}
+                            key={`${customer.customerId}-${request.id}`}
                             customer={customer}
-                            order={order}
+                            order={request}
                             handleDetailsClick={handleAccessoriesDetailsClick}
                             handleApprove={handleAccessoriesApprove}
                             handleReject={handleRejectClick}
