@@ -32,7 +32,7 @@ import {
   Search as SearchIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
-  Description as DescriptionIcon,
+  Description,
   VerifiedRounded as VerifiedRoundedIcon,
   Check as CheckIcon,
   Close as CloseIcon,
@@ -66,14 +66,9 @@ const MobileCardRow = ({
           <Typography variant="subtitle1" fontWeight="bold">
             {customer.customerId}
           </Typography>
-          <Chip
-            label="Pending"
-            size="small"
-            sx={{
-              backgroundColor: getStatusColor(),
-              color: "white",
-            }}
-          />
+          {customer.coatingRequests[0]?.status === "Approval" ? (
+            <Chip label="Approval" size="small" color="success" />
+          ) : null}
         </Box>
 
         <Typography variant="body2" sx={{ mt: 1 }}>
@@ -83,15 +78,24 @@ const MobileCardRow = ({
         </Typography>
 
         <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-          <Button
-            size="small"
-            startIcon={<DescriptionIcon />}
-            onClick={() =>
-              handleDetailsClick(customer, customer.coatingRequests[0])
-            }
-          >
-            Details
-          </Button>
+          <Typography>
+            {customer.mobileNumber1 ? (
+              // If mobileNumber1 exists
+              <>
+                <strong sx={{ mt: 1 }}>
+                  Number : {customer.mobileNumber1}
+                </strong>
+                {customer.mobileNumber2 && ", "}{" "}
+                {/* Add comma if both numbers exist */}
+              </>
+            ) : null}
+
+            {customer.mobileNumber2 && (
+              // Only show mobileNumber2 if it exists
+              <strong sx={{ mt: 1 }}>{customer.mobileNumber2}</strong>
+            )}
+          </Typography>
+
           <IconButton size="small" onClick={toggleExpand}>
             {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
@@ -103,24 +107,82 @@ const MobileCardRow = ({
             <Typography variant="body2">
               <strong>Email:</strong> {customer.email}
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Car Details:</strong>{" "}
-              {customer.carBooking?.model || "N/A"} |{" "}
-              {customer.carBooking?.version || "N/A"} |{" "}
-              {customer.carBooking?.color || "N/A"}
-            </Typography>
-            {customer.coatingRequests[0]?.coating_amount && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Coating Amount:</strong>{" "}
-                {customer.coatingRequests[0]?.coating_amount}
-              </Typography>
-            )}
-            {customer.coatingRequests[0]?.coatingType && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Coating Type:</strong>{" "}
-                {customer.coatingRequests[0]?.coatingType}
-              </Typography>
-            )}
+
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>Car Details:</strong>{" "}
+                  {customer.carBooking?.model || "N/A"} |{" "}
+                  {customer.carBooking?.version || "N/A"} |{" "}
+                  {customer.carBooking?.color || "N/A"}
+                </Typography>
+
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>VIN Number:</strong>{" "}
+                  {customer.stockInfo?.model || "N/A"}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>Chassis Number:</strong>{" "}
+                  {customer.stockInfo?.chassisNumber || "N/A"}
+                </Typography>
+
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>Engine Number:</strong>{" "}
+                  {customer.stockInfo?.engineNumber || "N/A"}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  <strong>Coating Type:</strong>{" "}
+                  {customer.coatingRequests[0]?.coatingType || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Durability Coating:</strong>{" "}
+                  {customer.coatingRequests[0]?.durability || "N/A"}
+                </Typography>
+
+                <Typography variant="body2">
+                  <strong>Preferred Date:</strong>{" "}
+                  {customer.coatingRequests[0]?.preferredDate
+                    ? new Date(
+                        customer.coatingRequests[0].preferredDate
+                      ).toLocaleDateString()
+                    : "N/A"}
+                </Typography>
+
+                <Typography variant="body2">
+                  <strong>Preferred Time:</strong>{" "}
+                  {customer.coatingRequests[0]?.preferredTime || "N/A"}
+                </Typography>
+
+                <Typography variant="body2">
+                  <strong>Additional Notes:</strong>{" "}
+                  {customer.coatingRequests[0]?.additionalNotes || "N/A"}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  <strong>Created At:</strong>{" "}
+                  {customer.coatingRequests[0]?.createdAt
+                    ? new Date(
+                        customer.coatingRequests[0].createdAt
+                      ).toLocaleString()
+                    : "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  <strong>Updated At:</strong>{" "}
+                  {customer.coatingRequests[0]?.updatedAt
+                    ? new Date(
+                        customer.coatingRequests[0].updatedAt
+                      ).toLocaleString()
+                    : "N/A"}
+                </Typography>
+              </Grid>
+            </Grid>
 
             <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
               <Button
@@ -167,24 +229,17 @@ const TabletRow = ({
         <TableCell>{customer.customerId}</TableCell>
         <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
         <TableCell>
-          <Chip
-            label="Pending"
-            size="small"
-            sx={{
-              backgroundColor: "#f57c00",
-              color: "white",
-            }}
-          />
+          {customer.carBooking?.model || "N/A"} |{" "}
+          {customer.carBooking?.version || "N/A"} |{" "}
+          {customer.carBooking?.color || "N/A"}
         </TableCell>
         <TableCell>
-          <IconButton
-            size="small"
-            onClick={() =>
-              handleDetailsClick(customer, customer.coatingRequests[0])
-            }
-          >
-            <DescriptionIcon />
-          </IconButton>
+          {customer.coatingRequests[0]?.coating_amount || "N/A"}
+        </TableCell>
+        <TableCell>
+          {customer.coatingRequests[0]?.status === "Approval" ? (
+            <Chip label="Approval" size="small" color="success" />
+          ) : null}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -195,28 +250,77 @@ const TabletRow = ({
                 Details
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Typography variant="body2">
-                    <strong>Email:</strong> {customer.email}
-                  </Typography>
-                </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ mt: 1 }}>
                     <strong>Car Details:</strong>{" "}
                     {customer.carBooking?.model || "N/A"} |{" "}
-                    {customer.carBooking?.version || "N/A"}
+                    {customer.carBooking?.version || "N/A"} |{" "}
+                    {customer.carBooking?.color || "N/A"}
+                  </Typography>
+
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <strong>VIN Number:</strong>{" "}
+                    {customer.stockInfo?.model || "N/A"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <strong>Chassis Number:</strong>{" "}
+                    {customer.stockInfo?.chassisNumber || "N/A"}
+                  </Typography>
+
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <strong>Engine Number:</strong>{" "}
+                    {customer.stockInfo?.engineNumber || "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Coating Amount:</strong>{" "}
-                    {customer.coatingRequests[0]?.coating_amount || "N/A"}
-                  </Typography>
-                </Grid>
+
                 <Grid item xs={6}>
                   <Typography variant="body2">
                     <strong>Coating Type:</strong>{" "}
                     {customer.coatingRequests[0]?.coatingType || "N/A"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Durability Coating:</strong>{" "}
+                    {customer.coatingRequests[0]?.durability || "N/A"}
+                  </Typography>
+
+                  <Typography variant="body2">
+                    <strong>Preferred Date:</strong>{" "}
+                    {customer.coatingRequests[0]?.preferredDate
+                      ? new Date(
+                          customer.coatingRequests[0].preferredDate
+                        ).toLocaleDateString()
+                      : "N/A"}
+                  </Typography>
+
+                  <Typography variant="body2">
+                    <strong>Preferred Time:</strong>{" "}
+                    {customer.coatingRequests[0]?.preferredTime || "N/A"}
+                  </Typography>
+
+                  <Typography variant="body2">
+                    <strong>Additional Notes:</strong>{" "}
+                    {customer.coatingRequests[0]?.additionalNotes || "N/A"}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Created At:</strong>{" "}
+                    {customer.coatingRequests[0]?.createdAt
+                      ? new Date(
+                          customer.coatingRequests[0].createdAt
+                        ).toLocaleString()
+                      : "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2">
+                    <strong>Updated At:</strong>{" "}
+                    {customer.coatingRequests[0]?.updatedAt
+                      ? new Date(
+                          customer.coatingRequests[0].updatedAt
+                        ).toLocaleString()
+                      : "N/A"}
                   </Typography>
                 </Grid>
               </Grid>
@@ -289,29 +393,12 @@ const DesktopRow = ({
         </TableCell>
         <TableCell>
           <Box sx={{ display: "flex", gap: 1 }}>
-            <IconButton
-              size="small"
-              onClick={() =>
-                handleDetailsClick(customer, customer.coatingRequests[0])
-              }
-            >
-              <DescriptionIcon />
-            </IconButton>
-             
-         
-            <Button
-                 color="success"
-              onClick={() => handleApprove(customer)}
-            >
-                Approve
-              </Button>
-              <Button
-                 color="error"
-                onClick={() => handleReject(customer)}
-
-              >
-                Reject
-              </Button>
+            <Button color="success" onClick={() => handleApprove(customer)}>
+              Approve
+            </Button>
+            <Button color="error" onClick={() => handleReject(customer)}>
+              Reject
+            </Button>
           </Box>
         </TableCell>
       </TableRow>
@@ -322,14 +409,41 @@ const DesktopRow = ({
               <Typography variant="h6" gutterBottom component="div">
                 Additional Details
               </Typography>
+
               <Grid container spacing={2}>
-                <Grid item xs={4}>
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <strong>Car Details:</strong>{" "}
+                    {customer.carBooking?.model || "N/A"} |{" "}
+                    {customer.carBooking?.version || "N/A"} |{" "}
+                    {customer.carBooking?.color || "N/A"}
+                  </Typography>
+
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <strong>VIN Number:</strong>{" "}
+                    {customer.stockInfo?.model || "N/A"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <strong>Chassis Number:</strong>{" "}
+                    {customer.stockInfo?.chassisNumber || "N/A"}
+                  </Typography>
+
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <strong>Engine Number:</strong>{" "}
+                    {customer.stockInfo?.engineNumber || "N/A"}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
                   <Typography variant="body2">
                     <strong>Coating Type:</strong>{" "}
                     {customer.coatingRequests[0]?.coatingType || "N/A"}
                   </Typography>
-                </Grid>
-                <Grid item xs={4}>
+                  <Typography variant="body2">
+                    <strong>Durability Coating:</strong>{" "}
+                    {customer.coatingRequests[0]?.durability || "N/A"}
+                  </Typography>
+
                   <Typography variant="body2">
                     <strong>Preferred Date:</strong>{" "}
                     {customer.coatingRequests[0]?.preferredDate
@@ -338,20 +452,19 @@ const DesktopRow = ({
                         ).toLocaleDateString()
                       : "N/A"}
                   </Typography>
-                </Grid>
-                <Grid item xs={4}>
+
                   <Typography variant="body2">
                     <strong>Preferred Time:</strong>{" "}
                     {customer.coatingRequests[0]?.preferredTime || "N/A"}
                   </Typography>
-                </Grid>
-                <Grid item xs={12}>
+
                   <Typography variant="body2">
                     <strong>Additional Notes:</strong>{" "}
                     {customer.coatingRequests[0]?.additionalNotes || "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={4}>
+
+                <Grid item xs={6}>
                   <Typography variant="body2">
                     <strong>Created At:</strong>{" "}
                     {customer.coatingRequests[0]?.createdAt
@@ -361,7 +474,7 @@ const DesktopRow = ({
                       : "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={6}>
                   <Typography variant="body2">
                     <strong>Updated At:</strong>{" "}
                     {customer.coatingRequests[0]?.updatedAt
@@ -377,125 +490,6 @@ const DesktopRow = ({
         </TableCell>
       </TableRow>
     </>
-  );
-};
-
-// Details Modal Component
-const DetailsModal = ({
-  open,
-  handleClose,
-  selectedCustomer,
-  selectedCoating,
-  handleApprove,
-  handleReject,
-}) => {
-  return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="details-modal-title"
-      aria-describedby="details-modal-description"
-    >
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: { xs: "90%", sm: "80%", md: "70%" },
-          maxHeight: "90vh",
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-          borderRadius: 2,
-          overflow: "auto",
-        }}
-      >
-        <Typography id="details-modal-title" variant="h6" component="h2">
-          Coating Details
-        </Typography>
-
-        {selectedCustomer && selectedCoating && (
-          <>
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body1">
-                <strong>Customer ID:</strong> {selectedCustomer.customerId}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Full Name:</strong>{" "}
-                {`${selectedCustomer.firstName} ${
-                  selectedCustomer.middleName || ""
-                } ${selectedCustomer.lastName}`}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Coating Type:</strong>{" "}
-                {selectedCoating.coatingType || "N/A"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Coating Amount:</strong>{" "}
-                {selectedCoating.coating_amount || "N/A"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Preferred Date:</strong>{" "}
-                {selectedCoating.preferredDate
-                  ? new Date(selectedCoating.preferredDate).toLocaleDateString()
-                  : "N/A"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Preferred Time:</strong>{" "}
-                {selectedCoating.preferredTime || "N/A"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Additional Notes:</strong>{" "}
-                {selectedCoating.additionalNotes || "N/A"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Created At:</strong>{" "}
-                {selectedCoating.createdAt
-                  ? new Date(selectedCoating.createdAt).toLocaleString()
-                  : "N/A"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Updated At:</strong>{" "}
-                {selectedCoating.updatedAt
-                  ? new Date(selectedCoating.updatedAt).toLocaleString()
-                  : "N/A"}
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                mt: 3,
-                gap: 1,
-              }}
-            >
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => handleApprove(selectedCustomer)}
-              >
-                Approve
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => {
-                  handleClose();
-                  handleReject(selectedCustomer);
-                }}
-              >
-                Reject
-              </Button>
-              <Button onClick={handleClose} variant="outlined">
-                Close
-              </Button>
-            </Box>
-          </>
-        )}
-      </Box>
-    </Modal>
   );
 };
 
@@ -655,7 +649,6 @@ const CoatingPending = () => {
   const [error, setError] = useState(null);
 
   // Modal states
-  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedCoating, setSelectedCoating] = useState(null);
@@ -727,7 +720,6 @@ const CoatingPending = () => {
   const handleDetailsClick = (customer, coating) => {
     setSelectedCustomer(customer);
     setSelectedCoating(coating);
-    setDetailsModalOpen(true);
   };
 
   // Handle rejection modal
@@ -748,7 +740,7 @@ const CoatingPending = () => {
       if (response.status === 200) {
         alert("Coating approved successfully!");
         // Close any open modals
-        setDetailsModalOpen(false);
+
         setRejectionModalOpen(false);
 
         // Refresh the data
@@ -875,10 +867,11 @@ const CoatingPending = () => {
                   <TableRow>
                     <TableCell width="50px" />
                     <TableCell>Customer ID</TableCell>
-                    <TableCell>Name</TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Car Details</TableCell>
+                        <TableCell>Coating Amount</TableCell>
                     <TableCell>Status</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
+                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredCustomers.length > 0 ? (
@@ -945,17 +938,6 @@ const CoatingPending = () => {
           )}
         </>
       )}
-
-      {/* Details Modal */}
-      <DetailsModal
-        open={detailsModalOpen}
-        handleClose={() => setDetailsModalOpen(false)}
-        selectedCustomer={selectedCustomer}
-        selectedCoating={selectedCoating}
-        handleApprove={handleApprove}
-        handleReject={handleRejectClick}
-        status={getCurrentStatus()}
-      />
 
       {/* Rejection Modal */}
       <RejectionModal

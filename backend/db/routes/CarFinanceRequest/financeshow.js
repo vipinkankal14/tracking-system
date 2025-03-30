@@ -10,7 +10,7 @@ const financeshow = async (req, res) => {
         c.middleName,
         c.lastName,
         c.email,
-        c.created_at AS customer_created,
+        c.createdAt AS customer_created,
         l.id AS loan_id,
         l.loan_amount,
         l.interest_rate,

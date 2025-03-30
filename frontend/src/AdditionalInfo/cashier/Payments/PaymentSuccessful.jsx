@@ -1,16 +1,60 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import '../css/PaymentSuccessful.scss';
 
 const PaymentSuccessful = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { transactionType = 'N/A', amount = 0, updatedBalance = 0 } = location.state || {};
+  const [timer, setTimer] = useState(30);
+  
+  // Validate and extract state data safely
+  const transactionData = (() => {
+    const state = location.state || {};
+    const requiredKeys = ['transactionType', 'amount', 'updatedBalance'];
+    
+    if (!requiredKeys.every(key => key in state)) {
+      return null;
+    }
+    
+    return {
+      transactionType: state.transactionType,
+      amount: state.amount,
+      updatedBalance: state.updatedBalance
+    };
+  })();
 
-  if (!transactionType || !amount || updatedBalance === undefined) {
-    navigate("/cashier-app");
-    return null;
-  }
+  // Redirect if no valid data
+  useEffect(() => {
+    if (!transactionData) {
+      navigate("/cashier-app", { replace: true });
+    }
+    
+    return () => {
+      window.history.replaceState({}, document.title);
+    };
+  }, [navigate, transactionData]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!transactionData) return;
+
+    const countdown = setInterval(() => {
+      setTimer((prev) => prev > 0 ? prev - 1 : 0);
+    }, 1000);
+
+    return () => clearInterval(countdown);
+  }, [transactionData]);
+
+  // Handle auto-redirect
+  useEffect(() => {
+    if (timer === 0) {
+      navigate("/cashier-app", { replace: true });
+    }
+  }, [timer, navigate]);
+
+  if (!transactionData) return null;
+
 
   const handlePrint = () => {
     const printContent = document.getElementById("print-content");
@@ -116,17 +160,20 @@ const PaymentSuccessful = () => {
           <div className="receipt-details">
             <div className="receipt-row">
               <span className="receipt-label">Transaction Type:</span>
-              <span className="receipt-value">{transactionType}</span>
+              <span className="receipt-value">{transactionData.transactionType}</span>
             </div>
             <div className="receipt-row">
               <span className="receipt-label">Amount:</span>
-              <span className="receipt-value">₹{amount}</span>
+              <span className="receipt-value">₹{transactionData.amount}</span>
             </div>
             <div className="receipt-row">
               <span className="receipt-label">Updated Balance:</span>
-              <span className="receipt-value">₹{updatedBalance}</span>
+              <span className="receipt-value">₹{transactionData.updatedBalance}</span>
             </div>
           </div>
+        </div>
+        <div className="countdown-banner">
+          Auto-redirecting in {timer} seconds...
         </div>
         <div className="button-group">
           <button onClick={handlePrint} className="print-button">

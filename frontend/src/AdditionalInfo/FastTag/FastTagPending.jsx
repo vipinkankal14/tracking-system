@@ -69,7 +69,7 @@ const MobileCardRow = ({
       sx={{
         mb: 2,
         border: `1px solid ${getStatusColor(
-          customer.insuranceRequests[0]?.status
+          customer.fasttagRequests[0]?.status
         )}`,
       }}
     >
@@ -85,11 +85,11 @@ const MobileCardRow = ({
             {customer.customerId}
           </Typography>
           <Chip
-            label={customer.insuranceRequests[0]?.status || "N/A"}
+            label={customer.fasttagRequests[0]?.status || "N/A"}
             size="small"
             sx={{
               backgroundColor: getStatusColor(
-                customer.insuranceRequests[0]?.status
+                customer.fasttagRequests[0]?.status
               ),
               color: "white",
             }}
@@ -107,7 +107,7 @@ const MobileCardRow = ({
             size="small"
             startIcon={<DescriptionIcon />}
             onClick={() =>
-              handleDocumentsClick(customer, customer.insuranceRequests[0])
+              handleDocumentsClick(customer, customer.fasttagRequests[0])
             }
           >
             Documents
@@ -129,16 +129,16 @@ const MobileCardRow = ({
               {customer.carBooking?.version || "N/A"} |{" "}
               {customer.carBooking?.color || "N/A"}
             </Typography>
-            {customer.insuranceRequests[0]?.fasttag_amount && (
+            {customer.fasttagRequests[0]?.fasttag_amount && (
               <Typography variant="body2" sx={{ mt: 1 }}>
                 <strong>Fast-Tag Amount:</strong>{" "}
-                {customer.insuranceRequests[0]?.fasttag_amount}
+                {customer.fasttagRequests[0]?.fasttag_amount}
               </Typography>
             )}
-            {customer.insuranceRequests[0]?.fasttagReason && (
+            {customer.fasttagRequests[0]?.fasttagReason && (
               <Typography variant="body2" sx={{ mt: 1, color: "error.main" }}>
                 <strong>Rejection Reason:</strong>{" "}
-                {customer.insuranceRequests[0]?.fasttagReason}
+                {customer.fasttagRequests[0]?.fasttagReason}
               </Typography>
             )}
 
@@ -201,11 +201,11 @@ const TabletRow = ({
         <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
         <TableCell>
           <Chip
-            label={customer.insuranceRequests[0]?.status || "N/A"}
+            label={customer.fasttagRequests[0]?.status || "N/A"}
             size="small"
             sx={{
               backgroundColor: getStatusColor(
-                customer.insuranceRequests[0]?.status
+                customer.fasttagRequests[0]?.status
               ),
               color: "white",
             }}
@@ -215,7 +215,7 @@ const TabletRow = ({
           <IconButton
             size="small"
             onClick={() =>
-              handleDocumentsClick(customer, customer.insuranceRequests[0])
+              handleDocumentsClick(customer, customer.fasttagRequests[0])
             }
           >
             <DescriptionIcon />
@@ -245,14 +245,14 @@ const TabletRow = ({
                 <Grid item xs={6}>
                   <Typography variant="body2">
                     <strong>Fast-Tag Amount:</strong>{" "}
-                    {customer.insuranceRequests[0]?.fasttag_amount || "N/A"}
+                    {customer.fasttagRequests[0]?.fasttag_amount || "N/A"}
                   </Typography>
                 </Grid>
-                {customer.insuranceRequests[0]?.fasttagReason && (
+                {customer.fasttagRequests[0]?.fasttagReason && (
                   <Grid item xs={12}>
                     <Typography variant="body2" color="error">
                       <strong>Rejection Reason:</strong>{" "}
-                      {customer.insuranceRequests[0]?.fasttagReason}
+                      {customer.fasttagRequests[0]?.fasttagReason}
                     </Typography>
                   </Grid>
                 )}
@@ -325,15 +325,15 @@ const DesktopRow = ({
           {customer.carBooking?.color || "N/A"}
         </TableCell>
         <TableCell>
-          {customer.insuranceRequests[0]?.fasttag_amount || "N/A"}
+          {customer.fasttagRequests[0]?.fasttag_amount || "N/A"}
         </TableCell>
         <TableCell>
           <Chip
-            label={customer.insuranceRequests[0]?.status || "N/A"}
+            label={customer.fasttagRequests[0]?.status || "N/A"}
             size="small"
             sx={{
               backgroundColor: getStatusColor(
-                customer.insuranceRequests[0]?.status
+                customer.fasttagRequests[0]?.status
               ),
               color: "white",
             }}
@@ -344,7 +344,7 @@ const DesktopRow = ({
             <IconButton
               size="small"
               onClick={() =>
-                handleDocumentsClick(customer, customer.insuranceRequests[0])
+                handleDocumentsClick(customer, customer.fasttagRequests[0])
               }
             >
               <DescriptionIcon />
@@ -377,9 +377,9 @@ const DesktopRow = ({
                 <Grid item xs={4}>
                   <Typography variant="body2">
                     <strong>Created At:</strong>{" "}
-                    {customer.insuranceRequests[0]?.createdAt
+                    {customer.fasttagRequests[0]?.createdAt
                       ? new Date(
-                          customer.insuranceRequests[0].createdAt
+                          customer.fasttagRequests[0].createdAt
                         ).toLocaleString()
                       : "N/A"}
                   </Typography>
@@ -387,18 +387,18 @@ const DesktopRow = ({
                 <Grid item xs={4}>
                   <Typography variant="body2">
                     <strong>Updated At:</strong>{" "}
-                    {customer.insuranceRequests[0]?.updatedAt
+                    {customer.fasttagRequests[0]?.updatedAt
                       ? new Date(
-                          customer.insuranceRequests[0].updatedAt
+                          customer.fasttagRequests[0].updatedAt
                         ).toLocaleString()
                       : "N/A"}
                   </Typography>
                 </Grid>
-                {customer.insuranceRequests[0]?.fasttagReason && (
+                {customer.fasttagRequests[0]?.fasttagReason && (
                   <Grid item xs={12}>
                     <Typography variant="body2" color="error">
                       <strong>Rejection Reason:</strong>{" "}
-                      {customer.insuranceRequests[0]?.fasttagReason}
+                      {customer.fasttagRequests[0]?.fasttagReason}
                     </Typography>
                   </Grid>
                 )}
@@ -753,7 +753,7 @@ const FastTagPending = () => {
   const getFilteredCustomers = () => {
     return customers.filter(
       (customer) =>
-        customer.insuranceRequests[0]?.status === "Pending" &&
+        customer.fasttagRequests[0]?.status === "Pending" &&
         (customer.customerId
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
@@ -779,7 +779,7 @@ const FastTagPending = () => {
   // Handle rejection modal
   const handleRejectClick = (customer) => {
     setSelectedCustomer(customer);
-    setSelectedInsurance(customer.insuranceRequests[0]);
+    setSelectedInsurance(customer.fasttagRequests[0]);
     setRejectionModalOpen(true);
   };
 

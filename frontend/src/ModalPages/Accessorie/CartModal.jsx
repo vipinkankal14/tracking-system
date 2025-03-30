@@ -77,13 +77,13 @@ export function CartModal({
                         <Stack spacing={4}>
                             <Box>
                                 <Box textAlign="start" sx={{ p: 2, width: "55vh", justifyContent: "start", alignItems: "center", display: "flex" }}>
-                                    <Box>
-                                        <h6 style={{ fontSize: '12px' }}>Customer ID: {personalInfo?.customerId}</h6>
-                                        <h6 style={{ fontSize: '12px' }}>Full Name: {personalInfo?.firstName} </h6>
-                                        <h6 style={{ fontSize: '12px' }}>Phone Numbers: {carInfo?.mobileNumber1}, {carInfo?.mobileNumber2}</h6>
-                                        <h6 style={{ fontSize: '12px' }}>Email: {personalInfo?.email}</h6>
-                                        <h6 style={{ fontSize: '12px' }}>Car Details: {carInfo?.carType} | {carInfo?.model} | {carInfo?.variant} | {carInfo?.color}</h6>
-                                    </Box>
+                                         <Box>
+                                                                            <h6 style={{ fontSize: "12px" }}>Customer ID: {personalInfo?.customerId}</h6>
+                                                                            <h6 style={{ fontSize: "12px" }}>Full Name: {personalInfo?.firstName} {personalInfo?.middleName} {personalInfo?.lastName}</h6>
+                                                                            <h6 style={{ fontSize: "12px" }}>Phone Numbers: {personalInfo?.mobileNumber1}, {personalInfo?.mobileNumber2}</h6>
+                                                                            <h6 style={{ fontSize: "12px" }}>Email: {personalInfo?.email}</h6>
+                                                                            <h6 style={{ fontSize: "12px" }}>Car Details: {carInfo?.carType} | {carInfo?.model} | {carInfo?.variant} | {carInfo?.color}</h6>
+                                                                        </Box>
                                 </Box>
                                 <Stack style={{ flexGrow: 1, padding: "2px" }} sx={{ width: { xs: "100%", sm: "100%" }, height: { xs: "42vh", sm: "52vh" } }}>
                                     {selectedProducts.length > 0 ? (

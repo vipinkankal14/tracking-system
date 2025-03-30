@@ -30,8 +30,9 @@ import {
   useTheme,
   IconButton,
 } from "@mui/material"
-import { SearchIcon, DoorClosedIcon as CloseIcon } from "lucide-react"
+import { SearchIcon  } from "lucide-react"
 import GppBadRoundedIcon from "@mui/icons-material/GppBadRounded"
+import CloseIcon from '@mui/icons-material/Close';
 
 const PADApproved = () => {
   const [searchQuery, setSearchQuery] = useState("")
@@ -362,7 +363,7 @@ const [success, setSuccess ] = useState(null);
       )}
 
       {/* Approved Dialog - Using Material UI Dialog instead of React Bootstrap Modal */}
-      <Dialog open={showModal} onClose={handleClose} fullWidth maxWidth="sm" fullScreen={isMobile}>
+      <Dialog open={showModal} onClose={handleClose} maxWidth="sm" >
         <DialogTitle
           sx={{
             display: "flex",

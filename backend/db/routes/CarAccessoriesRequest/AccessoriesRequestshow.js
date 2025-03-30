@@ -3,115 +3,221 @@ const router = express.Router();
 const pool = require('../../databaseConnection/mysqlConnection');
 
 const AccessoriesRequestshow = async (req, res) => {
-  const query = `
-    SELECT 
-      c.customerId,
-      c.firstName,
-      c.middleName,
-      c.lastName,
-      c.email,
-      c.mobileNumber1,
-      c.mobileNumber2,
-      c.createdAt AS customer_created,
-      cr.model,
-      cr.version,
-      cr.color,
-      o.id AS orderId, -- Include orderId for grouping
-      o.totalAmount,
-      o.status,
-      o.accessorieReason,
-      o.accessorieRecipes,
-      o.updatedAt,
-      o.createdAt,
-      p.category,
-      p.name,
-      p.price
-    FROM customers c
-    LEFT JOIN carbooking cr ON c.customerId = cr.customerId
-    LEFT JOIN orders_accessories_request o ON c.customerId = o.customerId
-    LEFT JOIN order_products p ON o.id = p.orderId
-    WHERE o.customerId IS NOT NULL AND o.customerId != '';
-  `;
-
   try {
-    const [results] = await pool.query(query);
+    // Pagination configuration
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
 
-    if (results.length === 0) {
-      return res.status(200).json({
-        success: true,
-        data: [], // Return an empty array if no data is found
-        message: 'No car exchange requests found.',
+    // Main query with all joins
+    const query = `
+          SELECT 
+              c.*,
+              cb.*,
+              ai.*,
+              ai.updatedAt,
+              inv.invoice_id,
+              inv.invoice_date,
+              inv.due_date,
+              inv.total_on_road_price,
+              inv.total_charges,
+              inv.grand_total AS invoice_grand_total,
+              inv.payment_status,
+              inv.customer_account_balance,
+              opd.order_date,
+              opd.tentative_date,
+              opd.preferred_date,
+              opd.request_date,
+              opd.prebooking,
+              opd.prebooking_date,
+              opd.delivery_date,
+              cs.vin,
+              cs.chassisNumber,
+              cs.engineNumber,
+              cs.allotmentCarStatus as allotmentStatus,
+              o.id AS accessory_request_id,
+              o.totalAmount AS accessory_total_amount,
+              o.createdAt AS accessory_createdAt,
+              o.status AS accessory_status,
+              o.accessorieReason,
+              o.accessorieRecipes,
+              o.updatedAt AS accessory_updatedAt,
+              p.id AS product_id,
+              p.category AS product_category,
+              p.name AS product_name,
+              p.price AS product_price,
+
+              adi.accessories
+
+
+          FROM customers c
+          LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+          LEFT JOIN account_management ai ON c.customerId = ai.customerId
+          LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+          LEFT JOIN orders_prebooking_date opd ON c.customerId = opd.customerId
+          LEFT JOIN carstocks cs ON c.customerId = cs.customerId
+          LEFT JOIN additional_info adi ON c.customerId = adi.customerId
+          LEFT JOIN orders_accessories_request o ON c.customerId = o.customerId AND cs.allotmentCarStatus = 'allocated' AND adi.accessories = 'Yes'
+          LEFT JOIN order_products p ON o.id = p.orderId
+          WHERE ai.status = 'approved'
+          ORDER BY c.createdAt DESC
+          LIMIT ? OFFSET ?
+      `;
+
+    const [results] = await pool.query(query, [limit, offset]);
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No approved customer bookings found'
       });
     }
 
-    // Transform the flat result set into the desired nested structure
+    // Group results by customer and accessory requests
     const customersMap = new Map();
 
-    results.forEach((row) => {
-      if (!customersMap.has(row.customerId)) {
-        customersMap.set(row.customerId, {
-          customerId: row.customerId,
-          firstName: row.firstName,
-          middleName: row.middleName,
-          lastName: row.lastName,
-          email: row.email,
-          mobileNumber1: row.mobileNumber1,
-          mobileNumber2: row.mobileNumber2,
-          created_at: row.customer_created,
+    results.forEach(row => {
+      if (!row.customerId) return;
+
+      const customerId = row.customerId;
+
+      // Initialize customer object if not exists
+      if (!customersMap.has(customerId)) {
+        customersMap.set(customerId, {
+          customerId,
+          firstName: row.firstName || '',
+          middleName: row.middleName || '',
+          lastName: row.lastName || '',
+          mobileNumber1: row.mobileNumber1 || '',
+          mobileNumber2: row.mobileNumber2 || '',
+          email: row.email || '',
+          status: row.status || '',
+          address: row.address || '',
+          city: row.city || '',
+          state: row.state || '',
+          country: row.country || '',
           carBooking: {
-            model: row.model,
-            version: row.version,
-            color: row.color,
+            model: row.model || '',
+            version: row.version || '',
+            color: row.color || '',
+            fuelType: row.fuelType || '',
+            transmission: row.transmission || '',
+            team_Leader: row.team_Leader || '',
+            team_Member: row.team_Member || '',
+            exShowroomPrice: row.exShowroomPrice || 0,
+            bookingAmount: row.bookingAmount || 0,
+            mileage: row.mileage || 0,
+            engineCapacity: row.engineCapacity || 0,
+            batteryCapacity: row.batteryCapacity || 0,
+            cardiscount: row.cardiscount || 0,
+            groundClearance: row.groundClearance || '',
+            bookingType: row.bookingType || ''
           },
-          orders: [], // Initialize orders array
+          additional_info: {
+            accessories: row.accessories || ''
+          },
+          account_management: {
+            updatedAt: row.updatedAt,
+          },
+          invoiceInfo: {
+            invoice_id: row.invoice_id || '',
+            invoice_date: row.invoice_date || null,
+            due_date: row.due_date || null,
+            total_on_road_price: row.total_on_road_price || 0,
+            total_charges: row.total_charges || 0,
+            grand_total: row.invoice_grand_total || 0,
+            payment_status: row.payment_status || ''
+          },
+          orderInfo: {
+            order_date: row.order_date || null,
+            tentative_date: row.tentative_date || null,
+            preferred_date: row.preferred_date || null,
+            request_date: row.request_date || null,
+            prebooking: row.prebooking || false,
+            prebooking_date: row.prebooking_date || null,
+            delivery_date: row.delivery_date || null
+          },
+          stockInfo: (row.vin || row.chassisNumber || row.engineNumber) ? {
+            vin: row.vin || '',
+            chassisNumber: row.chassisNumber || '',
+            engineNumber: row.engineNumber || '',
+            allotmentStatus: row.allotmentStatus || 'Not Allocated'
+          } : undefined,
+          grandTotal: row.grand_total || row.invoice_grand_total || 0,
+          accessoriesRequests: []
         });
       }
 
-      const customer = customersMap.get(row.customerId);
+      // Process accessory requests
+      const customer = customersMap.get(customerId);
+      if (row.accessory_request_id) {
+        let request = customer.accessoriesRequests.find(r => r.id === row.accessory_request_id);
 
-      // Check if the order already exists
-      let order = customer.orders.find((o) => o.orderId === row.orderId);
-      if (!order) {
-        order = {
-          orderId: row.orderId,
-          totalAmount: row.totalAmount,
-          status: row.status,
-          accessorieReason: row.accessorieReason,
-          accessorieRecipes: row.accessorieRecipes,
-          updatedAt: row.updatedAt,
-          createdAt: row.createdAt,
-          products: [],
-        };
-        customer.orders.push(order);
+        if (!request) {
+          request = {
+            id: row.accessory_request_id,
+            totalAmount: row.accessory_total_amount,
+            createdAt: row.accessory_createdAt,
+            status: row.accessory_status,
+            accessorieReason: row.accessorieReason,
+            accessorieRecipes: row.accessorieRecipes,
+            updatedAt: row.accessory_updatedAt,
+            products: []
+          };
+          customer.accessoriesRequests.push(request);
+        }
+
+        // Add product if exists
+        if (row.product_id) {
+          request.products.push({
+            id: row.product_id,
+            category: row.product_category,
+            name: row.product_name,
+            price: row.product_price
+          });
+        }
       }
 
-      // Add product to the order
-      if (row.category && row.name && row.price) {
-        order.products.push({
-          category: row.category,
-          name: row.name,
-          price: row.price,
-        });
-      }
+
     });
 
-    const customersArray = Array.from(customersMap.values());
+    const formattedResults = Array.from(customersMap.values());
 
-    // Return the transformed results
+    // Get total count for pagination
+    const [countResult] = await pool.query(`
+          SELECT COUNT(DISTINCT c.customerId) as total 
+          FROM customers c
+          JOIN account_management ai ON c.customerId = ai.customerId
+          WHERE ai.status = 'approved'
+      `);
+    const total = countResult[0].total;
+
     res.status(200).json({
       success: true,
-      data: customersArray,
+      count: formattedResults.length,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      data: formattedResults
     });
-  } catch (error) {
-    console.error('Error fetching car exchange requests:', error);
 
-    // Return a generic error message to avoid exposing sensitive details
+  } catch (error) {
+    console.error('Error fetching approved bookings:', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+
     res.status(500).json({
       success: false,
-      message: 'An error occurred while fetching car exchange requests.',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      message: 'Failed to fetch approved bookings',
+      error: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        stack: error.stack
+      } : undefined
     });
   }
 };
 
 module.exports = { AccessoriesRequestshow };
+

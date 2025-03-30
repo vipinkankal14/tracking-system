@@ -34,7 +34,6 @@ import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
   Description as DescriptionIcon,
   VerifiedRounded as VerifiedRoundedIcon,
-  Check as CheckIcon,
   Close as CloseIcon,
   CardGiftcard as CardGiftcardIcon,
 } from "@mui/icons-material";
@@ -44,7 +43,6 @@ const AccessoriesMobileCard = ({
   customer,
   order,
   handleDetailsClick,
- 
   handleReject,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -110,7 +108,6 @@ const AccessoriesMobileCard = ({
             </Typography>
             
             <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-      
               <Button 
                 variant="contained" 
                 size="small" 
@@ -132,7 +129,6 @@ const AccessoriesTabletRow = ({
   customer,
   order,
   handleDetailsClick,
-  
   handleReject,
 }) => {
   const [open, setOpen] = useState(false);
@@ -198,7 +194,6 @@ const AccessoriesTabletRow = ({
               </Grid>
               
               <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                
                 <Button 
                   variant="contained" 
                   size="small" 
@@ -221,7 +216,7 @@ const AccessoriesDesktopRow = ({
   customer,
   order,
   handleDetailsClick,
-   handleReject,
+  handleReject,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -268,7 +263,6 @@ const AccessoriesDesktopRow = ({
             >
               Products ({order.products?.length || 0})
             </Button>
-            
             <IconButton
               size="small"
               color="error"
@@ -313,7 +307,7 @@ const AccessoriesDetailsModal = ({
   handleClose,
   selectedOrder,
   selectedCustomer,
-   handleReject,
+  handleReject,
 }) => {
   return (
     <Modal
@@ -348,32 +342,44 @@ const AccessoriesDetailsModal = ({
                   </Typography>
                 </Grid>
                
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Full Name:</strong>{" "}
-                    {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Email:</strong> {selectedCustomer.email}
-                  </Typography>
-                </Grid>
+                       <Grid item xs={12} sm={6}>
+                               <Typography variant="body1">
+                                 <strong>Full Name:</strong>{" "}
+                                 {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+                               </Typography>
+                               <Typography variant="body1">
+                                 <strong>Mobile Number:</strong>{" "}
+                                 {selectedCustomer.mobileNumber1}, {selectedCustomer.mobileNumber2}
+                               </Typography>
+                               <Typography variant="body1">
+                                 <strong>Email:</strong> {selectedCustomer.email}
+                               </Typography>
+                             </Grid>
+             
+                            
+             
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body1">
+                                 <strong>Car Details:</strong>{" "}
+                                 {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
+                               </Typography>
+                               <Typography variant="body1">
+                               <strong>VIN Number:</strong>{" "}
+             
+                                  {`${selectedCustomer.stockInfo?.vin || "N/A"}`}
+                               </Typography>
+                               <Typography variant="body1">
+                               <strong>Chassis Number:</strong>{" "}
+             
+                                  {`${selectedCustomer.stockInfo?.chassisNumber || "N/A"}`}
+                               </Typography>
+                               <Typography variant="body1">
+                               <strong>Engine Number:</strong>{" "}
+             
+                                  {`${selectedCustomer.stockInfo?.engineNumber || "N/A"}`}
+                               </Typography>
+                             </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Mobile Number:</strong>{" "}
-                    {selectedCustomer.mobileNumber1} , {selectedCustomer.mobileNumber2}  
-
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Car Details:</strong>{" "}
-                    {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
-                  </Typography>
-                </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Total Amount:</strong> ₹{selectedOrder.totalAmount}
@@ -407,8 +413,6 @@ const AccessoriesDetailsModal = ({
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
-               
-               
               <Button onClick={handleClose} variant="outlined">
                 Close
               </Button>
@@ -572,7 +576,8 @@ const AccessoriesApproval = () => {
         if (response.data && Array.isArray(response.data.data)) {
           // Filter to show only Approval requests by default
           const ApprovalCustomers = response.data.data.filter(customer => 
-            customer.orders && customer.orders.some(order => order.status === "Approval")
+            customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Approval")
+ 
           );
           
           setAccessoriesCustomers(ApprovalCustomers);
@@ -614,33 +619,6 @@ const AccessoriesApproval = () => {
     setRejectionModalOpen(true);
   };
 
-  // Handle approve action for accessories
-  const handleAccessoriesApprove = async (customer) => {
-    try {
-      setLoading(true);
-      const response = await axios.put(
-        `http://localhost:5000/api/accessoriesapproval/update-status/${customer.customerId}`,
-        { status: "Approval" }
-      );
-
-      if (response.status === 200) {
-        alert("Accessories approved successfully!");
-        setAccessoriesDetailsModalOpen(false);
-        
-        // Refresh the data to show updated status
-        const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        const ApprovalCustomers = newData.data.data.filter(customer => 
-          customer.orders && customer.orders.some(order => order.status === "Approval")
-        );
-        setAccessoriesCustomers(ApprovalCustomers);
-      }
-    } catch (err) {
-      setError(`Failed to approve accessories: ${err.response?.data?.error || err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Handle confirm reject action for accessories
   const handleAccessoriesConfirmReject = async (customer, reason) => {
     try {
@@ -659,7 +637,7 @@ const AccessoriesApproval = () => {
         // Refresh the data to show updated status
         const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
         const ApprovalCustomers = newData.data.data.filter(customer => 
-          customer.orders && customer.orders.some(order => order.status === "Approval")
+          customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Approval")
         );
         setAccessoriesCustomers(ApprovalCustomers);
       }
@@ -721,7 +699,7 @@ const AccessoriesApproval = () => {
             <Box>
               {getFilteredAccessoriesCustomers().length > 0 ? (
                 getFilteredAccessoriesCustomers().map((customer) =>
-                  customer.orders
+                  customer.accessoriesRequests
                     .filter(order => order.status === "Approval")
                     .map((order) => (
                       <AccessoriesMobileCard
@@ -729,7 +707,7 @@ const AccessoriesApproval = () => {
                         customer={customer}
                         order={order}
                         handleDetailsClick={handleAccessoriesDetailsClick}
-                         handleReject={handleRejectClick}
+                        handleReject={handleRejectClick}
                       />
                     ))
                 )
@@ -758,7 +736,7 @@ const AccessoriesApproval = () => {
                 <TableBody>
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
-                      customer.orders
+                      customer.accessoriesRequests
                         .filter(order => order.status === "Approval")
                         .map((order) => (
                           <AccessoriesTabletRow
@@ -766,7 +744,7 @@ const AccessoriesApproval = () => {
                             customer={customer}
                             order={order}
                             handleDetailsClick={handleAccessoriesDetailsClick}
-                             handleReject={handleRejectClick}
+                            handleReject={handleRejectClick}
                           />
                         ))
                     )
@@ -801,7 +779,7 @@ const AccessoriesApproval = () => {
                 <TableBody>
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
-                      customer.orders
+                      customer.accessoriesRequests
                         .filter(order => order.status === "Approval")
                         .map((order) => (
                           <AccessoriesDesktopRow
@@ -809,7 +787,7 @@ const AccessoriesApproval = () => {
                             customer={customer}
                             order={order}
                             handleDetailsClick={handleAccessoriesDetailsClick}
-                             handleReject={handleRejectClick}
+                            handleReject={handleRejectClick}
                           />
                         ))
                     )
@@ -833,7 +811,7 @@ const AccessoriesApproval = () => {
         handleClose={() => setAccessoriesDetailsModalOpen(false)}
         selectedOrder={selectedOrder}
         selectedCustomer={selectedCustomer}
-         handleReject={handleRejectClick}
+        handleReject={handleRejectClick}
       />
 
       {/* Rejection Modal */}

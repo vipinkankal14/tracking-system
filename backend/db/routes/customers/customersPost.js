@@ -12,7 +12,7 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
         mobileNumber1, mobileNumber2, customerType, 
         birthDate, email, aadhaarNumber, panNumber, 
         city, state, country, address, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         personalInfo.customerId,
         personalInfo.firstName,
@@ -73,6 +73,24 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
       ]
     );
 
+    // 4. Insert into predeliveryinspection table
+    await connection.execute(
+      `INSERT INTO predeliveryinspection (customerId) VALUES (?)`,
+      [personalInfo.customerId]
+    );
+
+    // 5. Insert into gate_pass table
+    await connection.execute(
+      `INSERT INTO gate_pass (customerId) VALUES (?)`,
+      [personalInfo.customerId]
+    );
+
+    // 6. Insert into management_security_clearance table
+    await connection.execute(
+      `INSERT INTO management_security_clearance (customerId) VALUES (?)`,
+      [personalInfo.customerId]
+    );
+
     await connection.commit();
     return {
       success: true,
@@ -83,7 +101,6 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
   } catch (error) {
     await connection.rollback();
     
-    // Handle specific MySQL errors
     if (error.code === 'ER_DUP_ENTRY') {
       throw {
         status: 409,
@@ -91,7 +108,6 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
       };
     }
     
-    // Log the full error for debugging
     console.error('Database Error:', error);
     
     throw {
@@ -105,5 +121,3 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
 };
 
 module.exports = { postCustomers };
-
- 

@@ -12,7 +12,7 @@ const ShowSecurityclearance = async (req, res) => {
             c.email,
             c.mobileNumber1,
             c.mobileNumber2,
-            c.created_at AS customer_created,
+            c.createdAt AS customer_created,
 
             cr.model,
             cr.version,
@@ -26,7 +26,7 @@ const ShowSecurityclearance = async (req, res) => {
             ai.insurance,
             ai.extended_warranty,
             ai.auto_card,
-            ai.created_at AS additional_info_created,
+            ai.createdAt AS additional_info_created,
 
             car.status AS auto_card_status,
             car.autoCardReason,

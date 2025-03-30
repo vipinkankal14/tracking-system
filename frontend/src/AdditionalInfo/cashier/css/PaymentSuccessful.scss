@@ -110,3 +110,48 @@
   }
   
   
+
+
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+  
+      &.print-button {
+        background: #4CAF50;
+        color: white;
+        
+        &:hover {
+          background: #45a049;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+      }
+  
+      &.back-button {
+        background: #f0f0f0;
+        color: #333;
+        
+        &:hover {
+          background: #e0e0e0;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+  
+  // Remove any existing close button styles

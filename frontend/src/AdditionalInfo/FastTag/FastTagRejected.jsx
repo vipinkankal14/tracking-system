@@ -56,17 +56,17 @@ const MobileCardRow = ({ customer, handleDocumentsClick, handleApprove }) => {
   };
 
   return (
-    <Card sx={{ mb: 2, border: `1px solid ${getStatusColor(customer.insuranceRequests[0]?.status)}` }}>
+    <Card sx={{ mb: 2, border: `1px solid ${getStatusColor(customer.fasttagRequests[0]?.status)}` }}>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Typography variant="subtitle1" fontWeight="bold">
             {customer.customerId}
           </Typography>
           <Chip 
-            label={customer.insuranceRequests[0]?.status || "N/A"} 
+            label={customer.fasttagRequests[0]?.status || "N/A"} 
             size="small" 
             sx={{ 
-              backgroundColor: getStatusColor(customer.insuranceRequests[0]?.status),
+              backgroundColor: getStatusColor(customer.fasttagRequests[0]?.status),
               color: "white"
             }}
           />
@@ -80,7 +80,7 @@ const MobileCardRow = ({ customer, handleDocumentsClick, handleApprove }) => {
           <Button 
             size="small" 
             startIcon={<DescriptionIcon />}
-            onClick={() => handleDocumentsClick(customer, customer.insuranceRequests[0])}
+            onClick={() => handleDocumentsClick(customer, customer.fasttagRequests[0])}
           >
             Documents
           </Button>
@@ -98,14 +98,14 @@ const MobileCardRow = ({ customer, handleDocumentsClick, handleApprove }) => {
             <Typography variant="body2" sx={{ mt: 1 }}>
               <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
             </Typography>
-            {customer.insuranceRequests[0]?.fasttag_amount && (
+            {customer.fasttagRequests[0]?.fasttag_amount && (
               <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Fast-Tag Amount:</strong> {customer.insuranceRequests[0]?.fasttag_amount}
+                <strong>Fast-Tag Amount:</strong> {customer.fasttagRequests[0]?.fasttag_amount}
               </Typography>
             )}
-            {customer.insuranceRequests[0]?.fasttagReason && (
+            {customer.fasttagRequests[0]?.fasttagReason && (
               <Typography variant="body2" sx={{ mt: 1, color: "error.main" }}>
-                <strong>Rejection Reason:</strong> {customer.insuranceRequests[0]?.fasttagReason}
+                <strong>Rejection Reason:</strong> {customer.fasttagRequests[0]?.fasttagReason}
               </Typography>
             )}
             
@@ -155,10 +155,10 @@ const TabletRow = ({ customer, handleDocumentsClick, handleApprove }) => {
         <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
         <TableCell>
           <Chip 
-            label={customer.insuranceRequests[0]?.status || "N/A"} 
+            label={customer.fasttagRequests[0]?.status || "N/A"} 
             size="small" 
             sx={{ 
-              backgroundColor: getStatusColor(customer.insuranceRequests[0]?.status),
+              backgroundColor: getStatusColor(customer.fasttagRequests[0]?.status),
               color: "white"
             }}
           />
@@ -166,7 +166,7 @@ const TabletRow = ({ customer, handleDocumentsClick, handleApprove }) => {
         <TableCell>
           <IconButton
             size="small"
-            onClick={() => handleDocumentsClick(customer, customer.insuranceRequests[0])}
+            onClick={() => handleDocumentsClick(customer, customer.fasttagRequests[0])}
           >
             <DescriptionIcon />
           </IconButton>
@@ -192,13 +192,13 @@ const TabletRow = ({ customer, handleDocumentsClick, handleApprove }) => {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body2">
-                    <strong>Fast-Tag Amount:</strong> {customer.insuranceRequests[0]?.fasttag_amount || "N/A"}
+                    <strong>Fast-Tag Amount:</strong> {customer.fasttagRequests[0]?.fasttag_amount || "N/A"}
                   </Typography>
                 </Grid>
-                {customer.insuranceRequests[0]?.fasttagReason && (
+                {customer.fasttagRequests[0]?.fasttagReason && (
                   <Grid item xs={12}>
                     <Typography variant="body2" color="error">
-                      <strong>Rejection Reason:</strong> {customer.insuranceRequests[0]?.fasttagReason}
+                      <strong>Rejection Reason:</strong> {customer.fasttagRequests[0]?.fasttagReason}
                     </Typography>
                   </Grid>
                 )}
@@ -251,13 +251,13 @@ const DesktopRow = ({ customer, handleDocumentsClick, handleApprove }) => {
         <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}</TableCell>
         <TableCell>{customer.email}</TableCell>
         <TableCell>{customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}</TableCell>
-        <TableCell>{customer.insuranceRequests[0]?.fasttag_amount || "N/A"}</TableCell>
+        <TableCell>{customer.fasttagRequests[0]?.fasttag_amount || "N/A"}</TableCell>
         <TableCell>
           <Chip 
-            label={customer.insuranceRequests[0]?.status || "N/A"} 
+            label={customer.fasttagRequests[0]?.status || "N/A"} 
             size="small" 
             sx={{ 
-              backgroundColor: getStatusColor(customer.insuranceRequests[0]?.status),
+              backgroundColor: getStatusColor(customer.fasttagRequests[0]?.status),
               color: "white"
             }}
           />
@@ -266,7 +266,7 @@ const DesktopRow = ({ customer, handleDocumentsClick, handleApprove }) => {
           <Box sx={{ display: "flex", gap: 1 }}>
             <IconButton
               size="small"
-              onClick={() => handleDocumentsClick(customer, customer.insuranceRequests[0])}
+              onClick={() => handleDocumentsClick(customer, customer.fasttagRequests[0])}
             >
               <DescriptionIcon />
             </IconButton>
@@ -293,18 +293,18 @@ const DesktopRow = ({ customer, handleDocumentsClick, handleApprove }) => {
               <Grid container spacing={2}>
                 <Grid item xs={4}>
                   <Typography variant="body2">
-                    <strong>Created At:</strong> {customer.insuranceRequests[0]?.createdAt ? new Date(customer.insuranceRequests[0].createdAt).toLocaleString() : "N/A"}
+                    <strong>Created At:</strong> {customer.fasttagRequests[0]?.createdAt ? new Date(customer.fasttagRequests[0].createdAt).toLocaleString() : "N/A"}
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography variant="body2">
-                    <strong>Updated At:</strong> {customer.insuranceRequests[0]?.updatedAt ? new Date(customer.insuranceRequests[0].updatedAt).toLocaleString() : "N/A"}
+                    <strong>Updated At:</strong> {customer.fasttagRequests[0]?.updatedAt ? new Date(customer.fasttagRequests[0].updatedAt).toLocaleString() : "N/A"}
                   </Typography>
                 </Grid>
-                {customer.insuranceRequests[0]?.fasttagReason && (
+                {customer.fasttagRequests[0]?.fasttagReason && (
                   <Grid item xs={12}>
                     <Typography variant="body2" color="error">
-                      <strong>Rejection Reason:</strong> {customer.insuranceRequests[0]?.fasttagReason}
+                      <strong>Rejection Reason:</strong> {customer.fasttagRequests[0]?.fasttagReason}
                     </Typography>
                   </Grid>
                 )}
@@ -489,7 +489,7 @@ const FastTagRejected = () => {
   const getFilteredCustomers = () => {
     return customers.filter(
       (customer) => 
-        customer.insuranceRequests[0]?.status === "Rejected" &&
+        customer.fasttagRequests[0]?.status === "Rejected" &&
         (
           customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||

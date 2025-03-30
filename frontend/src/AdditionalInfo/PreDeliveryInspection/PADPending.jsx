@@ -71,9 +71,8 @@ const PADPending = () => {
   // Filter customers based on search query and pending status
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.predeliveryinspection[0]?.status !== "Approval" &&
-      customer.predeliveryinspection[0]?.status !== "Rejected" &&
-      (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.predeliveryinspection[0]?.status === "Pending" &&
+       (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -443,9 +442,9 @@ const PADPending = () => {
       <Dialog
         open={showModal}
         onClose={handleClose}
-        fullWidth
+         
         maxWidth="sm"
-        fullScreen={isMobile}
+      
       >
         <DialogTitle
           sx={{
@@ -509,11 +508,11 @@ const PADPending = () => {
               </Card>
 
               <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Reject Notes
+                Notes
               </Typography>
               <TextareaAutosize
                 minRows={3}
-                placeholder="Add notes for reject"
+                placeholder="Add notes for Reject and Approve"
                 value={preDeliveryInspectionReason}
                 onChange={(e) => setPreDeliveryInspectionReason(e.target.value)}
                 style={{

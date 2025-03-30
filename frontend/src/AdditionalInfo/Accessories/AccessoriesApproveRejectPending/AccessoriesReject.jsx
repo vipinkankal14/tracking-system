@@ -374,32 +374,45 @@ const AccessoriesDetailsModal = ({
                   </Typography>
                 </Grid>
                
-                <Grid item xs={12} sm={6}>
+     
+          <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Full Name:</strong>{" "}
                     {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
                   </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                  <Typography variant="body1">
+                    <strong>Mobile Number:</strong>{" "}
+                    {selectedCustomer.mobileNumber1}, {selectedCustomer.mobileNumber2}
+                  </Typography>
                   <Typography variant="body1">
                     <strong>Email:</strong> {selectedCustomer.email}
                   </Typography>
                 </Grid>
 
-                  <Grid item xs={12} sm={6}>
-                                  <Typography variant="body1">
-                                    <strong>Mobile Number:</strong>{" "}
-                                    {selectedCustomer.mobileNumber1}, {selectedCustomer.mobileNumber2}
-                                  </Typography>
-                                </Grid>
-                
+               
 
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Car Details:</strong>{" "}
                     {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
                   </Typography>
+                  <Typography variant="body1">
+                  <strong>VIN Number:</strong>{" "}
+
+                     {`${selectedCustomer.stockInfo?.vin || "N/A"}`}
+                  </Typography>
+                  <Typography variant="body1">
+                  <strong>Chassis Number:</strong>{" "}
+
+                     {`${selectedCustomer.stockInfo?.chassisNumber || "N/A"}`}
+                  </Typography>
+                  <Typography variant="body1">
+                  <strong>Engine Number:</strong>{" "}
+
+                     {`${selectedCustomer.stockInfo?.engineNumber || "N/A"}`}
+                  </Typography>
                 </Grid>
+                
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Total Amount:</strong> ₹{selectedOrder.totalAmount}
@@ -596,7 +609,7 @@ const AccessoriesReject = () => {
         if (response.data && Array.isArray(response.data.data)) {
           // Filter to show only Rejected requests by default
           const RejectedCustomers = response.data.data.filter(customer => 
-            customer.orders && customer.orders.some(order => order.status === "Rejected")
+            customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Rejected")
           );
           
           setAccessoriesCustomers(RejectedCustomers);
@@ -649,7 +662,7 @@ const AccessoriesReject = () => {
         // Refresh the data to show updated status
         const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
         const RejectedCustomers = newData.data.data.filter(customer => 
-          customer.orders && customer.orders.some(order => order.status === "Rejected")
+          customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Rejected")
         );
         setAccessoriesCustomers(RejectedCustomers);
       }
@@ -678,7 +691,7 @@ const AccessoriesReject = () => {
         // Refresh the data to show updated status
         const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
         const RejectedCustomers = newData.data.data.filter(customer => 
-          customer.orders && customer.orders.some(order => order.status === "Rejected")
+          customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Rejected")
         );
         setAccessoriesCustomers(RejectedCustomers);
       }
@@ -740,7 +753,7 @@ const AccessoriesReject = () => {
             <Box>
               {getFilteredAccessoriesCustomers().length > 0 ? (
                 getFilteredAccessoriesCustomers().map((customer) =>
-                  customer.orders
+                  customer.accessoriesRequests
                     .filter(order => order.status === "Rejected")
                     .map((order) => (
                       <AccessoriesMobileCard
@@ -777,7 +790,7 @@ const AccessoriesReject = () => {
                 <TableBody>
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
-                      customer.orders
+                      customer.accessoriesRequests
                         .filter(order => order.status === "Rejected")
                         .map((order) => (
                           <AccessoriesTabletRow
@@ -820,7 +833,7 @@ const AccessoriesReject = () => {
                 <TableBody>
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
-                      customer.orders
+                      customer.accessoriesRequests
                         .filter(order => order.status === "Rejected")
                         .map((order) => (
                           <AccessoriesDesktopRow
