@@ -306,8 +306,6 @@ const showPreDeliveryInspection = async (req, res) => {
                         insurance: row.insurance || '',
                         auto_card: row.auto_card || '',
                         extended_warranty:row.extended_warranty || ''
-
-                        
                     },
                     account_management: {
                         updatedAt: row.updatedAt,
@@ -319,7 +317,7 @@ const showPreDeliveryInspection = async (req, res) => {
                         total_on_road_price: row.total_on_road_price || 0,
                         total_charges: row.total_charges || 0,
                         grand_total: row.invoice_grand_total || 0,
-                        payment_status: row.payment_status || ''
+                        payment_status: row.payment_status || '',
                     },
                     orderInfo: {
                         order_date: row.order_date || null,
@@ -336,6 +334,7 @@ const showPreDeliveryInspection = async (req, res) => {
                         engineNumber: row.engineNumber || '',
                         allotmentStatus: row.allotmentStatus || 'Not Allocated'
                     } : undefined,
+
                     grandTotal: row.grand_total || row.invoice_grand_total || 0,
                     accessoriesRequests: [],
                     coatingRequests: [],

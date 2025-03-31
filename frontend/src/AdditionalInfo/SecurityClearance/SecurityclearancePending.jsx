@@ -28,7 +28,7 @@ import {
   DialogContent,
   TextareaAutosize,
 } from "@mui/material";
-import { Search as SearchIcon, ExpandMore as ExpandMoreIcon, CheckCircle, Cancel, HourglassEmpty } from "@mui/icons-material";
+import { Search as SearchIcon, ExpandMore , CheckCircle, Cancel, HourglassEmpty } from "@mui/icons-material";
  
 
 import GppBadRoundedIcon from "@mui/icons-material/GppBadRounded";
@@ -74,119 +74,141 @@ const SecurityclearancePending = () => {
     fetchCustomers();
   }, []);
 
-  // Generate status data when a row is expanded
   useEffect(() => {
     if (expandedRow) {
-      const selectedCustomer = customers.find(customer => customer.customerId === expandedRow);
+      const selectedCustomer = customers.find(
+        (customer) => customer.customerId === expandedRow
+      );
+      
       if (selectedCustomer) {
-        const { additional_info, loans, orders_accessories_request, car_fasttag_requests, car_insurance_requests, car_extended_warranty_requests, car_autocard_requests, predeliveryinspection,management_security_clearance,gate_pass  } = selectedCustomer;
-
-        const statusData = [];
-
-        if (additional_info.finance === "Yes" && loans) {
-          statusData.push({
-            id: "finance",
-            name: "Finance",
-            status: loans.status,
-            reason: loans.financeReason,
-            createdAt: loans.createdAt,
-            updatedAt: loans.updatedAt,
+        const statuses = [];
+  
+        // Check and add Accessories status
+        if (selectedCustomer.accessoriesRequests?.length > 0) {
+          selectedCustomer.accessoriesRequests.forEach((accessory) => {
+            statuses.push({
+              id: accessory.id,
+              name: "Accessories",
+              status: accessory.status,
+              reason: accessory.accessorieReason || "N/A",
+              createdAt: accessory.createdAt || "N/A",
+              updatedAt: accessory.updatedAt,
+            });
           });
         }
+  
+        // Check and add Coating status
+        if (selectedCustomer.coatingRequests?.length > 0) {
+          selectedCustomer.coatingRequests.forEach((coating) => {
+            statuses.push({
+              id: coating.id,
+              name: "Coating",
+              status: coating.status,
+              reason: coating.coatingReason || "N/A",
+              createdAt: coating.createdAt || "N/A",
 
-        if (additional_info.accessories === "Yes" && orders_accessories_request) {
-          statusData.push({
-            id: "accessories",
-            name: "Accessories",
-            status: orders_accessories_request.status,
-            reason: orders_accessories_request.accessorieReason,
-            createdAt: orders_accessories_request.createdAt,
-            updatedAt: orders_accessories_request.updatedAt,
+              updatedAt: coating.updatedAt,
+            });
           });
         }
-
-        if (additional_info.fast_tag === "Yes" && car_fasttag_requests) {
-          statusData.push({
-            id: "fast_tag",
-            name: "Fast Tag",
-            status: car_fasttag_requests.status,
-            reason: car_fasttag_requests.fastTagReason,
-            createdAt: car_fasttag_requests.createdAt,
-            updatedAt: car_fasttag_requests.updatedAt,
+  
+        // Check and add RTO status
+        if (selectedCustomer.RTORequests?.length > 0) {
+          selectedCustomer.RTORequests.forEach((rto) => {
+            statuses.push({
+              id: rto.id,
+              name: "RTO",
+              status: rto.status,
+              reason: rto.rtoReason || "N/A",
+              createdAt: rto.createdAt || "N/A",
+              updatedAt: rto.updatedAt,
+            });
           });
         }
+  
+        // Check and add Fast Tag status
+        if (selectedCustomer.fasttagRequests?.length > 0) {
+          selectedCustomer.fasttagRequests.forEach((fasttag) => {
+            statuses.push({
+              id: fasttag.id,
+              name: "Fast Tag",
+              status: fasttag.status,
+              reason: fasttag.fasttagReason || "N/A",
+              createdAt: fasttag.createdAt || "N/A",
 
-        if (additional_info.insurance === "Yes" && car_insurance_requests) {
-          statusData.push({
-            id: "insurance",
-            name: "Insurance",
-            status: car_insurance_requests.status,
-            reason: car_insurance_requests.insuranceReason,
-            createdAt: car_insurance_requests.createdAt,
-            updatedAt: car_insurance_requests.updatedAt,
+              updatedAt: fasttag.updatedAt,
+            });
           });
         }
-
-        if (additional_info.extended_warranty === "Yes" && car_extended_warranty_requests) {
-          statusData.push({
-            id: "extended_warranty",
-            name: "Extended Warranty",
-            status: car_extended_warranty_requests.status,
-            reason: car_extended_warranty_requests.ex_Reason,
-            createdAt: car_extended_warranty_requests.createdAt,
-            updatedAt: car_extended_warranty_requests.updatedAt,
+  
+        // Check and add Insurance status
+        if (selectedCustomer.insuranceRequests?.length > 0) {
+          selectedCustomer.insuranceRequests.forEach((insurance) => {
+            statuses.push({
+              id: insurance.id,
+              name: "Insurance",
+              status: insurance.status,
+              reason: insurance.insuranceReason || "N/A",
+              createdAt: insurance.createdAt || "N/A",
+              updatedAt: insurance.updatedAt,
+            });
           });
         }
+  
+        // Check and add Auto Card status
+        if (selectedCustomer.autocardRequests?.length > 0) {
+          selectedCustomer.autocardRequests.forEach((autocard) => {
+            statuses.push({
+              id: autocard.id,
+              name: "Auto Card",
+              status: autocard.status,
+              reason: autocard.autoCardReason || "N/A",
+              createdAt: autocard.createdAt || "N/A",
 
-        if (additional_info.auto_card === "Yes" && car_autocard_requests) {
-          statusData.push({
-            id: "auto_card",
-            name: "Auto Card",
-            status: car_autocard_requests.status,
-            reason: car_autocard_requests.autoCardReason,
-            createdAt: car_autocard_requests.createdAt,
-            updatedAt: car_autocard_requests.updatedAt,
+              updatedAt: autocard.updatedAt,
+            });
           });
         }
-
-        if (predeliveryinspection && predeliveryinspection.length > 0) {
-          predeliveryinspection.forEach(pdi => {
-            statusData.push({
+  
+        // Check and add PDI status
+        if (selectedCustomer.predeliveryinspection?.length > 0) {
+          selectedCustomer.predeliveryinspection.forEach((pdi) => {
+            statuses.push({
               id: pdi.id,
               name: "Pre-Delivery Inspection",
               status: pdi.status,
-              reason: pdi.PreDeliveryInspectionReason,
-              createdAt: pdi.createdAt,
+              reason: pdi.PreDeliveryInspectionReason || "N/A",
+              createdAt: pdi.createdAt || "N/A",
+
               updatedAt: pdi.updatedAt,
             });
           });
-        } 
+        }
 
-       
-
-        if (gate_pass && gate_pass.length > 0) {
-          gate_pass.forEach(gp => {
-            statusData.push({
-              id : gp.gp_id,
+        if (selectedCustomer.gate_pass?.length > 0) {
+          selectedCustomer.gate_pass.forEach((gp) => {
+            statuses.push({
+              id: gp.id,
               name: "Gate Pass",
               status: gp.status,
               gatepassReason: gp.gatepassReason,
               createdAt: gp.createdAt,
-              updatedAt: gp.updatedAt
+              updatedAt: gp.updatedAt,
             });
           });
         }
-        
-        setStatusData(statusData);
+  
+        setStatusData(statuses);
       }
+    } else {
+      setStatusData([]);
     }
   }, [expandedRow, customers]);
 
   // Filter customers based on search query
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.management_security_clearance[0]?.status !== "Approval" &&
-      customer.management_security_clearance[0]?.status !== "Rejected" &&
+       customer.management_security_clearance[0]?.status === "Pending" &&
       (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -415,32 +437,33 @@ const SecurityclearancePending = () => {
                 <TableCell>{customer.carBooking?.model || "N/A"}</TableCell>
                
                 <TableCell>
-                  <Button
-                    onClick={() => handleRowExpand(customer.customerId)}
-                    variant={expandedRow === customer.customerId ? "contained" : "outlined"}
-                    size="small"
-                    color={expandedRow === customer.customerId ? "primary" : "inherit"}
-                  >
-                    {expandedRow === customer.customerId ? "Hide" : "View"}
-                  </Button>
-                </TableCell>
-
-                <TableCell>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Chip label="Pending" color="warning" size="small" />
-                    <IconButton
-                      size="small"
-                      color="warning"
-                      onClick={() => {
-                        setSelectedCustomer(customer);
-                        setShowModal(true);
-                      }}
-                      sx={{ ml: 1 }}
-                    >
-                      <GppBadRoundedIcon />
-                    </IconButton>
-                  </Box>
-                </TableCell>
+                          <Chip label="Pending" color="warning" size="small" />
+                        </TableCell>
+                        <TableCell>
+                          
+               
+                          <Box>
+                          <Button
+                            onClick={() => handleRowExpand(customer.customerId)}
+                            variant={expandedRow === customer.customerId ? "contained" : "outlined"}
+                            size="small"
+                            color={expandedRow === customer.customerId ? "primary" : "inherit"}
+                          >
+                            {expandedRow === customer.customerId ? "Hide" : "View"}
+                          </Button>
+                          <IconButton
+                            size="small"
+                            color="warning"
+                            onClick={() => {
+                              setSelectedCustomer(customer);
+                              setShowModal(true);
+                            }}
+                            sx={{ ml: 1 }}
+                          >
+                            <GppBadRoundedIcon />
+                          </IconButton>
+                        </Box>
+                        </TableCell>
 
               </TableRow>
               {expandedRow === customer.customerId && (
@@ -600,6 +623,9 @@ const SecurityclearancePending = () => {
                           <Chip label="Pending" color="warning" size="small" />
                         </TableCell>
                         <TableCell>
+                          
+               
+                          <Box>
                           <Button
                             onClick={() => handleRowExpand(customer.customerId)}
                             variant={expandedRow === customer.customerId ? "contained" : "outlined"}
@@ -608,6 +634,18 @@ const SecurityclearancePending = () => {
                           >
                             {expandedRow === customer.customerId ? "Hide" : "View"}
                           </Button>
+                          <IconButton
+                            size="small"
+                            color="warning"
+                            onClick={() => {
+                              setSelectedCustomer(customer);
+                              setShowModal(true);
+                            }}
+                            sx={{ ml: 1 }}
+                          >
+                            <GppBadRoundedIcon />
+                          </IconButton>
+                        </Box>
                         </TableCell>
                       </TableRow>
                       {expandedRow === customer.customerId && (

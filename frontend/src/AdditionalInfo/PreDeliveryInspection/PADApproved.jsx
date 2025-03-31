@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import axios from "axios"
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Box,
   Button,
@@ -29,41 +29,50 @@ import {
   useMediaQuery,
   useTheme,
   IconButton,
-} from "@mui/material"
-import { SearchIcon  } from "lucide-react"
-import GppBadRoundedIcon from "@mui/icons-material/GppBadRounded"
-import CloseIcon from '@mui/icons-material/Close';
+} from "@mui/material";
+import { SearchIcon } from "lucide-react";
+import GppBadRoundedIcon from "@mui/icons-material/GppBadRounded";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
+import Cancel from "@mui/icons-material/Cancel";
+import HourglassEmpty from "@mui/icons-material/HourglassEmpty";
+import HelpOutline from "@mui/icons-material/HelpOutline";
 
 const PADApproved = () => {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [customers, setCustomers] = useState([])
-  const [loading, setLoading] = useState(true)
-const [error, setError] = useState(null);
-const [success, setSuccess ] = useState(null);
-  const [showModal, setShowModal] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState(null)
-  const [isConfirmed, setIsConfirmed] = useState(false)
-  const [preDeliveryInspectionReason, setPreDeliveryInspectionReason] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [preDeliveryInspectionReason, setPreDeliveryInspectionReason] =
+    useState("");
+  const [expandedRow, setExpandedRow] = useState(null);
+  const [statusData, setStatusData] = useState([]);
 
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
-  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"))
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
   // Fetch customers with Gatepass data
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/showPreDeliveryInspection")
-        setCustomers(response.data.data || [])
+        const response = await axios.get(
+          "http://localhost:5000/api/showPreDeliveryInspection"
+        );
+        setCustomers(response.data.data || []);
       } catch (err) {
-        setError("Failed to fetch Gatepass data")
-        console.success("Error fetching customers:", err)
+        setError("Failed to fetch Gatepass data");
+        console.success("Error fetching customers:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchCustomers()
-  }, [])
+    };
+    fetchCustomers();
+  }, []);
 
   // Filter customers based on search query and Approved status
   const filteredCustomers = customers.filter(
@@ -71,8 +80,8 @@ const [success, setSuccess ] = useState(null);
       customer.predeliveryinspection[0]?.status === "Approval" &&
       (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   // Handle Gatepass rejection
   const handleReject = async () => {
@@ -107,20 +116,114 @@ const [success, setSuccess ] = useState(null);
   };
 
   const handleClose = () => {
-    setShowModal(false)
-    setIsConfirmed(false)
-    setPreDeliveryInspectionReason("")
-    setError(null)
-  }
+    setShowModal(false);
+    setIsConfirmed(false);
+    setPreDeliveryInspectionReason("");
+    setError(null);
+  };
 
   // Format phone numbers for better display
   const formatPhoneNumber = (phone1, phone2) => {
-    let formattedNumber = phone1 || ""
+    let formattedNumber = phone1 || "";
     if (phone2) {
-      formattedNumber += phone2 ? ` / ${phone2}` : ""
+      formattedNumber += phone2 ? ` / ${phone2}` : "";
     }
-    return formattedNumber || "N/A"
-  }
+    return formattedNumber || "N/A";
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
+
+  const StatusIcon = ({ status }) => {
+    switch (status) {
+      case "Approval":
+        return <CheckCircleOutline color="success" fontSize="small" />;
+      case "Rejected":
+        return <Cancel color="error" fontSize="small" />;
+      case "Pending":
+        return <HourglassEmpty color="warning" fontSize="small" />;
+      default:
+        return <HelpOutline color="disabled" fontSize="small" />;
+    }
+  };
+
+  const handleViewStatus = (customer) => {
+    const statuses = [];
+
+    if (customer.accessoriesRequests.length > 0) {
+      customer.accessoriesRequests.forEach((accessory) => {
+        statuses.push({
+          id: accessory.id,
+          name: "Accessories",
+          status: accessory.status,
+          updatedAt: accessory.updatedAt,
+        });
+      });
+    }
+
+    if (customer.coatingRequests.length > 0) {
+      customer.coatingRequests.forEach((coating) => {
+        statuses.push({
+          id: coating.id,
+          name: "Coating",
+          status: coating.status,
+          updatedAt: coating.updatedAt,
+        });
+      });
+    }
+
+    if (customer.RTORequests.length > 0) {
+      customer.RTORequests.forEach((rto) => {
+        statuses.push({
+          id: rto.id,
+          name: "RTO",
+          status: rto.status,
+          updatedAt: rto.updatedAt,
+        });
+      });
+    }
+
+    if (customer.fasttagRequests.length > 0) {
+      customer.fasttagRequests.forEach((fasttag) => {
+        statuses.push({
+          id: fasttag.id,
+          name: "Fast Tag",
+          status: fasttag.status,
+          updatedAt: fasttag.updatedAt,
+        });
+      });
+    }
+
+    if (customer.insuranceRequests.length > 0) {
+      customer.insuranceRequests.forEach((insurance) => {
+        statuses.push({
+          id: insurance.id,
+          name: "Insurance",
+          status: insurance.status,
+          updatedAt: insurance.updatedAt,
+        });
+      });
+    }
+
+    if (customer.autocardRequests.length > 0) {
+      customer.autocardRequests.forEach((autocard) => {
+        statuses.push({
+          id: autocard.id,
+          name: "Auto Card",
+          status: autocard.status,
+          updatedAt: autocard.updatedAt,
+        });
+      });
+    }
+
+    setStatusData(statuses);
+    setExpandedRow(
+      expandedRow === customer.customerId ? null : customer.customerId
+    );
+  };
 
   // Mobile view for customer cards
   const MobileCustomerCard = ({ customer }) => {
@@ -136,13 +239,21 @@ const [success, setSuccess ] = useState(null);
                 ID: {customer.customerId}
               </Typography>
             </Grid>
-            <Grid item xs={3} sx={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start" }}>
+            <Grid
+              item
+              xs={3}
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "flex-start",
+              }}
+            >
               <IconButton
                 size="small"
                 color="success"
                 onClick={() => {
-                  setSelectedCustomer(customer)
-                  setShowModal(true)
+                  setSelectedCustomer(customer);
+                  setShowModal(true);
                 }}
               >
                 <GppBadRoundedIcon />
@@ -155,7 +266,11 @@ const [success, setSuccess ] = useState(null);
           <Grid container spacing={1}>
             <Grid item xs={12}>
               <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                Contact: {formatPhoneNumber(customer.mobileNumber1, customer.mobileNumber2)}
+                Contact:{" "}
+                {formatPhoneNumber(
+                  customer.mobileNumber1,
+                  customer.mobileNumber2
+                )}
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -163,18 +278,184 @@ const [success, setSuccess ] = useState(null);
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body2">
-                Car: {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} |{" "}
+                Car: {customer.carBooking?.model || "N/A"} |{" "}
+                {customer.carBooking?.version || "N/A"} |{" "}
                 {customer.carBooking?.color || "N/A"}
               </Typography>
             </Grid>
-            <Grid item xs={12}>
-              <Chip label="Approved" color="success" size="small" sx={{ mt: 1 }} />
+            <Grid
+              container
+              item
+              xs={12}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mt: 1,
+              }}
+            >
+              <Chip label="Approval" color="success" size="small" />
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => handleViewStatus(customer)}
+              >
+                View
+              </Button>
             </Grid>
+
+            {expandedRow === customer.customerId && (
+              <TableRow>
+                <TableCell colSpan={7} sx={{ p: 0, borderBottom: "none" }}>
+                  <Box sx={{ p: 2, backgroundColor: "#f9f9f9" }}>
+                    {statusData.length > 0 ? (
+                      <Grid container spacing={2}>
+                        {/* Vehicle Information Card */}
+                        <Grid item xs={12}>
+                          <Card variant="outlined">
+                            <CardContent>
+                              <Typography
+                                variant="subtitle2"
+                                gutterBottom
+                                sx={{ fontWeight: "bold" }}
+                              >
+                                Vehicle Information
+                              </Typography>
+                              <Grid container spacing={1}>
+                                <Grid item xs={12}>
+                                  <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold">
+                                      Model:
+                                    </Box>{" "}
+                                    {customer.carBooking?.model || "N/A"}
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold">
+                                      Version:
+                                    </Box>{" "}
+                                    {customer.carBooking?.version || "N/A"}
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold">
+                                      Color:
+                                    </Box>{" "}
+                                    {customer.carBooking?.color || "N/A"}
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold">
+                                      VIN:
+                                    </Box>{" "}
+                                    {customer.stockInfo?.vin || "N/A"}
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold">
+                                      Chassis:
+                                    </Box>{" "}
+                                    {customer.stockInfo?.chassisNumber || "N/A"}
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold">
+                                      Engine:
+                                    </Box>{" "}
+                                    {customer.stockInfo?.engineNumber || "N/A"}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+
+                        {/* Status Timeline Card */}
+                        <Grid item xs={12}>
+                          <Card variant="outlined">
+                            <CardContent>
+                              <Typography
+                                variant="subtitle2"
+                                gutterBottom
+                                sx={{ fontWeight: "bold" }}
+                              >
+                                Process Status
+                              </Typography>
+                              <Grid container spacing={1}>
+                                {statusData.map((status) => (
+                                  <Grid item xs={12} key={status.id}>
+                                    <Card variant="outlined" sx={{ p: 1 }}>
+                                      <Grid container alignItems="center">
+                                        <Grid item xs={6}>
+                                          <Typography
+                                            variant="body2"
+                                            fontWeight="medium"
+                                          >
+                                            {status.name}
+                                          </Typography>
+                                        </Grid>
+                                        <Grid
+                                          item
+                                          xs={6}
+                                          sx={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                          }}
+                                        >
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                            }}
+                                          >
+                                            <StatusIcon
+                                              status={status.status}
+                                            />
+                                            <Typography
+                                              variant="body2"
+                                              sx={{ ml: 1 }}
+                                            >
+                                              {status.status}
+                                            </Typography>
+                                          </Box>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                          <Typography
+                                            variant="caption"
+                                            color="text.secondary"
+                                          >
+                                            Last updated:{" "}
+                                            {formatDate(status.updatedAt)}
+                                          </Typography>
+                                        </Grid>
+                                      </Grid>
+                                    </Card>
+                                  </Grid>
+                                ))}
+                              </Grid>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      </Grid>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        No status data available
+                      </Typography>
+                    )}
+                  </Box>
+                </TableCell>
+              </TableRow>
+            )}
           </Grid>
         </CardContent>
       </Card>
-    )
-  }
+    );
+  };
 
   // Tablet view with simplified table
   const TabletView = () => (
@@ -190,49 +471,210 @@ const [success, setSuccess ] = useState(null);
         </TableHead>
         <TableBody>
           {filteredCustomers.map((customer) => (
-            <TableRow key={customer.customerId}>
-              <TableCell>
-                <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-                  {`${customer.firstName} ${customer.lastName}`}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {customer.customerId}
-                </Typography>
-                <Typography variant="caption" display="block">
-                  {customer.email}
-                </Typography>
-              </TableCell>
-              <TableCell>{formatPhoneNumber(customer.mobileNumber1, customer.mobileNumber2)}</TableCell>
-              <TableCell>
-                <Typography variant="body2">{customer.carBooking?.model || "N/A"}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Chip label="Approved" color="success" size="small" />
-                  <IconButton
-                    size="small"
-                    color="success"
-                    onClick={() => {
-                      setSelectedCustomer(customer)
-                      setShowModal(true)
-                    }}
-                    sx={{ ml: 1 }}
-                  >
-                    <GppBadRoundedIcon />
-                  </IconButton>
-                </Box>
-              </TableCell>
-            </TableRow>
+            <>
+              <TableRow key={customer.customerId}>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                    {`${customer.firstName} ${customer.lastName}`}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {customer.customerId}
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    {customer.email}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  {formatPhoneNumber(
+                    customer.mobileNumber1,
+                    customer.mobileNumber2
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {customer.carBooking?.model || "N/A"}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {customer.carBooking?.version || "N/A"} |{" "}
+                    {customer.carBooking?.color || "N/A"}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleViewStatus(customer)}
+                    >
+                      View
+                    </Button>
+                    <IconButton
+                      size="small"
+                      color="success"
+                      onClick={() => {
+                        setSelectedCustomer(customer);
+                        setShowModal(true);
+                      }}
+                    >
+                      <GppBadRoundedIcon />
+                    </IconButton>
+                  </Box>
+                </TableCell>
+              </TableRow>
+              {expandedRow === customer.customerId && (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ p: 0, borderBottom: "none" }}>
+                    <Box sx={{ p: 2, backgroundColor: "#f9f9f9" }}>
+                      {statusData.length > 0 ? (
+                        <Grid container spacing={2}>
+                          <Grid item xs={12}>
+                            <Card variant="outlined">
+                              <CardContent>
+                                <Typography
+                                  variant="subtitle2"
+                                  gutterBottom
+                                  sx={{ fontWeight: "bold" }}
+                                >
+                                  Vehicle Information
+                                </Typography>
+                                <Grid container spacing={1}>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Model:
+                                      </Box>{" "}
+                                      {customer.carBooking?.model || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Version:
+                                      </Box>{" "}
+                                      {customer.carBooking?.version || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Color:
+                                      </Box>{" "}
+                                      {customer.carBooking?.color || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        VIN:
+                                      </Box>{" "}
+                                      {customer.stockInfo?.vin || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Chassis:
+                                      </Box>{" "}
+                                      {customer.stockInfo?.chassisNumber ||
+                                        "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Engine:
+                                      </Box>{" "}
+                                      {customer.stockInfo?.engineNumber ||
+                                        "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+
+                          <Grid item xs={12}>
+                            <Card variant="outlined">
+                              <CardContent>
+                                <Typography
+                                  variant="subtitle2"
+                                  gutterBottom
+                                  sx={{ fontWeight: "bold" }}
+                                >
+                                  Process Status
+                                </Typography>
+                                <Grid container spacing={1}>
+                                  {statusData.map((status) => (
+                                    <Grid item xs={12} key={status.id}>
+                                      <Card variant="outlined" sx={{ p: 1 }}>
+                                        <Grid container alignItems="center">
+                                          <Grid item xs={6}>
+                                            <Typography
+                                              variant="body2"
+                                              fontWeight="medium"
+                                            >
+                                              {status.name}
+                                            </Typography>
+                                          </Grid>
+                                          <Grid
+                                            item
+                                            xs={6}
+                                            sx={{
+                                              display: "flex",
+                                              justifyContent: "flex-end",
+                                            }}
+                                          >
+                                            <Box
+                                              sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                              }}
+                                            >
+                                              <StatusIcon
+                                                status={status.status}
+                                              />
+                                              <Typography
+                                                variant="body2"
+                                                sx={{ ml: 1 }}
+                                              >
+                                                {status.status}
+                                              </Typography>
+                                            </Box>
+                                          </Grid>
+                                          <Grid item xs={12}>
+                                            <Typography
+                                              variant="caption"
+                                              color="text.secondary"
+                                            >
+                                              Last updated:{" "}
+                                              {formatDate(status.updatedAt)}
+                                            </Typography>
+                                          </Grid>
+                                        </Grid>
+                                      </Card>
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        </Grid>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No status data available
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-  )
+  );
 
-  // Desktop view with full table
   const DesktopView = () => (
     <TableContainer component={Paper}>
       <Table>
@@ -244,45 +686,215 @@ const [success, setSuccess ] = useState(null);
             <TableCell>Email</TableCell>
             <TableCell>Car Details</TableCell>
             <TableCell>Status</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {filteredCustomers.map((customer) => (
-            <TableRow key={customer.customerId} sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}>
-              <TableCell>{customer.customerId}</TableCell>
-              <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
-              <TableCell>{formatPhoneNumber(customer.mobileNumber1, customer.mobileNumber2)}</TableCell>
-              <TableCell>{customer.email}</TableCell>
-              <TableCell>
-                {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} |{" "}
-                {customer.carBooking?.color || "N/A"}
-              </TableCell>
-              <TableCell>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+            <>
+              <TableRow
+                key={customer.customerId}
+                sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
+              >
+                <TableCell>{customer.customerId}</TableCell>
+                <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
+                <TableCell>
+                  {formatPhoneNumber(
+                    customer.mobileNumber1,
+                    customer.mobileNumber2
+                  )}
+                </TableCell>
+                <TableCell>{customer.email}</TableCell>
+                <TableCell>
+                  {customer.carBooking?.model || "N/A"} |{" "}
+                  {customer.carBooking?.version || "N/A"} |{" "}
+                  {customer.carBooking?.color || "N/A"}
+                </TableCell>
+                <TableCell>
                   <Chip label="Approved" color="success" size="small" />
-                  <IconButton
-                    size="small"
-                    color="success"
-                    onClick={() => {
-                      setSelectedCustomer(customer)
-                      setShowModal(true)
-                    }}
-                    sx={{ ml: 1 }}
-                  >
-                    <GppBadRoundedIcon />
-                  </IconButton>
-                </Box>
-              </TableCell>
-            </TableRow>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleViewStatus(customer)}
+                    >
+                      View
+                    </Button>
+                    <IconButton
+                      size="small"
+                      color="success"
+                      onClick={() => {
+                        setSelectedCustomer(customer);
+                        setShowModal(true);
+                      }}
+                    >
+                      <GppBadRoundedIcon />
+                    </IconButton>
+                  </Box>
+                </TableCell>
+              </TableRow>
+              {expandedRow === customer.customerId && (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ p: 0, borderBottom: "none" }}>
+                    <Box sx={{ p: 2, backgroundColor: "#f9f9f9" }}>
+                      {statusData.length > 0 ? (
+                        <Grid container spacing={2}>
+                          <Grid item xs={12}>
+                            <Card variant="outlined">
+                              <CardContent>
+                                <Typography
+                                  variant="subtitle2"
+                                  gutterBottom
+                                  sx={{ fontWeight: "bold" }}
+                                >
+                                  Vehicle Information
+                                </Typography>
+                                <Grid container spacing={1}>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Model:
+                                      </Box>{" "}
+                                      {customer.carBooking?.model || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Version:
+                                      </Box>{" "}
+                                      {customer.carBooking?.version || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Color:
+                                      </Box>{" "}
+                                      {customer.carBooking?.color || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        VIN:
+                                      </Box>{" "}
+                                      {customer.stockInfo?.vin || "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Chassis:
+                                      </Box>{" "}
+                                      {customer.stockInfo?.chassisNumber ||
+                                        "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12}>
+                                    <Typography variant="body2">
+                                      <Box component="span" fontWeight="bold">
+                                        Engine:
+                                      </Box>{" "}
+                                      {customer.stockInfo?.engineNumber ||
+                                        "N/A"}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+
+                          <Grid item xs={12}>
+                            <Card variant="outlined">
+                              <CardContent>
+                                <Typography
+                                  variant="subtitle2"
+                                  gutterBottom
+                                  sx={{ fontWeight: "bold" }}
+                                >
+                                  Process Status
+                                </Typography>
+                                <Grid container spacing={1}>
+                                  {statusData.map((status) => (
+                                    <Grid item xs={12} key={status.id}>
+                                      <Card variant="outlined" sx={{ p: 1 }}>
+                                        <Grid container alignItems="center">
+                                          <Grid item xs={6}>
+                                            <Typography
+                                              variant="body2"
+                                              fontWeight="medium"
+                                            >
+                                              {status.name}
+                                            </Typography>
+                                          </Grid>
+                                          <Grid
+                                            item
+                                            xs={6}
+                                            sx={{
+                                              display: "flex",
+                                              justifyContent: "flex-end",
+                                            }}
+                                          >
+                                            <Box
+                                              sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                              }}
+                                            >
+                                              <StatusIcon
+                                                status={status.status}
+                                              />
+                                              <Typography
+                                                variant="body2"
+                                                sx={{ ml: 1 }}
+                                              >
+                                                {status.status}
+                                              </Typography>
+                                            </Box>
+                                          </Grid>
+                                          <Grid item xs={12}>
+                                            <Typography
+                                              variant="caption"
+                                              color="text.secondary"
+                                            >
+                                              Last updated:{" "}
+                                              {formatDate(status.updatedAt)}
+                                            </Typography>
+                                          </Grid>
+                                        </Grid>
+                                      </Card>
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        </Grid>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No status data available
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-  )
+  );
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      <Typography variant="h6" sx={{ mb: 3, color: "#071947", fontWeight: "bold" }}>
+      <Typography
+        variant="h6"
+        sx={{ mb: 3, color: "#071947", fontWeight: "bold" }}
+      >
         Pre-Delivery Inspection Approved
       </Typography>
 
@@ -349,7 +961,10 @@ const [success, setSuccess ] = useState(null);
           {isMobile && (
             <Box>
               {filteredCustomers.map((customer) => (
-                <MobileCustomerCard key={customer.customerId} customer={customer} />
+                <MobileCustomerCard
+                  key={customer.customerId}
+                  customer={customer}
+                />
               ))}
             </Box>
           )}
@@ -363,7 +978,7 @@ const [success, setSuccess ] = useState(null);
       )}
 
       {/* Approved Dialog - Using Material UI Dialog instead of React Bootstrap Modal */}
-      <Dialog open={showModal} onClose={handleClose} maxWidth="sm" >
+      <Dialog open={showModal} onClose={handleClose} maxWidth="sm">
         <DialogTitle
           sx={{
             display: "flex",
@@ -375,7 +990,12 @@ const [success, setSuccess ] = useState(null);
           }}
         >
           <Typography variant="h6">Process Pre-Delivery Inspection</Typography>
-          <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleClose}
+            aria-label="close"
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -383,7 +1003,10 @@ const [success, setSuccess ] = useState(null);
           {selectedCustomer && (
             <Box>
               <Card variant="outlined" sx={{ mb: 2, p: 2 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: "bold", mb: 1 }}
+                >
                   Customer Details
                 </Typography>
                 <Grid container spacing={1}>
@@ -391,7 +1014,9 @@ const [success, setSuccess ] = useState(null);
                     <Typography variant="body2" color="text.secondary">
                       Customer ID:
                     </Typography>
-                    <Typography variant="body1">{selectedCustomer.customerId}</Typography>
+                    <Typography variant="body1">
+                      {selectedCustomer.customerId}
+                    </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" color="text.secondary">
@@ -406,19 +1031,27 @@ const [success, setSuccess ] = useState(null);
                       Car:
                     </Typography>
                     <Typography variant="body1">
-                      {selectedCustomer.carBooking?.model || "N/A"} | {selectedCustomer.carBooking?.version || "N/A"} |{" "}
+                      {selectedCustomer.carBooking?.model || "N/A"} |{" "}
+                      {selectedCustomer.carBooking?.version || "N/A"} |{" "}
                       {selectedCustomer.carBooking?.color || "N/A"}
                     </Typography>
                   </Grid>
                 </Grid>
               </Card>
 
-              <Card variant="outlined" sx={{ mb: 3, p: 2, bgcolor: "success.light" }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
+              <Card
+                variant="outlined"
+                sx={{ mb: 3, p: 2, bgcolor: "success.light" }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: "bold", mb: 1 }}
+                >
                   Approved Reason
                 </Typography>
                 <Typography variant="body1" color="success.dark">
-                  {selectedCustomer.predeliveryinspection[0]?.PreDeliveryInspectionReason || "No reason provided"}
+                  {selectedCustomer.predeliveryinspection[0]
+                    ?.PreDeliveryInspectionReason || "No reason provided"}
                 </Typography>
               </Card>
 
@@ -456,20 +1089,24 @@ const [success, setSuccess ] = useState(null);
             </Box>
           )}
         </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}>
+        <DialogActions
+          sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}
+        >
           <Button onClick={handleClose} variant="outlined">
             Cancel
           </Button>
-          <Button  onClick={handleReject}
+          <Button
+            onClick={handleReject}
             color="error"
-            disabled={!preDeliveryInspectionReason} variant="contained">
-          Reject PDI
+            disabled={!preDeliveryInspectionReason}
+            variant="contained"
+          >
+            Reject PDI
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
-  )
-}
+  );
+};
 
-export default PADApproved
-
+export default PADApproved;

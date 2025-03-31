@@ -29,7 +29,7 @@ const handlePayment = async (req, res) => {
         paymentType,
       ]);
 
-       // Update the customer's account balance in the invoice_summary table
+      // Update the customer's account balance in the invoice_summary table
       const updateDebitedBalanceQuery = `
         UPDATE invoice_summary 
         SET grand_total = grand_total - ?, 
@@ -148,156 +148,246 @@ const handlePayment = async (req, res) => {
 const getCustomerById = async (req, res) => {
   const { id } = req.params;
 
+  if (!id) {
+    return res.status(400).json({
+      success: false,
+      message: 'Customer ID is required'
+    });
+  }
+
   const query = `
     SELECT 
-      c.*,
-      cb.*,
-      inv.*,
-      ai.*,
-      -- Include exchange data if exchange is 'Yes'
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.rcDocument
-        ELSE NULL
-      END AS rcDocument,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.insurancePolicy
-        ELSE NULL
-      END AS insurancePolicy,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.pucCertificate
-        ELSE NULL
-      END AS pucCertificate,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.identityProof
-        ELSE NULL
-      END AS identityProof,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.addressProof
-        ELSE NULL
-      END AS addressProof,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.loanClearance
-        ELSE NULL
-      END AS loanClearance,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.serviceHistory
-        ELSE NULL
-      END AS serviceHistory,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.carOwnerFullName
-        ELSE NULL
-      END AS carOwnerFullName,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.carMake
-        ELSE NULL
-      END AS carMake,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.carModel
-        ELSE NULL
-      END AS carModel,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.carColor
-        ELSE NULL
-      END AS carColor,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.carRegistration
-        ELSE NULL
-      END AS carRegistration,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.carYear
-        ELSE NULL
-      END AS carYear,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.exchangeAmount
-        ELSE NULL
-      END AS exchangeAmount,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.exchangeReason
-        ELSE NULL
-      END AS exchangeReason,
-      CASE 
-        WHEN ai.exchange = 'Yes' THEN cer.status
-        ELSE NULL
-      END AS exchangeStatus,
-      -- Include loan data if finance is 'Yes'
-      CASE 
-        WHEN ai.finance = 'Yes' THEN l.loan_amount
-        ELSE NULL
-      END AS loan_amount,
-      CASE 
-        WHEN ai.finance = 'Yes' THEN l.interest_rate
-        ELSE NULL
-      END AS interest_rate,
-      CASE 
-        WHEN ai.finance = 'Yes' THEN l.loan_duration
-        ELSE NULL
-      END AS loan_duration,
-      CASE 
-        WHEN ai.finance = 'Yes' THEN l.calculated_emi
-        ELSE NULL
-      END AS calculated_emi,
-       CASE 
-        WHEN ai.finance = 'Yes' THEN l.status
-        ELSE NULL
-      END AS financestatus,
-      CASE 
-        WHEN ai.finance = 'Yes' THEN l.financeReason
-        ELSE NULL
-      END AS financeReason
-      
+    c.customerId,
+    c.firstName,
+    c.middleName,
+    c.lastName,
+    c.email,
+    c.mobileNumber1,
+    c.mobileNumber2,
+    c.country,
+    c.address,
+    c.city,
+    c.state,
+    c.createdAt AS customer_created,
+    c.updatedAt AS customer_updated,
+    
+    -- Loan information
+    l.id AS loan_id,
+    l.loan_amount,
+    l.interest_rate,
+    l.loan_duration,
+    l.status AS loan_status,
+    l.financeReason,
+    l.financeAmount,
+    l.calculated_emi,
+    l.createdAt AS loan_created,
+    l.updatedAt AS loan_updated,
+    
+    -- Document information
+    d.id AS document_id,
+    d.employed_type,
+    d.document_name,
+    d.uploaded_file AS document_path,
+    d.uploaded_at AS document_uploaded,
+    
+    -- Car booking information
+    cb.model,
+    cb.version,
+    cb.color,
+    cb.carType,
+    cb.exShowroomPrice,
+    cb.bookingAmount,
+    cb.bookingType,
+    cb.createdAt AS car_booking_created,
+    
+    -- Car exchange information
+    cer.id AS exchange_id,
+    cer.rcDocument,
+    cer.insurancePolicy,
+    cer.pucCertificate,
+    cer.identityProof,
+    cer.addressProof,
+    cer.loanClearance,
+    cer.serviceHistory,
+    cer.carOwnerFullName,
+    cer.carMake,
+    cer.carModel,
+    cer.carColor,
+    cer.carRegistration,
+    cer.carYear,
+    cer.status AS exchange_status,
+    cer.exchangeAmount,
+    cer.exchangeReason,
+    cer.createdAt AS exchange_created,
+    cer.updatedAt AS exchange_updated,
+
+           inv.invoice_id,
+              inv.invoice_date,
+              inv.due_date,
+              inv.total_on_road_price,
+              inv.total_charges,
+              inv.grand_total AS invoice_grand_total,
+              inv.payment_status,
+              inv.customer_account_balance,
+
+    adi.finance,
+    adi.exchange
+    
     FROM customers c
+
+                LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+
+
+    -- Join additional_info first
+    LEFT JOIN additional_info adi ON c.customerId = adi.customerId
+
+    -- Then join loans with the finance condition
+    LEFT JOIN loans l ON c.customerId = l.customerId AND adi.finance = 'Yes'
+
+    -- Then join documents
+    LEFT JOIN customer_documents d ON l.id = d.loan_id
+
+    -- Join other tables
     LEFT JOIN carbooking cb ON c.customerId = cb.customerId
-    LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
-    LEFT JOIN additional_info ai ON c.customerId = ai.customerId
-    LEFT JOIN car_exchange_requests cer ON c.customerId = cer.customerId
-    LEFT JOIN loans l ON c.customerId = l.customerId
+    LEFT JOIN car_exchange_requests cer ON c.customerId = cer.customerId AND adi.exchange = 'Yes'
+
     WHERE c.customerId = ?
   `;
 
   try {
-    const [result] = await pool.query(query, [id]);
+    const [results] = await pool.query(query, [id]);
 
-    if (result.length > 0) {
-      const customerData = result[0];
-
-      // Transform the result into a nested structure
-      const response = {
-        ...customerData,
-        carExchangeRequests: customerData.exchange === 'Yes' ? {
-          rcDocument: customerData.rcDocument,
-          insurancePolicy: customerData.insurancePolicy,
-          pucCertificate: customerData.pucCertificate,
-          identityProof: customerData.identityProof,
-          addressProof: customerData.addressProof,
-          loanClearance: customerData.loanClearance,
-          serviceHistory: customerData.serviceHistory,
-          carOwnerFullName: customerData.carOwnerFullName,
-          carMake: customerData.carMake,
-          carModel: customerData.carModel,
-          carColor: customerData.carColor,
-          carRegistration: customerData.carRegistration,
-          carYear: customerData.carYear,
-          exchangeAmount: customerData.exchangeAmount,
-          exchangeReason: customerData.exchangeReason,
-          status: customerData.exchangeStatus
-        } : null,
-      loans: customerData.finance === 'Yes' ? {
-          loan_amount: customerData.loan_amount,
-          interest_rate: customerData.interest_rate,
-          loan_duration: customerData.loan_duration,
-          calculated_emi: customerData.calculated_emi,
-          financeReason: customerData.financeReason,
-          financestatus : customerData.financestatus
-        } : null
-      };
-
-      res.status(200).json(response); // Send the transformed customer data as JSON
-    } else {
-      res.status(404).json({ message: 'Customer not found' });
+    if (results.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Customer not found'
+      });
     }
-  } catch (err) {
-    console.error('Error fetching customer:', err);
-    res.status(500).json({ error: 'Error fetching customer' });
+
+    // Process results into structured format
+    const customerData = {
+      customerId: results[0].customerId,
+      firstName: results[0].firstName,
+      middleName: results[0].middleName,
+      lastName: results[0].lastName,
+      email: results[0].email,
+      mobileNumbers: [
+        results[0].mobileNumber1,
+        results[0].mobileNumber2
+      ].filter(Boolean),
+      createdAt: results[0].customer_created,
+      updatedAt: results[0].customer_updated,
+      address : results[0]. address,
+      city : results[0].city,
+      state : results[0].state,
+      country : results[0].country,
+
+      carBooking: results[0].model ? {
+        model: results[0].model,
+        version: results[0].version,
+        color: results[0].color,
+        carType: results[0].carType,
+
+        
+        exShowroomPrice: results[0].exShowroomPrice,
+        bookingType: results[0].bookingType,
+        team_Leader: results[0].team_Leader,
+        team_Member: results[0].team_Member,
+        
+        bookingAmount: results[0].bookingAmount,
+        createdAt: results[0].car_booking_created
+      } : null,
+      invoiceInfo: {
+                        invoice_id: results[0].invoice_id || '',
+                        invoice_date: results[0].invoice_date || null,
+                        due_date: results[0].due_date || null,
+                        total_on_road_price: results[0].total_on_road_price || 0,
+                        total_charges: results[0].total_charges || 0,
+                        grand_total: results[0].invoice_grand_total || 0,
+        payment_status: results[0].payment_status || '',
+        customer_account_balance: results[0].customer_account_balance || '',
+                    },
+
+      additional_info: {
+        finance: results[0].finance || null,
+        exchange: results[0].exchange || null
+      },
+      loans: [],
+      carExchange: results[0].exchange_id ? {
+        id: results[0].exchange_id,
+        rcDocument: results[0].rcDocument,
+        insurancePolicy: results[0].insurancePolicy,
+        pucCertificate: results[0].pucCertificate,
+        identityProof: results[0].identityProof,
+        addressProof: results[0].addressProof,
+        loanClearance: results[0].loanClearance,
+        serviceHistory: results[0].serviceHistory,
+        carOwnerFullName: results[0].carOwnerFullName,
+        carMake: results[0].carMake,
+        carModel: results[0].carModel,
+        carColor: results[0].carColor,
+        carRegistration: results[0].carRegistration,
+        carYear: results[0].carYear,
+        status: results[0].exchange_status,
+        exchangeAmount: results[0].exchangeAmount,
+        exchangeReason: results[0].exchangeReason,
+        createdAt: results[0].exchange_created,
+        updatedAt: results[0].exchange_updated
+      } : null
+    };
+
+    // Process loans and documents
+    const loanMap = new Map();
+    results.forEach(row => {
+      if (row.loan_id && !loanMap.has(row.loan_id)) {
+        const loan = {
+          id: row.loan_id,
+          loanAmount: row.loan_amount,
+          interestRate: row.interest_rate,
+          duration: row.loan_duration,
+          status: row.loan_status,
+          financeReason: row.financeReason,
+          financeAmount: row.financeAmount,
+          calculatedEMI: row.calculated_emi,
+          createdAt: row.loan_created,
+          updatedAt: row.loan_updated,
+          documents: []
+        };
+        loanMap.set(row.loan_id, loan);
+        customerData.loans.push(loan);
+      }
+
+      if (row.document_id) {
+        const loan = loanMap.get(row.loan_id);
+        if (loan) {
+          loan.documents.push({
+            id: row.document_id,
+            employedType: row.employed_type,
+            documentName: row.document_name,
+            filePath: row.document_path,
+            uploadedAt: row.document_uploaded
+          });
+        }
+      }
+    });
+
+    
+
+    res.status(200).json({
+      success: true,
+      data: customerData
+    });
+
+  } catch (error) {
+    console.error('Error fetching customer details:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch customer details',
+      error: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        stack: error.stack
+      } : undefined
+    });
   }
 };
 
@@ -336,7 +426,7 @@ const getAllCashierTransactions = async (req, res) => {
   }
 };
 
-  
+
 
 
 // Function to fetch all customers

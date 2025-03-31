@@ -111,7 +111,7 @@ const financeshow = async (req, res) => {
         console.error('Error fetching car exchange requests:', error);
         res.status(500).json({
             success: false,
-            message: 'An error occurred while fetching car exchange requests.',
+            message: 'An error occurred while fetching car finance requests.',
             error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
         });
     }

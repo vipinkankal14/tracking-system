@@ -421,7 +421,7 @@ const DesktopRow = ({
 
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     <strong>VIN Number:</strong>{" "}
-                    {customer.stockInfo?.model || "N/A"}
+                    {customer.stockInfo?.vin || "N/A"}
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     <strong>Chassis Number:</strong>{" "}
