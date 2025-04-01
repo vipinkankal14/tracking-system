@@ -777,11 +777,11 @@ const SecurityclearancePending = () => {
                     </Card>
       
                     <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                      Reject Notes
+                      Notes
                     </Typography>
                     <TextareaAutosize
                       minRows={3}
-                      placeholder="Add notes for reject"
+                      placeholder="Add notes for Reject and Approval"
                       value={securityClearanceReason}
                       onChange={(e) => setSecurityClearanceReason(e.target.value)}
                       style={{

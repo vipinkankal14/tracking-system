@@ -100,7 +100,8 @@ const getCarRequestForCustomers = async (req, res) => {
                   total_on_road_price: row.total_on_road_price || 0,
                   total_charges: row.total_charges || 0,
                   grand_total: row.invoice_grand_total || 0,
-                  payment_status: row.payment_status || ''
+                  payment_status: row.payment_status || '',
+                  customer_account_balance: row.customer_account_balance || '',
               },
               orderInfo: {
                   order_date: row.order_date || null,

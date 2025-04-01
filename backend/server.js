@@ -58,6 +58,7 @@ const { GatePassShow } = require('./db/routes/GatePass/GatePassShow');
 const { getConfirmedBookings } = require('./db/routes/BookingsConfirmed/Confirmed');
 const { getcanceledBookings } = require('./db/routes/BookingsConfirmed/Canceled');
 const { getCarRequestForCustomers } = require('./db/routes/CarManagement/CarRequestForCustomers');
+const { createUser, getUsers, getUserById, updateUser, deleteUser } = require('./db/routes/Usermanagement/createUser');
   
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -2507,6 +2508,18 @@ app.get('/api/Customers/Request', getCarRequestForCustomers);
 
 
 
+ 
+app.post('/api/users', createUser);
+app.get('/api/users', getUsers);
+app.get('/api/users/:id', getUserById);    // Added / before :id
+app.put('/api/users/:id', updateUser);     // Added / before :id
+app.delete('/api/users/:id', deleteUser);  // Added / before :id
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
 
 
 

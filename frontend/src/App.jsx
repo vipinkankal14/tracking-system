@@ -94,6 +94,7 @@ import GatepassApp from "./AdditionalInfo/GatePass/GatePassApp";
 import ExchangeApproved from "./AdditionalInfo/Exchange/ExchangeApproved";
 import ExchangeRejected from "./AdditionalInfo/Exchange/ExchangeRejected";
 import ExchangePending from "./AdditionalInfo/Exchange/ExchangePending";
+import UserManagement from "./UserManagementSystem/UserManagement";
 
 
 function App() {
@@ -403,8 +404,11 @@ function AppContent() {
         <Route path="/dashboard" element={<DashboardCustomer />} />
         <Route path="/customer/:customerId" element={<CustomerDetails />} /> 
           
+        {/* ========================================================================================== */}
 
- 
+        <Route path="/User_Management" element={<UserManagement />} />
+
+        
 
          </Routes>
       </main>

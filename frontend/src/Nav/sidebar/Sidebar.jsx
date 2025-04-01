@@ -5,6 +5,7 @@ import './sidebar.scss'
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const navItems = [
+    { icon: <Code2 size={18} />, label: 'User Management', path: '/User_Management' },
     { icon: <Code2 size={18} />, label: 'Exchange', path: '/exchange-app' },
     { icon: <Code2 size={18} />, label: 'Finance', path: '/finance-app' },
     { icon: <CircuitBoard size={18} />, label: 'CashierApp', path: '/cashier-app' },

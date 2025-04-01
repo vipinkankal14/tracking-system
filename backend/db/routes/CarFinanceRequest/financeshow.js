@@ -27,11 +27,20 @@ const financeshow = async (req, res) => {
         d.uploaded_at AS document_uploaded,
         cr.model,
         cr.version,
-        cr.color
+        cr.color,
+
+        
+        adi.finance
+
+
     FROM customers c
-    LEFT JOIN loans l ON c.customerId = l.customerId
-    LEFT JOIN carbooking cr ON c.customerId = cr.customerId
+        -- Join additional_info first
+    LEFT JOIN additional_info adi ON c.customerId = adi.customerId
+ -- Then join loans with the finance condition
+    LEFT JOIN loans l ON c.customerId = l.customerId AND adi.finance = 'Yes'
     LEFT JOIN customer_documents d ON l.id = d.loan_id
+    LEFT JOIN carbooking cr ON c.customerId = cr.customerId
+ 
     `;
 
     try {
@@ -59,7 +68,10 @@ const financeshow = async (req, res) => {
                     model: row.model,
                     version: row.version,
                     color: row.color,
-                    loans: []
+                    finance: row.finance,
+                    
+                    loans: [],
+                    
                 });
             }
 

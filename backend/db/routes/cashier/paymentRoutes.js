@@ -197,6 +197,8 @@ const getCustomerById = async (req, res) => {
     cb.carType,
     cb.exShowroomPrice,
     cb.bookingAmount,
+    cb.team_Leader,
+    cb.team_Member,
     cb.bookingType,
     cb.createdAt AS car_booking_created,
     
@@ -231,12 +233,23 @@ const getCustomerById = async (req, res) => {
               inv.customer_account_balance,
 
     adi.finance,
-    adi.exchange
+    adi.exchange,
+
+        -- Order prebooking dates
+    op.order_date AS order_date_status,
+    op.tentative_date,
+    op.preferred_date,
+    op.request_date,
+    op.prebooking AS prebooking_status,
+    op.prebooking_date,
+    op.delivery_date,
+    op.createdAt AS order_prebooking_created
     
     FROM customers c
 
-                LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+    LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
 
+    LEFT JOIN orders_prebooking_date op ON c.customerId = op.customerId
 
     -- Join additional_info first
     LEFT JOIN additional_info adi ON c.customerId = adi.customerId
@@ -277,41 +290,50 @@ const getCustomerById = async (req, res) => {
       ].filter(Boolean),
       createdAt: results[0].customer_created,
       updatedAt: results[0].customer_updated,
-      address : results[0]. address,
-      city : results[0].city,
-      state : results[0].state,
-      country : results[0].country,
+      address: results[0].address,
+      city: results[0].city,
+      state: results[0].state,
+      country: results[0].country,
 
       carBooking: results[0].model ? {
         model: results[0].model,
         version: results[0].version,
         color: results[0].color,
         carType: results[0].carType,
-
-        
         exShowroomPrice: results[0].exShowroomPrice,
         bookingType: results[0].bookingType,
         team_Leader: results[0].team_Leader,
         team_Member: results[0].team_Member,
-        
+
         bookingAmount: results[0].bookingAmount,
         createdAt: results[0].car_booking_created
       } : null,
       invoiceInfo: {
-                        invoice_id: results[0].invoice_id || '',
-                        invoice_date: results[0].invoice_date || null,
-                        due_date: results[0].due_date || null,
-                        total_on_road_price: results[0].total_on_road_price || 0,
-                        total_charges: results[0].total_charges || 0,
-                        grand_total: results[0].invoice_grand_total || 0,
+        invoice_id: results[0].invoice_id || '',
+        invoice_date: results[0].invoice_date || null,
+        due_date: results[0].due_date || null,
+        total_on_road_price: results[0].total_on_road_price || 0,
+        total_charges: results[0].total_charges || 0,
+        grand_total: results[0].invoice_grand_total || 0,
         payment_status: results[0].payment_status || '',
         customer_account_balance: results[0].customer_account_balance || '',
-                    },
+      },
 
       additional_info: {
         finance: results[0].finance || null,
         exchange: results[0].exchange || null
       },
+      orderPrebooking: results[0].order_date_status ? {
+        orderDate: results[0].order_date_status,
+        tentativeDate: results[0].tentative_date,
+        preferredDate: results[0].preferred_date,
+        requestDate: results[0].request_date,
+        prebooking: results[0].prebooking_status,
+        prebookingDate: results[0].prebooking_date,
+        deliveryDate: results[0].delivery_date,
+        createdAt: results[0].order_prebooking_created
+      } : null,
+
       loans: [],
       carExchange: results[0].exchange_id ? {
         id: results[0].exchange_id,
@@ -371,7 +393,7 @@ const getCustomerById = async (req, res) => {
       }
     });
 
-    
+
 
     res.status(200).json({
       success: true,
