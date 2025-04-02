@@ -58,7 +58,7 @@ const { GatePassShow } = require('./db/routes/GatePass/GatePassShow');
 const { getConfirmedBookings } = require('./db/routes/BookingsConfirmed/Confirmed');
 const { getcanceledBookings } = require('./db/routes/BookingsConfirmed/Canceled');
 const { getCarRequestForCustomers } = require('./db/routes/CarManagement/CarRequestForCustomers');
-const { createUser, getUsers, getUserById, updateUser, deleteUser } = require('./db/routes/Usermanagement/createUser');
+const { createUser, getUsers, getUserById, updateUser, deleteUser, uploadProfileImageForNewUser, uploadProfileImage, upload } = require('./db/routes/Usermanagement/createUser');
   
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -2507,13 +2507,19 @@ app.get('/api/Customers/Request', getCarRequestForCustomers);
 
 
 
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.post('/api/users', upload.single('profile_image'), createUser);
 
- 
-app.post('/api/users', createUser);
 app.get('/api/users', getUsers);
 app.get('/api/users/:id', getUserById);    // Added / before :id
 app.put('/api/users/:id', updateUser);     // Added / before :id
 app.delete('/api/users/:id', deleteUser);  // Added / before :id
+
+// Serve static files from the public directory
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.post('/api/users/profile-image', upload.single('profile_image'), uploadProfileImageForNewUser);
+app.post('/api/users/:id/profile-image', upload.single('profile_image'), uploadProfileImage);
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

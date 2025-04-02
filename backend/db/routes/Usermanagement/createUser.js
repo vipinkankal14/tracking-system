@@ -99,10 +99,40 @@ const createUser = async (req, res) => {
 };
 
 // Get all users
+ 
+
 const getUsers = async (req, res) => {
   try {
     const [users] = await pool.query('SELECT * FROM users');
-    res.status(200).json(users);
+    
+    // Verify image existence and construct full URL
+    const usersWithVerifiedImages = users.map(user => {
+      let profile_image = '';
+      
+      if (user.profile_image) {
+        // Construct the correct filesystem path
+        const imagePath = path.join(
+          __dirname, 
+          '../../../public',  
+          user.profile_image
+        );
+        
+        // Check if file exists
+        if (fs.existsSync(imagePath)) {
+          // Construct full URL using base URL from request
+          profile_image = `${req.protocol}://${req.get('host')}${user.profile_image}`;
+        } else {
+          console.warn(`Missing profile image: ${imagePath}`);
+        }
+      }
+      
+      return {
+        ...user,
+        profile_image
+      };
+    });
+    
+    res.status(200).json(usersWithVerifiedImages);
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
@@ -247,4 +277,140 @@ const deleteUser = async (req, res) => {
 // Routes
 
 
-module.exports = {createUser, getUsers,getUserById,updateUser,deleteUser};
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+
+// Ensure upload directory exists
+const uploadDir = './public/uploads/profile-images';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpe?g|png|gif/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Only images (jpeg, jpg, png, gif) are allowed'));
+  }
+};
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter
+});
+
+// Upload profile image for existing user
+const uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'No image file provided' 
+      });
+    }
+
+    const userId = req.params.id;
+    
+    // Check if user exists
+    const [user] = await pool.query(
+      'SELECT id, profile_image FROM users WHERE id = ?', 
+      [userId]
+    );
+    
+    if (user.length === 0) {
+      // Delete the uploaded file if user doesn't exist
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ 
+        success: false,
+        error: 'User not found' 
+      });
+    }
+
+    const imageUrl = `/uploads/profile-images/${req.file.filename}`;
+    
+    // Update user's profile image in database
+    await pool.query(
+      'UPDATE users SET profile_image = ? WHERE id = ?', 
+      [imageUrl, userId]
+    );
+    
+    // Delete old profile image if it exists
+    if (user[0].profile_image) {
+      const oldImagePath = path.join(__dirname, '../public', user[0].profile_image);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+    
+    res.status(200).json({ 
+      success: true,
+      profile_image: imageUrl,
+      message: 'Profile image updated successfully' 
+    });
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    
+    // Delete the uploaded file if error occurred
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      error: error.message || 'Failed to upload profile image' 
+    });
+  }
+};
+
+// Upload profile image for new user (before creation)
+const uploadProfileImageForNewUser = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'No image file provided' 
+      });
+    }
+
+    const imageUrl = `/uploads/profile-images/${req.file.filename}`;
+    
+    res.status(200).json({ 
+      success: true,
+      profile_image: imageUrl,
+      message: 'Profile image uploaded successfully' 
+    });
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    
+    // Delete the uploaded file if error occurred
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      error: error.message || 'Failed to upload profile image' 
+    });
+  }
+};
+
+
+module.exports = {createUser, getUsers,getUserById,updateUser,deleteUser,  uploadProfileImage, uploadProfileImageForNewUser,upload };
