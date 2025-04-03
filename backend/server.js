@@ -2512,7 +2512,7 @@ app.post('/api/users', upload.single('profile_image'), createUser);
 
 app.get('/api/users', getUsers);
 app.get('/api/users/:id', getUserById);    // Added / before :id
-app.put('/api/users/:id', updateUser);     // Added / before :id
+app.put('/api/users/:id', upload.single('profile_image'), updateUser);     // Added / before :id
 app.delete('/api/users/:id', deleteUser);  // Added / before :id
 
 // Serve static files from the public directory

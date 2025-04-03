@@ -26,6 +26,12 @@ const validateUserData = (data) => {
 // Create a new user
 const createUser = async (req, res) => {
   try {
+    // Handle file upload
+    let imageUrl = '';
+    if (req.file) {
+      imageUrl = `/uploads/profile-images/${req.file.filename}`;
+    }
+
     const validation = validateUserData(req.body);
     if (!validation.isValid) {
       return res.status(400).json({ error: validation.error });
@@ -38,7 +44,6 @@ const createUser = async (req, res) => {
       role,
       phone_number = '',
       current_salary = 0,
-      profile_image = '',
       aadhar_number = '',
       pan_number = '',
       street_address = '',
@@ -48,20 +53,57 @@ const createUser = async (req, res) => {
       country = 'India',
       employment_start_date = new Date().toISOString().split('T')[0],
       employment_end_date = null,
-       is_active = true
+      is_active = true
     } = req.body;
 
-    // Check if user already exists
-    const [existing] = await pool.query(
-      'SELECT id FROM users WHERE emp_id = ? OR email = ?',
-      [emp_id, email]
+    // Check for duplicate emp_id
+    const [existingEmpId] = await pool.query(
+      'SELECT id FROM users WHERE emp_id = ?',
+      [emp_id]
     );
 
-    if (existing.length > 0) {
-      return res.status(409).json({ error: 'User with this ID or email already exists' });
+    // Check for duplicate email
+    const [existingEmail] = await pool.query(
+      'SELECT id FROM users WHERE email = ?',
+      [email]
+    );
+
+    let existingRole = [];
+    if (!['Team Leader', 'Team Member'].includes(role)) {
+      [existingRole] = await pool.query(
+        'SELECT id FROM users WHERE role = ?',
+        [role]
+      );
     }
 
-    // Insert new user
+    // Return specific error messages for each duplicate case
+    if (existingEmpId.length > 0 && existingEmail.length > 0) {
+      return res.status(409).json({ 
+        error: 'Both Employee ID and Email already exist',
+        duplicates: {
+          emp_id: 'Employee ID already exists',
+          email: 'Email already exists'
+        }
+      });
+    } else if (existingEmpId.length > 0) {
+      return res.status(409).json({ 
+        error: 'Employee ID already exists',
+        field: 'emp_id'
+      });
+    } else if (existingEmail.length > 0) {
+      return res.status(409).json({ 
+        error: 'Email already exists',
+        field: 'email'
+      });
+    } else if (existingRole.length > 0) {
+      // Only include role check if it's important for your business logic
+      return res.status(409).json({ 
+        error: 'Role already assigned to another user',
+        field: 'role'
+      });
+    }
+
+    // Insert new user with profile image
     const [result] = await pool.query(
       `INSERT INTO users SET ?`,
       {
@@ -71,7 +113,7 @@ const createUser = async (req, res) => {
         role,
         phone_number,
         current_salary,
-        profile_image,
+        profile_image: imageUrl,
         aadhar_number,
         pan_number,
         street_address,
@@ -81,26 +123,35 @@ const createUser = async (req, res) => {
         country,
         employment_start_date,
         employment_end_date,
-         is_active
+        is_active
       }
     );
 
-    // Return the created user
+    // Return the created user with full image URL
     const [newUser] = await pool.query(
       'SELECT * FROM users WHERE id = ?',
       [result.insertId]
     );
     
-    res.status(201).json(newUser[0]);
+    const userResponse = {
+      ...newUser[0],
+      profile_image: newUser[0].profile_image
+        ? `${req.protocol}://${req.get('host')}${newUser[0].profile_image}`
+        : null
+    };
+    
+    res.status(201).json(userResponse);
   } catch (error) {
     console.error('Error creating user:', error);
-    res.status(500).json({ error: 'Failed to create user', details: error.message });
+    res.status(500).json({ 
+      error: 'Failed to create user',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
-// Get all users
- 
 
+// Get all users
 const getUsers = async (req, res) => {
   try {
     const [users] = await pool.query('SELECT * FROM users');
@@ -158,15 +209,57 @@ const getUserById = async (req, res) => {
   }
 };
 
-// Update user
 const updateUser = async (req, res) => {
+  let newImagePath;
   try {
+    const userId = req.params.id;
+
+    // Check if user exists
+    const [existingUser] = await pool.query(
+      'SELECT * FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (existingUser.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Handle file upload
+    let profileImagePath = existingUser[0].profile_image;
+    if (req.file) {
+      // Set new image path
+      profileImagePath = `/uploads/profile-images/${req.file.filename}`;
+      newImagePath = path.join(
+        __dirname,
+        '../public/uploads/profile-images',
+        req.file.filename
+      );
+
+      // Delete old image if it exists and isn't default
+      if (existingUser[0].profile_image && 
+          existingUser[0].profile_image !== '/default-avatar.png') {
+        const oldImagePath = path.join(
+          __dirname, 
+          '../public',
+          existingUser[0].profile_image
+        );
+        try {
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        } catch (err) {
+          console.error('Error deleting old image:', err);
+        }
+      }
+    }
+
+    // Validate request body
     const validation = validateUserData(req.body);
     if (!validation.isValid) {
+      cleanUpFile(newImagePath);
       return res.status(400).json({ error: validation.error });
     }
 
-    const userId = req.params.id;
     const {
       emp_id,
       username,
@@ -174,7 +267,6 @@ const updateUser = async (req, res) => {
       role,
       phone_number,
       current_salary,
-      profile_image,
       aadhar_number,
       pan_number,
       street_address,
@@ -184,68 +276,84 @@ const updateUser = async (req, res) => {
       country,
       employment_start_date,
       employment_end_date,
-       is_active
+      is_active
     } = req.body;
 
-    // Check if user exists
-    const [existing] = await pool.query(
-      'SELECT id FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (existing.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Check for duplicate emp_id or email
+    // Check for duplicates
     const [duplicate] = await pool.query(
       'SELECT id FROM users WHERE (emp_id = ? OR email = ?) AND id != ?',
       [emp_id, email, userId]
     );
 
     if (duplicate.length > 0) {
+      cleanUpFile(newImagePath);
       return res.status(409).json({ error: 'User with this ID or email already exists' });
     }
 
-    // Update user
+    // Prepare update data
+    const updateData = {
+      emp_id,
+      username,
+      email,
+      role,
+      phone_number,
+      current_salary,
+      profile_image: profileImagePath,
+      aadhar_number,
+      pan_number,
+      street_address,
+      city,
+      state,
+      postal_code,
+      country,
+      employment_start_date,
+      employment_end_date,
+      is_active
+    };
+
+    // Update user in database
     await pool.query(
       'UPDATE users SET ? WHERE id = ?',
-      [
-        {
-          emp_id,
-          username,
-          email,
-          role,
-          phone_number,
-          current_salary,
-          profile_image,
-          aadhar_number,
-          pan_number,
-          street_address,
-          city,
-          state,
-          postal_code,
-          country,
-          employment_start_date,
-          employment_end_date,
-           is_active
-        },
-        userId
-      ]
+      [updateData, userId]
     );
 
-    // Return updated user
+    // Get updated user data
     const [updatedUser] = await pool.query(
       'SELECT * FROM users WHERE id = ?',
       [userId]
     );
+
+    // Construct full image URL for response
+    const userWithImageUrl = {
+      ...updatedUser[0],
+      profile_image: updatedUser[0].profile_image
+        ? `${req.protocol}://${req.get('host')}${updatedUser[0].profile_image}`
+        : null
+    };
     
-    res.status(200).json(updatedUser[0]);
+    res.status(200).json(userWithImageUrl);
   } catch (error) {
     console.error('Error updating user:', error);
-    res.status(500).json({ error: 'Failed to update user' });
+    cleanUpFile(newImagePath);
+    res.status(500).json({ 
+      error: 'Failed to update user',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
+
+// Helper function to clean up uploaded files
+function cleanUpFile(filePath) {
+  if (!filePath) return;
+  
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (err) {
+    console.error('Error cleaning up file:', err);
+  }
+}
 
 // Delete user
 const deleteUser = async (req, res) => {
@@ -274,9 +382,8 @@ const deleteUser = async (req, res) => {
   }
 };
 
+
 // Routes
-
-
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');

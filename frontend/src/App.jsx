@@ -222,6 +222,7 @@ function AppContent() {
     "/customer-logout",
     "/dashboard",
     "/customer/:customerId",
+    "/User_Management",
   ];
 
   const shouldShowFooter = !hideFooterPatterns.some(pattern => 
