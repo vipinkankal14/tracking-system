@@ -2520,6 +2520,35 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.post('/api/users/profile-image', upload.single('profile_image'), uploadProfileImageForNewUser);
 app.post('/api/users/:id/profile-image', upload.single('profile_image'), uploadProfileImage);
 
+const bcrypt = require('bcrypt');
+
+app.post('/login', (req, res) => {
+  const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+  pool.promise().query(sql, [req.body.email, req.body.password], (err, results) => {
+  if (err) {
+    console.error("Database error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+  if (results.length > 0) {
+    bcrypt.compare(req.body.password.toString(), results[0].password, (err, result) => { 
+      if (err) {
+        console.error("Error comparing passwords:", err);
+        return res.status(500).json({ error: err.message });
+      }if (response) {
+        return res.status(200).json({ success: true, message: "Login successful" });
+      } else {
+        return res.status(401).json({ success: false, message: "Invalid email or password" }); 
+      }
+    })  
+  }
+  else {
+    res.json({ success: false, message: "Invalid email or password" });
+  }
+  })
+});
+
+
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
