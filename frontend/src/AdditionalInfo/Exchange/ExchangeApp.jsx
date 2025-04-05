@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { DirectionsCar} from '@mui/icons-material';
-import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
+  
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
-import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
-
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -125,7 +123,7 @@ function ExchangeApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/exchange-approved',
+      path: '/Exchange-Management/exchange-approved',
      
     },
     {
@@ -135,7 +133,7 @@ function ExchangeApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/exchange-rejected',
+      path: '/Exchange-Management/exchange-rejected',
      
     },
     {
@@ -145,7 +143,7 @@ function ExchangeApp() {
       status: 'Car Exchange Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/exchange-pending',
+      path: '/Exchange-Management/exchange-pending',
      
     },
      

@@ -33,6 +33,8 @@ import {
   Avatar,
   Tooltip,
   Badge,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -44,22 +46,17 @@ import {
   Search as SearchIcon,
   Refresh as RefreshIcon,
   PhotoCamera as PhotoCameraIcon,
+  FilterList as FilterListIcon,
+  Business as BusinessIcon,
+  Group as GroupIcon,
 } from "@mui/icons-material";
 import ProfileImageUpload from "./ProfileImageUpload";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import ErrorIcon from "@mui/icons-material/Error";
 
-
-
 // Mobile view - Card component for each user
-const UserCard = ({
-  user,
-  onEdit,
-  onDelete,
-  onViewSalaryHistory,
-  onUpdateProfileImage,
-}) => {
+const UserCard = ({ user, onEdit, onDelete, onUpdateProfileImage }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -99,12 +96,14 @@ const UserCard = ({
         <Typography variant="body2">{user.email}</Typography>
         <Typography variant="body2">{user.phone_number}</Typography>
 
-        <Chip
-          label={user.is_active ? "Active" : "Inactive"}
-          color={user.is_active ? "success" : "error"}
-          size="small"
-          sx={{ mt: 1 }}
-        />
+        {user.role !== "Sales Department" && (
+          <Chip
+            label={user.is_active ? "Active" : "Inactive"}
+            color={user.is_active ? "success" : "error"}
+            size="small"
+            sx={{ mt: 1 }}
+          />
+        )}
 
         <IconButton
           onClick={() => setExpanded(!expanded)}
@@ -122,9 +121,7 @@ const UserCard = ({
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="subtitle2">Salary:</Typography>
-              <Typography variant="body2">
-                ₹{user.current_salary.toLocaleString()}
-              </Typography>
+              <Typography variant="body2">₹{user.current_salary}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="subtitle2">Started:</Typography>
@@ -163,9 +160,7 @@ const UserCard = ({
         <Button size="small" onClick={() => onEdit(user)}>
           Edit
         </Button>
-        <Button size="small" onClick={() => onViewSalaryHistory(user)}>
-          Salary History
-        </Button>
+
         <Button size="small" color="error" onClick={() => onDelete(user)}>
           Delete
         </Button>
@@ -173,7 +168,6 @@ const UserCard = ({
     </Card>
   );
 };
-
 
 // Role options based on the schema
 const roleOptions = [
@@ -188,20 +182,30 @@ const roleOptions = [
   "Exchange Management",
   "Finance Management",
   "HR Management",
-  "Sales Department"
+  "Sales Department",
 ];
 
-const teamRoleOptions = [
-  "Team Leader",
-  "Team Member"
+// Management categories for filtering
+const managementCategories = [
+  "Accessories Management",
+  "Coating Management",
+  "RTO Management",
+  "FastTag Management",
+  "Insurance Management",
+  "AutoCard Management",
+  "Extended Warranty Management",
+  "Exchange Management",
+  "Finance Management",
+  "HR Management",
 ];
+
+const teamRoleOptions = ["Team Leader", "Team Member"];
 
 // Tablet view - Row component with expandable details
 const ExpandableTableRow = ({
   user,
   onEdit,
   onDelete,
-  onViewSalaryHistory,
   onUpdateProfileImage,
 }) => {
   const [open, setOpen] = useState(false);
@@ -252,13 +256,17 @@ const ExpandableTableRow = ({
         </TableCell>
         <TableCell>{user.username}</TableCell>
         <TableCell>{user.role}</TableCell>
-        <TableCell>
-          <Chip
-            label={user.is_active ? "Active" : "Inactive"}
-            color={user.is_active ? "success" : "error"}
-            size="small"
-          />
-        </TableCell>
+
+        {user.role !== "Sales Department" && (
+          <TableCell>
+            <Chip
+              label={user.is_active ? "Active" : "Inactive"}
+              color={user.is_active ? "success" : "error"}
+              size="small"
+            />
+          </TableCell>
+        )}
+
         <TableCell>
           <IconButton size="small" color="primary" onClick={() => onEdit(user)}>
             <EditIcon fontSize="small" />
@@ -284,7 +292,7 @@ const ExpandableTableRow = ({
                 <Grid item xs={6}>
                   <Typography variant="subtitle2">Salary:</Typography>
                   <Typography variant="body2">
-                    ₹{user.current_salary.toLocaleString()}
+                    ₹{user.current_salary}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -308,16 +316,22 @@ const ExpandableTableRow = ({
                   <Typography variant="subtitle2">PAN:</Typography>
                   <Typography variant="body2">{user.pan_number}</Typography>
                 </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => onViewSalaryHistory(user)}
-                    sx={{ mt: 1 }}
-                  >
-                    View Salary History
-                  </Button>
-                </Grid>
+                {user.role === "Sales Department" && user.teamRole && (
+                  <Grid item xs={6}>
+                    <Typography variant="subtitle2">Team Role:</Typography>
+                    <Typography variant="body2">{user.teamRole}</Typography>
+                  </Grid>
+                )}
+                {user.role === "Sales Department" &&
+                  user.teamRole === "Team Member" &&
+                  user.teamLeaderName && (
+                    <Grid item xs={6}>
+                      <Typography variant="subtitle2">Team Leader:</Typography>
+                      <Typography variant="body2">
+                        {user.teamLeaderName}
+                      </Typography>
+                    </Grid>
+                  )}
               </Grid>
             </Box>
           </Collapse>
@@ -339,17 +353,20 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [openSalaryDialog, setOpenSalaryDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [openProfileImageDialog, setOpenProfileImageDialog] = useState(false);
   const [preview, setPreview] = useState("");
   const [showTeamRole, setShowTeamRole] = useState(false);
+
+  // Tab state
+  const [tabValue, setTabValue] = useState(0);
 
   const [formData, setFormData] = useState({
     emp_id: "",
     username: "",
     email: "",
     role: "",
+    teamLeaderName: "",
     teamRole: "",
     phone_number: "",
     current_salary: 0,
@@ -391,37 +408,61 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
-  const handleInputChange = (e) => {
-  const { name, value } = e.target;
-  
-  setFormData(prev => ({
-    ...prev,
-    [name]: value
-  }));
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
-  // Show/hide team role dropdown based on role selection
-  if (name === 'role') {
-    setShowTeamRole(value === 'Sales Department');
-    if (value !== 'Sales Department') {
-      setFormData(prev => ({ ...prev, teamRole: '' }));
+  const handleInputChange = (e) => {
+    const { name, value, type } = e.target;
+
+    // Parse numerical inputs
+    let processedValue = value;
+    if (type === "number") {
+      processedValue = value === "" ? "" : parseFloat(value);
+      if (isNaN(processedValue)) processedValue = "";
     }
-  }
-};
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: processedValue,
+    }));
+
+    // Show/hide team role dropdown based on role selection
+    if (name === "role") {
+      setShowTeamRole(value === "Sales Department");
+      if (value !== "Sales Department") {
+        setFormData((prev) => ({ ...prev, teamRole: "" }));
+      }
+    }
+  };
 
   const generateEmployeeId = () => {
-    // Generate a random 6-digit number between 100000 and 999999
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    if (users.length === 0) return "EMP0001";
+    const empNumbers = users
+      .map((user) => user.emp_id || "")
+      .filter((id) => id.startsWith("EMP") && id.length === 7) // EMP + 4 digits
+      .map((id) => parseInt(id.replace("EMP", ""), 10))
+      .filter((num) => !isNaN(num) && num >= 0 && num <= 9999);
+
+    const maxId = empNumbers.length > 0 ? Math.max(...empNumbers) : 0;
+
+    if (maxId >= 9999) {
+      throw new Error("Maximum employee ID reached (EMP9999)");
+    }
+    return `EMP${(maxId + 1).toString().padStart(4, "0")}`;
   };
 
   const handleAddUser = () => {
     setCurrentUser(null);
     setFormData({
-      emp_id: `EMP${generateEmployeeId()}`, // Auto-generate ID
+      emp_id: `${generateEmployeeId()}`, // Auto-generate ID
       username: "",
       email: "",
       role: "",
+      teamLeaderName: "",
+      teamRole: "",
       phone_number: "",
-      current_salary: 0,
+      current_salary: "",
       profile_image: "",
       aadhar_number: "",
       pan_number: "",
@@ -452,15 +493,14 @@ const UserManagement = () => {
 
       const userData = await response.json();
       setCurrentUser(userData);
-      setShowTeamRole(userData.role === 'Sales Department'); // Add this line
-    
+      setShowTeamRole(userData.role === "Sales Department");
 
-      setCurrentUser(userData);
       setFormData({
         emp_id: userData.emp_id,
         username: userData.username,
         email: userData.email,
         role: userData.role,
+        teamLeaderName: userData.teamLeaderName || "",
         teamRole: userData.teamRole || "",
         phone_number: userData.phone_number || "",
         current_salary: userData.current_salary || 0,
@@ -476,9 +516,9 @@ const UserManagement = () => {
           userData.employment_start_date ||
           new Date().toISOString().split("T")[0],
         employment_end_date:
-          user.employment_end_date === "0000-00-00"
+          userData.employment_end_date === "0000-00-00"
             ? "0000-00-00"
-            : user.employment_end_date || "",
+            : userData.employment_end_date || "",
         is_active: userData.is_active ?? true,
       });
 
@@ -505,11 +545,6 @@ const UserManagement = () => {
         alert("Delete failed. User restored.");
       }
     }
-  };
-
-  const handleViewSalaryHistory = (user) => {
-    setCurrentUser(user);
-    setOpenSalaryDialog(true);
   };
 
   const handleUpdateProfileImage = (user) => {
@@ -615,14 +650,38 @@ const UserManagement = () => {
     }
   };
 
-  // Filter users based on search term
-  const filteredUsers = users.filter(
-    (user) =>
+  // Filter users based on tab selection and search term
+  const filteredUsers = users.filter((user) => {
+    // First filter by tab selection
+    if (tabValue === 0) {
+      // All Management tab - show all management categories except Sales Department
+      if (user.role === "Sales Department") {
+        return false;
+      }
+    } else {
+      // Sales Department tab - show only Sales Department
+      if (user.role !== "Sales Department") {
+        return false;
+      }
+    }
+
+    // Then filter by search term
+    return (
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.emp_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    );
+  });
+
+  // Count users by category for the badge
+  const countUsersByCategory = (category) => {
+    return users.filter((user) =>
+      category === "All Management"
+        ? managementCategories.includes(user.role)
+        : user.role === "Sales Department"
+    ).length;
+  };
 
   // Render loading state
   if (loading) {
@@ -658,16 +717,19 @@ const UserManagement = () => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color="primary" elevation={0}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            User Management System
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <>
+      <Toolbar
+        sx={{
+          padding: "0 16px",
+          minHeight: "64px",
+          height: "64px",
+          justifyContent: "flex-start",
+        }}
+      >
+        <Typography sx={{ flexGrow: 1 }}>User Management System</Typography>
+      </Toolbar>
 
-      <Container maxWidth="xl" sx={{ mt: 3 }}>
+      <Container maxWidth="xl">
         {/* Search and Add User Controls */}
         <Box
           sx={{
@@ -675,8 +737,10 @@ const UserManagement = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
           }}
-         >
+        >
           <TextField
             label="Search Users"
             variant="outlined"
@@ -691,200 +755,408 @@ const UserManagement = () => {
                 />
               ),
             }}
-            sx={{ width: isMobile ? "100%" : "300px" }}
+            sx={{ width: { xs: "100%", sm: "300px" } }}
           />
-          {!isMobile && (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
-              onClick={handleAddUser}
-            >
-              Add User
-            </Button>
-          )}
-        </Box>
 
-        {isMobile && (
           <Button
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
             onClick={handleAddUser}
-            fullWidth
-            sx={{ mb: 2 }}
+            fullWidth={isMobile}
           >
             Add User
           </Button>
-        )}
+        </Box>
 
-        {/* Mobile View - Card Layout */}
-        {isMobile && (
-          <Box>
-            {filteredUsers.length === 0 ? (
-              <Alert severity="info">No users found</Alert>
-            ) : (
-              filteredUsers.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  onEdit={handleEditUser}
-                  onDelete={handleDeleteUser}
-                  onViewSalaryHistory={handleViewSalaryHistory}
-                  onUpdateProfileImage={handleUpdateProfileImage}
-                />
-              ))
+        {/* Tab Navigation */}
+        <Box sx={{ mb: 3 }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            indicatorColor="primary"
+            textColor="primary"
+            variant={isMobile ? "fullWidth" : "standard"}
+            aria-label="user management tabs"
+          >
+            <Tab
+              label={
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <BusinessIcon sx={{ mr: { xs: 0, sm: 1 } }} />
+                  <Box
+                    component="span"
+                    sx={{ display: { xs: "none", sm: "inline" } }}
+                  >
+                    All Management
+                  </Box>
+                  <Chip
+                    label={countUsersByCategory("All Management")}
+                    size="small"
+                    color="error"
+                    sx={{ ml: 1 }}
+                  />
+                </Box>
+              }
+            />
+            <Tab
+              label={
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <GroupIcon sx={{ mr: { xs: 0, sm: 1 } }} />
+                  <Box
+                    component="span"
+                    sx={{ display: { xs: "none", sm: "inline" } }}
+                  >
+                    Sales Department
+                  </Box>
+                  <Chip
+                    label={countUsersByCategory("Sales Department")}
+                    size="small"
+                    color="error"
+                    sx={{ ml: 1 }}
+                  />
+                </Box>
+              }
+            />
+          </Tabs>
+        </Box>
+        {/* Tab Content */}
+        <Box sx={{ mt: 2 }}>
+          {/* Tab Panel for All Management */}
+          <Box role="tabpanel" hidden={tabValue !== 0}>
+            {tabValue === 0 && (
+              <>
+                {/* Mobile View - Card Layout */}
+                {isMobile && (
+                  <Box>
+                    {filteredUsers.length === 0 ? (
+                      <Alert severity="info">No management users found</Alert>
+                    ) : (
+                      filteredUsers.map((user) => (
+                        <UserCard
+                          key={user.id}
+                          user={user}
+                          onEdit={handleEditUser}
+                          onDelete={handleDeleteUser}
+                          onUpdateProfileImage={handleUpdateProfileImage}
+                        />
+                      ))
+                    )}
+                  </Box>
+                )}
+
+                {/* Tablet View - Simplified Table */}
+                {isTablet && (
+                  <TableContainer component={Paper}>
+                    <Table aria-label="collapsible table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell />
+                          <TableCell>Photo</TableCell>
+                          <TableCell>Emp ID</TableCell>
+                          <TableCell>Username</TableCell>
+                          <TableCell>Role</TableCell>
+                          <TableCell>Status</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredUsers.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={7} align="center">
+                              <Alert severity="info">
+                                No management users found
+                              </Alert>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredUsers.map((user) => (
+                            <ExpandableTableRow
+                              key={user.id}
+                              user={user}
+                              onEdit={handleEditUser}
+                              onDelete={handleDeleteUser}
+                              onUpdateProfileImage={handleUpdateProfileImage}
+                            />
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+
+                {/* Desktop View - Full Table */}
+                {isDesktop && (
+                  <TableContainer component={Paper}>
+                    <Table aria-label="users table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Emp ID</TableCell>
+                          <TableCell>Username</TableCell>
+                          <TableCell>Email</TableCell>
+                          <TableCell>Role</TableCell>
+                          <TableCell>Phone</TableCell>
+                          <TableCell>Salary (₹)</TableCell>
+                          <TableCell>Start Date</TableCell>
+                          <TableCell>Status</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredUsers.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={9} align="center">
+                              <Alert severity="info">
+                                No management users found
+                              </Alert>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredUsers.map((user) => (
+                            <TableRow key={user.id}>
+                              <TableCell>
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                >
+                                  <Box sx={{ position: "relative", mr: 2 }}>
+                                    <Avatar
+                                      src={user.profile_image}
+                                      alt={user.username}
+                                      sx={{ width: 40, height: 40 }}
+                                    />
+                                    <Tooltip title="Update profile image">
+                                      <IconButton
+                                        size="small"
+                                        sx={{
+                                          position: "absolute",
+                                          bottom: -5,
+                                          right: -5,
+                                          backgroundColor: "white",
+                                          border: "1px solid #e0e0e0",
+                                          padding: "3px",
+                                        }}
+                                        onClick={() =>
+                                          handleUpdateProfileImage(user)
+                                        }
+                                      >
+                                        <PhotoCameraIcon
+                                          sx={{ fontSize: 14 }}
+                                        />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </Box>
+                                  {user.emp_id}
+                                </Box>
+                              </TableCell>
+                              <TableCell>{user.username}</TableCell>
+                              <TableCell>{user.email}</TableCell>
+                              <TableCell>{user.role}</TableCell>
+                              <TableCell>{user.phone_number}</TableCell>
+                              <TableCell>{user.current_salary}</TableCell>
+                              <TableCell>
+                                {new Date(
+                                  user.employment_start_date
+                                ).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={user.is_active ? "Active" : "Inactive"}
+                                  color={user.is_active ? "success" : "error"}
+                                  size="small"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => handleEditUser(user)}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleDeleteUser(user)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </>
             )}
           </Box>
-        )}
 
-        {/* Tablet View - Simplified Table */}
-        {isTablet && (
-          <TableContainer component={Paper}>
-            <Table aria-label="collapsible table">
-              <TableHead>
-                <TableRow>
-                  <TableCell />
-                  <TableCell>Photo</TableCell>
-                  <TableCell>Emp ID</TableCell>
-                  <TableCell>Username</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredUsers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      <Alert severity="info">No users found</Alert>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <ExpandableTableRow
-                      key={user.id}
-                      user={user}
-                      onEdit={handleEditUser}
-                      onDelete={handleDeleteUser}
-                      onViewSalaryHistory={handleViewSalaryHistory}
-                      onUpdateProfileImage={handleUpdateProfileImage}
-                    />
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-
-        {/* Desktop View - Full Table */}
-        {isDesktop && (
-          <TableContainer component={Paper}>
-            <Table aria-label="users table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Emp ID</TableCell>
-                  <TableCell>Username</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell>Phone</TableCell>
-                  <TableCell>Salary (₹)</TableCell>
-                  <TableCell>Start Date</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredUsers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} align="center">
-                      <Alert severity="info">No users found</Alert>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Box sx={{ position: "relative", mr: 2 }}>
-                            <Avatar
-                              src={user.profile_image}
-                              alt={user.username}
-                              sx={{ width: 40, height: 40 }}
-                            />
-                            <Tooltip title="Update profile image">
-                              <IconButton
-                                size="small"
-                                sx={{
-                                  position: "absolute",
-                                  bottom: -5,
-                                  right: -5,
-                                  backgroundColor: "white",
-                                  border: "1px solid #e0e0e0",
-                                  padding: "3px",
-                                }}
-                                onClick={() => handleUpdateProfileImage(user)}
-                              >
-                                <PhotoCameraIcon sx={{ fontSize: 14 }} />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                          {user.emp_id}
-                        </Box>
-                      </TableCell>
-                      <TableCell>{user.username}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.role}</TableCell>
-                      <TableCell>{user.phone_number}</TableCell>
-                      <TableCell>
-                        {user.current_salary.toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(
-                          user.employment_start_date
-                        ).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={user.is_active ? "Active" : "Inactive"}
-                          color={user.is_active ? "success" : "error"}
-                          size="small"
+          {/* Tab Panel for Sales Department */}
+          <Box role="tabpanel" hidden={tabValue !== 1}>
+            {tabValue === 1 && (
+              <>
+                {/* Mobile View - Card Layout */}
+                {isMobile && (
+                  <Box>
+                    {filteredUsers.length === 0 ? (
+                      <Alert severity="info">
+                        No sales department users found
+                      </Alert>
+                    ) : (
+                      filteredUsers.map((user) => (
+                        <UserCard
+                          key={user.id}
+                          user={user}
+                          onEdit={handleEditUser}
+                          onDelete={handleDeleteUser}
+                          onUpdateProfileImage={handleUpdateProfileImage}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => handleEditUser(user)}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleViewSalaryHistory(user)}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{ fontWeight: "bold" }}
-                          >
-                            ₹
-                          </Typography>
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteUser(user)}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                      ))
+                    )}
+                  </Box>
                 )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+
+                {/* Tablet View - Simplified Table */}
+                {isTablet && (
+                  <TableContainer component={Paper}>
+                    <Table aria-label="collapsible table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell />
+                          <TableCell>Photo</TableCell>
+                          <TableCell>Emp ID</TableCell>
+                          <TableCell>Username</TableCell>
+                          <TableCell>Team Role</TableCell>
+
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredUsers.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={7} align="center">
+                              <Alert severity="info">
+                                No sales department users found
+                              </Alert>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredUsers.map((user) => (
+                            <ExpandableTableRow
+                              key={user.id}
+                              user={user}
+                              onEdit={handleEditUser}
+                              onDelete={handleDeleteUser}
+                              onUpdateProfileImage={handleUpdateProfileImage}
+                            />
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+
+                {/* Desktop View - Full Table */}
+                {isDesktop && (
+                  <TableContainer component={Paper}>
+                    <Table aria-label="users table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Emp ID</TableCell>
+                          <TableCell>Username</TableCell>
+                          <TableCell>Email</TableCell>
+                          <TableCell>Team Role</TableCell>
+                          <TableCell>Team Leader</TableCell>
+                          <TableCell>Phone</TableCell>
+                          <TableCell>Salary (₹)</TableCell>
+
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredUsers.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={9} align="center">
+                              <Alert severity="info">
+                                No sales department users found
+                              </Alert>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredUsers.map((user) => (
+                            <TableRow key={user.id}>
+                              <TableCell>
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                >
+                                  <Box sx={{ position: "relative", mr: 2 }}>
+                                    <Avatar
+                                      src={user.profile_image}
+                                      alt={user.username}
+                                      sx={{ width: 40, height: 40 }}
+                                    />
+                                    <Tooltip title="Update profile image">
+                                      <IconButton
+                                        size="small"
+                                        sx={{
+                                          position: "absolute",
+                                          bottom: -5,
+                                          right: -5,
+                                          backgroundColor: "white",
+                                          border: "1px solid #e0e0e0",
+                                          padding: "3px",
+                                        }}
+                                        onClick={() =>
+                                          handleUpdateProfileImage(user)
+                                        }
+                                      >
+                                        <PhotoCameraIcon
+                                          sx={{ fontSize: 14 }}
+                                        />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </Box>
+                                  {user.emp_id}
+                                </Box>
+                              </TableCell>
+                              <TableCell>{user.username}</TableCell>
+                              <TableCell>{user.email}</TableCell>
+                              <TableCell>{user.teamRole || "N/A"}</TableCell>
+                              <TableCell>
+                                {user.teamLeaderName || "N/A"}
+                              </TableCell>
+                              <TableCell>{user.phone_number}</TableCell>
+                              <TableCell>{user.current_salary}</TableCell>
+
+                              <TableCell>
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => handleEditUser(user)}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleDeleteUser(user)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </>
+            )}
+          </Box>
+        </Box>
 
         {/* User Form Dialog */}
         <Dialog
@@ -892,7 +1164,7 @@ const UserManagement = () => {
           onClose={() => setOpenDialog(false)}
           maxWidth="md"
           fullWidth
-         >
+        >
           <DialogTitle>
             {currentUser ? "Edit User" : "Add New User"}
           </DialogTitle>
@@ -915,6 +1187,7 @@ const UserManagement = () => {
                     gap: 2,
                   }}
                 >
+                  {/* Profile Image Upload */}
                   <Badge
                     overlap="circular"
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -926,7 +1199,6 @@ const UserManagement = () => {
                           position: "absolute",
                           bottom: -11,
                           right: 50,
-
                           backgroundColor: "white",
                           border: "1px solid #e0e0e0",
                           padding: "6px",
@@ -957,7 +1229,6 @@ const UserManagement = () => {
                         width: 150,
                         height: 150,
                         borderRadius: "2px",
-                        mb: 2,
                         backgroundColor: theme.palette.grey[300],
                       }}
                       imgProps={{
@@ -972,13 +1243,23 @@ const UserManagement = () => {
                     </Avatar>
                   </Badge>
 
+                  {/* Employee ID as plain text */}
+                  <Box sx={{ textAlign: "center" }}>
+                    <Typography sx={{ fontWeight: "bold" }}>
+                      Employee ID -{formData.emp_id}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Automatically generated
+                    </Typography>
+                  </Box>
+
                   {error && (
                     <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
                         color: "error.main",
-                        mt: 2,
+                        mt: 1,
                         gap: 1,
                       }}
                     >
@@ -994,23 +1275,9 @@ const UserManagement = () => {
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      name="emp_id"
-                      label="Employee ID"
-                      value={formData.emp_id}
-                      onChange={handleInputChange}
-                      fullWidth
-                      required
-                      InputProps={{
-                        readOnly: true,
-                      }}
-                      helperText="Automatically generated"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <TextField
                       name="username"
                       label="Username"
+                      size="small"
                       value={formData.username}
                       onChange={handleInputChange}
                       fullWidth
@@ -1020,9 +1287,23 @@ const UserManagement = () => {
 
                   <Grid item xs={12} sm={6}>
                     <TextField
+                      name="phone_number"
+                      label="Phone Number"
+                      size="small"
+                      value={formData.phone_number}
+                      onChange={handleInputChange}
+                      fullWidth
+                      required
+                      inputProps={{ maxLength: 10 }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <TextField
                       name="email"
                       label="Email"
                       type="email"
+                      size="small"
                       value={formData.email}
                       onChange={handleInputChange}
                       fullWidth
@@ -1032,8 +1313,24 @@ const UserManagement = () => {
 
                   <Grid item xs={12} sm={6}>
                     <TextField
+                      name="current_salary"
+                      label="Current Salary (₹)"
+                      size="small"
+                      type="number"
+                      value={formData.current_salary}
+                      onChange={handleInputChange}
+                      fullWidth
+                      required
+                      inputProps={{ min: 1 }}
+                    />
+                  </Grid>
+
+                  {/* Role Field */}
+                  <Grid item xs={12} sm={6}>
+                    <TextField
                       name="role"
                       label="Role"
+                      size="small"
                       select
                       value={formData.role}
                       onChange={handleInputChange}
@@ -1048,17 +1345,18 @@ const UserManagement = () => {
                     </TextField>
                   </Grid>
 
-                  {/* Add this conditional team role dropdown */}
+                  {/* Team Role Field (only shown for Sales Department) */}
                   {showTeamRole && (
                     <Grid item xs={12} sm={6}>
                       <TextField
                         name="teamRole"
                         label="Team Role"
+                        size="small"
                         select
                         value={formData.teamRole}
                         onChange={handleInputChange}
                         fullWidth
-                        required={formData.role === 'Sales Department'}
+                        required
                       >
                         {teamRoleOptions.map((option) => (
                           <MenuItem key={option} value={option}>
@@ -1069,38 +1367,39 @@ const UserManagement = () => {
                     </Grid>
                   )}
 
-                  
-
-                  {/* You can add more fields here as needed */}
+                  {/* Team Leader Field (only shown for Team Members) */}
+                  {showTeamRole && formData.teamRole === "Team Member" && (
+                    <Grid item xs={12} sm={12}>
+                      <TextField
+                        name="teamLeaderName"
+                        label="Team Leader"
+                        size="small"
+                        select
+                        value={formData.teamLeaderName}
+                        onChange={handleInputChange}
+                        fullWidth
+                        required
+                      >
+                        {users
+                          .filter(
+                            (user) =>
+                              user.role === "Sales Department" &&
+                              user.teamRole === "Team Leader" &&
+                              (currentUser ? user.id !== currentUser.id : true)
+                          )
+                          .map((leader) => (
+                            <MenuItem key={leader.id} value={leader.username}>
+                              {leader.username}
+                            </MenuItem>
+                          ))}
+                      </TextField>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  name="phone_number"
-                  label="Phone Number"
-                  value={formData.phone_number}
-                  onChange={handleInputChange}
-                  fullWidth
-                  required
-                  inputProps={{ maxLength: 10 }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  name="current_salary"
-                  label="Current Salary (₹)"
-                  type="number"
-                  value={formData.current_salary}
-                  onChange={handleInputChange}
-                  fullWidth
-                  required
-                  InputProps={{ inputProps: { min: 0 } }}
-                />
-              </Grid>
-
               {/* KYC Information */}
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12} sx={{ mt: 1 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   KYC Information
                 </Typography>
@@ -1129,7 +1428,7 @@ const UserManagement = () => {
               </Grid>
 
               {/* Address Information */}
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12} sx={{ mt: 1 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Address Information
                 </Typography>
@@ -1243,101 +1542,6 @@ const UserManagement = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Salary History Dialog */}
-        <Dialog
-          open={openSalaryDialog}
-          onClose={() => setOpenSalaryDialog(false)}
-          maxWidth="md"
-          fullWidth
-         >
-          <DialogTitle>Salary History - {currentUser?.username}</DialogTitle>
-          <DialogContent dividers>
-            {/* Mock salary history data */}
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Old Salary (₹)</TableCell>
-                    <TableCell>New Salary (₹)</TableCell>
-                    <TableCell>Increment</TableCell>
-                    <TableCell>Percentage</TableCell>
-                    <TableCell>Notes</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {currentUser && (
-                    <>
-                      <TableRow>
-                        <TableCell>2023-01-15</TableCell>
-                        <TableCell>60000.00</TableCell>
-                        <TableCell>65000.00</TableCell>
-                        <TableCell>5000.00</TableCell>
-                        <TableCell>8.33%</TableCell>
-                        <TableCell>Annual increment</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>2023-07-01</TableCell>
-                        <TableCell>65000.00</TableCell>
-                        <TableCell>
-                          {currentUser.current_salary.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          {(
-                            currentUser.current_salary - 65000
-                          ).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          {(
-                            ((currentUser.current_salary - 65000) / 65000) *
-                            100
-                          ).toFixed(2)}
-                          %
-                        </TableCell>
-                        <TableCell>Performance bonus</TableCell>
-                      </TableRow>
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {/* Add new salary entry form */}
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="subtitle1" gutterBottom>
-                Add New Salary Entry
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Effective Date"
-                    type="date"
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="New Salary (₹)"
-                    type="number"
-                    fullWidth
-                    InputProps={{ inputProps: { min: 0 } }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField label="Notes" multiline rows={2} fullWidth />
-                </Grid>
-              </Grid>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenSalaryDialog(false)}>Close</Button>
-            <Button variant="contained" color="primary">
-              Add Entry
-            </Button>
-          </DialogActions>
-        </Dialog>
-
         {/* Profile Image Upload Dialog */}
         <ProfileImageUpload
           open={openProfileImageDialog}
@@ -1346,7 +1550,7 @@ const UserManagement = () => {
           onSave={handleProfileImageSave}
         />
       </Container>
-    </Box>
+    </>
   );
 };
 

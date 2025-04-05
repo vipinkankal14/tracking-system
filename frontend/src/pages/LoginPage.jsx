@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import {
   Container,
   Paper,
@@ -14,8 +17,12 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
+  CircularProgress,
+  Alert,
+  IconButton,
+  InputAdornment
 } from "@mui/material";
-import { Person, Business } from "@mui/icons-material";
+import { Person, Business, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
 import "../styles/login.scss";
 import Sidebar from "../Nav/sidebar/Sidebar";
@@ -36,34 +43,89 @@ const TabPanel = (props) => {
   );
 };
 
+const handleError = (error) => {
+  if (error.response) {
+    switch (error.response.status) {
+      case 401:
+        return "Invalid credentials";
+      case 403:
+        return "Account not authorized";
+      case 429:
+        return "Too many attempts. Try again later";
+      case 500:
+        return "Server error. Please try again later";
+      default:
+        return error.response.data?.message || "Login failed";
+    }
+  }
+  return "Network error. Please try again";
+};
+
 const LoginPage = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [tabValue, setTabValue] = useState(0);
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
-  const [officeEmail, setOfficeEmail] = useState("");
+  const [officeEmpid, setOfficeEmpid] = useState("");
   const [officePassword, setOfficePassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Check for existing valid session
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const expiry = localStorage.getItem("tokenExpiry");
+    
+    if (token && expiry && Date.now() < parseInt(expiry)) {
+      navigate("/User_Management");
+    }
+  }, [navigate]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    setError("");
   };
 
-  const handleUserLogin = (e) => {
+  const handleUserLogin = async (e) => {
     e.preventDefault();
-    console.log("User login:", { email: userEmail, password: userPassword });
-    // Add actual login logic here
+    // Implement if needed
   };
 
-  const handleOfficeLogin = (e) => {
-    e.preventDefault();
-    console.log("Office login:", {
-      email: officeEmail,
+  const handleOfficeLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+
+  try {
+    const response = await axios.post("http://localhost:5000/login", {
+      emp_id: officeEmpid,
       password: officePassword,
     });
-    // Add actual login logic here
-  };
+
+    if (response.data.success) {
+      // Store authentication data
+      localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("userData", JSON.stringify(response.data.user));
+      
+      // Decode and store token expiration
+      const decoded = jwtDecode(response.data.token);
+      const expiresAt = decoded.exp * 1000;
+      localStorage.setItem("tokenExpiry", expiresAt.toString());
+      
+      // Navigate to the path provided by backend
+      navigate(`/${response.data.user.navigate}`);
+    }
+  } catch (err) {
+    setError(handleError(err));
+    console.error("Login error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="login-page">
@@ -104,6 +166,12 @@ const LoginPage = () => {
             />
           </Tabs>
 
+          {error && (
+            <Alert severity="error" sx={{ margin: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           {/* User Login Panel */}
           <TabPanel value={tabValue} index={0}>
             <form onSubmit={handleUserLogin} className="login-form">
@@ -138,8 +206,9 @@ const LoginPage = () => {
                 variant="contained"
                 color="primary"
                 className="login-button"
+                disabled={loading}
               >
-                Sign In
+                {loading ? <CircularProgress size={24} /> : "Sign In"}
               </Button>
               <Grid container justifyContent="flex-end">
                 <Grid item>
@@ -163,12 +232,12 @@ const LoginPage = () => {
                 margin="normal"
                 required
                 fullWidth
-                id="office-email"
-                label="Office Email Address"
-                name="email"
-                autoComplete="email"
-                value={officeEmail}
-                onChange={(e) => setOfficeEmail(e.target.value)}
+                id="office-empid"
+                label="Employee ID"
+                name="empid"
+                autoComplete="empid"
+                value={officeEmpid}
+                onChange={(e) => setOfficeEmpid(e.target.value)}
               />
               <TextField
                 variant="outlined"
@@ -177,11 +246,23 @@ const LoginPage = () => {
                 fullWidth
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="office-password"
                 autoComplete="current-password"
                 value={officePassword}
                 onChange={(e) => setOfficePassword(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
               <Button
                 type="submit"
@@ -189,8 +270,9 @@ const LoginPage = () => {
                 variant="contained"
                 color="primary"
                 className="login-button"
+                disabled={loading}
               >
-                Office Sign In
+                {loading ? <CircularProgress size={24} /> : "Office Sign In"}
               </Button>
               <Grid container justifyContent="flex-end">
                 <Grid item>

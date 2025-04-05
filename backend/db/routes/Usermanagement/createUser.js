@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../../databaseConnection/mysqlConnection');
+const bcrypt = require('bcrypt'); 
+
 
 // Helper function to validate user data
 const validateUserData = (data) => {
@@ -19,9 +21,9 @@ const validateUserData = (data) => {
   if (!emailRegex.test(data.email)) {
     return { isValid: false, error: 'Invalid email format' };
   }
-  
   return { isValid: true };
 };
+
 
 // Create a new user
 const createUser = async (req, res) => {
@@ -36,14 +38,15 @@ const createUser = async (req, res) => {
     if (!validation.isValid) {
       return res.status(400).json({ error: validation.error });
     }
-
     const {
       emp_id,
       username,
       email,
       role,
+      teamRole = null,
+      teamLeaderName = null,
       phone_number = '',
-      current_salary = 0,
+      current_salary = '',
       aadhar_number = '',
       pan_number = '',
       street_address = '',
@@ -69,7 +72,7 @@ const createUser = async (req, res) => {
     );
 
     let existingRole = [];
-    if (!['Team Leader', 'Team Member'].includes(role)) {
+    if (!['Sales Department'].includes(role)) {
       [existingRole] = await pool.query(
         'SELECT id FROM users WHERE role = ?',
         [role]
@@ -96,21 +99,28 @@ const createUser = async (req, res) => {
         field: 'email'
       });
     } else if (existingRole.length > 0) {
-      // Only include role check if it's important for your business logic
       return res.status(409).json({ 
         error: 'Role already assigned to another user',
         field: 'role'
       });
     }
 
-    // Insert new user with profile image
+    // Generate a random password (8 characters with letters and numbers)
+    const generatedPassword = Math.random().toString(36).slice(-8);
+    // In production, you should hash this password before storing it
+    const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+
+    // Insert new user with profile image and password
     const [result] = await pool.query(
       `INSERT INTO users SET ?`,
       {
         emp_id,
         username,
         email,
+        password: hashedPassword, // Store the hashed password
         role,
+        teamRole,
+        teamLeaderName,
         phone_number,
         current_salary,
         profile_image: imageUrl,
@@ -127,9 +137,9 @@ const createUser = async (req, res) => {
       }
     );
 
-    // Return the created user with full image URL
+    // Return the created user with full image URL and the generated password (only in response)
     const [newUser] = await pool.query(
-      'SELECT * FROM users WHERE id = ?',
+      'SELECT id, emp_id, username, email, role, profile_image FROM users WHERE id = ?',
       [result.insertId]
     );
     
@@ -137,7 +147,8 @@ const createUser = async (req, res) => {
       ...newUser[0],
       profile_image: newUser[0].profile_image
         ? `${req.protocol}://${req.get('host')}${newUser[0].profile_image}`
-        : null
+        : null,
+      generatedPassword: generatedPassword // Include the plain password in the response
     };
     
     res.status(201).json(userResponse);
@@ -265,6 +276,8 @@ const updateUser = async (req, res) => {
       username,
       email,
       role,
+      teamRole = null,
+      teamLeaderName = null,
       phone_number,
       current_salary,
       aadhar_number,
@@ -296,6 +309,8 @@ const updateUser = async (req, res) => {
       username,
       email,
       role,
+      teamRole,
+      teamLeaderName,
       phone_number,
       current_salary,
       profile_image: profileImagePath,
@@ -423,6 +438,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter
 });
+
 
 // Upload profile image for existing user
 const uploadProfileImage = async (req, res) => {

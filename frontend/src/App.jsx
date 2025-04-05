@@ -93,8 +93,11 @@ import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/Paym
 import GatepassApp from "./AdditionalInfo/GatePass/GatePassApp";
 import ExchangeApproved from "./AdditionalInfo/Exchange/ExchangeApproved";
 import ExchangeRejected from "./AdditionalInfo/Exchange/ExchangeRejected";
+ import UserManagement from "./UserManagementSystem/UserManagement";
+import LogoutPage from "./pages/LogoutPage";
+import UserManagementLayout from "./UserManagementSystem/UserManagementLayout";
+import ExchangeLayout from "./AdditionalInfo/Exchange/ExchangeLayout";
 import ExchangePending from "./AdditionalInfo/Exchange/ExchangePending";
-import UserManagement from "./UserManagementSystem/UserManagement";
 
 
 function App() {
@@ -175,7 +178,7 @@ function AppContent() {
     "/customer-payment-details",
     "/payment-history/:customerId",
     "/ACMApprovedRejected",
-    "/exchange-app",
+    "exchange-app",
     "/exchange-pending",
     "/exchange-approved",
     "/exchange-rejected",
@@ -223,6 +226,8 @@ function AppContent() {
     "/dashboard",
     "/customer/:customerId",
     "/User_Management",
+    "/Exchange-Management",
+    "/Exchange-Management/*",
   ];
 
   const shouldShowFooter = !hideFooterPatterns.some(pattern => 
@@ -248,6 +253,8 @@ function AppContent() {
         {/* =====================================login pages===================================================== */}
 
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/LogoutPage" element={<LogoutPage />} />
+        
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* =====================================login pages===================================================== */}
@@ -316,13 +323,18 @@ function AppContent() {
 
         
 
-        {/* ========================================================================================== */}
+        {/* =2========================================================================================= */}
         
 
-        <Route path="/exchange-app" element={<ExchangeApp />} />
-        <Route path="/exchange-pending" element={<ExchangePending />} />
-        <Route path="/exchange-approved" element={<ExchangeApproved />} />
-        <Route path="/exchange-rejected" element={<ExchangeRejected />} />
+       
+          <Route path="/Exchange-Management" element={<ExchangeLayout />}>
+            <Route index element={<ExchangeApp />} />
+            <Route path="exchange-pending" element={<ExchangePending />} />
+            <Route path="exchange-approved" element={<ExchangeApproved />} />
+            <Route path="exchange-rejected" element={<ExchangeRejected />} />
+          </Route>
+
+          
 
         {/* ========================================================================================== */}
 
@@ -405,11 +417,17 @@ function AppContent() {
         <Route path="/dashboard" element={<DashboardCustomer />} />
         <Route path="/customer/:customerId" element={<CustomerDetails />} /> 
           
+        {/* ==2======================================================================================== */}
+
+          
+      
+        <Route path="/User_Management" element={<UserManagementLayout />}>
+          <Route index element={<UserManagement />} />
+          <Route path="logout" element={<LogoutPage />} />
+        </Route>
+          
         {/* ========================================================================================== */}
 
-        <Route path="/User_Management" element={<UserManagement />} />
-
-        
 
          </Routes>
       </main>

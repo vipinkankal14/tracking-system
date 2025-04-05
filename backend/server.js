@@ -2520,33 +2520,201 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.post('/api/users/profile-image', upload.single('profile_image'), uploadProfileImageForNewUser);
 app.post('/api/users/:id/profile-image', upload.single('profile_image'), uploadProfileImage);
 
-const bcrypt = require('bcrypt');
 
-app.post('/login', (req, res) => {
-  const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-  pool.promise().query(sql, [req.body.email, req.body.password], (err, results) => {
-  if (err) {
-    console.error("Database error:", err);
-    return res.status(500).json({ error: err.message });
-  }
-  if (results.length > 0) {
-    bcrypt.compare(req.body.password.toString(), results[0].password, (err, result) => { 
-      if (err) {
-        console.error("Error comparing passwords:", err);
-        return res.status(500).json({ error: err.message });
-      }if (response) {
-        return res.status(200).json({ success: true, message: "Login successful" });
-      } else {
-        return res.status(401).json({ success: false, message: "Invalid email or password" }); 
+
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+ 
+// In-memory token blacklist (use Redis in production)
+const tokenBlacklist = new Set();
+
+app.use('/profile-images', express.static(path.join(__dirname, 'public','profile-images')));
+
+// Login endpoint
+app.post('/login', async (req, res) => {
+  try {
+    const { emp_id, password } = req.body;
+
+    // Basic validation
+    if (!emp_id || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Employee ID and password are required" 
+      });
+    }
+
+    // Find user by emp_id
+    const [users] = await pool.promise().query(
+      'SELECT * FROM users WHERE emp_id = ?', 
+      [emp_id]
+    );
+
+    if (users.length === 0) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid Employee ID"  
+      });
+    }
+
+    const user = users[0];
+
+    // Compare passwords
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    
+    if (!passwordMatch) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid password"
+      });
+    }
+
+    // Determine navigation path based on role
+    let navigatePath;
+    switch (user.role) {
+      case 'Admin':
+        navigatePath = 'Admin';
+        break;
+      case 'Accessories Management':
+        navigatePath = 'Accessories Management';
+        break;
+      case 'Coating Management':
+        navigatePath = 'Coating Management';
+        break;
+      case 'RTO Management':
+        navigatePath = 'RTO Management';
+        break;
+      case 'FastTag Management':
+        navigatePath = 'FastTag Management';
+        break;
+      case 'Insurance Management':
+        navigatePath = 'Insurance Management';
+        break;
+      case 'AutoCard Management':
+        navigatePath = 'AutoCard Management';
+        break;
+      case 'Extended Warranty Management':
+        navigatePath = 'Extended Warranty Management';
+        break;
+      case 'Exchange Management':
+        navigatePath = 'Exchange-Management';
+        break;
+      case 'Finance Management':
+        navigatePath = 'Finance Management';
+        break;
+      case 'HR Management':
+        navigatePath = 'User-Management';
+        break;
+      default:
+        navigatePath = 'Unknown'; // Handle unexpected roles as needed
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id,
+        emp_id: user.emp_id,
+        role: user.role 
+      }, 
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '1h' }
+    );
+
+    // Successful login response
+    return res.status(200).json({ 
+      success: true, 
+      message: "Login successful",
+      token: token,
+      user: {
+        id: user.id,
+        emp_id: user.emp_id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profile_image: user.profile_image 
+          ? `${req.protocol}://${req.get('host')}${user.profile_image}`
+          : null,
+        navigate: navigatePath
       }
-    })  
+    });
+
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal server error" 
+    });
   }
-  else {
-    res.json({ success: false, message: "Invalid email or password" });
-  }
-  })
 });
 
+// Logout endpoint
+app.post('/logout', (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "No token provided" 
+      });
+    }
+
+    // Add token to blacklist
+    tokenBlacklist.add(token);
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Logout successful. Token invalidated." 
+    });
+  } catch (err) {
+    console.error("Logout error:", err);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal server error" 
+    });
+  }
+});
+
+// Middleware to verify JWT and check blacklist
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ 
+      success: false, 
+      message: "Access token required" 
+    });
+  }
+
+  // Check if token is blacklisted
+  if (tokenBlacklist.has(token)) {
+    return res.status(403).json({ 
+      success: false, 
+      message: "Token revoked. Please login again." 
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
+    if (err) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Invalid or expired token" 
+      });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// Protected route example
+app.get('/protected', authenticateToken, (req, res) => {
+  res.json({ 
+    success: true, 
+    message: "Protected data", 
+    user: req.user 
+  });
+});
 
 
 

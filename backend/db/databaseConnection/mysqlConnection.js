@@ -10,8 +10,7 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  maxPacketSize: 64 * 1024 * 1024, // 64MB max packet size
-});
+ });
 
 
 

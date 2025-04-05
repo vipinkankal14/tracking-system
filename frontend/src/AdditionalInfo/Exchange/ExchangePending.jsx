@@ -46,7 +46,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
-const CarExchangeManager = () => {
+const ExchangePending = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
@@ -968,4 +968,4 @@ const CarExchangeManager = () => {
   
 };
 
-export default CarExchangeManager;
+export default ExchangePending;
