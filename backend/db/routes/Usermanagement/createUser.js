@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../../databaseConnection/mysqlConnection');
 const bcrypt = require('bcrypt'); 
+const nodemailer = require('nodemailer');
 
 
 // Helper function to validate user data
@@ -25,6 +26,7 @@ const validateUserData = (data) => {
 };
 
 
+ 
 // Create a new user
 const createUser = async (req, res) => {
   try {
@@ -38,6 +40,7 @@ const createUser = async (req, res) => {
     if (!validation.isValid) {
       return res.status(400).json({ error: validation.error });
     }
+
     const {
       emp_id,
       username,
@@ -107,7 +110,6 @@ const createUser = async (req, res) => {
 
     // Generate a random password (8 characters with letters and numbers)
     const generatedPassword = Math.random().toString(36).slice(-8);
-    // In production, you should hash this password before storing it
     const hashedPassword = await bcrypt.hash(generatedPassword, 10);
 
     // Insert new user with profile image and password
@@ -117,7 +119,7 @@ const createUser = async (req, res) => {
         emp_id,
         username,
         email,
-        password: hashedPassword, // Store the hashed password
+        password: hashedPassword,
         role,
         teamRole,
         teamLeaderName,
@@ -137,20 +139,63 @@ const createUser = async (req, res) => {
       }
     );
 
-    // Return the created user with full image URL and the generated password (only in response)
+    // Get the created user
     const [newUser] = await pool.query(
       'SELECT id, emp_id, username, email, role, profile_image FROM users WHERE id = ?',
       [result.insertId]
     );
     
+    // Prepare user response
     const userResponse = {
       ...newUser[0],
       profile_image: newUser[0].profile_image
         ? `${req.protocol}://${req.get('host')}${newUser[0].profile_image}`
-        : null,
-      generatedPassword: generatedPassword // Include the plain password in the response
+        : null
     };
-    
+
+    // Send email with credentials
+    try {
+      // Create a transporter
+      const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+
+      // Email content
+      const mailOptions = {
+        from: `"Your Company Name" <${process.env.EMAIL_FROM}>`,
+        to: email,
+        subject: 'Your New Account Credentials',
+        html: `
+          <p>Hello ${username},</p>
+          <p>Your account has been successfully created. Here are your login credentials:</p>
+          <p><strong>Employee ID:</strong> ${emp_id}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Temporary Password:</strong> ${generatedPassword}</p>
+          <p>Please login at <a href="${req.protocol}://${req.get('host')}/login">${req.protocol}://${req.get('host')}/login</a> and change your password immediately.</p>
+          <p>If you didn't request this account, please contact our support team.</p>
+          <br>
+          <p>Best regards,</p>
+          <p>Your Company Team</p>
+        `
+      };
+
+      // Send email
+      await transporter.sendMail(mailOptions);
+      
+      // Log success (optional)
+      console.log(`Email sent to ${email} with credentials`);
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+      // Don't fail the request if email fails, just log it
+    }
+
+    // Return response without the password
     res.status(201).json(userResponse);
   } catch (error) {
     console.error('Error creating user:', error);
@@ -160,7 +205,6 @@ const createUser = async (req, res) => {
     });
   }
 };
-
 
 // Get all users
 const getUsers = async (req, res) => {
