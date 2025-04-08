@@ -27,11 +27,11 @@ const validateUserData = (data) => {
 
 
  
-// Create a new user
+ // Create a new user
 const createUser = async (req, res) => {
   try {
     // Handle file upload
-    let imageUrl = '';
+    let imageUrl = ''; 
     if (req.file) {
       imageUrl = `/uploads/profile-images/${req.file.filename}`;
     }
@@ -153,47 +153,68 @@ const createUser = async (req, res) => {
         : null
     };
 
-    // Send email with credentials
-    try {
-      // Create a transporter
-      const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD
-        }
-      });
+  // Send email with credentials
+try {
+  // Create a transporter with proper Gmail settings
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'vipinkankal01@gmail.com',
+      pass: 'oxaq vmbr dndz bqkj' // Make sure this is a valid App Password
+    }
+  });
 
-      // Email content
-      const mailOptions = {
-        from: `"Your Company Name" <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: 'Your New Account Credentials',
-        html: `
-          <p>Hello ${username},</p>
-          <p>Your account has been successfully created. Here are your login credentials:</p>
+  // Email content
+  const mailOptions = {
+    from: `"Your Company Name" <vipinkankal01@gmail.com>`, // Fixed sender email
+    to: email, // New user's email from req.body
+    subject: 'Your New Account Credentials',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2c3e50;">Welcome to Our Company!</h2>
+        <p>Hello ${username},</p>
+        <p>Your account has been successfully created. Here are your login credentials:</p>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
           <p><strong>Employee ID:</strong> ${emp_id}</p>
           <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Role:</strong> ${role}</p>
           <p><strong>Temporary Password:</strong> ${generatedPassword}</p>
-          <p>Please login at <a href="${req.protocol}://${req.get('host')}/login">${req.protocol}://${req.get('host')}/login</a> and change your password immediately.</p>
-          <p>If you didn't request this account, please contact our support team.</p>
-          <br>
-          <p>Best regards,</p>
-          <p>Your Company Team</p>
-        `
-      };
-
-      // Send email
-      await transporter.sendMail(mailOptions);
+        </div>
+        
+        <p>Please login at: 
+          <a href="${req.protocol}://${req.get('host')}/login" style="color: #3498db; text-decoration: none;">
+            ${req.protocol}://${req.get('host')}/login
+          </a>
+        </p>
+        <p style="color: #e74c3c; font-size: 0.9em;">
+          For security reasons, please change your password immediately after first login.
+        </p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 0.9em; color: #7f8c8d;">
+          If you didn't request this account, please contact our support team immediately.
+        </p>
+      </div>
       
-      // Log success (optional)
-      console.log(`Email sent to ${email} with credentials`);
-    } catch (emailError) {
-      console.error('Error sending email:', emailError);
-      // Don't fail the request if email fails, just log it
-    }
+    `
+  };
+
+  // Verify connection first
+  await transporter.verify();
+  console.log('Server is ready to send emails');
+
+  // Send email
+  const info = await transporter.sendMail(mailOptions);
+  console.log('Email sent:', info.messageId);
+} catch (emailError) {
+  console.error('Email sending failed:', {
+    error: emailError.message,
+    response: emailError.response,
+    stack: emailError.stack
+  });
+}
+
+ 
 
     // Return response without the password
     res.status(201).json(userResponse);

@@ -123,7 +123,7 @@ function RTOApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/RTO-approved',
+      path: '/RTOApp-Management/RTO-approved',
      
     },
     {
@@ -133,7 +133,7 @@ function RTOApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/RTO-rejected',
+      path: '/RTOApp-Management/RTO-rejected',
      
     },
     {
@@ -143,7 +143,7 @@ function RTOApp() {
       status: 'Car RTO Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-RTO',
+      path: '/RTOApp-Management/car-pending-for-RTO',
     },
   ]);
 

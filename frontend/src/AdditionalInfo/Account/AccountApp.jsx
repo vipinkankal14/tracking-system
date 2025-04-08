@@ -123,7 +123,7 @@ function AccountApp() {
       status: 'Approved / Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'CashierMhanaement',
-      path: '/ACMApprovedRejected',
+      path: '/account-Management/ACMApprovedRejected',
     },
      
     {
@@ -132,7 +132,7 @@ function AccountApp() {
       status: 'Paid / Unpaid / Refund',
       icon: PersonSearchRoundedIcon,
       iconType: 'CustomerDetails',
-      path: '/customer-payment-details'
+      path: '/account-Management/customer-payment-details'
     },
  
     {
@@ -141,7 +141,7 @@ function AccountApp() {
        status: 'Pending / Approved / Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'gatepass-app',
-      path: '/gatepass-app',
+      path: '/account-Management/gatepass-app',
     },
  
   ]);

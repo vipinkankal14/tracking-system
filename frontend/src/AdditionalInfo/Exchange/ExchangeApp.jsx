@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
   
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
- 
+  
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
@@ -156,7 +156,9 @@ function ExchangeApp() {
 
 
   return (
-    <Container>
+
+    <div>
+   
       <Title>Status Overview</Title>
       <Grid>
         {statusCards.map((card) => (
@@ -177,7 +179,7 @@ function ExchangeApp() {
           </Card>
         ))}
       </Grid>
-    </Container>
+    </div>
   );
 }
 

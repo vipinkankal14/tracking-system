@@ -125,7 +125,7 @@ function CarApp() {
       status: "Allocated / Not Allocated ",
       icon: WidgetsRoundedIcon,
       iconType: "CarAllotmentBOOKING",
-      path: "/car-management",
+      path: "/car-stock-Management/car-management",
     },
     {
       id: "CarAllotment",
@@ -133,7 +133,7 @@ function CarApp() {
       status: "Allotment By Customer",
       icon: CarRentalIcon,
       iconType: "CarAllotment",
-      path: "/car-stock-show",
+      path: "/car-stock-Management/car-stock-show",
     },
 
     {
@@ -142,7 +142,7 @@ function CarApp() {
       status: "Discount for Car and Booking Amount",
       icon: WidgetsRoundedIcon,
       iconType: "CarAllotmentBOOKING",
-      path: "/discount-app",
+      path: "/car-stock-Management/discount-app",
     },
 
     {
@@ -151,7 +151,7 @@ function CarApp() {
       status: "Add Car For Manually",
       icon: DirectionsCar,
       iconType: "secondary",
-      path: "/Add-Car-Stock",
+      path: "/car-stock-Management/Add-Car-Stock",
     },
     {
       id: "upload-car-excel",
@@ -159,7 +159,7 @@ function CarApp() {
       status: "Upload Car Stock Excel",
       icon: CloudUploadRoundedIcon,
       iconType: "primary",
-      path: "/upload-car-excel",
+      path: "/car-stock-Management/upload-car-excel",
     },
   ]);
 

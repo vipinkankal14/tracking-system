@@ -123,7 +123,7 @@ function ExtendedWarrantyApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/extended-warranty-approved',
+      path: '/Extended-Warranty-Management/extended-warranty-approved',
      
     },
     {
@@ -133,7 +133,7 @@ function ExtendedWarrantyApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/extended-warranty-rejected',
+      path: '/Extended-Warranty-Management/extended-warranty-rejected',
      
     },
     {
@@ -143,7 +143,7 @@ function ExtendedWarrantyApp() {
       status: 'Car extended-warranty Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-extended-warranty',
+      path: '/Extended-Warranty-Management/car-pending-for-extended-warranty',
     },
   ]);
 

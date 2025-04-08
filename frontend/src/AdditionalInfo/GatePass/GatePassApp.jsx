@@ -123,7 +123,7 @@ function GatepassApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/gatepass-approved',
+      path: '/account-Management/gatepass-approved',
      
     },
     {
@@ -133,7 +133,7 @@ function GatepassApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/gatepass-rejected',
+      path: '/account-Management/gatepass-rejected',
      
     },
     {
@@ -143,7 +143,7 @@ function GatepassApp() {
       status: 'Car gatepass Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-gatepass',
+      path: '/account-Management/car-pending-for-gatepass',
     },
   ]);
 

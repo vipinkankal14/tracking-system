@@ -123,7 +123,7 @@ function AutoCardApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/autocard-approved',
+      path: '/AutoCard-Management/autocard-approved',
      
     },
     {
@@ -133,7 +133,7 @@ function AutoCardApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/autocard-rejected',
+      path: '/AutoCard-Management/autocard-rejected',
      
     },
     {
@@ -143,7 +143,7 @@ function AutoCardApp() {
       status: 'Car autocard Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-autocard',
+      path: '/AutoCard-Management/car-pending-for-autocard',
     },
   ]);
 

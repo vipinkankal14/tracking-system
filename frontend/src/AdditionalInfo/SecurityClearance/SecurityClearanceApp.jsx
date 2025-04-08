@@ -123,7 +123,7 @@ function SecurityClearanceApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/securityclearance-approved',
+      path: '/SecurityClearance-Management/securityclearance-approved',
      
     },
     {
@@ -133,7 +133,7 @@ function SecurityClearanceApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/securityclearance-rejected',
+      path: '/SecurityClearance-Management/securityclearance-rejected',
      
     },
     {
@@ -143,7 +143,7 @@ function SecurityClearanceApp() {
       status: 'Car Security Clearance Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-securityclearance',
+      path: '/SecurityClearance-Management/car-pending-for-securityclearance',
     },
   ]);
 

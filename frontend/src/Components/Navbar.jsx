@@ -18,6 +18,7 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 
 const navLinks = [
   { name: "Home", path: "/" },
+  { name: "cars", path: "/Productlist" },
   { name: "Services", path: "/services" },
   { name: "About Us", path: "/about" },
 ];

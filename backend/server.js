@@ -2522,13 +2522,18 @@ app.post('/api/users/:id/profile-image', upload.single('profile_image'), uploadP
 
 
 
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
  
-// In-memory token blacklist (use Redis in production)
-const tokenBlacklist = new Set();
-
 app.use('/profile-images', express.static(path.join(__dirname, 'public','profile-images')));
+
+
+// Token blacklist (in-memory storage - consider using Redis in production)
+const tokenBlacklist = new Set();
 
 // Login endpoint
 app.post('/login', async (req, res) => {
@@ -2568,44 +2573,69 @@ app.post('/login', async (req, res) => {
       });
     }
 
+    // Update user activity status and timestamps
+    const currentTime = new Date();
+    await pool.promise().query(
+      'UPDATE users SET is_active = 1, last_login = ? WHERE emp_id = ?',
+      [currentTime, emp_id]
+    );
+
     // Determine navigation path based on role
     let navigatePath;
     switch (user.role) {
       case 'Admin':
         navigatePath = 'Admin';
         break;
-      case 'Accessories Management':
-        navigatePath = 'Accessories Management';
+        case 'Accessories Management':
+        navigatePath = 'Accessories-Management';
         break;
+        case 'PDI Management':
+          navigatePath = 'PreDeliveryInspection-Management';  
+        break;
+        case 'Car Stocks Management':
+          navigatePath = 'car-stock-Management';  
+        break;
+      
+        
+
+        case 'Security Clearance Management':
+          navigatePath = 'Security-Clearance-Management';
+          break;
       case 'Coating Management':
-        navigatePath = 'Coating Management';
+        navigatePath = 'Coating-Management'; 
+        break;
+      case "Cashier Management":
+        navigatePath = "Cashier-Management";
         break;
       case 'RTO Management':
-        navigatePath = 'RTO Management';
+        navigatePath = 'RTOApp-Management';
         break;
       case 'FastTag Management':
-        navigatePath = 'FastTag Management';
+        navigatePath = 'fast-tag-Management';
         break;
       case 'Insurance Management':
-        navigatePath = 'Insurance Management';
+        navigatePath = 'insurance-Management';
         break;
       case 'AutoCard Management':
-        navigatePath = 'AutoCard Management';
+        navigatePath = 'AutoCard-Management';
         break;
       case 'Extended Warranty Management':
-        navigatePath = 'Extended Warranty Management';
+        navigatePath = 'Extended-Warranty-Management';
         break;
       case 'Exchange Management':
         navigatePath = 'Exchange-Management';
         break;
       case 'Finance Management':
-        navigatePath = 'Finance Management';
+        navigatePath = 'Finance-Management';
+        break;
+      case 'Account Management':
+        navigatePath = 'account-Management';
         break;
       case 'HR Management':
         navigatePath = 'User-Management';
         break;
       default:
-        navigatePath = 'Unknown'; // Handle unexpected roles as needed
+        navigatePath = 'Unknown';
     }
 
     // Create JWT token
@@ -2630,6 +2660,8 @@ app.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        is_active: 1,  
+        last_login: currentTime,
         profile_image: user.profile_image 
           ? `${req.protocol}://${req.get('host')}${user.profile_image}`
           : null,
@@ -2646,8 +2678,8 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Logout endpoint
-app.post('/logout', (req, res) => {
+ // Corrected Logout Endpoint
+ app.post('/logout', async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -2659,12 +2691,47 @@ app.post('/logout', (req, res) => {
       });
     }
 
+    // Verify token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    } catch (err) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid or expired token" 
+      });
+    }
+
     // Add token to blacklist
     tokenBlacklist.add(token);
 
+    // Update user status with proper error handling
+    const currentTime = new Date();
+    try {
+      const [result] = await pool.promise().query(
+        'UPDATE users SET is_active = 0, logout_last = ? WHERE emp_id = ?',
+        [currentTime, decoded.emp_id]
+      );
+      
+      if (result.affectedRows === 0) {
+        console.error(`No user found with emp_id: ${decoded.emp_id}`);
+        return res.status(404).json({
+          success: false,
+          message: "User not found"
+        });
+      }
+    } catch (dbError) {
+      console.error("Database update error:", dbError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update user status"
+      });
+    }
+
     res.status(200).json({ 
       success: true, 
-      message: "Logout successful. Token invalidated." 
+      message: "Logout successful. Token invalidated.",
+      logout_time: currentTime
     });
   } catch (err) {
     console.error("Logout error:", err);
@@ -2673,38 +2740,29 @@ app.post('/logout', (req, res) => {
       message: "Internal server error" 
     });
   }
-});
+ });
 
-// Middleware to verify JWT and check blacklist
+// Authentication Middleware (add this)
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token || tokenBlacklist.has(token)) {
     return res.status(401).json({ 
       success: false, 
-      message: "Access token required" 
+      message: "Unauthorized" 
     });
   }
 
-  // Check if token is blacklisted
-  if (tokenBlacklist.has(token)) {
-    return res.status(403).json({ 
-      success: false, 
-      message: "Token revoked. Please login again." 
-    });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
-    if (err) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Invalid or expired token" 
-      });
-    }
-    req.user = user;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
     next();
-  });
+  } catch (err) {
+    res.status(401).json({ 
+      success: false, 
+      message: "Invalid token" 
+    });
+  }
 };
 
 // Protected route example
@@ -2715,6 +2773,9 @@ app.get('/protected', authenticateToken, (req, res) => {
     user: req.user 
   });
 });
+
+
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
 

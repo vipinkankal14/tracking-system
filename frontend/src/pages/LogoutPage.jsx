@@ -6,7 +6,6 @@ import {
   Typography, 
   Box, 
   Button,
- 
   Skeleton,
   AppBar,
   Toolbar,
@@ -14,7 +13,8 @@ import {
   Menu,
   MenuItem,
   Divider,
-  Stack
+  Stack,
+  CircularProgress
 } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -22,11 +22,10 @@ const LogoutPage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const location = useLocation();
- 
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
- 
+  const [logoutError, setLogoutError] = useState("");
+
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -35,24 +34,24 @@ const LogoutPage = () => {
     setAnchorEl(null);
   };
 
- 
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const data = JSON.parse(localStorage.getItem("userData"));
-        if (!data) {
+        const token = localStorage.getItem("authToken");
+        const expiry = localStorage.getItem("tokenExpiry");
+
+        if (!data || !token || !expiry) {
           navigate("/login");
-        } else {
-          // Verify token expiration
-          const tokenExpiry = localStorage.getItem("tokenExpiry");
-          if (tokenExpiry && Date.now() > parseInt(tokenExpiry)) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-          }
-          setUserData(data);
+          return;
         }
+
+        if (Date.now() > parseInt(expiry)) {
+          await handleLogout();
+          return;
+        }
+
+        setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
         navigate("/login");
@@ -64,6 +63,48 @@ const LogoutPage = () => {
     fetchUserData();
   }, [navigate]);
 
+  const handleLogout = async () => {
+    setLogoutLoading(true);
+    setLogoutError("");
+    try {
+      const token = localStorage.getItem("authToken");
+
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch("http://192.168.0.3:5000/logout", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Logout failed");
+      }
+
+      // Clear local storage
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userData");
+      localStorage.removeItem("tokenExpiry");
+      
+      // Navigate to login page
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      setLogoutError(error.message);
+      // Force clear storage on error
+      localStorage.clear();
+      navigate("/login");
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
+  
   if (loading) {
     return (
       <Box sx={{ p: 3 }}>
@@ -82,16 +123,15 @@ const LogoutPage = () => {
   return (
     <AppBar
       position="sticky"
-        sx={{
-          bgcolor: "background.paper",
-          backgroundImage: "none",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          boxShadow: "none",
-          height: "64px",
+      sx={{
+        bgcolor: "background.paper",
+        backgroundImage: "none",
+        borderBottom: "1px solid",
+        borderColor: "divider",
+        boxShadow: "none",
+        height: "64px",
       }}
     >
-      
       <Toolbar
         variant="regular"
         sx={{
@@ -99,8 +139,8 @@ const LogoutPage = () => {
           minHeight: "64px",
           height: "64px",
           justifyContent: "space-between",
-        }}>
-
+        }}
+      >
         <Typography
           variant="h6"
           component={Link}
@@ -116,10 +156,7 @@ const LogoutPage = () => {
           Dashboard
         </Typography>
 
-
-        
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {/* User Profile with Menu */}
           <Box
             sx={{
               display: "flex",
@@ -136,11 +173,10 @@ const LogoutPage = () => {
                 mr: 1,
               }}
             >
-             
               <Typography variant="caption" color="text.secondary" noWrap>
-                  {userData.username || "User"}
+                {userData.username || "User"}
               </Typography>
-                <Typography variant="caption" color="text.secondary" noWrap>
+              <Typography variant="caption" color="text.secondary" noWrap>
                 ID: {userData.emp_id || "N/A"}
               </Typography>
             </Stack>
@@ -184,10 +220,18 @@ const LogoutPage = () => {
               My Profile
             </MenuItem>
             <Divider />
-            <MenuItem onClick={() => { localStorage.clear(); navigate("/login");  }}>Logout</MenuItem>
+            <MenuItem 
+              onClick={handleLogout}
+              disabled={logoutLoading}
+            >
+              {logoutLoading ? (
+                <CircularProgress size={24} />
+              ) : (
+                "Logout"
+              )}
+            </MenuItem>
           </Menu>
         </Box>
-
       </Toolbar>
     </AppBar>
   );

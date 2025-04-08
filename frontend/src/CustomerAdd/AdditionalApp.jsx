@@ -181,16 +181,21 @@ function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {
   };
 
   return (
-    <Grid container xs={12} sm={12} md={12}>
+    <Grid container>
       <Grid container spacing={6}>
         {services.map((service) => (
           <Grid
-            item
-            xs={6}
-            sm={6}
-            md={4}
+             item  // Add item prop here
+            xs={12}  // Full width on mobile
+            sm={6}   // 2 columns on small screens
+            md={4}   // 3 columns on medium screens
             key={service.name}
-            style={{ justifyContent:'space-between' ,display:'flex',alignItems:'center',alignContent:'center'}}
+            style={{ 
+              justifyContent: 'space-between',
+              display: 'flex',
+              alignItems: 'center',
+              alignContent: 'center'
+            }}
           >
             <FormControl fullWidth>
               <FormLabel component="legend">{service.label}</FormLabel>

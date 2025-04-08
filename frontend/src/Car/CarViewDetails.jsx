@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Button,
@@ -16,20 +15,19 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { 
+import {
   Speed,
   Engineering,
   LocalGasStation,
   EventSeat,
-  LocalOffer
+  LocalOffer,
 } from "@mui/icons-material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import "../Car/CarViewDetails.scss";
 import { useState, useRef, useEffect } from "react";
 
-
 function CarViewDetails() {
-  const { carId } = useParams(); // Use carId
+  const { carId } = useParams();
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,11 +38,11 @@ function CarViewDetails() {
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
-        console.log("Fetching car details for carId:", carId); // Debugging
+        console.log("Fetching car details for carId:", carId);
         const response = await fetch(
           `http://localhost:5000/api/cars/${encodeURIComponent(carId)}`
         );
-        console.log("API Response:", response); // Debugging
+        console.log("API Response:", response);
 
         if (!response.ok) {
           throw new Error(
@@ -53,7 +51,7 @@ function CarViewDetails() {
         }
 
         const data = await response.json();
-        console.log("Fetched Car Data:", data); // Debugging
+        console.log("Fetched Car Data:", data);
 
         setCar(data);
       } catch (error) {
@@ -98,7 +96,7 @@ function CarViewDetails() {
   };
 
   const handleViewDetails = (product) => {
-    navigate(`/car/${encodeURIComponent(product.id)}`); // Use car.id
+    navigate(`/car/${encodeURIComponent(product.id)}`);
   };
 
   const scrollSuggestedProducts = (direction) => {
@@ -155,123 +153,127 @@ function CarViewDetails() {
       </Button>
 
       <Card className="main-car-card">
-  <CardContent>
-    <Grid container spacing={3}>
-      {/* Image Section */}
-      <Grid item xs={12} md={6}>
-        <Box sx={{ position: 'relative', width: '100%', height: 300 }}>
-          {car.images && car.images.length > 0 && (
-            <>
-              <IconButton 
-                sx={{ 
-                  position: 'absolute', 
-                  left: 8, 
-                  top: '50%', 
-                  transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.9)' }
-                }}
-                onClick={handlePrevImage}
-              >
-                <ChevronLeft />
-              </IconButton>
-              
-              <img
-                src={car.images[currentImageIndex]}
-                alt={car.model}
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'cover',
-                  borderRadius: 4
-                }}
-              />
-              
-              <IconButton 
-                sx={{ 
-                  position: 'absolute', 
-                  right: 8, 
-                  top: '50%', 
-                  transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.9)' }
-                }}
-                onClick={handleNextImage}
-              >
-                <ChevronRight />
-              </IconButton>
-            </>
-          )}
-        </Box>
-      </Grid>
+        <CardContent>
+          <Grid container spacing={3}>
+            {/* Image Section */}
+            <Grid item xs={12} md={6}>
+              <Box sx={{ position: "relative", width: "100%", height: 300 }}>
+                {car.images && car.images.length > 0 && (
+                  <>
+                    <IconButton
+                      sx={{
+                        position: "absolute",
+                        left: 8,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        },
+                      }}
+                      onClick={handlePrevImage}
+                    >
+                      <ChevronLeft />
+                    </IconButton>
 
-      {/* Description Section */}
-      <Grid item xs={12} md={6}>
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
-            {car.model}
-          </Typography>
-          
-          <Typography variant="h5" color="primary" gutterBottom>
-            ${car.exShowroomPrice.toLocaleString()}
-          </Typography>
+                    <img
+                      src={car.images[currentImageIndex]}
+                      alt={car.model}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        borderRadius: 4,
+                      }}
+                    />
 
-          <List sx={{ width: '100%' }}>
-            <ListItem sx={{ px: 0 }}>
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <Speed fontSize="small" />
-              </ListItemIcon>
-              <ListItemText 
-                primary={`${car.mileage} Mileage`} 
-                secondary="Highway/City combined"
-              />
-            </ListItem>
+                    <IconButton
+                      sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        },
+                      }}
+                      onClick={handleNextImage}
+                    >
+                      <ChevronRight />
+                    </IconButton>
+                  </>
+                )}
+              </Box>
+            </Grid>
 
-            <ListItem sx={{ px: 0 }}>
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <Engineering fontSize="small" />
-              </ListItemIcon>
-              <ListItemText 
-                primary={`${car.engineCapacity} Engine`} 
-                secondary="Turbocharged"
-              />
-            </ListItem>
+            {/* Description Section */}
+            <Grid item xs={12} md={6}>
+              <Box sx={{ p: 2 }}>
+                <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
+                  {car.model}
+                </Typography>
 
-            <ListItem sx={{ px: 0 }}>
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <LocalGasStation fontSize="small" />
-              </ListItemIcon>
-              <ListItemText 
-                primary={car.fuelType} 
-                secondary="Fuel type"
-              />
-            </ListItem>
+                <Typography variant="h5" color="primary" gutterBottom>
+                  ${car.exShowroomPrice.toLocaleString()}
+                </Typography>
 
-            <ListItem sx={{ px: 0 }}>
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <EventSeat fontSize="small" />
-              </ListItemIcon>
-              <ListItemText 
-                primary="5 Seats" 
-                secondary="Leather upholstery"
-              />
-            </ListItem>
-          </List>
+                <List sx={{ width: "100%" }}>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      <Speed fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`${car.mileage} Mileage`}
+                      secondary="Highway/City combined"
+                    />
+                  </ListItem>
 
-          <Button 
-            variant="contained" 
-            size="large" 
-            fullWidth 
-            sx={{ mt: 3 }}
-            startIcon={<LocalOffer />}
-          >
-            Book Test Drive
-          </Button>
-        </Box>
-      </Grid>
-    </Grid>
-  </CardContent>
-</Card>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      <Engineering fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`${car.engineCapacity} Engine`}
+                      secondary="Turbocharged"
+                    />
+                  </ListItem>
+
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      <LocalGasStation fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={car.fuelType}
+                      secondary="Fuel type"
+                    />
+                  </ListItem>
+
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      <EventSeat fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="5 Seats"
+                      secondary="Leather upholstery"
+                    />
+                  </ListItem>
+                </List>
+
+                <Button
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  sx={{ mt: 3 }}
+                  onClick={() => navigate("/booking", { state: { carData: car } })}
+                >
+                  Book Now
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
       <Typography variant="h5" className="suggested-title">
         Suggested Vehicles
@@ -308,6 +310,7 @@ function CarViewDetails() {
                     variant="contained"
                     size="small"
                     className="book-now-btn"
+                    onClick={() => navigate("/booking", { state: { carData: product } })}
                   >
                     Book Now
                   </Button>

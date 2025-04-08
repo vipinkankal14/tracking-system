@@ -1,25 +1,29 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, matchPath } from "react-router-dom";
- import "./App.css";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  matchPath,
+} from "react-router-dom";
+import "./App.css";
 import HomePage from "./pages/HomePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import CarViewDetails from "./Car/CarViewDetails";
 import Footer from "./Components/Footer";
 import Navbar from "./Components/Navbar";
-import AboutPage from "./pages/AboutPage"
+import AboutPage from "./pages/AboutPage";
 import Booking from "./BookingForm/Booking";
 import SuccessPage from "./CustomerAdd/SuccessPage";
 import AdditionalInfo from "./CustomerAdd/AdditionalInfoApp/AdditionalInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
 import CarInfo from "./CustomerAdd/CarInfo";
-import OrderInfo from "./CustomerAdd/OrderInfo";
-import AddedUploadViewApp from "./AdditionalInfo/Accessories/AddedUploadView/AddedUploadViewApp";
-import Confirmation from "./CustomerAdd/Confirmation";
+  import Confirmation from "./CustomerAdd/Confirmation";
 import CarApp from "./AdditionalInfo/carStocks/CarApp";
 import CarStockShow from "./AdditionalInfo/carStocks/CarAllotment/CarStockShow";
- import AddCarStock from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/AddCarStock";
+import AddCarStock from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/AddCarStock";
 import BookingAmount from "./AdditionalInfo/carStocks/discount/BookingAmount";
- import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
+import UploadCarEXCEL from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/UploadCarEXCEL";
 import DiscountForCarAndAdditional from "./AdditionalInfo/carStocks/discount/DiscountForCarAndAdditional";
 import CarManagement from "./AdditionalInfo/carStocks/CarManagement/CarManagement";
 import AllotmentStatusApp from "./AdditionalInfo/carStocks/AllotmentStatus/AllotmentStatusApp";
@@ -28,7 +32,7 @@ import CarAllotment from "./AdditionalInfo/carStocks/CarAllotment/CarAllotment";
 import CashierApp from "./AdditionalInfo/cashier/CashierApp";
 import Payment from "./AdditionalInfo/cashier/Payments/Payment";
 import CarBookings from "./AdditionalInfo/cashier/CarBooking/CarBookings";
- import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
+import { OrderEditAndCancel } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndCancel";
 import { OrderEditAndConfirmed } from "./AdditionalInfo/cashier/CarBooking/OrderEditAndConfirmed";
 import PaymentDetails from "./AdditionalInfo/cashier/Payments/PaymentDetails";
 import PaymentSuccessful from "./AdditionalInfo/cashier/Payments/PaymentSuccessful";
@@ -93,12 +97,26 @@ import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/Paym
 import GatepassApp from "./AdditionalInfo/GatePass/GatePassApp";
 import ExchangeApproved from "./AdditionalInfo/Exchange/ExchangeApproved";
 import ExchangeRejected from "./AdditionalInfo/Exchange/ExchangeRejected";
- import UserManagement from "./UserManagementSystem/UserManagement";
+import UserManagement from "./UserManagementSystem/UserManagement";
 import LogoutPage from "./pages/LogoutPage";
 import UserManagementLayout from "./UserManagementSystem/UserManagementLayout";
 import ExchangeLayout from "./AdditionalInfo/Exchange/ExchangeLayout";
 import ExchangePending from "./AdditionalInfo/Exchange/ExchangePending";
-
+import AuthRoute from "./AuthRoute";
+import FinanceLayout from "./AdditionalInfo/Finance/FinanceLayout";
+import PreDeliveryInspectionLayout from "./AdditionalInfo/PreDeliveryInspection/PreDeliveryInspectionLayout";
+import SecurityClearanceLayout from "./AdditionalInfo/SecurityClearance/SecurityClearanceLayout";
+import ExtendedWarrantyLayout from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyLayout";
+import CoatingLayout from "./AdditionalInfo/Coating/CoatingLayout";
+ import FastTagLayout from "./AdditionalInfo/FastTag/fastTagLayout";
+import AccessorieLayout from "./AdditionalInfo/Accessories/AccessorieLayout";
+import InsuranceLayout from "./AdditionalInfo/Insurance/insuranceLayout";
+import AutoCarLayout from "./AdditionalInfo/AutoCard/AutoCarLayout";
+import RTOLayout from "./AdditionalInfo/RTO/RTOLayout";
+import CashierLayout from "./AdditionalInfo/cashier/CashierLayout";
+import AccountLayout from "./AdditionalInfo/Account/AccountLayout";
+import CarStockLayout from "./AdditionalInfo/carStocks/CarStockLayout";
+import Productlist from "./Car/Productlist";
 
 function App() {
   return (
@@ -113,7 +131,6 @@ function AppContent() {
 
   // Inside AppContent component
   const hideFooterPatterns = [
-    "/login",
     "/forgot-password",
     "/booking",
     "/success-page",
@@ -122,15 +139,14 @@ function AppContent() {
     "/Payment-refund",
     "/payment-refund-add-on",
     "/car-booking-cancel",
-     "/car-allotment/:vin",
+    "/car-allotment/:vin",
     "/order-cancel/:customerId",
-     "/customer/:customerId",
+    "/customer/:customerId",
     "/car/:carId",
     "/additional-info",
     "/PersonalInfo",
     "/CarInfo",
-    "/OrderInfo",
-    "/added-upload-viewapp",
+     "/added-upload-viewapp",
     "/Confirmation",
     "/success-page",
     "/car-app",
@@ -159,7 +175,7 @@ function AppContent() {
     "/car-Booking",
     "/car-booking-cancel",
     "/order-cancel/:customerId",
-     "/payment-details",
+    "/payment-details",
     "/payment-successful",
     "/payment-refund",
     "/payment-refund-add-on",
@@ -178,7 +194,6 @@ function AppContent() {
     "/customer-payment-details",
     "/payment-history/:customerId",
     "/ACMApprovedRejected",
-    "exchange-app",
     "/exchange-pending",
     "/exchange-approved",
     "/exchange-rejected",
@@ -225,12 +240,39 @@ function AppContent() {
     "/customer-logout",
     "/dashboard",
     "/customer/:customerId",
-    "/User_Management",
+    "/User-Management/",
     "/Exchange-Management",
     "/Exchange-Management/*",
+    "/Finance-Management",
+    "/Finance-Management/*",
+    "/PreDeliveryInspectionLayout-Management",
+    "/PreDeliveryInspectionLayout-Management/*",
+    "/SecurityClearance-Management/",
+    "/SecurityClearance-Management/*",
+    "/Extended-Warranty-Management/",
+    "/Extended-Warranty-Management/*",
+    "/Coating-Management/",
+    "/Coating-Management/*",
+    
+    "/fast-tag-Management/",
+    "/fast-tag-Management/*",
+    "/RTOApp-Management/",
+    "/RTOApp-Management/*",
+    "/AutoCard-Management/",
+    "/AutoCard-Management/*",
+    "/insurance-Management/",
+    "/insurance-Management/*",
+    "/Accessories-Management/",
+    "/Accessories-Management/*",
+    "/Cashier-Management/",
+    "/Cashier-Management/*",
+    "/account-Management/",
+    "/account-Management/*",
+    "/car-stock-Management/",
+    "/car-stock-Management/*",
   ];
 
-  const shouldShowFooter = !hideFooterPatterns.some(pattern => 
+  const shouldShowFooter = !hideFooterPatterns.some((pattern) =>
     matchPath(pattern, location.pathname)
   );
   return (
@@ -238,198 +280,329 @@ function AppContent() {
       {shouldShowFooter && <Navbar />}
       <main>
         <Routes>
+          {/* =====================================home pages===================================================== */}
+
+          <Route path="/" element={<HomePage />} />
+          <Route path="/car/:carId" element={<CarViewDetails />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/Productlist" element={<Productlist />} />
+
           
-        {/* =====================================home pages===================================================== */}
 
-        <Route path="/" element={<HomePage />} />
-        <Route path="/car/:carId" element={<CarViewDetails />} />
-        <Route path="/about" element={<AboutPage />} />
+          {/* =====================================booking pages================================================== */}
 
-        {/* =====================================booking pages================================================== */}
+          <Route path="/booking" element={<Booking />} />
+          <Route path="/success-page" element={<SuccessPage />} />
 
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/success-page" element={<SuccessPage />} />
+          {/* =====================================login pages===================================================== */}
 
-        {/* =====================================login pages===================================================== */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/LogoutPage" element={<LogoutPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/LogoutPage" element={<LogoutPage />} />
-        
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          {/* =====================================login pages===================================================== */}
 
-        {/* =====================================login pages===================================================== */}
+          <Route path="/additional-info" element={<AdditionalInfo />} />
+          <Route path="/PersonalInfo" element={<PersonalInfo />} />
+          <Route path="/CarInfo" element={<CarInfo />} />
+           <Route path="/Confirmation" element={<Confirmation />} />
+          <Route path="/success-page" element={<SuccessPage />} />
 
-        <Route path="/additional-info" element={<AdditionalInfo />} />
-        <Route path="/PersonalInfo" element={<PersonalInfo />} />
-        <Route path="/CarInfo" element={<CarInfo />} />
-        <Route path="/OrderInfo" element={<OrderInfo />} />
-        <Route path="/added-upload-viewapp" element={<AddedUploadViewApp />} />
-        <Route path="/Confirmation" element={<Confirmation />} />
-        <Route path="/success-page" element={<SuccessPage />} />
-
-
-    
-        {/* ========================================================================================== */}
-
-
-        <Route path="/car-app" element={<CarApp />} />
-        <Route path="/car-stock-show" element={<CarStockShow />} />
-         <Route path="/Add-Car-Stock" element={<AddCarStock />} />
-        <Route path="/booking-amount" element={<BookingAmount />} />
-         <Route path="/discount-for-car-and-additional" element={<DiscountForCarAndAdditional />} />
-        <Route path="/upload-car-excel" element={<UploadCarEXCEL />} />
-        <Route path="/car-management" element={<CarManagement />} />
-        <Route path="/allotment-status-app" element={<AllotmentStatusApp />} />
-        <Route path="/discount-app" element={<DiscountApp />} />
-        <Route path="/car-allotment/:vin" element={<CarAllotment />} />
-
-
-        {/* =============ok============================================================================= */}
-
-        
-        <Route path="/cashier-app" element={<CashierApp />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/car-Booking" element={<CarBookings />} />
-         <Route path="/order-cancel/:customerId" element={<OrderEditAndCancel />} />
-        <Route path="/order-edit-and-confirmed/:customerId" element={<OrderEditAndConfirmed />} />
-        <Route path="/payment-details" element={<PaymentDetails />} />
-        <Route path="/payment-successful" element={<PaymentSuccessful />} />
-        <Route path="/payment-refund" element={<PaymentRefund />} />
-        <Route path="/payment-refund-add-on" element={<PaymentRefundAddOn />} />
-        
-
-        {/* ========================================================================================== */}
-
-        <Route path="/accessorie-app" element={<AccessorieApp />} />
-        <Route path="/accessories-discount-main" element={<AccessoriesDiscount />} />
-        <Route path="/accessorie-upload" element={<AccessorieUpload />} />
-        <Route path="/add-accessories" element={<AddAccessories />} />
-        <Route path="/accessorie-view" element={<AccessorieView />} />
-        <Route path="/accessories-Approval" element={<AccessoriesApproval />} />
-          <Route path="/accessories-Reject" element={<AccessoriesReject />} />
-        <Route path="/accessories-Pending" element={<AccessoriesPending />} />
-
-                        
           {/* ========================================================================================== */}
 
-        <Route path="/account-app" element={<AccountApp />} />
-        <Route path="/cashier-app" element={<CashierApp />} />
-  
-        <Route path="/customer-payment-details" element={<CustomerPaymentDetails />} />
-        <Route path="/payment-history/:customerId" element={<PaymentHistory />} />
-        <Route path="/payment-history/:vin" element={<PaymentHistory />} />
+          <Route
+            element={<AuthRoute allowedRoles={["Car Stocks Management"]} />}
+          >
+            <Route path="/car-stock-Management" element={<CarStockLayout />}>
+              <Route index element={<CarApp />} />
 
-        <Route path="/ACMApprovedRejected" element={<ACMApprovedRejected />} />
+              <Route path="car-stock-show" element={<CarStockShow />} />
+              <Route path="Add-Car-Stock" element={<AddCarStock />} />
+              <Route path="booking-amount" element={<BookingAmount />} />
+              <Route
+                path="discount-for-car-and-additional"
+                element={<DiscountForCarAndAdditional />}
+              />
+              <Route path="upload-car-excel" element={<UploadCarEXCEL />} />
+              <Route path="car-management" element={<CarManagement />} />
+              <Route
+                path="allotment-status-app"
+                element={<AllotmentStatusApp />}
+              />
+              <Route path="discount-app" element={<DiscountApp />} />
 
-        
+              <Route path="car-allotment/:vin" element={<CarAllotment />} />
+            </Route>
+          </Route>
 
-        {/* =2========================================================================================= */}
-        
+          {/* =============ok============================================================================= */}
+
+          <Route element={<AuthRoute allowedRoles={["Cashier Management"]} />}>
+            <Route path="/Cashier-Management" element={<CashierLayout />}>
+              <Route index element={<CashierApp />} />
+
+              <Route path="payment" element={<Payment />} />
+              <Route path="car-Booking" element={<CarBookings />} />
+              <Route
+                path="order-cancel/:customerId"
+                element={<OrderEditAndCancel />}
+              />
+              <Route
+                path="order-edit-and-confirmed/:customerId"
+                element={<OrderEditAndConfirmed />}
+              />
+              <Route path="payment-details" element={<PaymentDetails />} />
+              <Route
+                path="payment-successful"
+                element={<PaymentSuccessful />}
+              />
+              <Route path="payment-refund" element={<PaymentRefund />} />
+              <Route
+                path="payment-refund-add-on"
+                element={<PaymentRefundAddOn />}
+              />
+            </Route>
+          </Route>
+          {/* ========================================================================================== */}
+
+          <Route
+            element={<AuthRoute allowedRoles={["Accessories Management"]} />}
+          >
+            <Route path="/Accessories-Management" element={<AccessorieLayout />}>
+              <Route index element={<AccessorieApp />} />
+              <Route
+                path="accessories-discount-main"
+                element={<AccessoriesDiscount />}
+              />
+              <Route path="accessorie-upload" element={<AccessorieUpload />} />
+              <Route path="add-accessories" element={<AddAccessories />} />
+              <Route path="accessorie-view" element={<AccessorieView />} />
+              <Route
+                path="accessories-Approval"
+                element={<AccessoriesApproval />}
+              />
+              <Route
+                path="accessories-Reject"
+                element={<AccessoriesReject />}
+              />
+              <Route
+                path="accessories-Pending"
+                element={<AccessoriesPending />}
+              />
+            </Route>
+          </Route>
+
+          {/* ========================================================================================== */}
 
        
-          <Route path="/Exchange-Management" element={<ExchangeLayout />}>
-            <Route index element={<ExchangeApp />} />
-            <Route path="exchange-pending" element={<ExchangePending />} />
-            <Route path="exchange-approved" element={<ExchangeApproved />} />
-            <Route path="exchange-rejected" element={<ExchangeRejected />} />
+              
+
+          <Route element={<AuthRoute allowedRoles={["Account Management"]} />}>
+            <Route path="/account-Management" element={<AccountLayout />}>
+              <Route index element={<AccountApp />} />
+              <Route path="customer-payment-details" element={<CustomerPaymentDetails />} />
+              <Route path="payment-history/:customerId" element={<PaymentHistory />} />
+              <Route path="payment-history/:vin" element={<PaymentHistory />} />
+              <Route path="ACMApprovedRejected" element={<ACMApprovedRejected />} />
+              <Route path="gatepass-app" element={<GatepassApp />} />
+              <Route path="gatepass-approved" element={<GatepassApproved />} />
+              <Route path="gatepass-rejected" element={<GatepassRejected />} />
+              <Route path="car-pending-for-gatepass" element={<GatepassPending />} />
+            </Route>
           </Route>
 
           
 
-        {/* ========================================================================================== */}
+          {/* ========================================================================================== */}
 
-        <Route path="/finance-app" element={<FinanceApp />} />
-        <Route path="/finance-approved" element={<FinanceApproved />} />
-        <Route path="/finance-rejected" element={<FinanceRejected />} />
-        <Route path="/car-pending-for-finance" element={<FinancePending />} />
+          <Route
+            element={<AuthRoute allowedRoles={["Insurance Management"]} />}
+          >
+            <Route path="/insurance-Management" element={<InsuranceLayout />}>
+              <Route index element={<InsuranceApp />} />
 
-        {/* ========================================================================================== */}
+              <Route
+                path="insurance-approved"
+                element={<InsuranceApproved />}
+              />
+              <Route
+                path="insurance-rejected"
+                element={<InsuranceRejected />}
+              />
+              <Route
+                path="car-pending-for-Insurance"
+                element={<InsurancePending />}
+              />
+            </Route>
+          </Route>
 
-        <Route path="/insurance-app" element={<InsuranceApp />} />
-        <Route path="/insurance-approved" element={<InsuranceApproved />} />
-        <Route path="/insurance-rejected" element={<InsuranceRejected />} />
-        <Route path="/car-pending-for-Insurance" element={<InsurancePending />} />
+          {/* ========================================================================================== */}
 
-        {/* ========================================================================================== */}
+          <Route element={<AuthRoute allowedRoles={["AutoCard Management"]} />}>
+            <Route path="/AutoCard-Management" element={<AutoCarLayout />}>
+              <Route index element={<AutoCardApp />} />
+              <Route path="autocard-approved" element={<AutocardApproved />} />
+              <Route path="autocard-rejected" element={<AutocardRejected />} />
+              <Route
+                path="car-pending-for-autocard"
+                element={<AutocardPending />}
+              />
+            </Route>
+          </Route>
 
-        <Route path="/autocard-app" element={<AutoCardApp />} />
-        <Route path="/autocard-approved" element={<AutocardApproved />} />
-        <Route path="/autocard-rejected" element={<AutocardRejected />} />
-          <Route path="/car-pending-for-autocard" element={<AutocardPending />} />
-        
+          {/* ========================================================================================== */}
 
-        {/* ========================================================================================== */}
-        
-        <Route path="/RTO-app" element={<RTOApp />} /> 
-        <Route path="/RTO-approved" element={<RTOApproved />} />
-        <Route path="/RTO-rejected" element={<RTORejected />} />
-        <Route path="/car-pending-for-RTO" element={<RTOPending />} />
-        
-        {/* ========================================================================================== */}
+          <Route element={<AuthRoute allowedRoles={["RTO Management"]} />}>
+            <Route path="/RTOApp-Management" element={<RTOLayout />}>
+              <Route index element={<RTOApp />} />
+              <Route path="RTO-approved" element={<RTOApproved />} />
+              <Route path="RTO-rejected" element={<RTORejected />} />
+              <Route path="car-pending-for-RTO" element={<RTOPending />} />
+            </Route>
+          </Route>
 
-        <Route path="/fast-tag-app" element={<FastTagApp />} />
-        <Route path="/fast-tag-approved" element={<FastTagApproved />} />
-        <Route path="/fast-tag-rejected" element={<FastTagRejected />} />
-        <Route path="/car-pending-for-fast-tag" element={<FastTagPending />} />
+          {/* ========================================================================================== */}
 
-        {/* ========================================================================================== */}
+          <Route element={<AuthRoute allowedRoles={["FastTag Management"]} />}>
+            <Route path="/fast-tag-Management" element={<FastTagLayout />}>
+              <Route index element={<FastTagApp />} />
+              <Route path="fast-tag-approved" element={<FastTagApproved />} />
+              <Route path="fast-tag-rejected" element={<FastTagRejected />} />
+              <Route
+                path="car-pending-for-fast-tag"
+                element={<FastTagPending />}
+              />
+            </Route>
+          </Route>
 
-        <Route path="/gatepass-app" element={<GatepassApp />} />
-        <Route path="/gatepass-approved" element={<GatepassApproved />} />
-        <Route path="/gatepass-rejected" element={<GatepassRejected />} />
-        <Route path="/car-pending-for-gatepass" element={<GatepassPending />} />
-        
-        {/* ========================================================================================== */}
-
-        <Route path="/coating-app" element={<CoatingApp />} />
-        <Route path="/coating-approved" element={<CoatingApproved />} />
-        <Route path="/coating-rejected" element={<CoatingRejected />} />
-        <Route path="/car-pending-for-coating" element={<CoatingPending />} />
-
-        {/* ========================================================================================== */}
-
-        <Route path="/extended-warranty-app" element={<ExtendedWarrantyApp />} />
-        <Route path="/extended-warranty-approved" element={<ExtendedWarrantyApproved />} />
-        <Route path="/extended-warranty-rejected" element={<ExtendedWarrantyRejected />} />
-        <Route path="/car-pending-for-extended-warranty" element={<ExtendedWarrantyPending />} />
-
-        
-        {/* ========================================================================================== */}
-
-        <Route path="/securityclearance-app" element={<SecurityClearanceApp />} />
-        <Route path="/securityclearance-approved" element={<SecurityclearanceApproved />} />
-        <Route path="/securityclearance-rejected" element={<SecurityclearanceRejected />} />
-        <Route path="/car-pending-for-securityclearance" element={<SecurityclearancePending />} />
-
-        
-        {/* ========================================================================================== */}
-
-        <Route path="/pdiApp" element={<PDIApp />} />
-        <Route path="/PADPending" element={<PADPending />} />
-        <Route path="/PADiRejected" element={<PADiRejected />} />
-        <Route path="/PADApproved" element={<PADApproved />} />
-
-
-        {/* ========================================================================================== */}
-        
-        <Route path="/login" element={<CustomerLogin />} />
-        <Route path="/customer-logout" element={<CustomerLogout />} />
-        <Route path="/dashboard" element={<DashboardCustomer />} />
-        <Route path="/customer/:customerId" element={<CustomerDetails />} /> 
-          
-        {/* ==2======================================================================================== */}
+          {/* ========================================================================================== */}
 
           
-      
-        <Route path="/User_Management" element={<UserManagementLayout />}>
-          <Route index element={<UserManagement />} />
-          <Route path="logout" element={<LogoutPage />} />
-        </Route>
-          
-        {/* ========================================================================================== */}
 
+          {/* ========================================================================================== */}
 
-         </Routes>
+          <Route element={<AuthRoute allowedRoles={["Coating Management"]} />}>
+            <Route path="/Coating-Management" element={<CoatingLayout />}>
+              <Route index element={<CoatingApp />} />
+              <Route path="coating-approved" element={<CoatingApproved />} />
+              <Route path="coating-rejected" element={<CoatingRejected />} />
+              <Route
+                path="car-pending-for-coating"
+                element={<CoatingPending />}
+              />
+            </Route>
+          </Route>
+
+          {/* ========================================================================================== */}
+
+          <Route
+            element={
+              <AuthRoute allowedRoles={["Extended Warranty Management"]} />
+            }
+          >
+            <Route
+              path="/Extended-Warranty-Management"
+              element={<ExtendedWarrantyLayout />}
+            >
+              <Route index element={<ExtendedWarrantyApp />} />
+              <Route
+                path="extended-warranty-approved"
+                element={<ExtendedWarrantyApproved />}
+              />
+              <Route
+                path="extended-warranty-rejected"
+                element={<ExtendedWarrantyRejected />}
+              />
+              <Route
+                path="car-pending-for-extended-warranty"
+                element={<ExtendedWarrantyPending />}
+              />
+            </Route>
+          </Route>
+
+          {/* ========================================================================================== */}
+
+          <Route
+            element={
+              <AuthRoute allowedRoles={["Security Clearance Management"]} />
+            }
+          >
+            <Route
+              path="/SecurityClearance-Management"
+              element={<SecurityClearanceLayout />}
+            >
+              <Route index element={<SecurityClearanceApp />} />
+
+              <Route
+                path="securityclearance-approved"
+                element={<SecurityclearanceApproved />}
+              />
+              <Route
+                path="securityclearance-rejected"
+                element={<SecurityclearanceRejected />}
+              />
+              <Route
+                path="car-pending-for-securityclearance"
+                element={<SecurityclearancePending />}
+              />
+            </Route>
+          </Route>
+
+          {/* ========================================================================================== */}
+
+          <Route
+            element={
+              <AuthRoute allowedRoles={["PreDeliveryInspection Management"]} />
+            }
+          >
+            <Route
+              path="/PreDeliveryInspection-Management"
+              element={<PreDeliveryInspectionLayout />}
+            >
+              <Route index element={<PDIApp />} />
+              <Route path="PADPending" element={<PADPending />} />
+              <Route path="PADiRejected" element={<PADiRejected />} />
+              <Route path="PADApproved" element={<PADApproved />} />
+            </Route>
+          </Route>
+
+          {/* ========================================================================================== */}
+
+          <Route path="/login" element={<CustomerLogin />} />
+          <Route path="/customer-logout" element={<CustomerLogout />} />
+          <Route path="/dashboard" element={<DashboardCustomer />} />
+          <Route path="/customer/:customerId" element={<CustomerDetails />} />
+
+          {/* ==1======================================================================================== */}
+
+          <Route element={<AuthRoute allowedRoles={["HR Management"]} />}>
+            <Route path="/User-Management" element={<UserManagementLayout />} />
+          </Route>
+
+          {/* =2========================================================================================= */}
+
+          <Route element={<AuthRoute allowedRoles={["Exchange Management"]} />}>
+            <Route path="/Exchange-Management" element={<ExchangeLayout />}>
+              <Route index element={<ExchangeApp />} />
+              <Route path="exchange-pending" element={<ExchangePending />} />
+              <Route path="exchange-approved" element={<ExchangeApproved />} />
+              <Route path="exchange-rejected" element={<ExchangeRejected />} />
+            </Route>
+          </Route>
+
+          {/* ==3======================================================================================= */}
+
+          <Route element={<AuthRoute allowedRoles={["Finance Management"]} />}>
+            <Route path="/Finance-Management" element={<FinanceLayout />}>
+              <Route index element={<FinanceApp />} />
+              <Route path="finance-approved" element={<FinanceApproved />} />
+              <Route path="finance-rejected" element={<FinanceRejected />} />
+              <Route path="finance-Pending" element={<FinancePending />} />
+            </Route>
+          </Route>
+
+          {/* ========================================================================================== */}
+        </Routes>
       </main>
       {shouldShowFooter && <Footer />}
     </div>

@@ -125,7 +125,7 @@ function FinanceApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/finance-approved',
+      path: '/Finance-Management/finance-approved',
      
     },
     {
@@ -135,7 +135,7 @@ function FinanceApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/finance-rejected',
+      path: '/Finance-Management/finance-rejected',
      
     },
     {
@@ -145,7 +145,7 @@ function FinanceApp() {
       status: 'Car Finance Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-finance',
+      path: '/Finance-Management/Finance-Pending',
     },
   ]);
 

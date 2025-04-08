@@ -56,7 +56,7 @@ import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import ErrorIcon from "@mui/icons-material/Error";
 
 // Mobile view - Card component for each user
-const UserCard = ({ user, onEdit, onDelete, onUpdateProfileImage }) => {
+const UserCard = ({ user, onEdit, onUpdateProfileImage }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -161,9 +161,7 @@ const UserCard = ({ user, onEdit, onDelete, onUpdateProfileImage }) => {
           Edit
         </Button>
 
-        <Button size="small" color="error" onClick={() => onDelete(user)}>
-          Delete
-        </Button>
+     
       </CardActions>
     </Card>
   );
@@ -171,32 +169,41 @@ const UserCard = ({ user, onEdit, onDelete, onUpdateProfileImage }) => {
 
 // Role options based on the schema
 const roleOptions = [
-  "Admin",
   "Accessories Management",
-  "Coating Management",
-  "RTO Management",
-  "FastTag Management",
-  "Insurance Management",
+  "Account Management",
   "AutoCard Management",
-  "Extended Warranty Management",
+  "Car Stocks Management",
+  "Cashier Management",
+  "Coating Management",
   "Exchange Management",
+  "Extended Warranty Management",
+  "FastTag Management",
   "Finance Management",
   "HR Management",
+  "Insurance Management",
+  "PDI (Pre-Delivery Inspection) Management",
+  "RTO Management",
   "Sales Department",
+  "Security Clearance Management"
 ];
 
 // Management categories for filtering
 const managementCategories = [
   "Accessories Management",
-  "Coating Management",
-  "RTO Management",
-  "FastTag Management",
-  "Insurance Management",
+  "Account Management",
   "AutoCard Management",
-  "Extended Warranty Management",
+  "Car Stocks Management",
+  "Cashier Management",
+  "Coating Management",
   "Exchange Management",
+  "Extended Warranty Management",
+  "FastTag Management",
   "Finance Management",
   "HR Management",
+  "Insurance Management",
+  "PDI (Pre-Delivery Inspection) Management",
+  "RTO Management",
+  "Security Clearance Management"
 ];
 
 const teamRoleOptions = ["Team Leader", "Team Member"];
@@ -205,7 +212,6 @@ const teamRoleOptions = ["Team Leader", "Team Member"];
 const ExpandableTableRow = ({
   user,
   onEdit,
-  onDelete,
   onUpdateProfileImage,
 }) => {
   const [open, setOpen] = useState(false);
@@ -271,9 +277,7 @@ const ExpandableTableRow = ({
           <IconButton size="small" color="primary" onClick={() => onEdit(user)}>
             <EditIcon fontSize="small" />
           </IconButton>
-          <IconButton size="small" color="error" onClick={() => onDelete(user)}>
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+           
         </TableCell>
       </TableRow>
       <TableRow>
@@ -836,8 +840,7 @@ const UserManagement = () => {
                           key={user.id}
                           user={user}
                           onEdit={handleEditUser}
-                          onDelete={handleDeleteUser}
-                          onUpdateProfileImage={handleUpdateProfileImage}
+                           onUpdateProfileImage={handleUpdateProfileImage}
                         />
                       ))
                     )}
@@ -874,8 +877,7 @@ const UserManagement = () => {
                               key={user.id}
                               user={user}
                               onEdit={handleEditUser}
-                              onDelete={handleDeleteUser}
-                              onUpdateProfileImage={handleUpdateProfileImage}
+                               onUpdateProfileImage={handleUpdateProfileImage}
                             />
                           ))
                         )}
@@ -965,21 +967,15 @@ const UserManagement = () => {
                                 />
                               </TableCell>
                               <TableCell>
-                                <IconButton
+                                <Button
                                   size="small"
                                   color="primary"
                                   onClick={() => handleEditUser(user)}
                                 >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
+                                  Edit <EditIcon fontSize="small" />
+                                </Button>
 
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() => handleDeleteUser(user)}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
+                       
                               </TableCell>
                             </TableRow>
                           ))
@@ -1009,8 +1005,7 @@ const UserManagement = () => {
                           key={user.id}
                           user={user}
                           onEdit={handleEditUser}
-                          onDelete={handleDeleteUser}
-                          onUpdateProfileImage={handleUpdateProfileImage}
+                           onUpdateProfileImage={handleUpdateProfileImage}
                         />
                       ))
                     )}
@@ -1047,8 +1042,7 @@ const UserManagement = () => {
                               key={user.id}
                               user={user}
                               onEdit={handleEditUser}
-                              onDelete={handleDeleteUser}
-                              onUpdateProfileImage={handleUpdateProfileImage}
+                               onUpdateProfileImage={handleUpdateProfileImage}
                             />
                           ))
                         )}
@@ -1138,13 +1132,7 @@ const UserManagement = () => {
                                   <EditIcon fontSize="small" />
                                 </IconButton>
 
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() => handleDeleteUser(user)}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
+                           
                               </TableCell>
                             </TableRow>
                           ))

@@ -122,7 +122,7 @@ function CashierApp() {
       status: "Confirmed / Canceled",
       icon: DirectionsCar,
       iconType: "primary",
-      path: "/car-Booking",
+      path: "/Cashier-Management/car-Booking",
     },
     {
       id: "payment",
@@ -130,7 +130,7 @@ function CashierApp() {
       status: "Credit / Exchange Credit / Finance Credit",
       icon: CurrencyRupeeRoundedIcon,
       iconType: "Payment",
-      path: "/Payment",
+      path: "/Cashier-Management/Payment",
     },
     {
       id: "Refund",
@@ -139,7 +139,7 @@ function CashierApp() {
       status: "Refund",
       icon: PendingOutlinedIcon,
       iconType: "warning",
-      path: "/Payment-refund",
+      path: "/Cashier-Management/Payment-refund",
     },
     {
       id: "Add-on",
@@ -148,7 +148,7 @@ function CashierApp() {
       status: "Add-On",
       icon: PendingOutlinedIcon,
       iconType: "warning",
-      path: "/payment-refund-add-on",
+      path: "/Cashier-Management/payment-refund-add-on",
     },
 
   ]);

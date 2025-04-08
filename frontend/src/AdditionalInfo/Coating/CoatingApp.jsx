@@ -123,7 +123,7 @@ function CoatingApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/coating-approved',
+      path: '/Coating-Management/coating-approved',
      
     },
     {
@@ -133,7 +133,7 @@ function CoatingApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/coating-rejected',
+      path: '/Coating-Management/coating-rejected',
      
     },
     {
@@ -143,7 +143,7 @@ function CoatingApp() {
       status: 'Car coating Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-coating',
+      path: '/Coating-Management/car-pending-for-coating',
     },
   ]);
 

@@ -76,7 +76,7 @@ const ExchangeApproved = () => {
     const fetchCarExchanges = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/showexchange"
+          "http://192.168.0.6:5000/api/showexchange"
         );
 
         if (response.data && Array.isArray(response.data.data)) {
@@ -133,7 +133,7 @@ const ExchangeApproved = () => {
     }
 
     try {
-      const endpoint = `http://localhost:5000/api/exchange/update-status/${selectedExchange?.customerId}`;
+      const endpoint = `http://192.168.0.6:5000/api/exchange/update-status/${selectedExchange?.customerId}`;
       const status = "Rejected";
       const payload = {
         status,
@@ -1113,7 +1113,7 @@ const ExchangeApproved = () => {
                         </Typography>
                         {fileName ? (
                           <Button
-                            href={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
+                            href={`http://192.168.0.6:5000/uploads/${customerId}/${encodeURIComponent(
                               fileName
                             )}`}
                             target="_blank"

@@ -121,7 +121,7 @@ function AccessorieApp() {
       icon: DirectionsCar,
       status: "Approval",
       iconType: "secondary",
-      path: "/accessories-Approval",
+      path: "/Accessories-Management/accessories-Approval",
     },
     {
       id: "Reject",
@@ -130,7 +130,7 @@ function AccessorieApp() {
       icon: DirectionsCar,
       status: "Reject",
       iconType: "secondary",
-      path: "/accessories-Reject",
+      path: "/Accessories-Management/accessories-Reject",
     },
     {
       id: "Pending",
@@ -139,7 +139,7 @@ function AccessorieApp() {
       icon: DirectionsCar,
       status: "Pending",
       iconType: "secondary",
-      path: "/accessories-Pending",
+      path: "/Accessories-Management/accessories-Pending",
     },
     {
       id: "addaccessories",
@@ -147,7 +147,7 @@ function AccessorieApp() {
       status: "Added / Upload / View",
       icon: WidgetsRoundedIcon,
       iconType: "CarAllotmentBOOKING",
-      path: "/added-upload-viewapp",
+      path: "/Accessories-Management/add-accessories",
     },
   ]);
 

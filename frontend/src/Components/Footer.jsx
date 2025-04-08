@@ -1,5 +1,3 @@
-import { Box, Container, Grid, Typography, Link, IconButton, Divider } from "@mui/material"
-import { Facebook, Twitter, Instagram, YouTube, Email, Phone, LocationOn } from "@mui/icons-material"
 import { Link as RouterLink } from "react-router-dom"
 import "../styles/footer.scss"
 
@@ -7,98 +5,84 @@ const Footer = () => {
   const currentYear = new Date().getFullYear()
 
   return (
-    <Box component="footer" className="footer">
-      <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="h6" gutterBottom className="footer-heading">
-              Premium Auto Dealership
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Your trusted partner in finding the perfect vehicle. We offer a wide selection of new and pre-owned cars,
-              trucks, and SUVs.
-            </Typography>
-            <Box className="social-icons">
-              <IconButton color="primary" aria-label="facebook">
-                <Facebook />
-              </IconButton>
-              <IconButton color="primary" aria-label="twitter">
-                <Twitter />
-              </IconButton>
-              <IconButton color="primary" aria-label="instagram">
-                <Instagram />
-              </IconButton>
-              <IconButton color="primary" aria-label="youtube">
-                <YouTube />
-              </IconButton>
-            </Box>
-          </Grid>
+    <>
+      
+      <footer className="modern-footer pt-5">
+        <div className="container footer-content">
+            <div className="row g-4 mb-5">
+           
+                <div className="col-lg-4 col-md-6">
+                    <a href="#" className="footer-logo d-block mb-4">
+                        YourBrand<span className="text-primary">.</span>
+                    </a>
+                    <p className="text-muted mb-4">Empowering businesses with innovative digital solutions. We create
+                        meaningful experiences that drive success.</p>
+                    <ul className="contact-info mb-4">
+                        <li>
+                            <i className="fas fa-map-marker-alt"></i>
+                            <span>123 Business Avenue, Suite 100<br/>New York, NY 10001</span>
+                        </li>
+                        <li>
+                            <i className="fas fa-phone"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li>
+                            <i className="fas fa-envelope"></i>
+                            <span>contact@yourbrand.com</span>
+                        </li>
+                    </ul>
+                </div>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="h6" gutterBottom className="footer-heading">
-              Quick Links
-            </Typography>
-            <ul className="footer-links">
-              <li>
-                <Link component={RouterLink} to="/" color="inherit">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link component={RouterLink} to="/about" color="inherit">
-                  About Us
-                </Link>
-              </li>
-        
-              <li>
-                <Link component={RouterLink} to="/services" color="inherit">
-                  Services
-                </Link>
-              </li>
-        
-              <li>
-                <Link component={RouterLink} to="/login" color="inherit">
-                  Login
-                </Link>
-              </li>
-            </ul>
-          </Grid>
+           
+                <div className="col-lg-4 col-md-6">
+                    <h3 className="footer-title">Quick Links</h3>
+                    <ul className="quick-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="#">About Company</a></li>
+                        <li><a href="#">Latest Projects</a></li>
+                        <li><a href="#">Recent News</a></li>
+                        <li><a href="#">Customer Support</a></li>
+                        <li><a href="#">Contact Details</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="/Services">Service</a></li>
+                    </ul>
+                </div>
 
-          <Grid item xs={12} sm={12} md={4}>
-            <Typography variant="h6" gutterBottom className="footer-heading">
-              Contact Information
-            </Typography>
-            <Box className="contact-info">
-              <Box display="flex" alignItems="center" mb={1}>
-                <LocationOn fontSize="small" className="contact-icon" />
-                <Typography variant="body2">123 Auto Drive, Car City, CC 12345</Typography>
-              </Box>
-              <Box display="flex" alignItems="center" mb={1}>
-                <Phone fontSize="small" className="contact-icon" />
-                <Typography variant="body2">(555) 123-4567</Typography>
-              </Box>
-              <Box display="flex" alignItems="center" mb={1}>
-                <Email fontSize="small" className="contact-icon" />
-                <Typography variant="body2">info@premiumauto.com</Typography>
-              </Box>
-            </Box>
-            <Typography variant="body2" color="textSecondary" className="hours">
-              <strong>Hours:</strong> Monday-Friday: 9AM-8PM
-              <br />
-              Saturday: 10AM-6PM | Sunday: Closed
-            </Typography>
-          </Grid>
-        </Grid>
+                 <div className="col-lg-4 col-md-12">
+                    <h3 className="footer-title">Stay Connected</h3>
+                    <p className="text-muted mb-4">Subscribe to our newsletter and stay updated with the latest news and
+                        insights.</p>
+                    <form className="mb-4">
+                        <div className="mb-3">
+                            <input type="email" className="form-control newsletter-input" placeholder="Your email address"/>
+                        </div>
+                        <button type="submit" className="btn btn-subscribe text-white w-100">Subscribe Now</button>
+                    </form>
+                    <div className="social-links">
+                        <a href="#" className="social-icon"><i className="fab fa-facebook-f"></i></a>
+                        <a href="#" className="social-icon"><i className="fab fa-twitter"></i></a>
+                        <a href="#" className="social-icon"><i className="fab fa-instagram"></i></a>
+                        <a href="#" className="social-icon"><i className="fab fa-linkedin-in"></i></a>
+                        <a href="#" className="social-icon"><i className="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <Divider className="footer-divider" />
-
-        <Box className="copyright">
-          <Typography variant="body2" color="textSecondary" align="center">
-            © {currentYear} Premium Auto Dealership. All rights reserved.
-          </Typography>
-        </Box>
-      </Container>
-    </Box>
+         <div className="footer-bottom">
+            <div className="container">
+                <div className="row py-4">
+                    <div className="col-md-6 text-center text-md-start">
+                        <p>&copy; 2024 YourBrand. All rights reserved.</p>
+                    </div>
+                    <div className="col-md-6 text-center text-md-end">
+                        <p>Made with <i className="fas fa-heart text-danger"></i> by <a href="#">YourBrand</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    </>
   )
 }
 

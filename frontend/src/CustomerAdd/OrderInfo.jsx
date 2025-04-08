@@ -1,11 +1,21 @@
 import React from "react";
-import { TextField, Grid, Checkbox, FormControlLabel } from "@mui/material";
-import "./scss/page.scss";
+import { 
+  TextField, 
+  Grid, 
+  Checkbox, 
+  FormControlLabel, 
+  Container, 
+  Typography,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 
 const OrderInfo = ({ data, updateData }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
-
     if (name === "orderDate" && checked) {
       updateData("orderDate", "yes");
       updateData("prebooking", "no");
@@ -23,29 +33,33 @@ const OrderInfo = ({ data, updateData }) => {
   };
 
   return (
-    <>
-       <Grid container spacing={2}>
-        <Grid item xs={12} sm={12}>
+    <Container maxWidth={false} sx={{ p: isMobile ? 1 : 3 }}>
+      <Typography variant={isMobile ? "subtitle1" : "h6"} gutterBottom>
+        Order Info
+      </Typography>
+      
+      <Grid container spacing={isMobile ? 1 : 2}>
+        <Grid item xs={12}>
           <FormControlLabel
             control={
               <Checkbox
                 name="orderDate"
                 checked={data.orderDate === "yes"}
                 onChange={handleCheckboxChange}
-                size="small"
+                size={isMobile ? "small" : "medium"}
               />
             }
             label="Order Date"
           />
         </Grid>
-        <Grid item xs={12} sm={12}>
+        <Grid item xs={12}>
           <FormControlLabel
             control={
               <Checkbox
                 name="prebooking"
                 checked={data.prebooking === "yes"}
                 onChange={handleCheckboxChange}
-                size="small"
+                size={isMobile ? "small" : "medium"}
               />
             }
             label="Prebooking"
@@ -55,86 +69,58 @@ const OrderInfo = ({ data, updateData }) => {
 
       {/* Conditional Fields for Order Date */}
       {data.orderDate === "yes" && (
-        <Grid container spacing={3} style={{ marginTop: "-1rem",padding:"10px" }}>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              name="tentativeDate"
-              label="Tentative Date"
-              type="date"
-              value={data.tentativeDate}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              name="preferredDate"
-              label="Preferred Date"
-              type="date"
-              value={data.preferredDate}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              name="requestDate"
-              label="Request Date"
-              type="date"
-              value={data.requestDate}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
+        <Grid 
+          container 
+          spacing={isMobile ? 1 : 2} 
+          sx={{ 
+            mt: isMobile ? -0.5 : -1,
+            p: isMobile ? 0.5 : 2
+          }}
+        >
+          {["tentativeDate", "preferredDate", "requestDate"].map((field) => (
+            <Grid item xs={12} sm={4} key={field}>
+              <TextField
+                fullWidth
+                name={field}
+                label={field.replace(/([A-Z])/g, ' $1')}
+                type="date"
+                value={data[field]}
+                onChange={handleChange}
+                size={isMobile ? "small" : "medium"}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          ))}
         </Grid>
       )}
 
       {/* Conditional Fields for Prebooking */}
       {data.prebooking === "yes" && (
-        <Grid container spacing={3} style={{ marginTop: "-1rem",padding:"10px" }}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name="prebookingDate"
-              label="Prebooking Date"
-              type="date"
-              value={data.prebookingDate}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name="deliveryDate"
-              label="Delivery Date"
-              type="date"
-              value={data.deliveryDate}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
+        <Grid 
+          container 
+          spacing={isMobile ? 1 : 2}
+          sx={{ 
+            mt: isMobile ? -0.5 : -1,
+            p: isMobile ? 0.5 : 2
+          }}
+        >
+          {["prebookingDate", "deliveryDate"].map((field) => (
+            <Grid item xs={12} sm={6} key={field}>
+              <TextField
+                fullWidth
+                name={field}
+                label={field.replace(/([A-Z])/g, ' $1')}
+                type="date"
+                value={data[field]}
+                onChange={handleChange}
+                size={isMobile ? "small" : "medium"}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          ))}
         </Grid>
       )}
-    </>
+    </Container>
   );
 };
 

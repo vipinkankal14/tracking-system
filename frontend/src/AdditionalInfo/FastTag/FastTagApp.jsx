@@ -123,7 +123,7 @@ function FastTagApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/fast-tag-approved',
+      path: '/fast-tag-Management/fast-tag-approved',
      
     },
     {
@@ -133,7 +133,7 @@ function FastTagApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/fast-tag-rejected',
+      path: '/fast-tag-Management/fast-tag-rejected',
      
     },
     {
@@ -143,7 +143,7 @@ function FastTagApp() {
       status: 'Car fast-tag Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-fast-tag',
+      path: '/fast-tag-Management/car-pending-for-fast-tag',
     },
   ]);
 

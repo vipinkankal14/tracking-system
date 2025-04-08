@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Paper, Typography, Snackbar, Alert, useMediaQuery, useTheme } from '@mui/material';
+import { Grid, Paper, Typography, Snackbar, Alert, useMediaQuery, useTheme, Container, Link, Button } from '@mui/material';
 import AddAccessoryForm from './Store/AddAccessoryForm';
 import AccessoriesTable from './Store/AccessoriesTable';
+import { useNavigate } from 'react-router-dom';
 
 const AddAccessories = () => {
   const [accessories, setAccessories] = useState([]);
@@ -68,18 +69,37 @@ const AddAccessories = () => {
     setOpenSnackbar(false);
   };
 
+  // Inside your component:
+const navigate = useNavigate();
+
   return (
-    <div className="app">
-      <Typography style={{ marginTop: '-29px' }} gutterBottom variant="h6" align="left">
+    <Container maxWidth="xl">
+      <Typography style={{ marginTop: '25px' }} gutterBottom variant="h6" align="left">
         Accessories Store
       </Typography>
 
-      <Grid container spacing={4} >
+    
+    
+      <Button
+      variant="text"
+      sx={{ 
+        display: 'flex',
+        textTransform: 'none'  
+      }}
+      onClick={() => {
+        console.info("Navigation button clicked");
+        navigate('/Accessories-Management/accessorie-upload');  
+      }}
+      >
+        Accessory Upload
+      </Button>
+
+      <Grid container spacing={2}  style={{ marginTop: '5px' }}>
         {/* Left Panel - Form */}
         <Grid item xs={12} md={3}>
-          <Paper elevation={3} sx={{ p: 3, height: 'fit-content' }}>
+          <Paper elevation={3} sx={{ p: 2, height: 'fit-content' }}>
             <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-              Add New Accessory
+              Add New Accessory 
             </Typography>
             <AddAccessoryForm onAdd={handleAddAccessory} />
           </Paper>
@@ -112,7 +132,7 @@ const AddAccessories = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </div>
+    </Container>
   );
 };
 
