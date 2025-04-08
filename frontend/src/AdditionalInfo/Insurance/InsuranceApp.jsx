@@ -125,7 +125,7 @@ function InsuranceApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/Insurance-approved',
+      path: '/insurance-Management/insurance-approved',
      
     },
     {
@@ -135,7 +135,7 @@ function InsuranceApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/Insurance-rejected',
+      path: '/insurance-Management/insurance-rejected',
      
     },
     {
@@ -145,7 +145,7 @@ function InsuranceApp() {
       status: 'Car Insurance Amount update Request',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/car-pending-for-Insurance',
+      path: '/insurance-Management/car-pending-for-Insurance',
     },
   ]);
 
