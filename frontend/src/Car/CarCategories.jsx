@@ -13,7 +13,10 @@ import {
   Select, 
   InputLabel,
   Box,
-  Grid
+  Grid,
+  CircularProgress,
+  Alert,
+  Container
 } from "@mui/material";
 import "./CenteredTabs.scss";
 import { useNavigate } from "react-router-dom";
@@ -196,11 +199,19 @@ const CarCategories = () => {
   };
 
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
-    return <Typography>Error: {error}</Typography>;
+    return (
+      <Container maxWidth="lg" sx={{ my: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
   }
 
   return (

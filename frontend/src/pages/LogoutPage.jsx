@@ -73,7 +73,7 @@ const LogoutPage = () => {
         throw new Error("No authentication token found");
       }
 
-      const response = await fetch("http://192.168.0.3:5000/logout", {
+      const response = await fetch("http://localhost:5000/logout", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

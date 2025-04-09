@@ -1,10 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Container, Paper, Typography, TextField, Button, Box, Tabs, Tab, Link, useMediaQuery } from "@mui/material"
+import { Container, Paper, Typography, TextField, Button, Box, Tabs, Tab, Link, Alert } from "@mui/material"
 import { Person, Business, ArrowBack } from "@mui/icons-material"
-import { useTheme } from '@mui/material/styles';
-import { Link as RouterLink, useSearchParams } from "react-router-dom"
+import { useNavigate, Link as RouterLink, useSearchParams } from "react-router-dom"
 import "../styles/forgot-password.scss"
 
 const TabPanel = (props) => {
@@ -24,146 +23,333 @@ const TabPanel = (props) => {
 }
 
 const ForgotPasswordPage = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [searchParams] = useSearchParams();
   const fromLogin = searchParams.get("fromLogin") === "true";
   const fromLoginOffice = searchParams.get("fromLoginOffice") === "true";
 
-  // Set initial tab based on query parameters
   const initialTab = fromLogin ? 0 : fromLoginOffice ? 1 : 0;
   const [tabValue, setTabValue] = useState(initialTab);
+  const navigate = useNavigate();
 
   const [userEmail, setUserEmail] = useState("");
+  const [officeEmpId, setOfficeEmpId] = useState("");
   const [officeEmail, setOfficeEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [token, setToken] = useState("");
+  
+  const [step, setStep] = useState(1);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleTabChange = (event, newValue) => {
-    // Disable tab switching if coming from LoginPage
     if (!fromLogin && !fromLoginOffice) {
       setTabValue(newValue);
+      resetForm();
     }
   };
 
-  const handleUserSubmit = (e) => {
-    e.preventDefault();
-    console.log("User password reset for:", userEmail);
-    setSubmitted(true);
-    // Add actual password reset logic here
+  const resetForm = () => {
+    setUserEmail("");
+    setOfficeEmpId("");
+    setOfficeEmail("");
+    setOtp("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setToken("");
+    setStep(1);
+    setError("");
+    setSuccess("");
   };
 
-  const handleOfficeSubmit = (e) => {
+  const handleUserSubmit = async (e) => {
     e.preventDefault();
-    console.log("Office password reset for:", officeEmail);
-    setSubmitted(true);
-    // Add actual password reset logic here
+    setIsLoading(true);
+    setError("");
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/request-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: userEmail,
+          type: 'user' 
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to send OTP');
+      
+      setSuccess('OTP sent to your email');
+      setStep(2);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleOfficeSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/request-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          emp_id: officeEmpId,
+          email: officeEmail,
+          type: 'office' 
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to send OTP');
+      
+      setSuccess('OTP sent to your office email');
+      setStep(2);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    
+    try {
+      const payload = tabValue === 0 
+        ? { email: userEmail, type: 'user', otp }
+        : { emp_id: officeEmpId, email: officeEmail, type: 'office', otp };
+
+      const response = await fetch('http://localhost:5000/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'OTP verification failed');
+      
+      setToken(data.token);
+      setSuccess('OTP verified successfully');
+      setStep(3);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+
+    const passwordRequirements = {
+      minLength: newPassword.length >= 8,
+      hasLowercase: /[a-z]/.test(newPassword),
+      hasUppercase: /[A-Z]/.test(newPassword),
+      hasNumber: /\d/.test(newPassword),
+      hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
+    };
+
+    if (!Object.values(passwordRequirements).every(Boolean)) {
+      setError('Password must be at least 8 characters with uppercase, lowercase, number, and special character');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      if (!token) {
+        throw new Error('Session expired. Please start again.');
+      }
+
+      const response = await fetch('http://localhost:5000/api/update-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ new_password: newPassword })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Password update failed');
+      }
+
+      setSuccess('Password updated successfully! Redirecting...');
+      setToken("");
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (err) {
+      setError(err.message.includes('token') ? 
+        `${err.message} Please start again.` : err.message);
+      if (err.message.includes('token')) setStep(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderEmailStep = () => (
+    <form onSubmit={tabValue === 0 ? handleUserSubmit : handleOfficeSubmit}>
+      {tabValue === 1 && (
+        <TextField
+          fullWidth
+          label="Employee ID"
+          value={officeEmpId}
+          onChange={(e) => setOfficeEmpId(e.target.value)}
+          margin="normal"
+          required
+        />
+      )}
+      <TextField
+        fullWidth
+        label={tabValue === 0 ? "Email Address" : "Office Email Address"}
+        type="email"
+        value={tabValue === 0 ? userEmail : officeEmail}
+        onChange={(e) => tabValue === 0 
+          ? setUserEmail(e.target.value) 
+          : setOfficeEmail(e.target.value)}
+        margin="normal"
+        required
+      />
+      <Button 
+        type="submit" 
+        fullWidth 
+        variant="contained" 
+        disabled={isLoading}
+        sx={{ mt: 2 }}
+      >
+        {isLoading ? "Sending..." : "Send OTP"}
+      </Button>
+    </form>
+  );
+
+  const renderOTPStep = () => (
+    <form onSubmit={handleVerifyOTP}>
+      <Typography variant="body1" gutterBottom>
+        OTP sent to {tabValue === 0 ? userEmail : officeEmail}
+      </Typography>
+      <TextField
+        fullWidth
+        label="Enter 6-digit OTP"
+        value={otp}
+        onChange={(e) => setOtp(e.target.value)}
+        inputProps={{ maxLength: 6 }}
+        margin="normal"
+        required
+      />
+      <Button 
+        type="submit" 
+        fullWidth 
+        variant="contained" 
+        disabled={isLoading}
+        sx={{ mt: 2 }}
+      >
+        {isLoading ? "Verifying..." : "Verify OTP"}
+      </Button>
+    </form>
+  );
+
+  const renderPasswordStep = () => (
+    <form onSubmit={handleUpdatePassword}>
+      <TextField
+        fullWidth
+        label="New Password"
+        type="password"
+        value={newPassword}
+        onChange={(e) => setNewPassword(e.target.value)}
+        margin="normal"
+        required
+      />
+      <TextField
+        fullWidth
+        label="Confirm Password"
+        type="password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        margin="normal"
+        required
+      />
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error.includes('requirements') ? (
+            <Box component="ul" sx={{ pl: 2, mb: 0 }}>
+              <li>Minimum 8 characters</li>
+              <li>At least one lowercase letter</li>
+              <li>At least one uppercase letter</li>
+              <li>At least one number</li>
+              <li>At least one special character</li>
+            </Box>
+          ) : error}
+        </Alert>
+      )}
+      <Button 
+        type="submit" 
+        fullWidth 
+        variant="contained" 
+        disabled={isLoading}
+        sx={{ mt: 2 }}
+      >
+        {isLoading ? "Updating..." : "Update Password"}
+      </Button>
+    </form>
+  );
 
   return (
     <div className="forgot-password-page">
-      <Container maxWidth="sm" className="forgot-password-container">
-        <Paper elevation={3} className="forgot-password-paper">
-          <Typography variant="h4" component="h1" align="center" gutterBottom className="forgot-password-title">
-            Forgot Password
+      <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Password Recovery
           </Typography>
 
-          {/* Conditionally render Tabs only if not from LoginPage */}
+          {error && !error.includes('requirements') && (
+            <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+          )}
+          {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
           {!fromLogin && !fromLoginOffice && (
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
               variant="fullWidth"
-              indicatorColor="primary"
-              textColor="primary"
-              aria-label="forgot password tabs"
-              className="forgot-password-tabs"
+              sx={{ mb: 3 }}
             >
-              <Tab
-                icon={<Person />}
-                label={isMobile ? "" : "User"}
-                iconPosition="start"
-                id="forgot-tab-0"
-                aria-controls="forgot-tabpanel-0"
-              />
-              <Tab
-                icon={<Business />}
-                label={isMobile ? "" : "Office"}
-                iconPosition="start"
-                id="forgot-tab-1"
-                aria-controls="forgot-tabpanel-1"
-              />
+              <Tab label="User" icon={<Person />} disabled={step > 1} />
+              <Tab label="Office" icon={<Business />} disabled={step > 1} />
             </Tabs>
           )}
 
-          {/* User Forgot Password Panel */}
           <TabPanel value={tabValue} index={0}>
-            {!submitted ? (
-              <form onSubmit={handleUserSubmit} className="forgot-password-form">
-              
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="user-email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  value={userEmail}
-                  onChange={(e) => setUserEmail(e.target.value)}
-                />
-                <Button type="submit" fullWidth variant="contained" color="primary" className="submit-button">
-                  Reset Password
-                </Button>
-              </form>
-            ) : (
-              <Box className="success-message">
-                <Typography variant="h6" gutterBottom>
-                  Password Reset Email Sent
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  We've sent a password reset link to {userEmail}. Please check your email and follow the instructions.
-                </Typography>
-              </Box>
-            )}
+            {step === 1 && renderEmailStep()}
+            {step === 2 && renderOTPStep()}
+            {step === 3 && renderPasswordStep()}
           </TabPanel>
 
-          {/* Office Forgot Password Panel */}
           <TabPanel value={tabValue} index={1}>
-            {!submitted ? (
-              <form onSubmit={handleOfficeSubmit} className="forgot-password-form">
-                
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="office-email"
-                  label="Office Email Address"
-                  name="email"
-                  autoComplete="email"
-                  value={officeEmail}
-                  onChange={(e) => setOfficeEmail(e.target.value)}
-                />
-                <Button type="submit" fullWidth variant="contained" color="primary" className="submit-button">
-                  Reset Password
-                </Button>
-              </form>
-            ) : (
-              <Box className="success-message">
-                <Typography variant="h6" gutterBottom>
-                  Password Reset Email Sent
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  We've sent a password reset link to {officeEmail}. Please check your email and follow the instructions.
-                </Typography>
-              </Box>
-            )}
+            {step === 1 && renderEmailStep()}
+            {step === 2 && renderOTPStep()}
+            {step === 3 && renderPasswordStep()}
           </TabPanel>
 
-          <Box mt={2} textAlign="center">
-            <Link component={RouterLink} to="/login" className="back-to-login">
-              <ArrowBack fontSize="small" style={{ marginRight: "5px" }} />
+          <Box textAlign="center" mt={3}>
+            <Link component={RouterLink} to="/login" sx={{ display: 'flex', alignItems: 'center' }}>
+              <ArrowBack fontSize="small" sx={{ mr: 1 }} />
               Back to Login
             </Link>
           </Box>
@@ -173,7 +359,4 @@ const ForgotPasswordPage = () => {
   );
 };
 
-
-
-export default ForgotPasswordPage
-
+export default ForgotPasswordPage;

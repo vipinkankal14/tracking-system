@@ -24,53 +24,97 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   // Derived available options
-  const availableCarTypes = [...new Set(carStocks.map(stock => stock.carType))];
-  const availableModels = data.carType 
-    ? [...new Set(carStocks.filter(stock => stock.carType === data.carType).map(stock => stock.model))]
+  const availableCarTypes = [
+    ...new Set(carStocks.map((stock) => stock.carType)),
+  ];
+  const availableModels = data.carType
+    ? [
+        ...new Set(
+          carStocks
+            .filter((stock) => stock.carType === data.carType)
+            .map((stock) => stock.model)
+        ),
+      ]
     : [];
-  const availableVersions = data.carType && data.model 
-    ? [...new Set(carStocks.filter(stock => stock.carType === data.carType && stock.model === data.model).map(stock => stock.version))]
-    : [];
-  const availableColors = data.carType && data.model && data.version 
-    ? [...new Set(carStocks.filter(stock => 
-        stock.carType === data.carType &&
-        stock.model === data.model &&
-        stock.version === data.version
-      ).map(stock => stock.color))]
-    : [];
+  const availableVersions =
+    data.carType && data.model
+      ? [
+          ...new Set(
+            carStocks
+              .filter(
+                (stock) =>
+                  stock.carType === data.carType && stock.model === data.model
+              )
+              .map((stock) => stock.version)
+          ),
+        ]
+      : [];
+  const availableColors =
+    data.carType && data.model && data.version
+      ? [
+          ...new Set(
+            carStocks
+              .filter(
+                (stock) =>
+                  stock.carType === data.carType &&
+                  stock.model === data.model &&
+                  stock.version === data.version
+              )
+              .map((stock) => stock.color)
+          ),
+        ]
+      : [];
 
   // Fetch car stocks data
   useEffect(() => {
     let isMounted = true;
-    
+
     fetch("http://localhost:5000/api/showAllCarStocks")
-      .then(response => response.json())
-      .then(fetchedData => {
+      .then((response) => response.json())
+      .then((fetchedData) => {
         if (isMounted) {
           setCarStocks(fetchedData);
           // Validate initial values after data load
           const validateSelections = () => {
             const { carType, model, version, color } = data;
-            if (carType && !fetchedData.some(stock => stock.carType === carType)) {
+            if (
+              carType &&
+              !fetchedData.some((stock) => stock.carType === carType)
+            ) {
               updateData("carType", "");
               updateData("model", "");
               updateData("version", "");
               updateData("color", "");
-            } else if (model && !fetchedData.some(stock => stock.model === model && stock.carType === carType)) {
+            } else if (
+              model &&
+              !fetchedData.some(
+                (stock) => stock.model === model && stock.carType === carType
+              )
+            ) {
               updateData("model", "");
               updateData("version", "");
               updateData("color", "");
-            } else if (version && !fetchedData.some(stock => stock.version === version && stock.model === model)) {
+            } else if (
+              version &&
+              !fetchedData.some(
+                (stock) => stock.version === version && stock.model === model
+              )
+            ) {
               updateData("version", "");
               updateData("color", "");
-            } else if (color && !fetchedData.some(stock => stock.color === color && stock.version === version)) {
+            } else if (
+              color &&
+              !fetchedData.some(
+                (stock) => stock.color === color && stock.version === version
+              )
+            ) {
               updateData("color", "");
             }
           };
           validateSelections();
         }
       })
-      .catch(error => console.error("Error fetching car stocks:", error));
+      .catch((error) => console.error("Error fetching car stocks:", error));
 
     return () => {
       isMounted = false;
@@ -83,7 +127,7 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
     if (!carType || !model || !version || !color) return;
 
     const selectedCar = carStocks.find(
-      stock =>
+      (stock) =>
         stock.carType === carType &&
         stock.model === model &&
         stock.version === version &&
@@ -211,45 +255,45 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
       </div>
 
       <br />
- {data.bookingType === "Dealership Advisor" && (
-  <div className="space-y-4">
-    <Typography variant="h6">Dealership Advisor</Typography>
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
-        <FormControl fullWidth>
-          <InputLabel id="team_Leader-label">Team Leader</InputLabel>
-          <Select
-            label="Team Leader"
-            labelId="team_Leader-label"
-            value={data.teamLeader || ""} // Ensure fallback to empty string
-            onChange={(e) => handleChange("teamLeader", e.target.value)}
-          >
-            <MenuItem value="">Select Team Leader</MenuItem>
-            <MenuItem value="leader1">Leader 1</MenuItem>
-            <MenuItem value="leader2">Leader 2</MenuItem>
-            <MenuItem value="leader3">Leader 3</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <FormControl fullWidth>
-          <InputLabel id="team_Member-label">Team Member</InputLabel>
-          <Select
-            label="Team Member"
-            labelId="team_Member-label"
-            value={data.teamMember || ""} // Ensure fallback to empty string
-            onChange={(e) => handleChange("teamMember", e.target.value)}
-          >
-            <MenuItem value="">Select Team Member</MenuItem>
-            <MenuItem value="member1">Member 1</MenuItem>
-            <MenuItem value="member2">Member 2</MenuItem>
-            <MenuItem value="member3">Member 3</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
-  </div>
-)}
+      {data.bookingType === "Dealership Advisor" && (
+        <div className="space-y-4">
+          <Typography variant="h6">Dealership Advisor</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel id="team_Leader-label">Team Leader</InputLabel>
+                <Select
+                  label="Team Leader"
+                  labelId="team_Leader-label"
+                  value={data.teamLeader || ""} // Ensure fallback to empty string
+                  onChange={(e) => handleChange("teamLeader", e.target.value)}
+                >
+                  <MenuItem value="">Select Team Leader</MenuItem>
+                  <MenuItem value="leader1">Leader 1</MenuItem>
+                  <MenuItem value="leader2">Leader 2</MenuItem>
+                  <MenuItem value="leader3">Leader 3</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel id="team_Member-label">Team Member</InputLabel>
+                <Select
+                  label="Team Member"
+                  labelId="team_Member-label"
+                  value={data.teamMember || ""} // Ensure fallback to empty string
+                  onChange={(e) => handleChange("teamMember", e.target.value)}
+                >
+                  <MenuItem value="">Select Team Member</MenuItem>
+                  <MenuItem value="member1">Member 1</MenuItem>
+                  <MenuItem value="member2">Member 2</MenuItem>
+                  <MenuItem value="member3">Member 3</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </div>
+      )}
 
       <br />
       {/* Car Details */}
@@ -258,87 +302,91 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
           <Typography variant="h6">Choose Your Car</Typography>
           <Typography gutterBottom variant="h6"></Typography>
           <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} lg={3}>
-        <FormControl fullWidth>
-          <InputLabel id="carType-label">Car Type</InputLabel>
-          <Select
-            label="Car Type"
-            labelId="carType-label"
-            value={availableCarTypes.includes(data.carType) ? data.carType : ""}
-            onChange={(e) => handleChange("carType", e.target.value)}
-          >
-            <MenuItem value="">Select Car Type</MenuItem>
-            {availableCarTypes.map((carType) => (
-              <MenuItem key={carType} value={carType}>
-                {carType}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="carType-label">Car Type</InputLabel>
+                <Select
+                  label="Car Type"
+                  labelId="carType-label"
+                  value={
+                    availableCarTypes.includes(data.carType) ? data.carType : ""
+                  }
+                  onChange={(e) => handleChange("carType", e.target.value)}
+                >
+                  <MenuItem value="">Select Car Type</MenuItem>
+                  {availableCarTypes.map((carType) => (
+                    <MenuItem key={carType} value={carType}>
+                      {carType}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
 
-      {/* Model Select */}
-      <Grid item xs={12} sm={6} lg={3}>
-        <FormControl fullWidth>
-          <InputLabel id="model-label">Model</InputLabel>
-          <Select
-            label="Model"
-            labelId="model-label"
-            value={availableModels.includes(data.model) ? data.model : ""}
-            onChange={(e) => handleChange("model", e.target.value)}
-            disabled={!data.carType}
-          >
-            <MenuItem value="">Select Model</MenuItem>
-            {availableModels.map((model) => (
-              <MenuItem key={model} value={model}>
-                {model}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
+            {/* Model Select */}
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="model-label">Model</InputLabel>
+                <Select
+                  label="Model"
+                  labelId="model-label"
+                  value={availableModels.includes(data.model) ? data.model : ""}
+                  onChange={(e) => handleChange("model", e.target.value)}
+                  disabled={!data.carType}
+                >
+                  <MenuItem value="">Select Model</MenuItem>
+                  {availableModels.map((model) => (
+                    <MenuItem key={model} value={model}>
+                      {model}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
 
-      {/* Version Select */}
-      <Grid item xs={12} sm={6} lg={3}>
-        <FormControl fullWidth>
-          <InputLabel id="version-label">Version</InputLabel>
-          <Select
-            label="Version"
-            labelId="version-label"
-            value={availableVersions.includes(data.version) ? data.version : ""}
-            onChange={(e) => handleChange("version", e.target.value)}
-            disabled={!data.model}
-          >
-            <MenuItem value="">Select Version</MenuItem>
-            {availableVersions.map((version) => (
-              <MenuItem key={version} value={version}>
-                {version}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
+            {/* Version Select */}
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="version-label">Version</InputLabel>
+                <Select
+                  label="Version"
+                  labelId="version-label"
+                  value={
+                    availableVersions.includes(data.version) ? data.version : ""
+                  }
+                  onChange={(e) => handleChange("version", e.target.value)}
+                  disabled={!data.model}
+                >
+                  <MenuItem value="">Select Version</MenuItem>
+                  {availableVersions.map((version) => (
+                    <MenuItem key={version} value={version}>
+                      {version}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
 
-      {/* Color Select */}
-      <Grid item xs={12} sm={6} lg={3}>
-        <FormControl fullWidth>
-          <InputLabel id="color-label">Color</InputLabel>
-          <Select
-            label="Color"
-            labelId="color-label"
-            value={availableColors.includes(data.color) ? data.color : ""}
-            onChange={(e) => handleChange("color", e.target.value)}
-            disabled={!data.version}
-          >
-            <MenuItem value="">Select Color</MenuItem>
-            {availableColors.map((color) => (
-              <MenuItem key={color} value={color}>
-                {color}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
+            {/* Color Select */}
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="color-label">Color</InputLabel>
+                <Select
+                  label="Color"
+                  labelId="color-label"
+                  value={availableColors.includes(data.color) ? data.color : ""}
+                  onChange={(e) => handleChange("color", e.target.value)}
+                  disabled={!data.version}
+                >
+                  <MenuItem value="">Select Color</MenuItem>
+                  {availableColors.map((color) => (
+                    <MenuItem key={color} value={color}>
+                      {color}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
         </div>
       </div>

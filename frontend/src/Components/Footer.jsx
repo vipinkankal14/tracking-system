@@ -1,5 +1,5 @@
 import { Link as RouterLink } from "react-router-dom"
-import "../styles/footer.scss"
+import "../styles/footer.css"
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -35,15 +35,11 @@ const Footer = () => {
 
            
                 <div className="col-lg-4 col-md-6">
-                    <h3 className="footer-title">Quick Links</h3>
+                    <h3 className="footer-title" >Quick Links</h3>
                     <ul className="quick-links">
                         <li><a href="/">Home</a></li>
-                        <li><a href="#">About Company</a></li>
-                        <li><a href="#">Latest Projects</a></li>
-                        <li><a href="#">Recent News</a></li>
-                        <li><a href="#">Customer Support</a></li>
-                        <li><a href="#">Contact Details</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="/about">About Company</a></li>
+                         <li><a href="/ContactUs">Contact Details</a></li>
                         <li><a href="/Services">Service</a></li>
                     </ul>
                 </div>

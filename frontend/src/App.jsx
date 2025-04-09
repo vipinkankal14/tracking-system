@@ -108,16 +108,18 @@ import PreDeliveryInspectionLayout from "./AdditionalInfo/PreDeliveryInspection/
 import SecurityClearanceLayout from "./AdditionalInfo/SecurityClearance/SecurityClearanceLayout";
 import ExtendedWarrantyLayout from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyLayout";
 import CoatingLayout from "./AdditionalInfo/Coating/CoatingLayout";
- import FastTagLayout from "./AdditionalInfo/FastTag/fastTagLayout";
-import AccessorieLayout from "./AdditionalInfo/Accessories/AccessorieLayout";
-import InsuranceLayout from "./AdditionalInfo/Insurance/insuranceLayout";
-import AutoCarLayout from "./AdditionalInfo/AutoCard/AutoCarLayout";
+ import AccessorieLayout from "./AdditionalInfo/Accessories/AccessorieLayout";
+ import AutoCarLayout from "./AdditionalInfo/AutoCard/AutoCarLayout";
 import RTOLayout from "./AdditionalInfo/RTO/RTOLayout";
 import CashierLayout from "./AdditionalInfo/cashier/CashierLayout";
 import AccountLayout from "./AdditionalInfo/Account/AccountLayout";
 import CarStockLayout from "./AdditionalInfo/carStocks/CarStockLayout";
 import Productlist from "./Car/Productlist";
-
+import FastTagLayout from "./AdditionalInfo/FastTag/FastTagLayout";
+import InsuranceLayout from "./AdditionalInfo/Insurance/InsuranceLayout";
+import Services from "./pages/Services";
+import ContactUs from "./pages/ContactUs";
+ 
 function App() {
   return (
     <Router>
@@ -286,6 +288,10 @@ function AppContent() {
           <Route path="/car/:carId" element={<CarViewDetails />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/Productlist" element={<Productlist />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/ContactUs" element={<ContactUs />} />
+          
+          
 
           
 
@@ -307,6 +313,7 @@ function AppContent() {
           <Route path="/CarInfo" element={<CarInfo />} />
            <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/success-page" element={<SuccessPage />} />
+
 
           {/* ========================================================================================== */}
 

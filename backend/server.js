@@ -1,28 +1,31 @@
+// ---------- Module Imports ----------
 const { pool } = require('./db/databaseConnection/mysqlConnection');
-
 const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const validator = require('validator');
+const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
+const crypto = require('crypto');
+require('dotenv').config();
 
-const http = require('http'); // For creating the HTTP server
-const { Server } = require('socket.io'); // For real-time updates
-require('dotenv').config(); // Load environment variables from .env
-
-
+// ---------- Server Setup ----------
 const app = express();
-const server = http.createServer(app); // Create an HTTP server
-const io = new Server(server, { cors: { origin: '*' } }); // Initialize Socket.IO
-
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*' } });
 const port = process.env.PORT || 5000;
 
-// Enable CORS for all routes
+// ---------- Middleware ----------
 app.use(cors());
-app.use(express.json({ limit: "10mb" })); // Increase limit for large file uploads
-
-
+app.use(express.json({ limit: "10mb" }));
 
 
 // Import the payment function from the paymentRoutes file
@@ -2525,9 +2528,7 @@ app.post('/api/users/:id/profile-image', upload.single('profile_image'), uploadP
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
-
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+ 
  
 app.use('/profile-images', express.static(path.join(__dirname, 'public','profile-images')));
 
@@ -2595,9 +2596,6 @@ app.post('/login', async (req, res) => {
         case 'Car Stocks Management':
           navigatePath = 'car-stock-Management';  
         break;
-      
-        
-
         case 'Security Clearance Management':
           navigatePath = 'Security-Clearance-Management';
           break;
@@ -2776,6 +2774,257 @@ app.get('/protected', authenticateToken, (req, res) => {
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+ 
+
+
+  // Create a transporter with proper Gmail settings
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'vipinkankal01@gmail.com',
+      pass: 'oxaq vmbr dndz bqkj' // Make sure this is a valid App Password
+    }
+  });
+
+  
+const otpLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3,
+  keyGenerator: req => req.body.emp_id,
+  message: 'Too many OTP requests for this account',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+
+// Input validation middleware
+const validateRequestOTP = [
+  body('emp_id').trim().isAlphanumeric().withMessage('Invalid employee ID'),
+  body('email').trim().isEmail().normalizeEmail()
+];
+
+const validateVerifyOTP = [
+  body('emp_id').trim().isAlphanumeric(),
+  body('otp').trim().isLength({ min: 6, max: 6 }).isNumeric()
+];
+
+ 
+
+// Request OTP endpoint
+app.post('/api/request-otp', validateRequestOTP, otpLimiter, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { emp_id, email } = req.body;
+  let connection;
+
+  try {
+    connection = await pool.promise().getConnection();
+    await connection.beginTransaction();
+
+    const [rows] = await connection.execute(
+      'SELECT id FROM users WHERE emp_id = ? AND email = ?',
+      [emp_id, email]
+    );
+
+    if (rows.length > 0) {
+      const otp = crypto.randomInt(100000, 999999); // Secure 6-digit OTP
+      const otpHash = await bcrypt.hash(otp.toString(), 10);
+      const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      await connection.execute(
+        'UPDATE users SET otp_secret = ?, otp_expiry = ? WHERE id = ?',
+        [otpHash, expiry, rows[0].id]
+      );
+
+      await transporter.sendMail({
+        from: `"Secure App" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'Password Reset OTP',
+        text: `Your OTP is: ${otp}\nValid for 10 minutes`,
+        html: `<p>Your OTP is: <strong>${otp}</strong><br>Valid for 10 minutes</p>`
+      });
+    }
+
+    await connection.commit();
+    res.json({ message: 'If an account exists, an OTP has been sent' });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('OTP Request Error:', error);
+    res.status(500).json({ message: 'Server error processing request' });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+// Verify OTP endpoint
+app.post('/api/verify-otp', validateVerifyOTP, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { emp_id, otp } = req.body;
+
+  try {
+    const [rows] = await pool.promise().execute(
+      `SELECT id, otp_secret, otp_expiry 
+       FROM users WHERE emp_id = ?`,
+      [emp_id]
+    );
+
+    if (!rows.length || new Date(rows[0].otp_expiry) < new Date()) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    const valid = await bcrypt.compare(otp, rows[0].otp_secret);
+    if (!valid) return res.status(400).json({ message: 'Invalid OTP' });
+
+    const tokenId = crypto.randomUUID();
+    const token = jwt.sign(
+      { emp_id, jti: tokenId },
+      process.env.JWT_SECRET,
+      { expiresIn: '5m' }
+    );
+
+    await pool.promise().execute(
+      `INSERT INTO active_tokens (token_id, user_id, expires_at)
+       VALUES (?, ?, NOW() + INTERVAL 5 MINUTE)`,
+      [tokenId, rows[0].id]
+    );
+
+    res.json({ token });
+  } catch (error) {
+    console.error('OTP Verification Error:', error);
+    res.status(500).json({ message: 'Server error verifying OTP' });
+  }
+});
+
+// Validation middleware
+const validateUpdatePassword = [
+  body('new_password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[0-9]/).withMessage('Password must contain at least one number')
+    .matches(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)
+    .withMessage('Password must contain at least one special character')
+];
+
+// Update password endpoint
+app.post('/api/update-password', validateUpdatePassword, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array().map(err => ({
+        param: err.path,
+        message: err.msg
+      }))
+    });
+  }
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ 
+      success: false,
+      message: 'Authorization token required' 
+    });
+  }
+
+  let connection;
+  try {
+    // Verify JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    connection = await pool.promise().getConnection();
+    await connection.beginTransaction();
+
+    // Validate token
+    const [tokenRows] = await connection.execute(
+      `SELECT user_id FROM active_tokens 
+       WHERE token_id = ? AND expires_at > NOW()
+       FOR UPDATE`,
+      [decoded.jti]
+    );
+
+    if (tokenRows.length === 0) {
+      await connection.rollback();
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired token'
+      });
+    }
+
+    // Get user
+    const [userRows] = await connection.execute(
+      'SELECT id FROM users WHERE emp_id = ?',
+      [decoded.emp_id]
+    );
+
+    if (userRows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update password
+    const hashedPassword = await bcrypt.hash(req.body.new_password, 12);
+    await connection.execute(
+      `UPDATE users 
+       SET password = ?, otp_secret = NULL, otp_expiry = NULL
+       WHERE id = ?`,
+      [hashedPassword, userRows[0].id]
+    );
+
+    // Remove token
+    await connection.execute(
+      'DELETE FROM active_tokens WHERE token_id = ?',
+      [decoded.jti]
+    );
+
+    await connection.commit();
+
+    res.json({
+      success: true,
+      message: 'Password updated successfully'
+    });
+
+  } catch (error) {
+    if (connection) await connection.rollback();
+    
+    console.error('Password Update Error:', error);
+    
+    const response = {
+      success: false,
+      message: 'Password update failed'
+    };
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      response.message = 'Invalid token';
+    } else if (error instanceof jwt.TokenExpiredError) {
+      response.message = 'Token expired';
+    }
+
+    res.status(error.statusCode || 500).json(response);
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+// Security headers middleware (in production)
+app.use((req, res, next) => {
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
+
 
 
 
