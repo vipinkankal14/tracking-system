@@ -62,7 +62,8 @@ const { getConfirmedBookings } = require('./db/routes/BookingsConfirmed/Confirme
 const { getcanceledBookings } = require('./db/routes/BookingsConfirmed/Canceled');
 const { getCarRequestForCustomers } = require('./db/routes/CarManagement/CarRequestForCustomers');
 const { createUser, getUsers, getUserById, updateUser, deleteUser, uploadProfileImageForNewUser, uploadProfileImage, upload } = require('./db/routes/Usermanagement/createUser');
-  
+const { getCustomerProfile, verifyToken, Customerlogin } = require('./db/routes/Customer_Login_and_OrderTrackingSystem/CustomerProfile');
+
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
 // Use the payment routes
@@ -85,7 +86,7 @@ app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUpl
 
 
 app.post('/api/submitCart', (req, res) => {
-  const { customerId, totalAmount,products } = req.body;
+  const { customerId, totalAmount, products } = req.body;
 
   console.log("Received cart data:", req.body); // Log received data
 
@@ -155,7 +156,7 @@ app.post('/api/submitCoatingRequest', postCoatingRequest);
 
 
 
-{/*-------------------------------------------------------------------- */}
+{/*-------------------------------------------------------------------- */ }
 
 // Increase payload size limits // backend\db\routes\Request\CarLoansRequest.js
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -177,7 +178,7 @@ const uploadCarloans = multer({ storage: storageCarloans });
 
 app.post("/api/loans", uploadCarloans.array("documents"), postCarLoansRequest);
 
-{/*-------------------------------------------------------------------- */}
+{/*-------------------------------------------------------------------- */ }
 
 
 // backend\db\routes\Request\CarExchangeRequest.js
@@ -208,7 +209,7 @@ app.post('/api/submitCarExchangeRequest',
   postCarExchangeRequests
 );
 
-{/*-------------------------------------------------------------------- */}
+{/*-------------------------------------------------------------------- */ }
 
 // Multer storage configuration for Car FastTag documents
 
@@ -225,7 +226,6 @@ const storageCarFastTag = multer.diskStorage({
   },
 });
 
-
 const uploadCarFastTag = multer({ storage: storageCarFastTag });
 
 // POST endpoint for submitting Car FastTag request
@@ -239,16 +239,10 @@ app.post(
   ]),
 
   postCarFastTagRequest
-  
+
 );
 
-
-
- 
-
 {/*-------------------------------------------------------------------- */ }
-
-
 
 const storageCarInsurance = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -262,7 +256,6 @@ const storageCarInsurance = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
-
 
 const uploadCarInsurance = multer({ storage: storageCarInsurance });
 
@@ -282,12 +275,11 @@ app.post(
   ]),
 
   postCarInsuranceRequests
-  
+
 );
 
 
 {/*-------------------------------------------------------------------- */ }
-
 
 const storageCarRTO = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -301,7 +293,6 @@ const storageCarRTO = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
-
 
 const uploadCarRTO = multer({ storage: storageCarRTO });
 
@@ -323,20 +314,13 @@ app.post(
   postRTORequests
 );
 
-
-
 {/*-------------------------------------------------------------------- */ }
 
 
 app.post("/api/submitExtendedWarrantyRequest", postCarExtendedWarrantyRequests);
 
-
-
-
 // API endpoint to handle AutoCard request submission
-app.post("/api/submitAutoCardRequest",postAutoCardRequest);
-
-
+app.post("/api/submitAutoCardRequest", postAutoCardRequest);
 
 // API Route: Apply Booking
 app.post('/api/apply-booking', (req, res) => {
@@ -522,7 +506,7 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
     const [accountmanagement] = await pool.promise().query('SELECT * FROM account_management WHERE customerId = ?', [customerId]);
     const [accountmanagementrefund] = await pool.promise().query('SELECT * FROM account_management_refund WHERE customerId = ?', [customerId]);
 
-    
+
 
     // Fetch invoice summary
     const [invoiceSummaryRows] = await pool.promise().query(
@@ -558,7 +542,7 @@ app.get('/api/PaymentHistory/:customerId', async (req, res) => {
       cashier: cashier,
       invoicesummary: invoiceSummary,
       ordersprebookingdate: ordersprebookingdate[0],
-      onRoadPriceDetails: onRoadPriceDetails[0], 
+      onRoadPriceDetails: onRoadPriceDetails[0],
       additionalCharges: additionalCharges[0],
       accountmanagement: accountmanagement[0],
       accountmanagementrefund: accountmanagementrefund,
@@ -600,8 +584,6 @@ app.get('/api/OrderEditAndCancel/:customerId', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-
 
 app.get('/api/cars', (req, res) => {
   const { model, version, color, carType } = req.query;
@@ -699,7 +681,6 @@ app.get('/api/car/:vin', (req, res) => {
   });
 });
 
-
 // Express route to update car allotment status // frontend\src\carStocks\CarAllotment.jsx
 app.put('/api/car/update/:vin', (req, res) => {
   const { vin } = req.params;
@@ -731,9 +712,9 @@ app.put('/api/car/customer/:vin', (req, res) => {
   const { customerId, allotmentCarStatus, cancellationReason } = req.body;
 
   if (!['Allocated', 'Not Allocated'].includes(allotmentCarStatus)) {
-    return res.status(400).json({ 
+    return res.status(400).json({
       success: false,
-      message: 'Invalid allotment status' 
+      message: 'Invalid allotment status'
     });
   }
 
@@ -743,8 +724,8 @@ app.put('/api/car/customer/:vin', (req, res) => {
         cancellationReason = ? 
     WHERE vin = ?`;
 
-  pool.query(query, 
-    [customerId, allotmentCarStatus, cancellationReason, vin], 
+  pool.query(query,
+    [customerId, allotmentCarStatus, cancellationReason, vin],
     (err, result) => {
       if (err) {
         console.error('Database error:', err);
@@ -765,12 +746,11 @@ app.put('/api/car/customer/:vin', (req, res) => {
           message: 'Car not found'
         });
       }
-  });
+    });
 });
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
-
 
 // Route to check the current pool status
 app.get('/api/pool-status', (req, res) => {
@@ -786,9 +766,8 @@ app.get('/api/pool-status', (req, res) => {
   });
 });
 
-
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
- 
+
 // API endpoint to handle car selection submission
 app.post('/api/submitCarSelection', postCarBooking)
 
@@ -816,8 +795,7 @@ app.post('/api/submit-form', async (req, res) => {
 
 app.post('/api/submitInvoice', submitInvoice);
 
-{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
-
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.put('/api/account/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
@@ -825,7 +803,7 @@ app.put('/api/account/update-status/:customerId', async (req, res) => {
 
   // Check if the customerId exists in account_management
   const checkSql = `SELECT * FROM account_management WHERE customerId = ?`;
-  
+
   pool.query(checkSql, [customerId], (checkErr, checkResult) => {
     if (checkErr) {
       console.error("Database error:", checkErr);
@@ -864,9 +842,7 @@ app.put('/api/account/update-status/:customerId', async (req, res) => {
   });
 });
 
-
-{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
-
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.post('/api/refund/create', async (req, res) => {
   const { customerId, refundReason, refundAmount } = req.body;
@@ -883,9 +859,9 @@ app.post('/api/refund/create', async (req, res) => {
     `;
     const [insertResult] = await pool.promise().query(insertSql, [customerId, status, refundReason, refundAmount]);
 
-    res.json({ 
-      message: 'New refund record created successfully with status "Process"', 
-      result: insertResult 
+    res.json({
+      message: 'New refund record created successfully with status "Process"',
+      result: insertResult
     });
   } catch (error) {
     console.error("Database error:", error);
@@ -893,12 +869,10 @@ app.post('/api/refund/create', async (req, res) => {
   }
 });
 
-{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }  
+{/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
- 
 // showexchange
-
 app.use('/uploads', express.static(path.join(__dirname, 'CarExchangeRequest')));
 app.get('/api/showexchange', showexchange);
 
@@ -906,7 +880,7 @@ app.get('/api/showexchange', showexchange);
 
 app.put('/api/exchange/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status, exchangeReason , exchangeAmount  } = req.body;
+  const { status, exchangeReason, exchangeAmount } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
   const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
@@ -926,7 +900,7 @@ app.put('/api/exchange/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status, exchangeReason , exchangeAmount ],
+        [customerId, status, exchangeReason, exchangeAmount],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -947,7 +921,7 @@ app.put('/api/exchange/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         updateSql,
-        [exchangeAmount , exchangeReason, status, customerId],
+        [exchangeAmount, exchangeReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -962,7 +936,7 @@ app.put('/api/exchange/update-status/:customerId', async (req, res) => {
 
 app.put('/api/rejected/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status, exchangeReason} = req.body;
+  const { status, exchangeReason } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
   const checkSql = `SELECT * FROM car_exchange_requests  WHERE customerId = ?`;
@@ -982,7 +956,7 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status, exchangeReason ],
+        [customerId, status, exchangeReason],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1002,7 +976,7 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         updateSql,
-        [ exchangeReason, status, customerId],
+        [exchangeReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -1025,7 +999,7 @@ app.get('/api/financeshow', financeshow);
 
 app.put('/api/finance/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status, financeReason , financeAmount  } = req.body;
+  const { status, financeReason, financeAmount } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
   const checkSql = `SELECT * FROM loans  WHERE customerId = ?`;
@@ -1045,7 +1019,7 @@ app.put('/api/finance/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status, financeReason , financeAmount ],
+        [customerId, status, financeReason, financeAmount],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1066,7 +1040,7 @@ app.put('/api/finance/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         updateSql,
-        [financeAmount , financeReason, status, customerId],
+        [financeAmount, financeReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -1081,7 +1055,7 @@ app.put('/api/finance/update-status/:customerId', async (req, res) => {
 
 app.put('/api/rejected/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status, financeReason} = req.body;
+  const { status, financeReason } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
   const checkSql = `SELECT * FROM loans  WHERE customerId = ?`;
@@ -1101,7 +1075,7 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status, financeReason ],
+        [customerId, status, financeReason],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1121,7 +1095,7 @@ app.put('/api/rejected/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         updateSql,
-        [ financeReason, status, customerId],
+        [financeReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -1144,7 +1118,7 @@ app.get('/api/Insuranceshow', Insuranceshow);
 
 app.put('/api/approval/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status  } = req.body;
+  const { status } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
   const checkSql = `SELECT * FROM car_insurance_requests  WHERE customerId = ?`;
@@ -1164,7 +1138,7 @@ app.put('/api/approval/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status ],
+        [customerId, status],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1198,7 +1172,7 @@ app.put('/api/approval/update-status/:customerId', async (req, res) => {
 
 app.put('/api/rejection/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status, insuranceReason   } = req.body;
+  const { status, insuranceReason } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
   const checkSql = `SELECT * FROM car_insurance_requests  WHERE customerId = ?`;
@@ -1218,7 +1192,7 @@ app.put('/api/rejection/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status, insuranceReason  ],
+        [customerId, status, insuranceReason],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1239,7 +1213,7 @@ app.put('/api/rejection/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         updateSql,
-        [ insuranceReason, status, customerId],
+        [insuranceReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -1252,7 +1226,6 @@ app.put('/api/rejection/update-status/:customerId', async (req, res) => {
   });
 });
 
-
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.use('/uploads', express.static(path.join(__dirname, 'CarFastTagRequest')));
@@ -1261,7 +1234,7 @@ app.get('/api/fastTagshow', fastTagshow);
 
 app.put('/api/fastapproval/update-status/:customerId', async (req, res) => {
   const { customerId } = req.params;
-  const { status  } = req.body;
+  const { status } = req.body;
 
   // Check if the customerId exists in car_exchange_requests 
   const checkSql = `SELECT * FROM car_fasttag_requests  WHERE customerId = ?`;
@@ -1281,7 +1254,7 @@ app.put('/api/fastapproval/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status ],
+        [customerId, status],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1335,7 +1308,7 @@ app.put('/api/fastrejection/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         insertSql,
-        [customerId, status, fasttagReason  ],
+        [customerId, status, fasttagReason],
         (insertErr, insertResult) => {
           if (insertErr) {
             console.error("Insert error:", insertErr);
@@ -1356,7 +1329,7 @@ app.put('/api/fastrejection/update-status/:customerId', async (req, res) => {
       `;
       pool.query(
         updateSql,
-        [ fasttagReason, status, customerId],
+        [fasttagReason, status, customerId],
         (updateErr, updateResult) => {
           if (updateErr) {
             console.error("Update error:", updateErr);
@@ -1848,7 +1821,7 @@ app.put('/api/autocardRejection/update-status/:customerId', async (req, res) => 
   const { customerId } = req.params;
   const { status, autoCardReason } = req.body;
 
-   const checkSql = `SELECT * FROM car_autocard_requests WHERE customerId = ?`;
+  const checkSql = `SELECT * FROM car_autocard_requests WHERE customerId = ?`;
 
   pool.query(checkSql, [customerId], (checkErr, checkResult) => {
     if (checkErr) {
@@ -1904,7 +1877,6 @@ app.put('/api/autocardRejection/update-status/:customerId', async (req, res) => 
 
 app.get('/api/showPreDeliveryInspection', showPreDeliveryInspection);
 
-
 app.put('/api/preInspectionapproved/:customerId', async (req, res) => {
   const { customerId } = req.params;
   const { status, preDeliveryInspectionReason } = req.body;
@@ -1944,12 +1916,11 @@ app.put('/api/preInspectionapproved/:customerId', async (req, res) => {
   }
 });
 
-
 app.put('/api/preInspectionRejection/:customerId', async (req, res) => {
   const { customerId } = req.params;
   const { status, preDeliveryInspectionReason } = req.body;
 
-   const checkSql = `SELECT * FROM predeliveryinspection WHERE customerId = ?`;
+  const checkSql = `SELECT * FROM predeliveryinspection WHERE customerId = ?`;
 
   pool.query(checkSql, [customerId], (checkErr, checkResult) => {
     if (checkErr) {
@@ -1997,9 +1968,7 @@ app.put('/api/preInspectionRejection/:customerId', async (req, res) => {
       );
     }
   });
-});
-
- 
+})
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
@@ -2045,12 +2014,11 @@ app.put('/api/Securityclearanceapproved/:customerId', async (req, res) => {
   }
 });
 
-
 app.put('/api/SecurityclearanceRejection/:customerId', async (req, res) => {
   const { customerId } = req.params;
   const { status, securityClearanceReason } = req.body;
 
-   const checkSql = `SELECT * FROM management_security_clearance WHERE customerId = ?`;
+  const checkSql = `SELECT * FROM management_security_clearance WHERE customerId = ?`;
 
   pool.query(checkSql, [customerId], (checkErr, checkResult) => {
     if (checkErr) {
@@ -2149,7 +2117,7 @@ app.put('/api/GatePassRejection/:customerId', async (req, res) => {
   const { customerId } = req.params;
   const { status, gatepassReason } = req.body;
 
-   const checkSql = `SELECT * FROM gate_pass WHERE customerId = ?`;
+  const checkSql = `SELECT * FROM gate_pass WHERE customerId = ?`;
 
   pool.query(checkSql, [customerId], (checkErr, checkResult) => {
     if (checkErr) {
@@ -2528,10 +2496,7 @@ app.post('/api/users/:id/profile-image', upload.single('profile_image'), uploadP
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 
- 
- 
-app.use('/profile-images', express.static(path.join(__dirname, 'public','profile-images')));
-
+app.use('/profile-images', express.static(path.join(__dirname, 'public', 'profile-images')));
 
 // Token blacklist (in-memory storage - consider using Redis in production)
 const tokenBlacklist = new Set();
@@ -2543,22 +2508,22 @@ app.post('/login', async (req, res) => {
 
     // Basic validation
     if (!emp_id || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Employee ID and password are required" 
+      return res.status(400).json({
+        success: false,
+        message: "Employee ID and password are required"
       });
     }
 
     // Find user by emp_id
     const [users] = await pool.promise().query(
-      'SELECT * FROM users WHERE emp_id = ?', 
+      'SELECT * FROM users WHERE emp_id = ?',
       [emp_id]
     );
 
     if (users.length === 0) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Invalid Employee ID"  
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Employee ID"
       });
     }
 
@@ -2566,10 +2531,10 @@ app.post('/login', async (req, res) => {
 
     // Compare passwords
     const passwordMatch = await bcrypt.compare(password, user.password);
-    
+
     if (!passwordMatch) {
-      return res.status(401).json({ 
-        success: false, 
+      return res.status(401).json({
+        success: false,
         message: "Invalid password"
       });
     }
@@ -2587,20 +2552,20 @@ app.post('/login', async (req, res) => {
       case 'Admin':
         navigatePath = 'Admin';
         break;
-        case 'Accessories Management':
+      case 'Accessories Management':
         navigatePath = 'Accessories-Management';
         break;
-        case 'PDI Management':
-          navigatePath = 'PreDeliveryInspection-Management';  
+      case 'PDI Management':
+        navigatePath = 'PreDeliveryInspection-Management';
         break;
-        case 'Car Stocks Management':
-          navigatePath = 'car-stock-Management';  
+      case 'Car Stocks Management':
+        navigatePath = 'car-stock-Management';
         break;
-        case 'Security Clearance Management':
-          navigatePath = 'Security-Clearance-Management';
-          break;
+      case 'Security Clearance Management':
+        navigatePath = 'Security-Clearance-Management';
+        break;
       case 'Coating Management':
-        navigatePath = 'Coating-Management'; 
+        navigatePath = 'Coating-Management';
         break;
       case "Cashier Management":
         navigatePath = "Cashier-Management";
@@ -2638,18 +2603,18 @@ app.post('/login', async (req, res) => {
 
     // Create JWT token
     const token = jwt.sign(
-      { 
+      {
         userId: user.id,
         emp_id: user.emp_id,
-        role: user.role 
-      }, 
+        role: user.role
+      },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '1h' }
     );
 
     // Successful login response
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: "Login successful",
       token: token,
       user: {
@@ -2658,9 +2623,9 @@ app.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
-        is_active: 1,  
+        is_active: 1,
         last_login: currentTime,
-        profile_image: user.profile_image 
+        profile_image: user.profile_image
           ? `${req.protocol}://${req.get('host')}${user.profile_image}`
           : null,
         navigate: navigatePath
@@ -2669,23 +2634,23 @@ app.post('/login', async (req, res) => {
 
   } catch (err) {
     console.error("Login error:", err);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Internal server error" 
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
     });
   }
 });
 
- // Corrected Logout Endpoint
- app.post('/logout', async (req, res) => {
+// Corrected Logout Endpoint
+app.post('/logout', async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "No token provided" 
+      return res.status(400).json({
+        success: false,
+        message: "No token provided"
       });
     }
 
@@ -2694,9 +2659,9 @@ app.post('/login', async (req, res) => {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     } catch (err) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Invalid or expired token" 
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token"
       });
     }
 
@@ -2710,7 +2675,7 @@ app.post('/login', async (req, res) => {
         'UPDATE users SET is_active = 0, logout_last = ? WHERE emp_id = ?',
         [currentTime, decoded.emp_id]
       );
-      
+
       if (result.affectedRows === 0) {
         console.error(`No user found with emp_id: ${decoded.emp_id}`);
         return res.status(404).json({
@@ -2726,28 +2691,28 @@ app.post('/login', async (req, res) => {
       });
     }
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       message: "Logout successful. Token invalidated.",
       logout_time: currentTime
     });
   } catch (err) {
     console.error("Logout error:", err);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Internal server error" 
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
     });
   }
- });
+});
 
 // Authentication Middleware (add this)
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
-  
+
   if (!token || tokenBlacklist.has(token)) {
-    return res.status(401).json({ 
-      success: false, 
-      message: "Unauthorized" 
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized"
     });
   }
 
@@ -2756,38 +2721,35 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(401).json({ 
-      success: false, 
-      message: "Invalid token" 
+    res.status(401).json({
+      success: false,
+      message: "Invalid token"
     });
   }
 };
 
 // Protected route example
 app.get('/protected', authenticateToken, (req, res) => {
-  res.json({ 
-    success: true, 
-    message: "Protected data", 
-    user: req.user 
+  res.json({
+    success: true,
+    message: "Protected data",
+    user: req.user
   });
 });
 
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
- 
+// Create a transporter with proper Gmail settings
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'vipinkankal01@gmail.com',
+    pass: 'oxaq vmbr dndz bqkj' // Make sure this is a valid App Password
+  }
+});
 
 
-  // Create a transporter with proper Gmail settings
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'vipinkankal01@gmail.com',
-      pass: 'oxaq vmbr dndz bqkj' // Make sure this is a valid App Password
-    }
-  });
-
-  
 const otpLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3,
@@ -2796,7 +2758,6 @@ const otpLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
-
 
 // Input validation middleware
 const validateRequestOTP = [
@@ -2808,8 +2769,6 @@ const validateVerifyOTP = [
   body('emp_id').trim().isAlphanumeric(),
   body('otp').trim().isLength({ min: 6, max: 6 }).isNumeric()
 ];
-
- 
 
 // Request OTP endpoint
 app.post('/api/request-otp', validateRequestOTP, otpLimiter, async (req, res) => {
@@ -2930,9 +2889,9 @@ app.post('/api/update-password', validateUpdatePassword, async (req, res) => {
 
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ 
+    return res.status(401).json({
       success: false,
-      message: 'Authorization token required' 
+      message: 'Authorization token required'
     });
   }
 
@@ -2997,9 +2956,9 @@ app.post('/api/update-password', validateUpdatePassword, async (req, res) => {
 
   } catch (error) {
     if (connection) await connection.rollback();
-    
+
     console.error('Password Update Error:', error);
-    
+
     const response = {
       success: false,
       message: 'Password update failed'
@@ -3026,6 +2985,16 @@ app.use((req, res, next) => {
 });
 
 
+{/*------Customerlogin------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
+
+
+// POST /api/Customerlogin
+app.post("/api/Customerlogin", Customerlogin);
+
+// GET /api/getCustomerProfile
+app.get("/api/get/CustomerProfile", verifyToken, getCustomerProfile);
+
+
 
 
 // Error handling middleware
@@ -3033,8 +3002,6 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
-
-
 
 // Real-Time Connection with Socket.IO
 io.on('connection', (socket) => {

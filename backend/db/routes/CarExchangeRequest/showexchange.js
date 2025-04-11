@@ -5,6 +5,8 @@ const pool = require('../../databaseConnection/mysqlConnection');
 
 
 const showexchange = async (req, res) => {
+    const { status } = req.query;
+    
     const query = `
         SELECT 
             c.customerId,
@@ -14,6 +16,7 @@ const showexchange = async (req, res) => {
             c.email,
             c.mobileNumber1,
             c.mobileNumber2,
+
             s.rcDocument,
             s.insurancePolicy,
             s.pucCertificate,
@@ -31,41 +34,37 @@ const showexchange = async (req, res) => {
             s.exchangeAmount,
             s.exchangeReason,
             s.createdAt,
-            s.updatedAt
-        FROM 
-            customers c
-        LEFT JOIN 
-            car_exchange_requests s
-        ON 
-            c.customerId = s.customerId;
+            s.updatedAt,
+            
+            adi.exchange
+        FROM customers c
+        INNER JOIN additional_info adi ON c.customerId = adi.customerId AND adi.exchange = 'YES'
+        LEFT JOIN car_exchange_requests s ON c.customerId = s.customerId
+        ${status ? 'WHERE s.status = ?' : ''}
+        ORDER BY s.createdAt DESC
     `;
 
     try {
-        const [results] = await pool.query(query);
+        const [results] = await pool.query(query, status ? [status] : []);
 
-        // Always return an array, even if empty
-        if (results.length === 0) {
-            return res.status(200).json({
-                success: true,
-                data: [], // Return an empty array instead of a 404
-                message: 'No car exchange requests found.',
-            });
-        }
+        // Filter to only include records with exchange request data
+        const exchangeRequests = results.filter(row => row.carMake !== null);
 
-        // Return the results
         res.status(200).json({
             success: true,
-            data: results,
+            count: exchangeRequests.length,
+            data: exchangeRequests,
+            message: exchangeRequests.length > 0
+                ? 'Car exchange requests retrieved successfully'
+                : 'No car exchange requests found for customers with exchange=YES'
         });
 
     } catch (error) {
-        console.error('Error fetching car exchange requests:', error);
-
-        // Return a generic error message to avoid exposing sensitive details
+        console.error('Database Error:', error);
         res.status(500).json({
             success: false,
-            message: 'An error occurred while fetching car exchange requests.',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+            message: 'Failed to fetch car exchange requests',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };

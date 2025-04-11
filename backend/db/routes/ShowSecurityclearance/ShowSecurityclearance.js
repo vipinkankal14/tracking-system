@@ -83,13 +83,14 @@ const ShowSecurityclearance = async (req, res) => {
               rt.status AS RTO_status,
               rt.rtoReason,
               rt.rtoRecipes,
-
+                
               adi.accessories,
               adi.coating,
               adi.rto,
               adi.fast_tag,
               adi.insurance,
               adi.auto_card,
+              adi.extended_warranty,
 
               cir.id AS fasttag_id,
               cir.rcDocument,
@@ -620,6 +621,7 @@ const ShowSecurityclearance = async (req, res) => {
         });
     }
 }
+
 
 module.exports = { ShowSecurityclearance };
 

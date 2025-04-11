@@ -88,12 +88,9 @@ import SecurityclearancePending from "./AdditionalInfo/SecurityClearance/Securit
 import PADPending from "./AdditionalInfo/PreDeliveryInspection/PADPending";
 import PADiRejected from "./AdditionalInfo/PreDeliveryInspection/PADiRejected";
 import PADApproved from "./AdditionalInfo/PreDeliveryInspection/PADApproved";
-import CustomerLogin from "./CustomerLogin/CustomerLogin";
-import CustomerLogout from "./CustomerLogin/CustomerLogout";
-import DashboardCustomer from "./CustomerLogin/DashboardCustomer";
+ import DashboardCustomer from "./CustomerLogin/ShowCustomerDetails/DashboardCustomer";
 import PDIApp from "./AdditionalInfo/PreDeliveryInspection/PADApp";
-import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails";
-import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/PaymentHistory";
+ import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/PaymentHistory";
 import GatepassApp from "./AdditionalInfo/GatePass/GatePassApp";
 import ExchangeApproved from "./AdditionalInfo/Exchange/ExchangeApproved";
 import ExchangeRejected from "./AdditionalInfo/Exchange/ExchangeRejected";
@@ -119,7 +116,9 @@ import FastTagLayout from "./AdditionalInfo/FastTag/FastTagLayout";
 import InsuranceLayout from "./AdditionalInfo/Insurance/InsuranceLayout";
 import Services from "./pages/Services";
 import ContactUs from "./pages/ContactUs";
- 
+import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails";
+import CustomerProfile from "./CustomerLogin/CustomerProfile";
+  
 function App() {
   return (
     <Router>
@@ -290,7 +289,16 @@ function AppContent() {
           <Route path="/Productlist" element={<Productlist />} />
           <Route path="/services" element={<Services />} />
           <Route path="/ContactUs" element={<ContactUs />} />
+ 
           
+          
+          <Route path="/CustomerProfile" element={<CustomerProfile />} />
+
+          
+
+          <Route path="/dashboard" element={<DashboardCustomer />} />
+          <Route path="/customer/:customerId" element={<CustomerDetails />} />
+
           
 
           
@@ -575,11 +583,7 @@ function AppContent() {
 
           {/* ========================================================================================== */}
 
-          <Route path="/login" element={<CustomerLogin />} />
-          <Route path="/customer-logout" element={<CustomerLogout />} />
-          <Route path="/dashboard" element={<DashboardCustomer />} />
-          <Route path="/customer/:customerId" element={<CustomerDetails />} />
-
+  
           {/* ==1======================================================================================== */}
 
           <Route element={<AuthRoute allowedRoles={["HR Management"]} />}>

@@ -46,6 +46,7 @@ function Booking() {
       state: "",
       country: "",
       address: "",
+      password:"",
       status: "confirmed",
     },
     carInfo: {

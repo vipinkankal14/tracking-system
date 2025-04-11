@@ -20,9 +20,14 @@ import {
   CircularProgress,
   Alert,
   IconButton,
-  InputAdornment
+  InputAdornment,
 } from "@mui/material";
-import { Person, Business, Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Person,
+  Business,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
 import "../styles/login.scss";
 import Sidebar from "../Nav/sidebar/Sidebar";
@@ -67,8 +72,8 @@ const LoginPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [tabValue, setTabValue] = useState(0);
-  const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+  const [customerId, setCustomerId] = useState("");
+  const [password, setPassword] = useState("");
   const [officeEmpid, setOfficeEmpid] = useState("");
   const [officePassword, setOfficePassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -79,7 +84,7 @@ const LoginPage = () => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const expiry = localStorage.getItem("tokenExpiry");
-    
+
     if (token && expiry && Date.now() < parseInt(expiry)) {
       navigate("/login");
     }
@@ -92,40 +97,67 @@ const LoginPage = () => {
 
   const handleUserLogin = async (e) => {
     e.preventDefault();
-    // Implement if needed
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/Customerlogin", {
+        customerId,
+        password,
+      });
+
+      if (response.data.success) {
+        localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem("userData", JSON.stringify(response.data.user));
+
+        const decoded = jwtDecode(response.data.token);
+        const expiresAt = decoded.exp * 1000;
+        localStorage.setItem("tokenExpiry", expiresAt.toString());
+
+        navigate("/customerProfile");
+      } else {
+        setError("Invalid login credentials.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+
   const handleOfficeLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  try {
-    const response = await axios.post("http://localhost:5000/login", {
-      emp_id: officeEmpid,
-      password: officePassword,
-    });
+    try {
+      const response = await axios.post("http://localhost:5000/login", {
+        emp_id: officeEmpid,
+        password: officePassword,
+      });
 
-    if (response.data.success) {
-      // Store authentication data
-      localStorage.setItem("authToken", response.data.token);
-      localStorage.setItem("userData", JSON.stringify(response.data.user));
-      
-      // Decode and store token expiration
-      const decoded = jwtDecode(response.data.token);
-      const expiresAt = decoded.exp * 1000;
-      localStorage.setItem("tokenExpiry", expiresAt.toString());
-      
-      // Navigate to the path provided by backend
-      navigate(`/${response.data.user.navigate}`);
+      if (response.data.success) {
+        // Store authentication data
+        localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem("userData", JSON.stringify(response.data.user));
+
+        // Decode and store token expiration
+        const decoded = jwtDecode(response.data.token);
+        const expiresAt = decoded.exp * 1000;
+        localStorage.setItem("tokenExpiry", expiresAt.toString());
+
+        // Navigate to the path provided by backend
+        navigate(`/${response.data.user.navigate}`);
+      }
+    } catch (err) {
+      setError(handleError(err));
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError(handleError(err));
-    console.error("Login error:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="login-page">
@@ -181,11 +213,11 @@ const LoginPage = () => {
                 required
                 fullWidth
                 id="user-email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                value={userEmail}
-                onChange={(e) => setUserEmail(e.target.value)}
+                label="Customer Id"
+                name="CustomerId"
+                autoComplete="CustomerId"
+                value={customerId}
+                onChange={(e) => setCustomerId(e.target.value)}
               />
               <TextField
                 variant="outlined"
@@ -197,8 +229,8 @@ const LoginPage = () => {
                 type="password"
                 id="user-password"
                 autoComplete="current-password"
-                value={userPassword}
-                onChange={(e) => setUserPassword(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <Button
                 type="submit"
@@ -261,7 +293,7 @@ const LoginPage = () => {
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
               <Button
