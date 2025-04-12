@@ -18,7 +18,7 @@ import SuccessPage from "./CustomerAdd/SuccessPage";
 import AdditionalInfo from "./CustomerAdd/AdditionalInfoApp/AdditionalInfo";
 import PersonalInfo from "./CustomerAdd/PersonalInfo";
 import CarInfo from "./CustomerAdd/CarInfo";
-  import Confirmation from "./CustomerAdd/Confirmation";
+import Confirmation from "./CustomerAdd/Confirmation";
 import CarApp from "./AdditionalInfo/carStocks/CarApp";
 import CarStockShow from "./AdditionalInfo/carStocks/CarAllotment/CarStockShow";
 import AddCarStock from "./AdditionalInfo/carStocks/AddCarForUploadCarEXCEL/AddCarStock";
@@ -88,14 +88,14 @@ import SecurityclearancePending from "./AdditionalInfo/SecurityClearance/Securit
 import PADPending from "./AdditionalInfo/PreDeliveryInspection/PADPending";
 import PADiRejected from "./AdditionalInfo/PreDeliveryInspection/PADiRejected";
 import PADApproved from "./AdditionalInfo/PreDeliveryInspection/PADApproved";
- import DashboardCustomer from "./CustomerLogin/ShowCustomerDetails/DashboardCustomer";
+import DashboardCustomer from "./CustomerLogin/ShowCustomerDetails/DashboardCustomer";
 import PDIApp from "./AdditionalInfo/PreDeliveryInspection/PADApp";
- import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/PaymentHistory";
+import PaymentHistory from "./AdditionalInfo/Account/CustomerPaymentDetails/PaymentHistory";
 import GatepassApp from "./AdditionalInfo/GatePass/GatePassApp";
 import ExchangeApproved from "./AdditionalInfo/Exchange/ExchangeApproved";
 import ExchangeRejected from "./AdditionalInfo/Exchange/ExchangeRejected";
 import UserManagement from "./UserManagementSystem/UserManagement";
-import LogoutPage from "./pages/LogoutPage";
+import LogoutPage from "./pages/OfficeNavbar";
 import UserManagementLayout from "./UserManagementSystem/UserManagementLayout";
 import ExchangeLayout from "./AdditionalInfo/Exchange/ExchangeLayout";
 import ExchangePending from "./AdditionalInfo/Exchange/ExchangePending";
@@ -105,8 +105,8 @@ import PreDeliveryInspectionLayout from "./AdditionalInfo/PreDeliveryInspection/
 import SecurityClearanceLayout from "./AdditionalInfo/SecurityClearance/SecurityClearanceLayout";
 import ExtendedWarrantyLayout from "./AdditionalInfo/ExtendedWarranty/ExtendedWarrantyLayout";
 import CoatingLayout from "./AdditionalInfo/Coating/CoatingLayout";
- import AccessorieLayout from "./AdditionalInfo/Accessories/AccessorieLayout";
- import AutoCarLayout from "./AdditionalInfo/AutoCard/AutoCarLayout";
+import AccessorieLayout from "./AdditionalInfo/Accessories/AccessorieLayout";
+import AutoCarLayout from "./AdditionalInfo/AutoCard/AutoCarLayout";
 import RTOLayout from "./AdditionalInfo/RTO/RTOLayout";
 import CashierLayout from "./AdditionalInfo/cashier/CashierLayout";
 import AccountLayout from "./AdditionalInfo/Account/AccountLayout";
@@ -118,7 +118,9 @@ import Services from "./pages/Services";
 import ContactUs from "./pages/ContactUs";
 import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails";
 import CustomerProfile from "./CustomerLogin/CustomerProfile";
-  
+import UserNavbar from "./CustomerLogin/Components/UserNavbar";
+import OfficeNavbar from "./pages/OfficeNavbar";
+
 function App() {
   return (
     <Router>
@@ -129,6 +131,41 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
+
+  // Check if user is logged in as customer
+  const isCustomerLoggedIn = () => {
+    const token = localStorage.getItem("authToken");
+    const expiry = localStorage.getItem("tokenExpiry");
+    const userData = localStorage.getItem("userData");
+
+    if (token && expiry && Date.now() < parseInt(expiry) && userData) {
+      const user = JSON.parse(userData);
+      return !!user.customerId; // Returns true if customerId exists
+    }
+    return false;
+  };
+
+  const isOfficeLoggedIn = () => {
+    const token = localStorage.getItem("authToken");
+    const expiry = localStorage.getItem("tokenExpiry");
+    const userData = localStorage.getItem("userData");
+
+    if (token && expiry && Date.now() < parseInt(expiry) && userData) {
+      const user = JSON.parse(userData);
+      return !!user.emp_id; // Returns true if emp_id exists
+    }
+    return false;
+  };
+
+  const getNavbarComponent = () => {
+    if (isCustomerLoggedIn()) {
+      return <UserNavbar />;
+    } else if (isOfficeLoggedIn()) {
+      return <OfficeNavbar />;
+    } else {
+      return <Navbar />;
+    }
+  };
 
   // Inside AppContent component
   const hideFooterPatterns = [
@@ -147,7 +184,7 @@ function AppContent() {
     "/additional-info",
     "/PersonalInfo",
     "/CarInfo",
-     "/added-upload-viewapp",
+    "/added-upload-viewapp",
     "/Confirmation",
     "/success-page",
     "/car-app",
@@ -241,19 +278,18 @@ function AppContent() {
     "/customer-logout",
     "/dashboard",
     "/customer/:customerId",
-    "/User-Management/",
-    "/Exchange-Management",
+     "/Exchange-Management",
     "/Exchange-Management/*",
     "/Finance-Management",
     "/Finance-Management/*",
- 
+
     "/SecurityClearance-Management/",
     "/SecurityClearance-Management/*",
     "/Extended-Warranty-Management/",
     "/Extended-Warranty-Management/*",
     "/Coating-Management/",
     "/Coating-Management/*",
-    
+
     "/fast-tag-Management/",
     "/fast-tag-Management/*",
     "/RTOApp-Management/",
@@ -271,15 +307,17 @@ function AppContent() {
     "/car-stock-Management/",
     "/car-stock-Management/*",
     "/PreDelivery-Management/",
-    "/PreDelivery-Management/*"
-   ];
+    "/PreDelivery-Management/*",
+    "/User-Management",
+    "/customerProfile"
+  ];
 
   const shouldShowFooter = !hideFooterPatterns.some((pattern) =>
     matchPath(pattern, location.pathname)
   );
   return (
     <div className="app-container">
-      {shouldShowFooter && <Navbar />}
+     <div> {getNavbarComponent()} </div> 
       <main>
         <Routes>
           {/* =====================================home pages===================================================== */}
@@ -290,16 +328,10 @@ function AppContent() {
           <Route path="/Productlist" element={<Productlist />} />
           <Route path="/services" element={<Services />} />
           <Route path="/ContactUs" element={<ContactUs />} />
- 
-          
-          
+
           <Route path="/CustomerProfile" element={<CustomerProfile />} />
           <Route path="/dashboard" element={<DashboardCustomer />} />
           <Route path="/customer/:customerId" element={<CustomerDetails />} />
-
-          
-
-          
 
           {/* =====================================booking pages================================================== */}
 
@@ -317,9 +349,8 @@ function AppContent() {
           <Route path="/additional-info" element={<AdditionalInfo />} />
           <Route path="/PersonalInfo" element={<PersonalInfo />} />
           <Route path="/CarInfo" element={<CarInfo />} />
-           <Route path="/Confirmation" element={<Confirmation />} />
+          <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/success-page" element={<SuccessPage />} />
-
 
           {/* ========================================================================================== */}
 
@@ -381,7 +412,10 @@ function AppContent() {
           <Route
             element={<AuthRoute allowedRoles={["Accessories Management"]} />}
           >
-            <Route path="/Accessories-Management" element={<AccessorieLayout />}>
+            <Route
+              path="/Accessories-Management"
+              element={<AccessorieLayout />}
+            >
               <Route index element={<AccessorieApp />} />
               <Route
                 path="accessories-discount-main"
@@ -407,24 +441,31 @@ function AppContent() {
 
           {/* ========================================================================================== */}
 
-       
-              
-
           <Route element={<AuthRoute allowedRoles={["Account Management"]} />}>
             <Route path="/account-Management" element={<AccountLayout />}>
               <Route index element={<AccountApp />} />
-              <Route path="customer-payment-details" element={<CustomerPaymentDetails />} />
-              <Route path="payment-history/:customerId" element={<PaymentHistory />} />
+              <Route
+                path="customer-payment-details"
+                element={<CustomerPaymentDetails />}
+              />
+              <Route
+                path="payment-history/:customerId"
+                element={<PaymentHistory />}
+              />
               <Route path="payment-history/:vin" element={<PaymentHistory />} />
-              <Route path="ACMApprovedRejected" element={<ACMApprovedRejected />} />
+              <Route
+                path="ACMApprovedRejected"
+                element={<ACMApprovedRejected />}
+              />
               <Route path="gatepass-app" element={<GatepassApp />} />
               <Route path="gatepass-approved" element={<GatepassApproved />} />
               <Route path="gatepass-rejected" element={<GatepassRejected />} />
-              <Route path="car-pending-for-gatepass" element={<GatepassPending />} />
+              <Route
+                path="car-pending-for-gatepass"
+                element={<GatepassPending />}
+              />
             </Route>
           </Route>
-
-          
 
           {/* ========================================================================================== */}
 
@@ -489,8 +530,6 @@ function AppContent() {
           </Route>
 
           {/* ========================================================================================== */}
-
-          
 
           {/* ========================================================================================== */}
 
@@ -565,7 +604,9 @@ function AppContent() {
 
           <Route
             element={
-              <AuthRoute allowedRoles={["PDI (Pre-Delivery Inspection) Management"]} />
+              <AuthRoute
+                allowedRoles={["PDI (Pre-Delivery Inspection) Management"]}
+              />
             }
           >
             <Route
@@ -581,7 +622,6 @@ function AppContent() {
 
           {/* ========================================================================================== */}
 
-  
           {/* ==1======================================================================================== */}
 
           <Route element={<AuthRoute allowedRoles={["HR Management"]} />}>

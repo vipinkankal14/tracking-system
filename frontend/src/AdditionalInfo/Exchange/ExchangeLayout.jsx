@@ -1,17 +1,11 @@
 import { Outlet } from "react-router-dom";
-import LogoutPage from "../../pages/LogoutPage";
-  
-
  
 function ExchangeLayout() {
   return (
-      <div>
-       <LogoutPage />
+    <div>
        <Outlet />
     </div>
   );
 }
 
-export default ExchangeLayout;  
-
- 
+export default ExchangeLayout;

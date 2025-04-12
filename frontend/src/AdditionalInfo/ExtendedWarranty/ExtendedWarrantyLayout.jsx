@@ -1,17 +1,11 @@
 import { Outlet } from "react-router-dom";
-import LogoutPage from "../../pages/LogoutPage";
-  
-
  
 function ExtendedWarrantyLayout() {
   return (
-      <div>
-       <LogoutPage />
+    <div>
        <Outlet />
     </div>
   );
 }
 
-export default ExtendedWarrantyLayout;  
-
- 
+export default ExtendedWarrantyLayout;

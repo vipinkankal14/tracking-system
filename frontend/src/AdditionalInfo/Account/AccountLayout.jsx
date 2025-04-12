@@ -1,17 +1,11 @@
 import { Outlet } from "react-router-dom";
-import LogoutPage from "../../pages/LogoutPage";
-  
-
  
 function AccountLayout() {
   return (
-      <div>
-       <LogoutPage />
+    <div>
        <Outlet />
     </div>
   );
 }
 
-export default AccountLayout;  
-
- 
+export default AccountLayout;

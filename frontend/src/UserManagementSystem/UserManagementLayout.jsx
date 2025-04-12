@@ -1,10 +1,8 @@
-import LogoutPage from "../pages/LogoutPage";
-import UserManagement from "./UserManagement";
+ import UserManagement from "./UserManagement";
 
 function UserManagementLayout() {
   return (
-      <div>
-      <LogoutPage />
+    <div>
       <UserManagement />
     </div>
   );

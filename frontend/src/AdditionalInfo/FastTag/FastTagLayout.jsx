@@ -1,17 +1,11 @@
 import { Outlet } from "react-router-dom";
-import LogoutPage from "../../pages/LogoutPage";
-  
-
  
 function FastTagLayout() {
   return (
-      <div>
-       <LogoutPage />
+    <div>
        <Outlet />
     </div>
   );
 }
 
-export default FastTagLayout;  
-
- 
+export default FastTagLayout;

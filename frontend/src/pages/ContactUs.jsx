@@ -16,8 +16,7 @@ import {
   Phone as PhoneIcon,
 } from "@mui/icons-material";
 
-import OTTO1959 from "../DiscountBanner/assets/OTTO1959.jpg"
-
+import OTTO1959 from "../DiscountBanner/assets/OTTO1959.jpg";
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(4),
@@ -42,7 +41,7 @@ function ContactUs() {
       <br />
       {/* Contact Section */}
       <Container maxWidth="lg">
-              <Grid container spacing={0}>
+        <Grid container spacing={0}>
           <Grid item xs={12} md={5}>
             <SectionTitle className="footer-title" variant="h4">
               Contact Us
@@ -131,26 +130,23 @@ function ContactUs() {
                   </ListItem>
                 ))}
               </List>
-                      </Box>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={2}></Grid> {/* Added item prop here */}
 
-            
-                  </Grid>
-                  <Grid xs={12} md={2}></Grid>
-
-                  <Grid item xs={12} md={5} mt={5}>
-                  <Typography variant="h6" gutterBottom>
-                          Dealership location map
-                          </Typography>
-                      <Box
-               component="img"
+          <Grid item xs={12} md={5} mt={5}>
+            <Typography variant="h6" gutterBottom>
+              Dealership location map
+            </Typography>
+            <Box
+              component="img"
               src={OTTO1959}
               alt="Dealership location map"
               sx={{
                 width: "100%",
                 height: "600px",
                 objectFit: "cover",
-                  borderRadius: 1,
-              
+                borderRadius: 1,
               }}
             />
           </Grid>

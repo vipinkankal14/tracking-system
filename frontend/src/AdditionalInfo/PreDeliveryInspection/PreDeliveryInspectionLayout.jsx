@@ -1,17 +1,11 @@
 import { Outlet } from "react-router-dom";
-import LogoutPage from "../../pages/LogoutPage";
-   
-
  
 function PreDeliveryInspectionLayout() {
   return (
-      <div>
-       <LogoutPage />
+    <div>
        <Outlet />
     </div>
   );
 }
 
-export default PreDeliveryInspectionLayout;  
-
- 
+export default PreDeliveryInspectionLayout;

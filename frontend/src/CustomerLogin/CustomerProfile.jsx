@@ -13,7 +13,7 @@ import ServicesInfo from "./Components/ServicesInfo"
 import DocumentsInfo from "./Components/DocumentsInfo"
 import InvoiceInfo from "./Components/InvoiceInfo"
  import ProfileHeader from "./Components/ProfileHeader"
-
+ 
  
 
  
@@ -131,11 +131,8 @@ const CustomerProfile = () => {
 
   return (
     <div className="customer-profile">
- 
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <ProfileHeader userData={userData} />
-
-  
         <Paper sx={{ mt: 4 }}>
           <Tabs
             value={tabValue}
