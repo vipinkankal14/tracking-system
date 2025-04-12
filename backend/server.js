@@ -2555,8 +2555,8 @@ app.post('/login', async (req, res) => {
       case 'Accessories Management':
         navigatePath = 'Accessories-Management';
         break;
-      case 'PDI Management':
-        navigatePath = 'PreDeliveryInspection-Management';
+      case 'PDI (Pre-Delivery Inspection) Management':
+        navigatePath = 'PreDelivery-Management';
         break;
       case 'Car Stocks Management':
         navigatePath = 'car-stock-Management';

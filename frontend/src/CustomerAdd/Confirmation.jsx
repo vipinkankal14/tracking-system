@@ -179,6 +179,9 @@ export default function Confirmation({ data, onSubmit }) {
               <strong>Car Details:</strong> {data.carInfo.model},{" "}
               {data.carInfo.version}, {data.carInfo.color}
             </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              <strong>FuelType:</strong> {data.carInfo.fuelType}
+            </Typography>
             
           </Grid>
         </Grid>

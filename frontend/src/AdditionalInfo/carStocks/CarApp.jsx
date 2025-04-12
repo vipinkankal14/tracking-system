@@ -169,8 +169,7 @@ function CarApp() {
 
   return (
     <>
-      <CarAppNavbar />
-
+ 
       <Container>
         <Title>Status Overview</Title>
         <Grid>

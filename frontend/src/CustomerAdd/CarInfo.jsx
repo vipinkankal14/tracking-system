@@ -23,111 +23,132 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
   const [confirmationChecked, setConfirmationChecked] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
 
-  // Derived available options
-  const availableCarTypes = [
-    ...new Set(carStocks.map((stock) => stock.carType)),
-  ];
-  const availableModels = data.carType
-    ? [
-        ...new Set(
-          carStocks
-            .filter((stock) => stock.carType === data.carType)
-            .map((stock) => stock.model)
-        ),
-      ]
-    : [];
-  const availableVersions =
-    data.carType && data.model
-      ? [
-          ...new Set(
-            carStocks
-              .filter(
-                (stock) =>
-                  stock.carType === data.carType && stock.model === data.model
-              )
-              .map((stock) => stock.version)
-          ),
-        ]
-      : [];
-  const availableColors =
-    data.carType && data.model && data.version
-      ? [
-          ...new Set(
-            carStocks
-              .filter(
-                (stock) =>
-                  stock.carType === data.carType &&
-                  stock.model === data.model &&
-                  stock.version === data.version
-              )
-              .map((stock) => stock.color)
-          ),
-        ]
-      : [];
+  
 
-  // Fetch car stocks data
-  useEffect(() => {
-    let isMounted = true;
+// Derived available options - now filtered by fuelType first
+const availableFuelTypes = [...new Set(carStocks.map(stock => stock.fuelType))];
 
-    fetch("http://localhost:5000/api/showAllCarStocks")
-      .then((response) => response.json())
-      .then((fetchedData) => {
-        if (isMounted) {
-          setCarStocks(fetchedData);
-          // Validate initial values after data load
-          const validateSelections = () => {
-            const { carType, model, version, color } = data;
-            if (
-              carType &&
-              !fetchedData.some((stock) => stock.carType === carType)
-            ) {
-              updateData("carType", "");
-              updateData("model", "");
-              updateData("version", "");
-              updateData("color", "");
-            } else if (
-              model &&
-              !fetchedData.some(
-                (stock) => stock.model === model && stock.carType === carType
-              )
-            ) {
-              updateData("model", "");
-              updateData("version", "");
-              updateData("color", "");
-            } else if (
-              version &&
-              !fetchedData.some(
-                (stock) => stock.version === version && stock.model === model
-              )
-            ) {
-              updateData("version", "");
-              updateData("color", "");
-            } else if (
-              color &&
-              !fetchedData.some(
-                (stock) => stock.color === color && stock.version === version
-              )
-            ) {
-              updateData("color", "");
-            }
-          };
-          validateSelections();
-        }
-      })
-      .catch((error) => console.error("Error fetching car stocks:", error));
+const availableCarTypes = data.fuelType
+  ? [...new Set(
+      carStocks
+        .filter(stock => stock.fuelType === data.fuelType)
+        .map(stock => stock.carType)
+    )]
+  : [];
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+const availableModels = data.fuelType && data.carType
+  ? [...new Set(
+      carStocks
+        .filter(stock => 
+          stock.fuelType === data.fuelType && 
+          stock.carType === data.carType
+        )
+        .map(stock => stock.model)
+    )]
+  : [];
+
+const availableVersions = data.fuelType && data.carType && data.model
+  ? [...new Set(
+      carStocks
+        .filter(stock => 
+          stock.fuelType === data.fuelType &&
+          stock.carType === data.carType && 
+          stock.model === data.model
+        )
+        .map(stock => stock.version)
+    )]
+  : [];
+
+const availableColors = data.fuelType && data.carType && data.model && data.version
+  ? [...new Set(
+      carStocks
+        .filter(stock => 
+          stock.fuelType === data.fuelType &&
+          stock.carType === data.carType && 
+          stock.model === data.model &&
+          stock.version === data.version
+        )
+        .map(stock => stock.color)
+    )]
+  : [];
+
+// Fetch car stocks data
+useEffect(() => {
+  let isMounted = true;
+
+  fetch("http://localhost:5000/api/showAllCarStocks")
+    .then((response) => response.json())
+    .then((fetchedData) => {
+      if (isMounted) {
+        setCarStocks(fetchedData);
+        // Validate initial values after data load
+        const validateSelections = () => {
+          const { fuelType, carType, model, version, color } = data;
+          
+          // Validate fuel type first
+          if (fuelType && !fetchedData.some(stock => stock.fuelType === fuelType)) {
+            updateData("fuelType", "");
+            updateData("carType", "");
+            updateData("model", "");
+            updateData("version", "");
+            updateData("color", "");
+          }
+          // Then validate car type
+          else if (carType && !fetchedData.some(
+            stock => stock.carType === carType && stock.fuelType === fuelType
+          )) {
+            updateData("carType", "");
+            updateData("model", "");
+            updateData("version", "");
+            updateData("color", "");
+          }
+          // Then model
+          else if (model && !fetchedData.some(
+            stock => stock.model === model && 
+                    stock.carType === carType && 
+                    stock.fuelType === fuelType
+          )) {
+            updateData("model", "");
+            updateData("version", "");
+            updateData("color", "");
+          }
+          // Then version
+          else if (version && !fetchedData.some(
+            stock => stock.version === version && 
+                    stock.model === model && 
+                    stock.fuelType === fuelType
+          )) {
+            updateData("version", "");
+            updateData("color", "");
+          }
+          // Finally color
+          else if (color && !fetchedData.some(
+            stock => stock.color === color && 
+                    stock.version === version && 
+                    stock.fuelType === fuelType
+          )) {
+            updateData("color", "");
+          }
+        };
+        validateSelections();
+      }
+    })
+    .catch((error) => console.error("Error fetching car stocks:", error));
+
+  return () => {
+    isMounted = false;
+  };
+}, []);
+
 
   // Rest of the useEffect for price updates remains the same
   useEffect(() => {
-    const { carType, model, version, color } = data;
-    if (!carType || !model || !version || !color) return;
+    const { fuelType,carType, model, version, color } = data;
+    if (!fuelType || !carType || !model || !version || !color) return;
 
     const selectedCar = carStocks.find(
       (stock) =>
+        stock.fuelType === fuelType &&
         stock.carType === carType &&
         stock.model === model &&
         stock.version === version &&
@@ -144,13 +165,29 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
       if (data.cardiscount !== selectedCar.cardiscount) {
         updateData("cardiscount", selectedCar.cardiscount || "");
       }
+      if (data.fuelType !== selectedCar.fuelType) {
+        updateData("fuelType", selectedCar.fuelType || "");
+      }
     }
-  }, [data.carType, data.model, data.version, data.color, carStocks]);
+  }, [
+    data.carType,
+    data.model,
+    data.version,
+    data.color,
+    data.fuelType,
+    carStocks,
+  ]);
 
-  // Handle change for Select components
   const handleChange = (name, value) => {
-    // Reset dependent fields when parent changes
-    if (name === "carType") {
+    // Reset all dependent fields when fuel type changes
+    if (name === "fuelType") {
+      updateData("carType", "");
+      updateData("model", "");
+      updateData("version", "");
+      updateData("color", "");
+    }
+    // Existing reset logic for other fields
+    else if (name === "carType") {
       updateData("model", "");
       updateData("version", "");
       updateData("color", "");
@@ -160,12 +197,14 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
     } else if (name === "version") {
       updateData("color", "");
     }
+    
     updateData(name, value);
   };
 
   // Find the selected car details
   const selectedCar = carStocks.find(
     (stock) =>
+      stock.fuelType === data.fuelType &&
       stock.carType === data.carType &&
       stock.model === data.model &&
       stock.version === data.version &&
@@ -195,10 +234,12 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
       exShowroomPrice: data.exShowroomPrice,
       bookingAmount: data.bookingAmount,
       cardiscount: data.cardiscount,
-      fuelType: selectedCar.fuelType,
+      fuelType: data.fuelType,
       transmission: selectedCar.transmission,
       mileage: selectedCar.mileage,
       engineCapacity: selectedCar.engineCapacity,
+      batteryCapacity:selectedCar.batteryCapacity,
+      groundClearance:selectedCar.groundClearance,
     };
 
     try {
@@ -301,7 +342,39 @@ const CarInfo = ({ personalInfo, data, updateData }) => {
         <div className="space-y-4">
           <Typography variant="h6">Choose Your Car</Typography>
           <Typography gutterBottom variant="h6"></Typography>
+
           <Grid container spacing={2}>
+         
+
+
+
+
+            
+
+            
+            <Grid item xs={12} sm={6} lg={3}>
+              <FormControl fullWidth>
+                <InputLabel id="carType-label">Car FuelType</InputLabel>
+                <Select
+                  label="Car fuel Type"
+                  labelId="carfuelType-label"
+                  value={
+                    availableFuelTypes.includes(data.fuelType) ? data.fuelType : ""
+                  }
+                  onChange={(e) => handleChange("carfuelType", e.target.value)}
+                >
+                  <MenuItem value="">Select FuelType</MenuItem>
+                  {availableFuelTypes.map((fuelType) => (
+                    <MenuItem key={fuelType} value={fuelType}>
+                      {fuelType}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+
+
             <Grid item xs={12} sm={6} lg={3}>
               <FormControl fullWidth>
                 <InputLabel id="carType-label">Car Type</InputLabel>

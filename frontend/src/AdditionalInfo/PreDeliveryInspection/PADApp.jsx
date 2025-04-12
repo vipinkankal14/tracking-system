@@ -123,7 +123,7 @@ function PADApp() {
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/PreDeliveryInspection-Management/PADApproved',
+      path: '/PreDelivery-Management/pdi-Approved',
      
     },
     {
@@ -133,7 +133,7 @@ function PADApp() {
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/PreDeliveryInspection-Management/PADiRejected',
+      path: '/PreDelivery-Management/pdi-iRejected',
      
     },
     {
@@ -143,7 +143,7 @@ function PADApp() {
       status: 'pending',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/PreDeliveryInspection-Management/PADPending',
+      path: '/PreDelivery-Management/pdi-Pending',
     },
   ]);
 

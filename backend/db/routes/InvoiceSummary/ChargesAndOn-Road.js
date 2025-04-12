@@ -6,7 +6,7 @@ const getChargesSummary = async (req, res) => {
     if (!customerId) {
         return res.status(400).json({ error: "Customer ID is required" });
     }
-
+  
     try {
         // Fetch Charges Summary
         const [chargesSummary] = await pool.query(

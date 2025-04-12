@@ -1,12 +1,12 @@
 import { Outlet } from "react-router-dom";
-import LogoutPage from "../../pages/LogoutPage";
+import CarAppNavbar from "../../Components/UserNavbar/CarAppNavbar";
   
 
  
 function CarStockLayout() {
   return (
       <div>
-       <LogoutPage />
+       <CarAppNavbar />
        <Outlet />
     </div>
   );

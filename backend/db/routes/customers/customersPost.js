@@ -113,6 +113,11 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
       [personalInfo.customerId]
     );
 
+    await connection.execute(
+      `INSERT INTO account_management (customerId) VALUES (?)`,
+      [personalInfo.customerId]
+    );
+
     await connection.commit();
 
     // Send confirmation email only if email exists

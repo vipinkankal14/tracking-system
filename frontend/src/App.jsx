@@ -235,9 +235,9 @@ function AppContent() {
     "/securityclearance-rejected",
     "/car-pending-for-securityclearance",
     "/pdiApp",
-    "/PADPending",
-    "/PADiRejected",
-    "/PADApproved",
+    "/pdi-Pending",
+    "/pdi-iRejected",
+    "/pdi-Approved",
     "/customer-logout",
     "/dashboard",
     "/customer/:customerId",
@@ -246,8 +246,7 @@ function AppContent() {
     "/Exchange-Management/*",
     "/Finance-Management",
     "/Finance-Management/*",
-    "/PreDeliveryInspectionLayout-Management",
-    "/PreDeliveryInspectionLayout-Management/*",
+ 
     "/SecurityClearance-Management/",
     "/SecurityClearance-Management/*",
     "/Extended-Warranty-Management/",
@@ -271,7 +270,9 @@ function AppContent() {
     "/account-Management/*",
     "/car-stock-Management/",
     "/car-stock-Management/*",
-  ];
+    "/PreDelivery-Management/",
+    "/PreDelivery-Management/*"
+   ];
 
   const shouldShowFooter = !hideFooterPatterns.some((pattern) =>
     matchPath(pattern, location.pathname)
@@ -293,9 +294,6 @@ function AppContent() {
           
           
           <Route path="/CustomerProfile" element={<CustomerProfile />} />
-
-          
-
           <Route path="/dashboard" element={<DashboardCustomer />} />
           <Route path="/customer/:customerId" element={<CustomerDetails />} />
 
@@ -567,17 +565,17 @@ function AppContent() {
 
           <Route
             element={
-              <AuthRoute allowedRoles={["PreDeliveryInspection Management"]} />
+              <AuthRoute allowedRoles={["PDI (Pre-Delivery Inspection) Management"]} />
             }
           >
             <Route
-              path="/PreDeliveryInspection-Management"
+              path="/PreDelivery-Management"
               element={<PreDeliveryInspectionLayout />}
             >
               <Route index element={<PDIApp />} />
-              <Route path="PADPending" element={<PADPending />} />
-              <Route path="PADiRejected" element={<PADiRejected />} />
-              <Route path="PADApproved" element={<PADApproved />} />
+              <Route path="pdi-Pending" element={<PADPending />} />
+              <Route path="pdi-iRejected" element={<PADiRejected />} />
+              <Route path="pdi-Approved" element={<PADApproved />} />
             </Route>
           </Route>
 

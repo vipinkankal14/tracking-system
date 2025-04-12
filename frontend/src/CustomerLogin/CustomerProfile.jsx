@@ -5,14 +5,17 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { Container, Paper, Typography, Button, Box, CircularProgress, Alert, Tabs, Tab } from "@mui/material"
 import { Person, DirectionsCar, CreditCard, Inventory, Brush, Description, Receipt, Logout } from "@mui/icons-material"
-import ProfileHeader from "./Components/ProfileHeader"
 import PersonalInfo from "./Components/PersonalInfo"
 import CarDetails from "./Components/CarDetails"
 import FinanceInfo from "./Components/FinanceInfo"
- import ServicesInfo from "./Components/ServicesInfo"
+import AccessoriesInfo from "./Components/AccessoriesInfo"
+import ServicesInfo from "./Components/ServicesInfo"
 import DocumentsInfo from "./Components/DocumentsInfo"
 import InvoiceInfo from "./Components/InvoiceInfo"
-import AccessoriesInfo from "./Components/AccessoriesInfo"
+ import ProfileHeader from "./Components/ProfileHeader"
+
+ 
+
  
 function TabPanel(props) {
   const { children, value, index, ...other } = props
@@ -128,18 +131,11 @@ const CustomerProfile = () => {
 
   return (
     <div className="customer-profile">
+ 
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box className="profile-header-container" sx={{ mb: 4 }}>
-          <Typography variant="h4" component="h1" className="page-title">
-            Customer Profile
-          </Typography>
-          <Button variant="outlined" color="primary" startIcon={<Logout />} onClick={handleLogout}>
-            Logout
-          </Button>
-        </Box>
-
         <ProfileHeader userData={userData} />
 
+  
         <Paper sx={{ mt: 4 }}>
           <Tabs
             value={tabValue}
