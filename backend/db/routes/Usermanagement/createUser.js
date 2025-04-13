@@ -25,10 +25,9 @@ const validateUserData = (data) => {
   return { isValid: true };
 };
 
-
- 
- // Create a new user
+// Create a new user
 const createUser = async (req, res) => {
+  let connection;
   try {
     // Handle file upload
     let imageUrl = ''; 
@@ -36,9 +35,14 @@ const createUser = async (req, res) => {
       imageUrl = `/uploads/profile-images/${req.file.filename}`;
     }
 
+    // Validate user data
     const validation = validateUserData(req.body);
     if (!validation.isValid) {
-      return res.status(400).json({ error: validation.error });
+      return res.status(400).json({ 
+        success: false,
+        error: "Validation failed",
+        details: validation.errors 
+      });
     }
 
     const {
@@ -62,170 +66,179 @@ const createUser = async (req, res) => {
       is_active = true
     } = req.body;
 
-    // Check for duplicate emp_id
-    const [existingEmpId] = await pool.query(
-      'SELECT id FROM users WHERE emp_id = ?',
-      [emp_id]
-    );
+    // Get database connection
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
 
-    // Check for duplicate email
-    const [existingEmail] = await pool.query(
-      'SELECT id FROM users WHERE email = ?',
-      [email]
-    );
-
-    let existingRole = [];
-    if (!['Sales Department'].includes(role)) {
-      [existingRole] = await pool.query(
-        'SELECT id FROM users WHERE role = ?',
-        [role]
+    try {
+      // Check for duplicates
+      const [existing] = await connection.query(
+        `SELECT 
+          SUM(emp_id = ?) as emp_id_count,
+          SUM(email = ?) as email_count,
+          ${!['Sales Department'].includes(role) ? `SUM(role = ?) as role_count` : '0 as role_count'}
+        FROM users FOR UPDATE`,
+        ['Sales Department'].includes(role) ? [emp_id, email] : [emp_id, email, role]
       );
-    }
 
-    // Return specific error messages for each duplicate case
-    if (existingEmpId.length > 0 && existingEmail.length > 0) {
-      return res.status(409).json({ 
-        error: 'Both Employee ID and Email already exist',
-        duplicates: {
-          emp_id: 'Employee ID already exists',
-          email: 'Email already exists'
-        }
-      });
-    } else if (existingEmpId.length > 0) {
-      return res.status(409).json({ 
-        error: 'Employee ID already exists',
-        field: 'emp_id'
-      });
-    } else if (existingEmail.length > 0) {
-      return res.status(409).json({ 
-        error: 'Email already exists',
-        field: 'email'
-      });
-    } else if (existingRole.length > 0) {
-      return res.status(409).json({ 
-        error: 'Role already assigned to another user',
-        field: 'role'
-      });
-    }
+      const { emp_id_count, email_count, role_count } = existing[0];
 
-    // Generate a random password (8 characters with letters and numbers)
-    const generatedPassword = Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(generatedPassword, 10);
-
-    // Insert new user with profile image and password
-    const [result] = await pool.query(
-      `INSERT INTO users SET ?`,
-      {
-        emp_id,
-        username,
-        email,
-        password: hashedPassword,
-        role,
-        teamRole,
-        teamLeaderName,
-        phone_number,
-        current_salary,
-        profile_image: imageUrl,
-        aadhar_number,
-        pan_number,
-        street_address,
-        city,
-        state,
-        postal_code,
-        country,
-        employment_start_date,
-        employment_end_date,
-        is_active
+      if (emp_id_count > 0 || email_count > 0 || role_count > 0) {
+        await connection.rollback();
+        const errors = {};
+        if (emp_id_count > 0) errors.emp_id = 'Employee ID exists';
+        if (email_count > 0) errors.email = 'Email exists';
+        if (role_count > 0) errors.role = 'Role already assigned';
+        
+        return res.status(409).json({
+          success: false,
+          error: 'Duplicate entries',
+          details: errors
+        });
       }
-    );
 
-    // Get the created user
-    const [newUser] = await pool.query(
-      'SELECT id, emp_id, username, email, role, profile_image FROM users WHERE id = ?',
-      [result.insertId]
-    );
-    
-    // Prepare user response
-    const userResponse = {
-      ...newUser[0],
-      profile_image: newUser[0].profile_image
-        ? `${req.protocol}://${req.get('host')}${newUser[0].profile_image}`
-        : null
-    };
-
-  // Send email with credentials
-try {
-  // Create a transporter with proper Gmail settings
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'vipinkankal01@gmail.com',
-      pass: 'oxaq vmbr dndz bqkj' // Make sure this is a valid App Password
-    }
-  });
-
-  // Email content
-  const mailOptions = {
-    from: `"Your Company Name" <vipinkankal01@gmail.com>`, // Fixed sender email
-    to: email, // New user's email from req.body
-    subject: 'Your New Account Credentials',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2c3e50;">Welcome to Our Company!</h2>
-        <p>Hello ${username},</p>
-        <p>Your account has been successfully created. Here are your login credentials:</p>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
-          <p><strong>Employee ID:</strong> ${emp_id}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Role:</strong> ${role}</p>
-          <p><strong>Temporary Password:</strong> ${generatedPassword}</p>
-        </div>
-        
-        <p>Please login at: 
-          <a href="${req.protocol}://${req.get('host')}/login" style="color: #3498db; text-decoration: none;">
-            ${req.protocol}://${req.get('host')}/login
-          </a>
-        </p>
-        <p style="color: #e74c3c; font-size: 0.9em;">
-          For security reasons, please change your password immediately after first login.
-        </p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 0.9em; color: #7f8c8d;">
-          If you didn't request this account, please contact our support team immediately.
-        </p>
-      </div>
-      
-    `
-  };
-
-  // Verify connection first
-  await transporter.verify();
-  console.log('Server is ready to send emails');
-
-  // Send email
-  const info = await transporter.sendMail(mailOptions);
-  console.log('Email sent:', info.messageId);
-} catch (emailError) {
-  console.error('Email sending failed:', {
-    error: emailError.message,
-    response: emailError.response,
-    stack: emailError.stack
-  });
-}
+     
+      let emailSent = false;
 
  
 
-    // Return response without the password
-    res.status(201).json(userResponse);
+
+      // Password handling
+let hashedPassword = null;
+let generatedPassword = null;
+
+if (role !== 'Sales Department') {
+  // Generate password only for non-Sales users
+  generatedPassword = Math.random().toString(36).slice(-8);
+  hashedPassword = await bcrypt.hash(generatedPassword, 10);
+}
+
+      // Insert user with null password for Sales Department
+      const [result] = await connection.query(
+        `INSERT INTO users SET ?`,
+        {
+          emp_id,
+          username,
+          email,
+          password: role === 'Sales Department' ? null : hashedPassword,
+          role,
+          teamRole,
+          teamLeaderName,
+          phone_number,
+          current_salary,
+          profile_image: imageUrl,
+          aadhar_number,
+          pan_number,
+          street_address,
+          city,
+          state,
+          postal_code,
+          country,
+          employment_start_date,
+          employment_end_date,
+          is_active
+        }
+      );
+
+      // Email handling
+      if (process.env.NODE_ENV !== 'test') {
+        try {
+          const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASSWORD
+            }
+          });
+
+          if (role === 'Sales Department') {
+            await transporter.sendMail({
+              from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
+              to: email,
+              subject: 'Welcome to Sales Team',
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px;">
+                  <h2 style="color: #2c3e50;">Welcome to Our Sales Team!</h2>
+                  <p>Hello ${username},</p>
+                  <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                    <p><strong>Employee ID:</strong> ${emp_id}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Role:</strong> ${role}</p>
+                  </div>
+                  <p>HR will contact you with onboarding details.</p>
+                </div>
+              `
+            });
+            emailSent = true;
+          } else {
+            await transporter.sendMail({
+              from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
+              to: email,
+              subject: 'Your Account Credentials',
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px;">
+                  <h2 style="color: #2c3e50;">Welcome to Our Company!</h2>
+                  <p>Hello ${username},</p>
+                  <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                    <p><strong>Employee ID:</strong> ${emp_id}</p>
+                    <p><strong>Temporary Password:</strong> ${generatedPassword}</p>
+                  </div>
+                  <p>Login at: <a href="${req.protocol}://${req.get('host')}/login">${req.protocol}://${req.get('host')}/login</a></p>
+                  <p style="color: #e74c3c;">Please change your password after first login.</p>
+                </div>
+              `
+            });
+            emailSent = true;
+          }
+        } catch (emailError) {
+          console.error('Email failed:', emailError);
+        }
+      }
+
+      await connection.commit();
+
+      // Get created user without sensitive data
+      const [newUser] = await connection.query(
+        `SELECT id, emp_id, username, email, role, profile_image 
+         FROM users WHERE id = ?`,
+        [result.insertId]
+      );
+
+      return res.status(201).json({
+        success: true,
+        message: role === 'Sales Department'
+          ? 'Sales user created successfully (no password)'
+          : 'User created with credentials',
+        user: {
+          ...newUser[0],
+          profile_image: newUser[0].profile_image
+            ? `${req.protocol}://${req.get('host')}${newUser[0].profile_image}`
+            : null
+        },
+        emailStatus: emailSent ? 'sent' : 'not_sent'
+      });
+
+    } catch (dbError) {
+      await connection.rollback();
+      console.error('Database error:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Database operation failed',
+        details: process.env.NODE_ENV === 'development' ? dbError.message : null
+      });
+    }
   } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ 
-      error: 'Failed to create user',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    console.error('Server error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
     });
+  } finally {
+    if (connection) connection.release();
   }
 };
+
+
 
 // Get all users
 const getUsers = async (req, res) => {
