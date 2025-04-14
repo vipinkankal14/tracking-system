@@ -34,8 +34,8 @@ import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
   Description as DescriptionIcon,
   VerifiedRounded as VerifiedRoundedIcon,
-  Check ,
-  Close ,
+  Check,
+  Close,
 } from "@mui/icons-material";
 
 // Mobile Card Row Component
@@ -120,27 +120,85 @@ const MobileCardRow = ({
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Box sx={{ mt: 2 }}>
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="body2">
-              <strong>Email:</strong> {customer.email}
+            {/* Customer Details Section */}
+            <Typography variant="h6" gutterBottom>
+              Customer Details
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Car Details:</strong>{" "}
-              {customer.carBooking?.model || "N/A"} |{" "}
-              {customer.carBooking?.version || "N/A"} |{" "}
-              {customer.carBooking?.color || "N/A"}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Email:</strong> {customer.email || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            {/* Vehicle Details Section */}
+            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+              Vehicle Details
             </Typography>
-            {customer.fasttagRequests[0]?.fasttag_amount && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Fast-Tag Amount:</strong>{" "}
-                {customer.fasttagRequests[0]?.fasttag_amount}
-              </Typography>
-            )}
-            {customer.fasttagRequests[0]?.fasttagReason && (
-              <Typography variant="body2" sx={{ mt: 1, color: "error.main" }}>
-                <strong>Rejection Reason:</strong>{" "}
-                {customer.fasttagRequests[0]?.fasttagReason}
-              </Typography>
-            )}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Allotment Status:</strong>{" "}
+                  {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Chassis Number:</strong>{" "}
+                  {customer?.stockInfo?.chassisNumber || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Engine Number:</strong>{" "}
+                  {customer?.stockInfo?.engineNumber || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  <strong>Car Details:</strong>{" "}
+                  {customer.carBooking?.model || "N/A"} |{" "}
+                  {customer.carBooking?.version || "N/A"} |{" "}
+                  {customer.carBooking?.color || "N/A"}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+              Fast-Tag Details
+            </Typography>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Fast-Tag Amount:</strong>{" "}
+                  {customer.fasttagRequests[0]?.fasttag_amount || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Request Date:</strong>{" "}
+                  {customer.fasttagRequests[0]?.createdAt
+                    ? new Date(
+                        customer.fasttagRequests[0].createdAt
+                      ).toLocaleDateString()
+                    : "N/A"}
+                </Typography>
+              </Grid>
+            </Grid>
 
             <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
               <Button
@@ -226,36 +284,84 @@ const TabletRow = ({
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Details
+              {/* Customer Details Section */}
+              <Typography variant="h6" gutterBottom>
+                Customer Details
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    <strong>Email:</strong> {customer.email}
+                    <strong>Email:</strong> {customer.email || "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              {/* Vehicle Details Section */}
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                Vehicle Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Allotment Status:</strong>{" "}
+                    {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Chassis Number:</strong>{" "}
+                    {customer?.stockInfo?.chassisNumber || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Engine Number:</strong>{" "}
+                    {customer?.stockInfo?.engineNumber || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
                   <Typography variant="body2">
                     <strong>Car Details:</strong>{" "}
                     {customer.carBooking?.model || "N/A"} |{" "}
-                    {customer.carBooking?.version || "N/A"}
+                    {customer.carBooking?.version || "N/A"} |{" "}
+                    {customer.carBooking?.color || "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+              </Grid>
+
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                Fast-Tag Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
                     <strong>Fast-Tag Amount:</strong>{" "}
                     {customer.fasttagRequests[0]?.fasttag_amount || "N/A"}
                   </Typography>
                 </Grid>
-                {customer.fasttagRequests[0]?.fasttagReason && (
-                  <Grid item xs={12}>
-                    <Typography variant="body2" color="error">
-                      <strong>Rejection Reason:</strong>{" "}
-                      {customer.fasttagRequests[0]?.fasttagReason}
-                    </Typography>
-                  </Grid>
-                )}
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Request Date:</strong>{" "}
+                    {customer.fasttagRequests[0]?.createdAt
+                      ? new Date(
+                          customer.fasttagRequests[0].createdAt
+                        ).toLocaleDateString()
+                      : "N/A"}
+                  </Typography>
+                </Grid>
               </Grid>
 
               <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
@@ -350,14 +456,14 @@ const DesktopRow = ({
               <DescriptionIcon />
             </IconButton>
             <Button
-               size="small"
+              size="small"
               color="success"
               onClick={() => handleApprove(customer)}
             >
               Approve
             </Button>
             <Button
-               size="small"
+              size="small"
               color="error"
               onClick={() => handleReject(customer)}
             >
@@ -370,38 +476,84 @@ const DesktopRow = ({
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Additional Details
+              {/* Customer Details Section */}
+              <Typography variant="h6" gutterBottom>
+                Customer Details
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={4}>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    <strong>Created At:</strong>{" "}
+                    <strong>Email:</strong> {customer.email || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              {/* Vehicle Details Section */}
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                Vehicle Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Allotment Status:</strong>{" "}
+                    {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Chassis Number:</strong>{" "}
+                    {customer?.stockInfo?.chassisNumber || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Engine Number:</strong>{" "}
+                    {customer?.stockInfo?.engineNumber || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2">
+                    <strong>Car Details:</strong>{" "}
+                    {customer.carBooking?.model || "N/A"} |{" "}
+                    {customer.carBooking?.version || "N/A"} |{" "}
+                    {customer.carBooking?.color || "N/A"}
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                Fast-Tag Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Fast-Tag Amount:</strong>{" "}
+                    {customer.fasttagRequests[0]?.fasttag_amount || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Request Date:</strong>{" "}
                     {customer.fasttagRequests[0]?.createdAt
                       ? new Date(
                           customer.fasttagRequests[0].createdAt
-                        ).toLocaleString()
+                        ).toLocaleDateString()
                       : "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Updated At:</strong>{" "}
-                    {customer.fasttagRequests[0]?.updatedAt
-                      ? new Date(
-                          customer.fasttagRequests[0].updatedAt
-                        ).toLocaleString()
-                      : "N/A"}
-                  </Typography>
-                </Grid>
-                {customer.fasttagRequests[0]?.fasttagReason && (
-                  <Grid item xs={12}>
-                    <Typography variant="body2" color="error">
-                      <strong>Rejection Reason:</strong>{" "}
-                      {customer.fasttagRequests[0]?.fasttagReason}
-                    </Typography>
-                  </Grid>
-                )}
               </Grid>
             </Box>
           </Collapse>
