@@ -117,21 +117,98 @@ const AutocardMobileCard = ({
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Box sx={{ mt: 2 }}>
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="body2">
-              <strong>Email:</strong> {customer.email}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Car Details:</strong>{" "}
-              {customer.carBooking?.model || "N/A"} |{" "}
-              {customer.carBooking?.version || "N/A"} |{" "}
-              {customer.carBooking?.color || "N/A"}
-            </Typography>
-            {autocardRequest?.autocardAmount && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Amount:</strong> {autocardRequest?.autocardAmount}
-              </Typography>
-            )}
-
+                 <Typography variant="h6" gutterBottom>
+                          Customer Details
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Email:</strong> {customer.email || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+          
+                        {/* Vehicle Details Section */}
+                        <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                          Vehicle Details
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Allotment Status:</strong>{" "}
+                              {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Chassis Number:</strong>{" "}
+                              {customer?.stockInfo?.chassisNumber || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Engine Number:</strong>{" "}
+                              {customer?.stockInfo?.engineNumber || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Car Details:</strong>{" "}
+                              {customer.carBooking?.model || "N/A"} |{" "}
+                              {customer.carBooking?.version || "N/A"} |{" "}
+                              {customer.carBooking?.color || "N/A"}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+          
+                        <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                          AutoCard Details
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>AutoCard Amount:</strong>{" "}
+                              {autocardRequest?.autocardAmount || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Request Date:</strong>{" "}
+                              {autocardRequest?.createdAt
+                                ? new Date(autocardRequest.createdAt).toLocaleString(
+                                    "en-IN",
+                                    {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: true,
+                                    }
+                                  )
+                                : "N/A"}
+                            </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Confirm Benefits:</strong>{" "}
+                              {autocardRequest?.confirmBenefits || "N/A"}
+                            </Typography>
+                          </Grid>
             <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
               <Button
                 variant="contained"
@@ -214,30 +291,98 @@ const AutocardTabletRow = ({
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Email:</strong> {customer.email}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Car Details:</strong>{" "}
-                    {customer.carBooking?.model || "N/A"} |{" "}
-                    {customer.carBooking?.version || "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body2">
-                    <strong>Confirm Benefits:</strong>{" "}
-                    {autocardRequest?.confirmBenefits || "N/A"}
-                  </Typography>
-                </Grid>
-              </Grid>
-
+                 <Typography variant="h6" gutterBottom>
+                          Customer Details
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Email:</strong> {customer.email || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+          
+                        {/* Vehicle Details Section */}
+                        <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                          Vehicle Details
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Allotment Status:</strong>{" "}
+                              {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Chassis Number:</strong>{" "}
+                              {customer?.stockInfo?.chassisNumber || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Engine Number:</strong>{" "}
+                              {customer?.stockInfo?.engineNumber || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Car Details:</strong>{" "}
+                              {customer.carBooking?.model || "N/A"} |{" "}
+                              {customer.carBooking?.version || "N/A"} |{" "}
+                              {customer.carBooking?.color || "N/A"}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+          
+                        <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                          AutoCard Details
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>AutoCard Amount:</strong>{" "}
+                              {autocardRequest?.autocardAmount || "N/A"}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="body2">
+                              <strong>Request Date:</strong>{" "}
+                              {autocardRequest?.createdAt
+                                ? new Date(autocardRequest.createdAt).toLocaleString(
+                                    "en-IN",
+                                    {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: true,
+                                    }
+                                  )
+                                : "N/A"}
+                            </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={12}>
+                            <Typography variant="body2">
+                              <strong>Confirm Benefits:</strong>{" "}
+                              {autocardRequest?.confirmBenefits || "N/A"}
+                            </Typography>
+                          </Grid>
               <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
                 <Button
                   variant="contained"
@@ -347,33 +492,100 @@ const AutocardDesktopRow = ({
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Additional Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Created At:</strong>{" "}
-                    {autocardRequest?.createdAt
-                      ? new Date(autocardRequest.createdAt).toLocaleString()
-                      : "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Updated At:</strong>{" "}
-                    {autocardRequest?.updatedAt
-                      ? new Date(autocardRequest.updatedAt).toLocaleString()
-                      : "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body2">
-                    <strong>Confirm Benefits:</strong>{" "}
-                    {autocardRequest?.confirmBenefits || "N/A"}
-                  </Typography>
-                </Grid>
-              </Grid>
+               
+            
+                     <Typography variant="h6" gutterBottom>
+                              Customer Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Email:</strong> {customer.email || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                                </Typography>
+                                <Typography variant="body2">
+                                  <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+              
+                            {/* Vehicle Details Section */}
+                            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                              Vehicle Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Allotment Status:</strong>{" "}
+                                  {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Chassis Number:</strong>{" "}
+                                  {customer?.stockInfo?.chassisNumber || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Engine Number:</strong>{" "}
+                                  {customer?.stockInfo?.engineNumber || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography variant="body2">
+                                  <strong>Car Details:</strong>{" "}
+                                  {customer.carBooking?.model || "N/A"} |{" "}
+                                  {customer.carBooking?.version || "N/A"} |{" "}
+                                  {customer.carBooking?.color || "N/A"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+              
+                            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                              AutoCard Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>AutoCard Amount:</strong>{" "}
+                                  {autocardRequest?.autocardAmount || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Request Date:</strong>{" "}
+                                  {autocardRequest?.createdAt
+                                    ? new Date(autocardRequest.createdAt).toLocaleString(
+                                        "en-IN",
+                                        {
+                                          day: "2-digit",
+                                          month: "short",
+                                          year: "numeric",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                          hour12: true,
+                                        }
+                                      )
+                                    : "N/A"}
+                                </Typography>
+                            </Grid>
+                          </Grid>
+                          <Grid item xs={12}>
+                                <Typography variant="body2">
+                                  <strong>Confirm Benefits:</strong>{" "}
+                                  {autocardRequest?.confirmBenefits || "N/A"}
+                                </Typography>
+                              </Grid>
             </Box>
           </Collapse>
         </TableCell>

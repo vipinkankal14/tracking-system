@@ -45,7 +45,7 @@ const AccessoriesMobileCard = ({
   order,
   handleDetailsClick,
   handleApprove,
- }) => {
+}) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -54,37 +54,49 @@ const AccessoriesMobileCard = ({
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${getStatusColor(order?.status)}` }}>
       <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="subtitle1" fontWeight="bold">
             {customer.customerId}
           </Typography>
-          <Chip 
-            label={order?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={order?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(order?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </Box>
-        
+
         <Typography variant="body2" sx={{ mt: 1 }}>
-          {`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}
+          {`${customer.firstName} ${customer.middleName || ""} ${
+            customer.lastName
+          }`}
         </Typography>
-        
+
         <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             startIcon={<DescriptionIcon />}
             onClick={() => handleDetailsClick(order, customer)}
           >
@@ -94,39 +106,79 @@ const AccessoriesMobileCard = ({
             {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </Box>
-        
+
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <Box sx={{ mt: 2 }}>
-            <Divider sx={{ mb: 2 }} />
-            <Typography variant="body2">
-              <strong>Email:</strong> {customer.email}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Total Amount:</strong> ₹{order.totalAmount}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 , mb: 1, fontWeight: 'bold' , color: 'red'}}>
-              <strong style={{color:'black'}}  >Rejection  Reason:</strong> {order.accessorieReason}
-            </Typography>
+        <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                Details
+              </Typography>
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Allotment Car Details
+              </Typography>
 
-            
+              <Typography variant="body2">
+                <strong>Allotment Status:</strong>{" "}
+                {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Chassis Number:</strong>{" "}
+                {customer?.stockInfo?.chassisNumber || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Engine Number:</strong>{" "}
+                {customer?.stockInfo?.engineNumber || "N/A"}
+              </Typography>
 
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Accessories Updated
+              </Typography>
+              <Typography variant="body2">
+                <strong>Car Details:</strong>{" "}
+                {customer.carBooking?.model || "N/A"} |{" "}
+                {customer.carBooking?.version || "N/A"}
+              </Typography>
 
-            
-            <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-              <Button 
-                variant="contained" 
-                size="small" 
-                color="success"
-                onClick={() => handleApprove(customer)}
-              >
-                Approve
-              </Button>
-               
+              <Typography variant="body2">
+                <strong>Created At:</strong>{" "}
+                {order?.createdAt
+                  ? new Date(order.createdAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Updated At:</strong>{" "}
+                {order?.updatedAt
+                  ? new Date(order.updatedAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
+
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid item xs={6}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: "bold", color: "red" }}
+                  >
+                    <strong style={{ color: "black" }}>
+                      Rejection Reason:
+                    </strong>{" "}
+                    {order.accessorieReason}
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="success"
+                  onClick={() => handleApprove(customer)}
+                >
+                  Approve
+                </Button>
+              </Box>
             </Box>
-          </Box>
         </Collapse>
       </CardContent>
     </Card>
@@ -139,21 +191,25 @@ const AccessoriesTabletRow = ({
   order,
   handleDetailsClick,
   handleApprove,
- }) => {
+}) => {
   const [open, setOpen] = useState(false);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -163,12 +219,12 @@ const AccessoriesTabletRow = ({
         <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
         <TableCell>₹{order.totalAmount}</TableCell>
         <TableCell>
-          <Chip 
-            label={order?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={order?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(order?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </TableCell>
@@ -186,53 +242,74 @@ const AccessoriesTabletRow = ({
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
+              <Typography variant="h6" sx={{ mt: 2 }}>
                 Details
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Email:</strong> {customer.email}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Created At:</strong> {order?.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Updated At:</strong> {order?.updatedAt ? new Date(order.updatedAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={6}>
-                  <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'red' }}>
-                    <strong style={{color:'black'}} >Rejection Reason:</strong> {order.accessorieReason}
-                   </Typography>
-                </Grid>
-                </Grid>
- 
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Allotment Car Details
+              </Typography>
 
-              
+              <Typography variant="body2">
+                <strong>Allotment Status:</strong>{" "}
+                {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Chassis Number:</strong>{" "}
+                {customer?.stockInfo?.chassisNumber || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Engine Number:</strong>{" "}
+                {customer?.stockInfo?.engineNumber || "N/A"}
+              </Typography>
+
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Accessories Updated
+              </Typography>
+              <Typography variant="body2">
+                <strong>Car Details:</strong>{" "}
+                {customer.carBooking?.model || "N/A"} |{" "}
+                {customer.carBooking?.version || "N/A"}
+              </Typography>
+
+              <Typography variant="body2">
+                <strong>Created At:</strong>{" "}
+                {order?.createdAt
+                  ? new Date(order.createdAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Updated At:</strong>{" "}
+                {order?.updatedAt
+                  ? new Date(order.updatedAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
+
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid item xs={6}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: "bold", color: "red" }}
+                  >
+                    <strong style={{ color: "black" }}>
+                      Rejection Reason:
+                    </strong>{" "}
+                    {order.accessorieReason}
+                  </Typography>
+                </Grid>
+              </Grid>
+
               <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                <Button 
-                  variant="contained" 
-                  size="small" 
+                <Button
+                  variant="contained"
+                  size="small"
                   color="success"
                   onClick={() => handleApprove(customer)}
                 >
                   Approve
                 </Button>
-                
               </Box>
             </Box>
           </Collapse>
@@ -248,40 +325,48 @@ const AccessoriesDesktopRow = ({
   order,
   handleDetailsClick,
   handleApprove,
- }) => {
+}) => {
   const [open, setOpen] = useState(false);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
         <TableCell>{customer.customerId}</TableCell>
-        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${
+          customer.lastName
+        }`}</TableCell>
         <TableCell>{customer.email}</TableCell>
         <TableCell>
-          {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+          {customer.carBooking?.model || "N/A"} |{" "}
+          {customer.carBooking?.version || "N/A"} |{" "}
+          {customer.carBooking?.color || "N/A"}
         </TableCell>
         <TableCell>₹{order.totalAmount}</TableCell>
         <TableCell>
-          <Chip 
-            label={order?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={order?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(order?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </TableCell>
@@ -302,7 +387,6 @@ const AccessoriesDesktopRow = ({
             >
               <CheckIcon />
             </IconButton>
-            
           </Box>
         </TableCell>
       </TableRow>
@@ -311,17 +395,63 @@ const AccessoriesDesktopRow = ({
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
-                Additional Details
+                Allotment Car Details
+              </Typography>
+
+              <Box sx={{ margin: 1 }}>
+                <Typography variant="h6" sx={{ mt: 2 }}>
+                  Details
+                </Typography>
+                <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                  Allotment Car Details
+                </Typography>
+
+                <Typography variant="body2">
+                  <strong>Allotment Status:</strong>{" "}
+                  {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Chassis Number:</strong>{" "}
+                  {customer?.stockInfo?.chassisNumber || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Engine Number:</strong>{" "}
+                  {customer?.stockInfo?.engineNumber || "N/A"}
+                </Typography>
+
+                <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                  Accessories Updated
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Created At:</strong>{" "}
+                  {order?.createdAt
+                    ? new Date(order.createdAt).toLocaleString()
+                    : "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Updated At:</strong>{" "}
+                  {order?.updatedAt
+                    ? new Date(order.updatedAt).toLocaleString()
+                    : "N/A"}
+                </Typography>
+              </Box>
+
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                Rejection Details
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Created At:</strong> {order?.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Updated At:</strong> {order?.updatedAt ? new Date(order.updatedAt).toLocaleString() : "N/A"}
+                <Grid item xs={12}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: "bold", color: "red" }}
+                  >
+                    <strong style={{ color: "black" }}>
+                      Rejection Reason:
+                    </strong>{" "}
+                    {order.accessorieReason}
                   </Typography>
                 </Grid>
               </Grid>
@@ -340,30 +470,36 @@ const AccessoriesDetailsModal = ({
   selectedOrder,
   selectedCustomer,
   handleApprove,
- }) => {
+}) => {
   return (
     <Modal
       open={open}
       onClose={handleClose}
       aria-labelledby="accessories-details-modal-title"
     >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: '90%', sm: '80%', md: '70%' },
-        maxHeight: '90vh',
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        p: 4,
-        borderRadius: 2,
-        overflow: 'auto'
-      }}>
-        <Typography id="accessories-details-modal-title" variant="h6" component="h2">
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "90%", sm: "80%", md: "70%" },
+          maxHeight: "90vh",
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+          overflow: "auto",
+        }}
+      >
+        <Typography
+          id="accessories-details-modal-title"
+          variant="h6"
+          component="h2"
+        >
           Accessories Order Details
         </Typography>
-        
+
         {selectedOrder && selectedCustomer && (
           <>
             <Box sx={{ mt: 2 }}>
@@ -373,49 +509,39 @@ const AccessoriesDetailsModal = ({
                     <strong>Customer ID:</strong> {selectedCustomer.customerId}
                   </Typography>
                 </Grid>
-               
-     
-          <Grid item xs={12} sm={6}>
+
+                <Grid item xs={12} sm={12}>
                   <Typography variant="body1">
                     <strong>Full Name:</strong>{" "}
-                    {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+                    {`${selectedCustomer.firstName} ${
+                      selectedCustomer.middleName || ""
+                    } ${selectedCustomer.lastName}`}
                   </Typography>
                   <Typography variant="body1">
                     <strong>Mobile Number:</strong>{" "}
-                    {selectedCustomer.mobileNumber1}, {selectedCustomer.mobileNumber2}
+                    {selectedCustomer.mobileNumber1},{" "}
+                    {selectedCustomer.mobileNumber2}
                   </Typography>
                   <Typography variant="body1">
                     <strong>Email:</strong> {selectedCustomer.email}
                   </Typography>
                 </Grid>
 
-               
-
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Car Details:</strong>{" "}
-                    {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
-                  </Typography>
-                  <Typography variant="body1">
-                  <strong>VIN Number:</strong>{" "}
-
-                     {`${selectedCustomer.stockInfo?.vin || "N/A"}`}
-                  </Typography>
-                  <Typography variant="body1">
-                  <strong>Chassis Number:</strong>{" "}
-
-                     {`${selectedCustomer.stockInfo?.chassisNumber || "N/A"}`}
-                  </Typography>
-                  <Typography variant="body1">
-                  <strong>Engine Number:</strong>{" "}
-
-                     {`${selectedCustomer.stockInfo?.engineNumber || "N/A"}`}
-                  </Typography>
-                </Grid>
-                
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Total Amount:</strong> ₹{selectedOrder.totalAmount}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography
+                    variant="body1"
+                    sx={{ color: "red", fontWeight: "bold" }}
+                  >
+                    <strong style={{ color: "black" }}>
+                      Rejection Reason:
+                    </strong>{" "}
+                    {selectedOrder.accessorieReason}
                   </Typography>
                 </Grid>
               </Grid>
@@ -445,137 +571,27 @@ const AccessoriesDetailsModal = ({
               </TableContainer>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                mt: 3,
+                gap: 1,
+              }}
+            >
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => handleApprove(selectedCustomer)}
+              >
+                Approve
+              </Button>
               <Button onClick={handleClose} variant="outlined">
                 Close
               </Button>
             </Box>
           </>
         )}
-      </Box>
-    </Modal>
-  );
-};
-
-// Rejection Modal Component
-const RejectionModal = ({
-  open,
-  handleClose,
-  selectedCustomer,
-  selectedItem,
-  handleConfirmReject,
-}) => {
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [rejectReason, setRejectReason] = useState("");
-  const [error, setError] = useState(null);
-
-  const confirmReject = () => {
-    if (!isConfirmed) {
-      setError("Please confirm the rejection");
-      return;
-    }
-
-    if (!rejectReason) {
-      setError("Please provide a reason for rejection");
-      return;
-    }
-
-    handleConfirmReject(selectedCustomer, rejectReason);
-    handleClose();
-  };
-
-  return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="rejection-modal-title"
-    >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: '90%', sm: '80%', md: '50%' },
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        p: 4,
-        borderRadius: 2
-      }}>
-        <Typography id="rejection-modal-title" variant="h6" component="h2" sx={{ display: 'flex', alignItems: 'center' }}>
-          <strong>Reject Accessories Request:</strong>{" "}
-          {selectedCustomer?.customerId || "N/A"}{" "}
-          {selectedCustomer?.customerId && (
-            <VerifiedRoundedIcon
-              sx={{
-                color: "#092e6b",
-                fontSize: "15px",
-                ml: 1
-              }}
-            />
-          )}
-        </Typography>
-        
-        {selectedCustomer && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body1">
-              <strong>Customer:</strong>{" "}
-              {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
-            </Typography>
-            {selectedItem && (
-              <Typography variant="body1">
-                <strong>Total Amount:</strong> ₹{selectedItem.totalAmount}
-              </Typography>
-            )}
-          </Box>
-        )}
-        
-        <Box sx={{ mt: 3 }}>
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Reason for rejection (required)"
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              resize: "vertical",
-            }}
-            value={rejectReason}
-            onChange={(e) => setRejectReason(e.target.value)}
-            required
-          />
-          
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isConfirmed}
-                onChange={(e) => setIsConfirmed(e.target.checked)}
-              />
-            }
-            label="I confirm the rejection of this Accessories request"
-            sx={{ mt: 2 }}
-          />
-          
-          {error && (
-            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-              {error}
-            </Typography>
-          )}
-        </Box>
-        
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
-          <Button onClick={handleClose} variant="outlined">
-            Cancel
-          </Button>
-          <Button 
-            onClick={confirmReject} 
-            variant="contained" 
-            color="error"
-            disabled={!isConfirmed || !rejectReason}
-          >
-            Confirm Rejection
-          </Button>
-        </Box>
       </Box>
     </Modal>
   );
@@ -594,8 +610,8 @@ const AccessoriesReject = () => {
   const [error, setError] = useState(null);
 
   // Modal states
-  const [accessoriesDetailsModalOpen, setAccessoriesDetailsModalOpen] = useState(false);
-  const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
+  const [accessoriesDetailsModalOpen, setAccessoriesDetailsModalOpen] =
+    useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -604,14 +620,21 @@ const AccessoriesReject = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        
+        const response = await axios.get(
+          "http://localhost:5000/api/getOrdersWithCustomers"
+        );
+
         if (response.data && Array.isArray(response.data.data)) {
           // Filter to show only Rejected requests by default
-          const RejectedCustomers = response.data.data.filter(customer => 
-            customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Rejected")
+          const RejectedCustomers = response.data.data.filter(
+            (customer) =>
+              customer.accessoriesRequests &&
+              customer.accessoriesRequests.some(
+                (accessoriesRequests) =>
+                  accessoriesRequests.status === "Rejected"
+              )
           );
-          
+
           setAccessoriesCustomers(RejectedCustomers);
         } else {
           throw new Error("Invalid data format");
@@ -630,10 +653,11 @@ const AccessoriesReject = () => {
 
   // Filter customers based on search query (only Rejected shown)
   const getFilteredAccessoriesCustomers = () => {
-    return accessoriesCustomers.filter(customer => 
-      (customer.customerId?.toString().includes(searchQuery) ||
-       customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
+    return accessoriesCustomers.filter(
+      (customer) =>
+        customer.customerId?.toString().includes(searchQuery) ||
+        customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
 
@@ -643,8 +667,6 @@ const AccessoriesReject = () => {
     setSelectedCustomer(customer);
     setAccessoriesDetailsModalOpen(true);
   };
-
- 
 
   // Handle approve action for accessories
   const handleAccessoriesApprove = async (customer) => {
@@ -658,45 +680,26 @@ const AccessoriesReject = () => {
       if (response.status === 200) {
         alert("Accessories approved successfully!");
         setAccessoriesDetailsModalOpen(false);
-        
+
         // Refresh the data to show updated status
-        const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        const RejectedCustomers = newData.data.data.filter(customer => 
-          customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Rejected")
+        const newData = await axios.get(
+          "http://localhost:5000/api/getOrdersWithCustomers"
+        );
+        const RejectedCustomers = newData.data.data.filter(
+          (customer) =>
+            customer.accessoriesRequests &&
+            customer.accessoriesRequests.some(
+              (accessoriesRequests) => accessoriesRequests.status === "Rejected"
+            )
         );
         setAccessoriesCustomers(RejectedCustomers);
       }
     } catch (err) {
-      setError(`Failed to approve accessories: ${err.response?.data?.error || err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle confirm reject action for accessories
-  const handleAccessoriesConfirmReject = async (customer, reason) => {
-    try {
-      setLoading(true);
-      const response = await axios.put(
-        `http://localhost:5000/api/accessoriesrejection/update-status/${customer.customerId}`,
-        {
-          status: "Rejected",
-          accessorieReason: reason,
-        }
+      setError(
+        `Failed to approve accessories: ${
+          err.response?.data?.error || err.message
+        }`
       );
-
-      if (response.status === 200) {
-        alert("Accessories rejected successfully!");
-        
-        // Refresh the data to show updated status
-        const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        const RejectedCustomers = newData.data.data.filter(customer => 
-          customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Rejected")
-        );
-        setAccessoriesCustomers(RejectedCustomers);
-      }
-    } catch (err) {
-      setError(`Failed to reject accessories: ${err.response?.data?.error || err.message}`);
     } finally {
       setLoading(false);
     }
@@ -754,7 +757,7 @@ const AccessoriesReject = () => {
               {getFilteredAccessoriesCustomers().length > 0 ? (
                 getFilteredAccessoriesCustomers().map((customer) =>
                   customer.accessoriesRequests
-                    .filter(order => order.status === "Rejected")
+                    .filter((order) => order.status === "Rejected")
                     .map((order) => (
                       <AccessoriesMobileCard
                         key={`${customer.customerId}-${order.orderId}`}
@@ -762,12 +765,14 @@ const AccessoriesReject = () => {
                         order={order}
                         handleDetailsClick={handleAccessoriesDetailsClick}
                         handleApprove={handleAccessoriesApprove}
-                       />
+                      />
                     ))
                 )
               ) : (
                 <Box sx={{ textAlign: "center", my: 4 }}>
-                  <Typography>No Rejected accessories requests found.</Typography>
+                  <Typography>
+                    No Rejected accessories requests found.
+                  </Typography>
                 </Box>
               )}
             </Box>
@@ -791,7 +796,7 @@ const AccessoriesReject = () => {
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
                       customer.accessoriesRequests
-                        .filter(order => order.status === "Rejected")
+                        .filter((order) => order.status === "Rejected")
                         .map((order) => (
                           <AccessoriesTabletRow
                             key={`${customer.customerId}-${order.orderId}`}
@@ -799,7 +804,7 @@ const AccessoriesReject = () => {
                             order={order}
                             handleDetailsClick={handleAccessoriesDetailsClick}
                             handleApprove={handleAccessoriesApprove}
-                           />
+                          />
                         ))
                     )
                   ) : (
@@ -834,7 +839,7 @@ const AccessoriesReject = () => {
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
                       customer.accessoriesRequests
-                        .filter(order => order.status === "Rejected")
+                        .filter((order) => order.status === "Rejected")
                         .map((order) => (
                           <AccessoriesDesktopRow
                             key={`${customer.customerId}-${order.orderId}`}
@@ -842,7 +847,7 @@ const AccessoriesReject = () => {
                             order={order}
                             handleDetailsClick={handleAccessoriesDetailsClick}
                             handleApprove={handleAccessoriesApprove}
-                           />
+                          />
                         ))
                     )
                   ) : (
@@ -866,15 +871,6 @@ const AccessoriesReject = () => {
         selectedOrder={selectedOrder}
         selectedCustomer={selectedCustomer}
         handleApprove={handleAccessoriesApprove}
-       />
-
-      {/* Rejection Modal */}
-      <RejectionModal
-        open={rejectionModalOpen}
-        handleClose={() => setRejectionModalOpen(false)}
-        selectedCustomer={selectedCustomer}
-        selectedItem={selectedOrder}
-        handleConfirmReject={handleAccessoriesConfirmReject}
       />
     </Box>
   );

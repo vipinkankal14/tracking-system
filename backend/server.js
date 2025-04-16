@@ -30,7 +30,7 @@ app.use(express.json({ limit: "10mb" }));
 
 // Import the payment function from the paymentRoutes file
 const { handlePayment, getAllCustomers, getCustomerById, ACMApprovedRejected } = require('./db/routes/cashier/paymentRoutes');
-const { addCarStock } = require('./db/routes/carStocks/addcar');
+const { addCarStock, handleUpload } = require('./db/routes/carStocks/addcar');
 const { ShowCarStock, ShowCarStockWithCustomers } = require('./db/routes/carStocks/showcar');
 const { addAccessory, getAllAccessories } = require('./db/routes/accessories_store/store');
 const { getCustomerOrders, getCustomerLoans, getCustomerCoatingRequests, getCustomerCar } = require('./db/routes/userModal/user');
@@ -71,7 +71,15 @@ app.get('/api/getAllAccountManagementRefund', getAllAccountManagementRefund);
 app.get('/api/ACMApprovedRejected', ACMApprovedRejected);
 app.get('/api/customers', getAllCustomers); //frontend\src\cashier\Payments\PaymentPending.jsx //frontend\src\cashier\CarBooking\CarBookings.jsx // frontend\src\cashier\CarBookingCancel\CarBookingCancel.jsx // frontend\src\cashier\CustomerPaymentDetails\CustomerPaymentDetails.jsx // frontend\src\cashier\Payments\PaymentClear.jsx
 app.get("/api/customerspay/:id", getCustomerById); // frontend\src\cashier\Payments\Payment.jsx
-app.use('/api/CarStock', addCarStock); //carStocks\AddCarStock.jsx
+
+
+app.use(express.urlencoded({ extended: true }));
+
+// Serve images statically
+app.use('/carImages', express.static(path.join(__dirname, 'uploads/carImages')));
+// Route for adding car stock
+app.post('/api/CarStock/add', handleUpload, addCarStock);
+
 app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers);
 app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
@@ -2430,10 +2438,31 @@ app.put("/api/updateRefund", async (req, res) => {
 });
 
 
+app.use('/carImages', express.static(path.join(__dirname, 'uploads', 'carImages')));
+
 app.get("/api/carstocks", async (req, res) => {
   try {
     const [rows] = await pool.promise().query("SELECT * FROM carstocks");
-    res.json(rows);
+    
+    const carsWithImages = rows.map(car => {
+      // Construct base URL without double slashes
+      const baseUrl = `${req.protocol}://${req.get('host')}/carImages`;
+      
+      // Create new object with all properties
+      const carWithImages = {...car};
+      
+      // Process all image fields
+      ['image1', 'image2', 'image3', 'image4'].forEach(field => {
+        if (car[field]) {
+          const filename = car[field].split('/').pop();
+          carWithImages[field] = `${baseUrl}/${filename}`;
+        }
+      });
+      
+      return carWithImages;
+    });
+    
+    res.json(carsWithImages);
   } catch (error) {
     console.error("Error fetching car stocks:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -2441,20 +2470,46 @@ app.get("/api/carstocks", async (req, res) => {
 });
 
 
+
+
 app.get("/api/cars/:carId", async (req, res) => {
   try {
     const carId = req.params.carId;
     const [rows] = await pool.promise().query("SELECT * FROM carstocks WHERE id = ?", [carId]);
-    if (rows.length > 0) {
-      res.json(rows[0]);
-    } else {
-      res.status(404).json({ error: "Car not found" });
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Car not found" });
     }
+
+    const car = rows[0];
+    const baseUrl = `${req.protocol}://${req.get('host')}/carImages`;
+
+    const images = ['image1', 'image2', 'image3', 'image4']
+      .map(field => car[field])
+      .filter(Boolean)
+      .map(imgPath => {
+        const filename = imgPath.split('/').pop();
+        return `${baseUrl}/${filename}`;
+      });
+
+    const carWithImages = {
+      ...car,
+      images
+    };
+
+    // Optionally delete image1-4 from carWithImages if not needed
+    delete carWithImages.image1;
+    delete carWithImages.image2;
+    delete carWithImages.image3;
+    delete carWithImages.image4;
+
+    res.json(carWithImages);
   } catch (error) {
     console.error("Error fetching car details:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
@@ -2462,19 +2517,40 @@ app.get("/api/cars/:carId", async (req, res) => {
 // Fetch suggested products
 app.get("/api/suggested-products", async (req, res) => {
   try {
-    const [rows] = await pool.promise().query("SELECT * FROM carstocks LIMIT 6");
-    res.json(rows);
+    const [rows] = await pool.promise().query("SELECT * FROM carstocks LIMIT 20");
+
+    const carsWithImages = rows.map(car => {
+      // Construct base URL without double slashes
+      const baseUrl = `${req.protocol}://${req.get('host')}/carImages`;
+      
+      // Create new object with all properties
+      const carWithImages = { ...car };
+      
+      // Process all image fields
+      ['image1', 'image2', 'image3', 'image4'].forEach(field => {
+        if (car[field]) {
+          const filename = car[field].split('/').pop();
+          carWithImages[field] = `${baseUrl}/${filename}`;
+        }
+      });
+
+      return carWithImages;
+    });
+
+    res.json(carsWithImages); // Send only once
   } catch (error) {
     console.error("Error fetching suggested products:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
+
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.get('/api/bookings/confirmed', getConfirmedBookings);
 app.get('/api/bookings/canceled', getcanceledBookings);
 app.get('/api/Customers/Request', getCarRequestForCustomers);
+
 
 
 
@@ -2562,7 +2638,7 @@ app.post('/login', async (req, res) => {
         navigatePath = 'car-stock-Management';
         break;
       case 'Security Clearance Management':
-        navigatePath = 'Security-Clearance-Management';
+        navigatePath = 'SecurityClearance-Management';
         break;
       case 'Coating Management':
         navigatePath = 'Coating-Management';

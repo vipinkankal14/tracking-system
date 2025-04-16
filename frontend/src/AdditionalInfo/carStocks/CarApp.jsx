@@ -4,10 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { DirectionsCar } from "@mui/icons-material";
 import CloudUploadRoundedIcon from "@mui/icons-material/CloudUploadRounded";
 import CarRentalIcon from "@mui/icons-material/CarRental";
-import FlakyRoundedIcon from "@mui/icons-material/FlakyRounded";
-import WidgetsRoundedIcon from "@mui/icons-material/WidgetsRounded";
-import CarAppNavbar from "../../Components/UserNavbar/CarAppNavbar";
-
+ import WidgetsRoundedIcon from "@mui/icons-material/WidgetsRounded";
+ 
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
