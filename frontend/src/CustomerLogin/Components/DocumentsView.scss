@@ -1,0 +1,441 @@
+// Variables
+$primary-color: #0070f3;
+$secondary-color: #0f172a;
+$background-color: #ffffff;
+$border-color: #e2e8f0;
+$text-color: #1e293b;
+$text-muted: #64748b;
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$border-radius: 0.5rem;
+$transition-speed: 0.2s;
+
+// Mixins
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+@mixin button-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+// Base styles
+.documents-info {
+  width: 100%;
+  max-width: xl;
+  margin: 0 auto;
+  padding: 1rem;
+  
+  .info-section {
+    margin-bottom: 2rem;
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: $text-color;
+    }
+    
+    .section-description {
+      color: $text-muted;
+      margin-bottom: 1.5rem;
+    }
+    
+    .alert {
+      padding: 1rem;
+      border-radius: $border-radius;
+      margin: 1.5rem 0;
+      text-align: center;
+      
+      &.info {
+        background-color: rgba($primary-color, 0.1);
+        border: 1px solid rgba($primary-color, 0.2);
+      }
+    }
+  }
+}
+
+// Document Section
+.document-section {
+  margin-bottom: 1.5rem;
+  
+  .section-header {
+    @include button-reset;
+    @include flex(row, space-between, center);
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: rgba($secondary-color, 0.05);
+    border-radius: $border-radius;
+    transition: background-color $transition-speed ease;
+    
+    &:hover {
+      background-color: rgba($secondary-color, 0.1);
+    }
+    
+    .section-title-container {
+      @include flex(row, flex-start, center);
+      gap: 0.75rem;
+      
+      .section-icon {
+        @include flex(row, center, center);
+        padding: 0.375rem;
+        border-radius: 50%;
+        background-color: rgba($primary-color, 0.1);
+        color: $primary-color;
+        
+        svg {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
+      
+      .section-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+    
+    .toggle-icon {
+      color: $text-muted;
+      
+      svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+  
+  .section-content {
+    margin-top: 0.75rem;
+    
+    .documents-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      
+      @media (min-width: 640px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      @media (min-width: 1024px) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  }
+}
+
+// Document Card
+.document-card {
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  overflow: hidden;
+  transition: box-shadow $transition-speed ease, transform $transition-speed ease;
+  background-color: $background-color;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+  
+  .document-card-content {
+    @include flex(row, flex-start, flex-start);
+    padding: 1rem;
+    gap: 0.75rem;
+    
+    .document-icon {
+      @include flex(row, center, center);
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+      
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+      
+      &.loan { color: #3b82f6; background-color: rgba(#3b82f6, 0.1); }
+      &.rto { color: #10b981; background-color: rgba(#10b981, 0.1); }
+      &.finance { color: #f59e0b; background-color: rgba(#f59e0b, 0.1); }
+      &.exchange { color: #8b5cf6; background-color: rgba(#8b5cf6, 0.1); }
+      &.fastag { color: #ef4444; background-color: rgba(#ef4444, 0.1); }
+    }
+    
+    .document-info {
+      flex: 1;
+      min-width: 0;
+      
+      .document-title {
+        font-weight: 500;
+        font-size: 1rem;
+        margin: 0 0 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .document-subtitle {
+        color: $text-muted;
+        font-size: 0.875rem;
+        margin: 0 0 0.5rem;
+      }
+      
+      .view-document-btn {
+        @include button-reset;
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: $border-radius;
+        border: 1px solid $border-color;
+        background-color: $background-color;
+        color: $text-color;
+        margin-top: 0.5rem;
+        transition: background-color $transition-speed ease, border-color $transition-speed ease;
+        
+        &:hover {
+          background-color: rgba($secondary-color, 0.05);
+          border-color: rgba($secondary-color, 0.2);
+        }
+      }
+    }
+  }
+}
+
+// Modal
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  @include flex(row, center, center);
+  z-index: 50;
+  padding: 1rem;
+  
+  &.fullscreen {
+    .modal-content {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      border-radius: 0;
+    }
+  }
+  
+  .modal-content {
+    @include flex(column, flex-start, stretch);
+    background-color: $background-color;
+    border-radius: $border-radius;
+    box-shadow: $shadow-lg;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    
+    .modal-header {
+      @include flex(row, space-between, center);
+      padding: 1rem;
+      border-bottom: 1px solid $border-color;
+      
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .close-button {
+        @include button-reset;
+        @include flex(row, center, center);
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        color: $text-muted;
+        transition: background-color $transition-speed ease, color $transition-speed ease;
+        
+        &:hover {
+          background-color: rgba($secondary-color, 0.1);
+          color: $text-color;
+        }
+        
+        svg {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
+    }
+    
+    .modal-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      
+      .loading-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        @include flex(column, center, center);
+        background-color: rgba($background-color, 0.8);
+        z-index: 1;
+        gap: 0.5rem;
+        
+        .spinner {
+          width: 2rem;
+          height: 2rem;
+          border: 0.25rem solid rgba($primary-color, 0.3);
+          border-top-color: $primary-color;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        
+        p {
+          font-size: 0.875rem;
+          color: $text-muted;
+          margin: 0;
+        }
+      }
+      
+      .pdf-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    }
+    
+    .modal-footer {
+      @include flex(row, space-between, center);
+      padding: 1rem;
+      border-top: 1px solid $border-color;
+      
+      .fullscreen-button {
+        @include button-reset;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: $border-radius;
+        border: 1px solid $border-color;
+        background-color: $background-color;
+        color: $text-color;
+        transition: background-color $transition-speed ease, border-color $transition-speed ease;
+        
+        &:hover {
+          background-color: rgba($secondary-color, 0.05);
+          border-color: rgba($secondary-color, 0.2);
+        }
+      }
+      
+      .action-buttons {
+        @include flex(row, flex-end, center);
+        gap: 0.5rem;
+        
+        .download-button {
+          @include flex(row, center, center);
+          padding: 0.375rem 0.75rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          border-radius: $border-radius;
+          border: 1px solid $border-color;
+          background-color: $background-color;
+          color: $text-color;
+          text-decoration: none;
+          transition: background-color $transition-speed ease, border-color $transition-speed ease;
+          
+          &:hover {
+            background-color: rgba($secondary-color, 0.05);
+            border-color: rgba($secondary-color, 0.2);
+          }
+          
+          .icon {
+            margin-right: 0.375rem;
+          }
+        }
+        
+        .close-action-button {
+          @include button-reset;
+          padding: 0.375rem 0.75rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          border-radius: $border-radius;
+          background-color: $primary-color;
+          color: white;
+          transition: background-color $transition-speed ease;
+          
+          
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Media queries for responsive design
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0;
+    
+    .modal-content {
+      max-height: 100vh;
+      height: 100%;
+      border-radius: 0;
+    }
+    
+    .pdf-iframe {
+      height: 70vh;
+    }
+  }
+  
+  .document-section {
+    .section-content {
+      .documents-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .document-section {
+    .section-content {
+      .documents-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .document-section {
+    .section-content {
+      .documents-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  }
+}

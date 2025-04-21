@@ -1,0 +1,14 @@
+.car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .car-card {
+    transition: transform 0.2s;
+  }
+  
+  .car-card:hover {
+    transform: translateY(-2px);
+  }
