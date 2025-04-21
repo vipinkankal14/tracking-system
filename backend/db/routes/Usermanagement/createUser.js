@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../../databaseConnection/mysqlConnection');
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
 
@@ -9,14 +9,14 @@ const nodemailer = require('nodemailer');
 const validateUserData = (data) => {
   const requiredFields = ['emp_id', 'username', 'email', 'role'];
   const missingFields = requiredFields.filter(field => !data[field]);
-  
+
   if (missingFields.length > 0) {
-    return { 
-      isValid: false, 
-      error: `Missing required fields: ${missingFields.join(', ')}` 
+    return {
+      isValid: false,
+      error: `Missing required fields: ${missingFields.join(', ')}`
     };
   }
-  
+
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(data.email)) {
@@ -30,7 +30,7 @@ const createUser = async (req, res) => {
   let connection;
   try {
     // Handle file upload
-    let imageUrl = ''; 
+    let imageUrl = '';
     if (req.file) {
       imageUrl = `/uploads/profile-images/${req.file.filename}`;
     }
@@ -38,10 +38,10 @@ const createUser = async (req, res) => {
     // Validate user data
     const validation = validateUserData(req.body);
     if (!validation.isValid) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
         error: "Validation failed",
-        details: validation.errors 
+        details: validation.errors
       });
     }
 
@@ -76,20 +76,20 @@ const createUser = async (req, res) => {
         `SELECT 
           SUM(emp_id = ?) as emp_id_count,
           SUM(email = ?) as email_count,
-          ${!['Sales Department'].includes(role) ? `SUM(role = ?) as role_count` : '0 as role_count'}
+          ${!['Sales Department'].includes(role) ? `SUM(username = ?) as username_count` : '0 as username_count'}
         FROM users FOR UPDATE`,
-        ['Sales Department'].includes(role) ? [emp_id, email] : [emp_id, email, role]
+        ['Sales Department'].includes(role) ? [emp_id, email] : [emp_id, email, username]
       );
 
-      const { emp_id_count, email_count, role_count } = existing[0];
+      const { emp_id_count, email_count, username_count } = existing[0];
 
-      if (emp_id_count > 0 || email_count > 0 || role_count > 0) {
+      if (emp_id_count > 0 || email_count > 0 || username_count > 0) {
         await connection.rollback();
         const errors = {};
         if (emp_id_count > 0) errors.emp_id = 'Employee ID exists';
         if (email_count > 0) errors.email = 'Email exists';
-        if (role_count > 0) errors.role = 'Role already assigned';
-        
+        if (username_count > 0) errors.username = 'Username exists';
+
         return res.status(409).json({
           success: false,
           error: 'Duplicate entries',
@@ -97,23 +97,17 @@ const createUser = async (req, res) => {
         });
       }
 
-     
       let emailSent = false;
-
- 
-
+      let generatedPassword = null;
+      let hashedPassword = null;
 
       // Password handling
-let hashedPassword = null;
-let generatedPassword = null;
+      if (role !== 'Sales Department') {
+        generatedPassword = Math.random().toString(36).slice(-8);
+        hashedPassword = await bcrypt.hash(generatedPassword, 10);
+      }
 
-if (role !== 'Sales Department') {
-  // Generate password only for non-Sales users
-  generatedPassword = Math.random().toString(36).slice(-8);
-  hashedPassword = await bcrypt.hash(generatedPassword, 10);
-}
-
-      // Insert user with null password for Sales Department
+      // Insert user
       const [result] = await connection.query(
         `INSERT INTO users SET ?`,
         {
@@ -143,6 +137,12 @@ if (role !== 'Sales Department') {
       // Email handling
       if (process.env.NODE_ENV !== 'test') {
         try {
+          const fromName = process.env.EMAIL_FROM_NAME || 'Our Company';
+          const companyDomain = process.env.EMAIL_USER?.split('@')[1] || 'company.com';
+          const hrEmail = `hr@${companyDomain}`;
+          const supportEmail = `support@${companyDomain}`;
+          const loginUrl = `${req.protocol}://${req.get('host')}/login`;
+
           const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -151,47 +151,66 @@ if (role !== 'Sales Department') {
             }
           });
 
+          const baseOptions = {
+            from: `"${fromName}" <${process.env.EMAIL_USER}>`,
+            to: email
+          };
+
           if (role === 'Sales Department') {
             await transporter.sendMail({
-              from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
-              to: email,
-              subject: 'Welcome to Sales Team',
+              ...baseOptions,
+              subject: `Welcome to Our Sales Team`,
               html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px;">
-                  <h2 style="color: #2c3e50;">Welcome to Our Sales Team!</h2>
-                  <p>Hello ${username},</p>
-                  <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+                  <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                    Welcome to Our Sales Team
+                  </h2>
+                  <p>Dear ${username},</p>
+                  <p>We're excited to welcome you to the ${role} at ${fromName}.</p>
+                  <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
                     <p><strong>Employee ID:</strong> ${emp_id}</p>
                     <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Role:</strong> ${role}</p>
+                <p><strong>Role:</strong> ${role}</p>
+            ${teamRole === 'Team Member' && teamLeaderName ? 
+              `<p><strong>Team Leader:</strong> ${teamLeaderName}</p>` : ''}
+            ${teamRole === 'Team Leader' ? 
+              `<p><strong>Position:</strong> Team Leader</p>` : ''}
                   </div>
-                  <p>HR will contact you with onboarding details.</p>
+                  <p>Our HR team will contact you at ${hrEmail} with onboarding details.</p>
+                  <p>Best regards,<br><strong>The ${fromName} Team</strong></p>
                 </div>
               `
             });
-            emailSent = true;
           } else {
             await transporter.sendMail({
-              from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
-              to: email,
+              ...baseOptions,
               subject: 'Your Account Credentials',
               html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px;">
-                  <h2 style="color: #2c3e50;">Welcome to Our Company!</h2>
-                  <p>Hello ${username},</p>
-                  <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+                  <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                    Welcome to ${fromName}
+                  </h2>
+                  <p>Dear ${username},</p>
+                  <p>Here are your credentials for the ${role} position:</p>
+                  <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
                     <p><strong>Employee ID:</strong> ${emp_id}</p>
+                    <p><strong>Role:</strong> ${role}</p>
                     <p><strong>Temporary Password:</strong> ${generatedPassword}</p>
                   </div>
-                  <p>Login at: <a href="${req.protocol}://${req.get('host')}/login">${req.protocol}://${req.get('host')}/login</a></p>
-                  <p style="color: #e74c3c;">Please change your password after first login.</p>
+                  <p>Login at: <a href="${loginUrl}">${loginUrl}</a></p>
+                  <p style="color: #e74c3c; background: #fdecea; padding: 8px; border-radius: 4px;">
+                    <strong>Important:</strong> Change your password after first login
+                  </p>
+                  <p>Need help? Contact ${supportEmail}</p>
+                  <p>Best regards,<br><strong>The ${fromName} Team</strong></p>
                 </div>
               `
             });
-            emailSent = true;
           }
+          emailSent = true;
         } catch (emailError) {
           console.error('Email failed:', emailError);
+          // Consider logging this to an error tracking service
         }
       }
 
@@ -207,8 +226,8 @@ if (role !== 'Sales Department') {
       return res.status(201).json({
         success: true,
         message: role === 'Sales Department'
-          ? 'Sales user created successfully (no password)'
-          : 'User created with credentials',
+          ? 'Sales user created successfully'
+          : 'User created with temporary password',
         user: {
           ...newUser[0],
           profile_image: newUser[0].profile_image
@@ -244,19 +263,19 @@ if (role !== 'Sales Department') {
 const getUsers = async (req, res) => {
   try {
     const [users] = await pool.query('SELECT * FROM users');
-    
+
     // Verify image existence and construct full URL
     const usersWithVerifiedImages = users.map(user => {
       let profile_image = '';
-      
+
       if (user.profile_image) {
         // Construct the correct filesystem path
         const imagePath = path.join(
-          __dirname, 
-          '../../../public',  
+          __dirname,
+          '../../../public',
           user.profile_image
         );
-        
+
         // Check if file exists
         if (fs.existsSync(imagePath)) {
           // Construct full URL using base URL from request
@@ -265,13 +284,13 @@ const getUsers = async (req, res) => {
           console.warn(`Missing profile image: ${imagePath}`);
         }
       }
-      
+
       return {
         ...user,
         profile_image
       };
     });
-    
+
     res.status(200).json(usersWithVerifiedImages);
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -325,10 +344,10 @@ const updateUser = async (req, res) => {
       );
 
       // Delete old image if it exists and isn't default
-      if (existingUser[0].profile_image && 
-          existingUser[0].profile_image !== '/default-avatar.png') {
+      if (existingUser[0].profile_image &&
+        existingUser[0].profile_image !== '/default-avatar.png') {
         const oldImagePath = path.join(
-          __dirname, 
+          __dirname,
           '../public',
           existingUser[0].profile_image
         );
@@ -423,12 +442,12 @@ const updateUser = async (req, res) => {
         ? `${req.protocol}://${req.get('host')}${updatedUser[0].profile_image}`
         : null
     };
-    
+
     res.status(200).json(userWithImageUrl);
   } catch (error) {
     console.error('Error updating user:', error);
     cleanUpFile(newImagePath);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to update user',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -438,7 +457,7 @@ const updateUser = async (req, res) => {
 // Helper function to clean up uploaded files
 function cleanUpFile(filePath) {
   if (!filePath) return;
-  
+
   try {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
@@ -511,7 +530,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter
@@ -522,37 +541,37 @@ const upload = multer({
 const uploadProfileImage = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: 'No image file provided' 
+        error: 'No image file provided'
       });
     }
 
     const userId = req.params.id;
-    
+
     // Check if user exists
     const [user] = await pool.query(
-      'SELECT id, profile_image FROM users WHERE id = ?', 
+      'SELECT id, profile_image FROM users WHERE id = ?',
       [userId]
     );
-    
+
     if (user.length === 0) {
       // Delete the uploaded file if user doesn't exist
       fs.unlinkSync(req.file.path);
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        error: 'User not found' 
+        error: 'User not found'
       });
     }
 
     const imageUrl = `/uploads/profile-images/${req.file.filename}`;
-    
+
     // Update user's profile image in database
     await pool.query(
-      'UPDATE users SET profile_image = ? WHERE id = ?', 
+      'UPDATE users SET profile_image = ? WHERE id = ?',
       [imageUrl, userId]
     );
-    
+
     // Delete old profile image if it exists
     if (user[0].profile_image) {
       const oldImagePath = path.join(__dirname, '../public', user[0].profile_image);
@@ -560,23 +579,23 @@ const uploadProfileImage = async (req, res) => {
         fs.unlinkSync(oldImagePath);
       }
     }
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       success: true,
       profile_image: imageUrl,
-      message: 'Profile image updated successfully' 
+      message: 'Profile image updated successfully'
     });
   } catch (error) {
     console.error('Error uploading profile image:', error);
-    
+
     // Delete the uploaded file if error occurred
     if (req.file) {
       fs.unlinkSync(req.file.path);
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       success: false,
-      error: error.message || 'Failed to upload profile image' 
+      error: error.message || 'Failed to upload profile image'
     });
   }
 };
@@ -585,33 +604,33 @@ const uploadProfileImage = async (req, res) => {
 const uploadProfileImageForNewUser = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: 'No image file provided' 
+        error: 'No image file provided'
       });
     }
 
     const imageUrl = `/uploads/profile-images/${req.file.filename}`;
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       success: true,
       profile_image: imageUrl,
-      message: 'Profile image uploaded successfully' 
+      message: 'Profile image uploaded successfully'
     });
   } catch (error) {
     console.error('Error uploading profile image:', error);
-    
+
     // Delete the uploaded file if error occurred
     if (req.file) {
       fs.unlinkSync(req.file.path);
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       success: false,
-      error: error.message || 'Failed to upload profile image' 
+      error: error.message || 'Failed to upload profile image'
     });
   }
 };
 
 
-module.exports = {createUser, getUsers,getUserById,updateUser,deleteUser,  uploadProfileImage, uploadProfileImageForNewUser,upload };
+module.exports = { createUser, getUsers, getUserById, updateUser, deleteUser, uploadProfileImage, uploadProfileImageForNewUser, upload };

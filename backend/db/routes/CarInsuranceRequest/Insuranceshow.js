@@ -177,7 +177,7 @@ const Insuranceshow = async (req, res) => {
 
 
 
-            WHERE ai.status = 'approved'
+            WHERE ai.status = 'Approval'
             ORDER BY c.createdAt DESC
             LIMIT ? OFFSET ?
       `;
@@ -395,7 +395,7 @@ const Insuranceshow = async (req, res) => {
           SELECT COUNT(DISTINCT c.customerId) as total 
           FROM customers c
           JOIN account_management ai ON c.customerId = ai.customerId
-          WHERE ai.status = 'approved'
+          WHERE ai.status = 'Approval'
       `);
         const total = countResult[0].total;
 

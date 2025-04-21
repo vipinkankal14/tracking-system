@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { DirectionsCar } from "@mui/icons-material";
 import WidgetsRoundedIcon from "@mui/icons-material/WidgetsRounded";
-import HandymanIcon from "@mui/icons-material/Handyman";
+import axios from "axios";
 
 const Container = styled.div`
   padding: 2rem 1rem;
@@ -23,6 +23,7 @@ const Title = styled.h1`
     font-size: 1.5rem;
   }
 `;
+
 const Subtitle = styled.h2`
   margin-bottom: 1rem;
   text-align: center;
@@ -110,35 +111,72 @@ const CardStatus = styled.div`
   color: #6b7280;
 `;
 
-function AccessorieApp() {
-  const navigate = useNavigate();
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #4b5563;
+`;
 
-  const [statusCards] = useState([
+function AccessorieApp() {
+
+   const navigate = useNavigate();
+    const [counts, setCounts] = useState({ Approval: 0, Rejected: 0, Pending: 0 });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+  
+    useEffect(() => {
+      const fetchCounts = async () => {
+        try {
+          const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+          const data = await response.json();
+          if (data.success) {
+            setCounts(data.data.counts.accessories);
+          } else {
+            setError('Failed to fetch data');
+          }
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchCounts();
+    }, []);
+  
+    if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  
+
+
+  const statusCards = [
     {
       id: "Approval",
       title: "Accessories Approval",
-      count: "90",
+      count: counts.Approval,
       icon: DirectionsCar,
       status: "Approval",
-      iconType: "secondary",
+      iconType: "success",
       path: "/Accessories-Management/accessories-Approval",
     },
     {
       id: "Reject",
       title: "Accessories Reject",
-      count: "90",
+      count: counts.Rejected,
       icon: DirectionsCar,
       status: "Reject",
-      iconType: "secondary",
+      iconType: "danger",
       path: "/Accessories-Management/accessories-Reject",
     },
     {
       id: "Pending",
       title: "Accessories Pending",
-      count: "90",
+      count: counts.Pending,
       icon: DirectionsCar,
       status: "Pending",
-      iconType: "secondary",
+      iconType: "warning",
       path: "/Accessories-Management/accessories-Pending",
     },
     {
@@ -149,16 +187,32 @@ function AccessorieApp() {
       iconType: "CarAllotmentBOOKING",
       path: "/Accessories-Management/add-accessories",
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return (
+      <Container>
+        <LoadingContainer>Loading accessories data...</LoadingContainer>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <LoadingContainer>{error}</LoadingContainer>
+      </Container>
+    );
+  }
+
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>Accessories Status Overview</Title>
+       <Grid>
         {statusCards.map((card) => (
           <Card key={card.id} onClick={() => handleCardClick(card.path)}>
             <CardContent>
@@ -168,7 +222,7 @@ function AccessorieApp() {
               <CardInfo>
                 <CardTitle>{card.title}</CardTitle>
                 <CardNumber>{card.count}</CardNumber>
-                <CardStatus>status: {card.status}</CardStatus>
+                <CardStatus>Status: {card.status}</CardStatus>
               </CardInfo>
             </CardContent>
           </Card>

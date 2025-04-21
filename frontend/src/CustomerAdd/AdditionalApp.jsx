@@ -16,7 +16,7 @@ import { RTOModal } from "../ModalPages/RTO/RTOModal";
 import { InsuranceModal } from "../ModalPages/Insurance/InsuranceModal";
 import { ExtendedWarrantyModal } from "../ModalPages/Extended Warranty/ExtendedWarrantyModal";
 import { FastTagModal } from "../ModalPages/FastTag/FastTagModal";
-import { AutoCardModal } from "../ModalPages/Auto Card/AutoCardModal";
+import { AutoCardModal } from "../ModalPages/AutoCard/AutoCardModal";
 import { ExchangeModal } from "../ModalPages/Exchange/ExchangeModal";
 
 import FinanceModal from "../ModalPages/Finance/FinanceModal";
@@ -27,7 +27,7 @@ import RTOModalView from "../ModalPages/RTO/RTOModalView";
 import InsuranceModalView from "../ModalPages/Insurance/InsuranceModalView";
 import ExtendedWarrantyModalView from "../ModalPages/Extended Warranty/ExtendedWarrantyModalView";
 import FastTagModalView from "../ModalPages/FastTag/FastTagModalView";
-import AutoCardModalView from "../ModalPages/Auto Card/AutoCardModalView";
+import AutoCardModalView from "../ModalPages/AutoCard/AutoCardModalView";
 import ExchangeModalView from "../ModalPages/Exchange/ExchangeModalView";
 
 function AdditionalApp({ data = {}, updateData, personalInfo, carInfo }) {

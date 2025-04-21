@@ -161,7 +161,7 @@ export default function BookingAmount() {
 
   return (
     <>
-      <div className="header-container" style={{ marginTop: '-10px' }}>
+      <div className="header-container" >
         <p>Update Booking Amount</p>
 
       </div>
@@ -172,7 +172,7 @@ export default function BookingAmount() {
         </Typography>
       )}
 
-      <div className="container" style={{ marginTop: '-1px' }}>
+      <div className="container" style={{ marginTop: '-30px' }} >
         <div className="left-panel">
           <p variant="h6"  style={{ marginTop: '0' }}>Select Car Details</p>
 

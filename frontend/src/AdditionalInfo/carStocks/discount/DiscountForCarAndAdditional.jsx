@@ -126,12 +126,12 @@ export default function DiscountForCarAndAdditional() {
 
   return (
     <>
-      <div className="header-container" style={{ marginTop: '0px' }}>
+      <div className="header-container">
         <p>Discount For Car</p>
       
       </div>
      
-      <div className="container" style={{ marginTop: '-18px' }}>
+      <div className="container" style={{ marginTop: '-30px' }} >
         <div className="left-panel">
           <p variant="h6" gutterBottom style={{ marginTop: '0' }}>Select Car Details</p>
 
@@ -141,7 +141,7 @@ export default function DiscountForCarAndAdditional() {
               <MenuItem value="">All</MenuItem>
               {[...new Set(allRows.map((row) => row.model))].map((model) => (
                 <MenuItem key={model} value={model}>
-                  {model.charAt(0).toUpperCase() + model.slice(1)}
+                  {model.charAt(0) + model.slice(1)}
                 </MenuItem>
               ))}
             </Select>
@@ -153,7 +153,7 @@ export default function DiscountForCarAndAdditional() {
               {[...new Set(allRows.filter((row) => row.model === selectedModel).map((row) => row.version))].map(
                 (version) => (
                   <MenuItem key={version} value={version}>
-                    {version.toUpperCase()}
+                    {version}
                   </MenuItem>
                 )
               )}
@@ -250,8 +250,8 @@ export default function DiscountForCarAndAdditional() {
                             onChange={() => handleCheckboxChange(index)}
                           />
                         </TableCell>
-                        <TableCell>{row.model.charAt(0).toUpperCase() + row.model.slice(1)}</TableCell>
-                        <TableCell>{row.version.toUpperCase()}</TableCell>
+                        <TableCell>{row.model.charAt(0) + row.model.slice(1)}</TableCell>
+                        <TableCell>{row.version}</TableCell>
                         <TableCell>{row.color}</TableCell>
                         <TableCell>{row.carType}</TableCell>
                         <TableCell>{row.cardiscount}</TableCell>

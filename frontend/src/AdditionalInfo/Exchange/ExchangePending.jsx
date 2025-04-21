@@ -139,7 +139,7 @@ const ExchangePending = () => {
 
     try {
       const endpoint = `http://localhost:5000/api/exchange/update-status/${selectedExchange?.customerId}`;
-      const status = "Approved";
+      const status = "Approval";
       const payload = { 
         status, 
         exchangeAmount: parseFloat(exchangeAmount), 

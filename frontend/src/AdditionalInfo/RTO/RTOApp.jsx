@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
  
@@ -114,48 +114,99 @@ const CardStatus = styled.div`
 
 function RTOApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ 
+    Approval: 0, 
+    Rejected: 0, 
+    Pending: 0,
+    totalInterested: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchRTOData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        const data = await response.json();
+        
+        if (data.success) {
+          setCounts({
+            Approval: data.data.counts.rto?.Approval || 0,
+            Rejected: data.data.counts.rto?.Rejected || 0,
+            Pending: data.data.counts.rto?.Pending || 0,
+            totalInterested: data.data.counts.rto?.totalInterested || 0
+          });
+        } else {
+          throw new Error('Failed to fetch RTO data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRTOData();
+  }, []);
+
+  const statusCards = [
     {
       id: 'Approved',
       title: 'RTO Approved',
-      count: 80,
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
       path: '/RTOApp-Management/RTO-approved',
-     
     },
     {
       id: 'Rejected',
       title: 'RTO Rejected',
-      count: 80,
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
       path: '/RTOApp-Management/RTO-rejected',
-     
     },
     {
       id: 'pending',
-      title: 'Car Pending for RTO',
-      count: 80,
-      status: 'Car RTO Amount update Request',
+      title: 'RTO Pending',
+      count: counts.Pending,
+      status: 'Pending Approval',
       icon: CarRentalIcon,
       iconType: 'pending',
       path: '/RTOApp-Management/car-pending-for-RTO',
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return <Container>Loading RTO data...</Container>;
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <div style={{ color: 'red', textAlign: 'center' }}>
+          Error: {error}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+          >
+            Retry
+          </button>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>RTO Status Overview</Title>
+       <Grid>
         {statusCards.map((card) => (
           <Card 
             key={card.id}

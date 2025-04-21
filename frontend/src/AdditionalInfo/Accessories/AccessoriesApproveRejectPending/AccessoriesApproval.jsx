@@ -53,37 +53,49 @@ const AccessoriesMobileCard = ({
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${getStatusColor(order?.status)}` }}>
       <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="subtitle1" fontWeight="bold">
             {customer.customerId}
           </Typography>
-          <Chip 
-            label={order?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={order?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(order?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </Box>
-        
+
         <Typography variant="body2" sx={{ mt: 1 }}>
-          {`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}
+          {`${customer.firstName} ${customer.middleName || ""} ${
+            customer.lastName
+          }`}
         </Typography>
-        
+
         <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             startIcon={<DescriptionIcon />}
             onClick={() => handleDetailsClick(order, customer)}
           >
@@ -93,7 +105,7 @@ const AccessoriesMobileCard = ({
             {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </Box>
-        
+
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Box sx={{ mt: 2 }}>
             <Divider sx={{ mb: 2 }} />
@@ -101,16 +113,52 @@ const AccessoriesMobileCard = ({
               <strong>Email:</strong> {customer.email}
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+              <strong>Car Details:</strong>{" "}
+              {customer.carBooking?.model || "N/A"} |{" "}
+              {customer.carBooking?.version || "N/A"} |{" "}
+              {customer.carBooking?.color || "N/A"}
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Total Amount:</strong> ₹{order.totalAmount}
+
+            {/* Allotment Car Details */}
+            <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+              Allotment Car Details
             </Typography>
-            
+            <Typography variant="body2">
+              <strong>Allotment Status:</strong>{" "}
+              {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Chassis Number:</strong>{" "}
+              {customer?.stockInfo?.chassisNumber || "N/A"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Engine Number:</strong>{" "}
+              {customer?.stockInfo?.engineNumber || "N/A"}
+            </Typography>
+
+            <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+              Accessories Updated
+            </Typography>
+            <Typography variant="body2">
+              <strong>Created At:</strong>{" "}
+              {order?.createdAt
+                ? new Date(order.createdAt).toLocaleString()
+                : "N/A"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Updated At:</strong>{" "}
+              {order?.updatedAt
+                ? new Date(order.updatedAt).toLocaleString()
+                : "N/A"}
+            </Typography>
+
             <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-              <Button 
-                variant="contained" 
-                size="small" 
+              <Button
+                variant="contained"
+                size="small"
                 color="error"
                 onClick={() => handleReject(customer, order)}
               >
@@ -135,16 +183,20 @@ const AccessoriesTabletRow = ({
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -154,12 +206,12 @@ const AccessoriesTabletRow = ({
         <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
         <TableCell>₹{order.totalAmount}</TableCell>
         <TableCell>
-          <Chip 
-            label={order?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={order?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(order?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </TableCell>
@@ -186,17 +238,48 @@ const AccessoriesTabletRow = ({
                     <strong>Email:</strong> {customer.email}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"}
-                  </Typography>
-                </Grid>
               </Grid>
-              
+
+              {/* Allotment Car Details */}
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Allotment Car Details
+              </Typography>
+              <Typography variant="body2">
+                <strong>Allotment Status:</strong>{" "}
+                {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Chassis Number:</strong>{" "}
+                {customer?.stockInfo?.chassisNumber || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Engine Number:</strong>{" "}
+                {customer?.stockInfo?.engineNumber || "N/A"}
+              </Typography>
+
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Accessories Updated
+              </Typography>
+              <Typography variant="body2">
+                <strong>Created At:</strong>{" "}
+                {order?.createdAt
+                  ? new Date(order.createdAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Updated At:</strong>{" "}
+                {order?.updatedAt
+                  ? new Date(order.updatedAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
+
               <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                <Button 
-                  variant="contained" 
-                  size="small" 
+                <Button
+                  variant="contained"
+                  size="small"
                   color="error"
                   onClick={() => handleReject(customer, order)}
                 >
@@ -222,35 +305,43 @@ const AccessoriesDesktopRow = ({
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
         <TableCell>{customer.customerId}</TableCell>
-        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${
+          customer.lastName
+        }`}</TableCell>
         <TableCell>{customer.email}</TableCell>
         <TableCell>
-          {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+          {customer.carBooking?.model || "N/A"} |{" "}
+          {customer.carBooking?.version || "N/A"} |{" "}
+          {customer.carBooking?.color || "N/A"}
         </TableCell>
         <TableCell>₹{order.totalAmount}</TableCell>
         <TableCell>
-          <Chip 
-            label={order?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={order?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(order?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </TableCell>
@@ -274,25 +365,49 @@ const AccessoriesDesktopRow = ({
           </Box>
         </TableCell>
       </TableRow>
+
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Additional Details
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                Details
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Created At:</strong> {order?.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Updated At:</strong> {order?.updatedAt ? new Date(order.updatedAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-              </Grid>
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Allotment Car Details
+              </Typography>
+
+              <Typography variant="body2">
+                <strong>Allotment Status:</strong>{" "}
+                {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Chassis Number:</strong>{" "}
+                {customer?.stockInfo?.chassisNumber || "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Engine Number:</strong>{" "}
+                {customer?.stockInfo?.engineNumber || "N/A"}
+              </Typography>
+
+              <Typography variant="h6" sx={{ mt: 2, fontSize: "1rem" }}>
+                Accessories Updated
+              </Typography>
+              <Typography variant="body2">
+                <strong>Created At:</strong>{" "}
+                {order?.createdAt
+                  ? new Date(order.createdAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Updated At:</strong>{" "}
+                {order?.updatedAt
+                  ? new Date(order.updatedAt).toLocaleString()
+                  : "N/A"}
+              </Typography>
             </Box>
           </Collapse>
         </TableCell>
@@ -307,7 +422,6 @@ const AccessoriesDetailsModal = ({
   handleClose,
   selectedOrder,
   selectedCustomer,
-  handleReject,
 }) => {
   return (
     <Modal
@@ -315,23 +429,29 @@ const AccessoriesDetailsModal = ({
       onClose={handleClose}
       aria-labelledby="accessories-details-modal-title"
     >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: '90%', sm: '80%', md: '70%' },
-        maxHeight: '90vh',
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        p: 4,
-        borderRadius: 2,
-        overflow: 'auto'
-      }}>
-        <Typography id="accessories-details-modal-title" variant="h6" component="h2">
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "90%", sm: "80%", md: "70%" },
+          maxHeight: "90vh",
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+          overflow: "auto",
+        }}
+      >
+        <Typography
+          id="accessories-details-modal-title"
+          variant="h6"
+          component="h2"
+        >
           Accessories Order Details
         </Typography>
-        
+
         {selectedOrder && selectedCustomer && (
           <>
             <Box sx={{ mt: 2 }}>
@@ -341,44 +461,23 @@ const AccessoriesDetailsModal = ({
                     <strong>Customer ID:</strong> {selectedCustomer.customerId}
                   </Typography>
                 </Grid>
-               
-                       <Grid item xs={12} sm={6}>
-                               <Typography variant="body1">
-                                 <strong>Full Name:</strong>{" "}
-                                 {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
-                               </Typography>
-                               <Typography variant="body1">
-                                 <strong>Mobile Number:</strong>{" "}
-                                 {selectedCustomer.mobileNumber1}, {selectedCustomer.mobileNumber2}
-                               </Typography>
-                               <Typography variant="body1">
-                                 <strong>Email:</strong> {selectedCustomer.email}
-                               </Typography>
-                             </Grid>
-             
-                            
-             
-                             <Grid item xs={12} sm={6}>
-                               <Typography variant="body1">
-                                 <strong>Car Details:</strong>{" "}
-                                 {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
-                               </Typography>
-                               <Typography variant="body1">
-                               <strong>VIN Number:</strong>{" "}
-             
-                                  {`${selectedCustomer.stockInfo?.vin || "N/A"}`}
-                               </Typography>
-                               <Typography variant="body1">
-                               <strong>Chassis Number:</strong>{" "}
-             
-                                  {`${selectedCustomer.stockInfo?.chassisNumber || "N/A"}`}
-                               </Typography>
-                               <Typography variant="body1">
-                               <strong>Engine Number:</strong>{" "}
-             
-                                  {`${selectedCustomer.stockInfo?.engineNumber || "N/A"}`}
-                               </Typography>
-                             </Grid>
+
+                <Grid item xs={12} sm={12}>
+                  <Typography variant="body1">
+                    <strong>Full Name:</strong>{" "}
+                    {`${selectedCustomer.firstName} ${
+                      selectedCustomer.middleName || ""
+                    } ${selectedCustomer.lastName}`}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Mobile Number:</strong>{" "}
+                    {selectedCustomer.mobileNumber1},{" "}
+                    {selectedCustomer.mobileNumber2}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Email:</strong> {selectedCustomer.email}
+                  </Typography>
+                </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
@@ -412,7 +511,14 @@ const AccessoriesDetailsModal = ({
               </TableContainer>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                mt: 3,
+                gap: 1,
+              }}
+            >
               <Button onClick={handleClose} variant="outlined">
                 Close
               </Button>
@@ -457,18 +563,25 @@ const RejectionModal = ({
       onClose={handleClose}
       aria-labelledby="rejection-modal-title"
     >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: '90%', sm: '80%', md: '50%' },
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        p: 4,
-        borderRadius: 2
-      }}>
-        <Typography id="rejection-modal-title" variant="h6" component="h2" sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "90%", sm: "80%", md: "50%" },
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
+      >
+        <Typography
+          id="rejection-modal-title"
+          variant="h6"
+          component="h2"
+          sx={{ display: "flex", alignItems: "center" }}
+        >
           <strong>Reject Accessories Request:</strong>{" "}
           {selectedCustomer?.customerId || "N/A"}{" "}
           {selectedCustomer?.customerId && (
@@ -476,17 +589,19 @@ const RejectionModal = ({
               sx={{
                 color: "#092e6b",
                 fontSize: "15px",
-                ml: 1
+                ml: 1,
               }}
             />
           )}
         </Typography>
-        
+
         {selectedCustomer && (
           <Box sx={{ mt: 2 }}>
             <Typography variant="body1">
               <strong>Customer:</strong>{" "}
-              {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+              {`${selectedCustomer.firstName} ${
+                selectedCustomer.middleName || ""
+              } ${selectedCustomer.lastName}`}
             </Typography>
             {selectedItem && (
               <Typography variant="body1">
@@ -495,7 +610,7 @@ const RejectionModal = ({
             )}
           </Box>
         )}
-        
+
         <Box sx={{ mt: 3 }}>
           <TextareaAutosize
             minRows={3}
@@ -511,7 +626,7 @@ const RejectionModal = ({
             onChange={(e) => setRejectReason(e.target.value)}
             required
           />
-          
+
           <FormControlLabel
             control={
               <Checkbox
@@ -522,21 +637,23 @@ const RejectionModal = ({
             label="I confirm the rejection of this Accessories request"
             sx={{ mt: 2 }}
           />
-          
+
           {error && (
             <Typography variant="body2" color="error" sx={{ mt: 1 }}>
               {error}
             </Typography>
           )}
         </Box>
-        
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 1 }}
+        >
           <Button onClick={handleClose} variant="outlined">
             Cancel
           </Button>
-          <Button 
-            onClick={confirmReject} 
-            variant="contained" 
+          <Button
+            onClick={confirmReject}
+            variant="contained"
             color="error"
             disabled={!isConfirmed || !rejectReason}
           >
@@ -561,7 +678,8 @@ const AccessoriesApproval = () => {
   const [error, setError] = useState(null);
 
   // Modal states
-  const [accessoriesDetailsModalOpen, setAccessoriesDetailsModalOpen] = useState(false);
+  const [accessoriesDetailsModalOpen, setAccessoriesDetailsModalOpen] =
+    useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -571,15 +689,21 @@ const AccessoriesApproval = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        
+        const response = await axios.get(
+          "http://localhost:5000/api/getOrdersWithCustomers"
+        );
+
         if (response.data && Array.isArray(response.data.data)) {
           // Filter to show only Approval requests by default
-          const ApprovalCustomers = response.data.data.filter(customer => 
-            customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Approval")
- 
+          const ApprovalCustomers = response.data.data.filter(
+            (customer) =>
+              customer.accessoriesRequests &&
+              customer.accessoriesRequests.some(
+                (accessoriesRequests) =>
+                  accessoriesRequests.status === "Approval"
+              )
           );
-          
+
           setAccessoriesCustomers(ApprovalCustomers);
         } else {
           throw new Error("Invalid data format");
@@ -598,10 +722,11 @@ const AccessoriesApproval = () => {
 
   // Filter customers based on search query (only Approval shown)
   const getFilteredAccessoriesCustomers = () => {
-    return accessoriesCustomers.filter(customer => 
-      (customer.customerId?.toString().includes(searchQuery) ||
-       customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase()))
+    return accessoriesCustomers.filter(
+      (customer) =>
+        customer.customerId?.toString().includes(searchQuery) ||
+        customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
 
@@ -633,16 +758,26 @@ const AccessoriesApproval = () => {
 
       if (response.status === 200) {
         alert("Accessories rejected successfully!");
-        
+
         // Refresh the data to show updated status
-        const newData = await axios.get("http://localhost:5000/api/getOrdersWithCustomers");
-        const ApprovalCustomers = newData.data.data.filter(customer => 
-          customer.accessoriesRequests && customer.accessoriesRequests.some(accessoriesRequests => accessoriesRequests.status === "Approval")
+        const newData = await axios.get(
+          "http://localhost:5000/api/getOrdersWithCustomers"
+        );
+        const ApprovalCustomers = newData.data.data.filter(
+          (customer) =>
+            customer.accessoriesRequests &&
+            customer.accessoriesRequests.some(
+              (accessoriesRequests) => accessoriesRequests.status === "Approval"
+            )
         );
         setAccessoriesCustomers(ApprovalCustomers);
       }
     } catch (err) {
-      setError(`Failed to reject accessories: ${err.response?.data?.error || err.message}`);
+      setError(
+        `Failed to reject accessories: ${
+          err.response?.data?.error || err.message
+        }`
+      );
     } finally {
       setLoading(false);
     }
@@ -700,7 +835,7 @@ const AccessoriesApproval = () => {
               {getFilteredAccessoriesCustomers().length > 0 ? (
                 getFilteredAccessoriesCustomers().map((customer) =>
                   customer.accessoriesRequests
-                    .filter(order => order.status === "Approval")
+                    .filter((order) => order.status === "Approval")
                     .map((order) => (
                       <AccessoriesMobileCard
                         key={`${customer.customerId}-${order.orderId}`}
@@ -713,7 +848,9 @@ const AccessoriesApproval = () => {
                 )
               ) : (
                 <Box sx={{ textAlign: "center", my: 4 }}>
-                  <Typography>No Approval accessories requests found.</Typography>
+                  <Typography>
+                    No Approval accessories requests found.
+                  </Typography>
                 </Box>
               )}
             </Box>
@@ -737,7 +874,7 @@ const AccessoriesApproval = () => {
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
                       customer.accessoriesRequests
-                        .filter(order => order.status === "Approval")
+                        .filter((order) => order.status === "Approval")
                         .map((order) => (
                           <AccessoriesTabletRow
                             key={`${customer.customerId}-${order.orderId}`}
@@ -780,7 +917,7 @@ const AccessoriesApproval = () => {
                   {getFilteredAccessoriesCustomers().length > 0 ? (
                     getFilteredAccessoriesCustomers().map((customer) =>
                       customer.accessoriesRequests
-                        .filter(order => order.status === "Approval")
+                        .filter((order) => order.status === "Approval")
                         .map((order) => (
                           <AccessoriesDesktopRow
                             key={`${customer.customerId}-${order.orderId}`}

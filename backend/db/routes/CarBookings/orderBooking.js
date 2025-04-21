@@ -37,6 +37,15 @@ const postCarBooking = async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  // Apply conditional logic based on bookingType
+  let finalTeamLeader = team_Leader;
+  let finalTeamMember = team_Member;
+
+  if (bookingType === 'Online') {
+    finalTeamLeader = null;
+    finalTeamMember = null;
+  }
+
   let connection;
 
   try {
@@ -49,14 +58,14 @@ const postCarBooking = async (req, res) => {
         customerId, bookingType, team_Leader, team_Member, carType, model, version, color,
         exShowroomPrice, bookingAmount, fuelType, transmission, mileage,
         engineCapacity, batteryCapacity, cardiscount, groundClearance 
-      ) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const insertValues = [
       customerId,
       bookingType,
-      team_Leader,
-      team_Member,
+      finalTeamLeader,
+      finalTeamMember,
       carType,
       model,
       version,

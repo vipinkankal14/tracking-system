@@ -120,6 +120,8 @@ import CustomerDetails from "./CustomerLogin/ShowCustomerDetails/CustomerDetails
 import CustomerProfile from "./CustomerLogin/CustomerProfile";
 import UserNavbar from "./CustomerLogin/Components/UserNavbar";
 import OfficeNavbar from "./pages/OfficeNavbar";
+import OwnerAdminLayout from "./AdditionalInfo/Admin/OwnerAdminLayout";
+import OwnerAdmin from "./AdditionalInfo/Admin/OwnerAdmin";
 
 function App() {
   return (
@@ -188,15 +190,15 @@ function AppContent() {
     "/Confirmation",
     "/success-page",
     "/car-app",
-    "/car-stock-show",
+    "/car-stock-show/",
+    "/car-management",
     "/car-allotment-by-customer",
     "/Add-Car-Stock",
     "/booking-amount",
     "/car-notallotment-ByCustomer",
     "/discount-for-car-and-additional",
     "/upload-car-excel",
-    "/car-management",
-    "/allotment-status-app",
+     "/allotment-status-app",
     "/discount-app",
     "/cashier-app",
     "/payment",
@@ -204,8 +206,7 @@ function AppContent() {
     "/car-booking-cancel",
     "/order-cancel/:customerId",
     "/order-edit-and-confirmed/:customerId",
-    "/payment-details",
-    "/payment-successful",
+     "/payment-successful",
     "/payment-refund",
     "/payment-refund-add-on",
     "/cashier-app",
@@ -309,7 +310,9 @@ function AppContent() {
     "/PreDelivery-Management/",
     "/PreDelivery-Management/*",
     "/User-Management",
-    "/customerProfile"
+    "/customerProfile",
+    "/OwnerAdmin/",
+    "/OwnerAdmin/*"
   ];
 
   const shouldShowFooter = !hideFooterPatterns.some((pattern) =>
@@ -353,7 +356,20 @@ function AppContent() {
           <Route path="/success-page" element={<SuccessPage />} />
 
           {/* ========================================================================================== */}
+          
+        
+          <Route
+            element={<AuthRoute allowedRoles={["Admin"]} />}
+          >
+            <Route path="/OwnerAdmin" element={<OwnerAdminLayout />}>
+              <Route index element={<OwnerAdmin />} />
+            
+            </Route>
+          </Route>
 
+
+          {/* ========================================================================================== */}
+          
           <Route
             element={<AuthRoute allowedRoles={["Car Stocks Management"]} />}
           >
@@ -374,7 +390,6 @@ function AppContent() {
                 element={<AllotmentStatusApp />}
               />
               <Route path="discount-app" element={<DiscountApp />} />
-
               <Route path="car-allotment/:vin" element={<CarAllotment />} />
             </Route>
           </Route>
@@ -457,13 +472,11 @@ function AppContent() {
                 path="ACMApprovedRejected"
                 element={<ACMApprovedRejected />}
               />
+
               <Route path="gatepass-app" element={<GatepassApp />} />
               <Route path="gatepass-approved" element={<GatepassApproved />} />
               <Route path="gatepass-rejected" element={<GatepassRejected />} />
-              <Route
-                path="car-pending-for-gatepass"
-                element={<GatepassPending />}
-              />
+              <Route path="car-pending-for-gatepass" element={<GatepassPending />} />
             </Route>
           </Route>
 

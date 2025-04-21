@@ -256,7 +256,7 @@ function PaymentHistory() {
     try {
       const payload = {
         status,
-        cancellationReason: status === "rejected" ? cancellationReason : null,
+        cancellationReason: status === "Rejected" ? cancellationReason : null,
       }
 
       const response = await axios.put(`http://localhost:5000/api/account/update-status/${customerId}`, payload)
@@ -266,7 +266,7 @@ function PaymentHistory() {
         setSnackbarSeverity("success")
         setSnackbarOpen(true)
 
-        if (status === "rejected") {
+        if (status === "Rejected") {
           setShowModal(false)
           setCancellationReason("")
         }
@@ -612,15 +612,15 @@ function PaymentHistory() {
               <Chip
                 label={accountmanagement.status}
                 color={
-                  accountmanagement.status === "approved"
+                  accountmanagement.status === "Approval"
                     ? "success"
-                    : accountmanagement.status === "rejected"
+                    : accountmanagement.status === "Rejected"
                       ? "error"
                       : "warning"
                 }
                 style={{ fontWeight: "bold" }}
               />
-              {accountmanagement.status === "rejected" && accountmanagement.cancellationReason && (
+              {accountmanagement.status === "Rejected" && accountmanagement.cancellationReason && (
                 <Typography variant="caption" color="error" style={{ display: "block", marginTop: "4px" }}>
                   Reason: {accountmanagement.cancellationReason}
                 </Typography>
@@ -1427,11 +1427,11 @@ function PaymentHistory() {
                   </Box>
 
                   <Stack direction="row" spacing={2} flexWrap="wrap">
-                    {accountmanagement?.status !== "approved" && (
+                    {accountmanagement?.status !== "Approval" && (
                       <Button
                         variant="contained"
                         color="success"
-                        onClick={() => handleUpdateStatus("approved")}
+                        onClick={() => handleUpdateStatus("Approval")}
                         startIcon={<CheckCircleOutlineIcon />}
                         sx={{ textTransform: 'none' }}
                       >
@@ -1439,7 +1439,7 @@ function PaymentHistory() {
                       </Button>
                     )}
 
-                    {accountmanagement?.status !== "rejected" && (
+                    {accountmanagement?.status !== "Rejected" && (
                       <Button 
                         variant="contained" 
                         color="error"
@@ -1516,7 +1516,7 @@ function PaymentHistory() {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => handleUpdateStatus("rejected")}
+                  onClick={() => handleUpdateStatus("Rejected")}
                   disabled={!isConfirmed || !cancellationReason.trim()}
                 >
                   Confirm

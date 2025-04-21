@@ -84,14 +84,14 @@ const UserCard = ({ user, onEdit, onUpdateProfileImage }) => {
               <PhotoCameraIcon fontSize="small" />
             </IconButton>
           </Box>
-          <div>
-            <Typography variant="h6" component="div">
+          <Box>
+            <Typography variant="h6">
               {user.username}
             </Typography>
             <Typography color="text.secondary" gutterBottom>
               {user.emp_id} - {user.role}
             </Typography>
-          </div>
+          </Box>
         </Box>
         <Typography variant="body2">{user.email}</Typography>
         <Typography variant="body2">{user.phone_number}</Typography>
@@ -185,7 +185,7 @@ const roleOptions = [
   "RTO Management",
   "Sales Department",
   "Security Clearance Management"
-];
+].filter(role => role !== "Admin"); 
 
 // Management categories for filtering
 const managementCategories = [
@@ -204,7 +204,7 @@ const managementCategories = [
   "PDI (Pre-Delivery Inspection) Management",
   "RTO Management",
   "Security Clearance Management"
-];
+].filter(role => role !== "Admin"); 
 
 const teamRoleOptions = ["Team Leader", "Team Member"];
 
@@ -364,6 +364,11 @@ const UserManagement = () => {
 
   // Tab state
   const [tabValue, setTabValue] = useState(0);
+
+  const safeSearch = (value, term) => {
+    return (value?.toString().toLowerCase() || '').includes(term.toLowerCase());
+  };
+  
 
   const [formData, setFormData] = useState({
     emp_id: "",
@@ -658,10 +663,9 @@ const UserManagement = () => {
   const filteredUsers = users.filter((user) => {
     // First filter by tab selection
     if (tabValue === 0) {
-      // All Management tab - show all management categories except Sales Department
-      if (user.role === "Sales Department") {
-        return false;
-      }
+      if (user.role === "Sales Department" || user.role === "Admin") {
+      return false;
+    }
     } else {
       // Sales Department tab - show only Sales Department
       if (user.role !== "Sales Department") {
@@ -670,11 +674,11 @@ const UserManagement = () => {
     }
 
     // Then filter by search term
-    return (
-      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.emp_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase())
+     return (
+      safeSearch(user.username, searchTerm) ||
+      safeSearch(user.emp_id, searchTerm) ||
+      safeSearch(user.email, searchTerm) ||
+      safeSearch(user.role, searchTerm)
     );
   });
 
@@ -686,6 +690,8 @@ const UserManagement = () => {
         : user.role === "Sales Department"
     ).length;
   };
+
+  
 
   // Render loading state
   if (loading) {
@@ -837,7 +843,7 @@ const UserManagement = () => {
                     ) : (
                       filteredUsers.map((user) => (
                         <UserCard
-                          key={user.id}
+                          key={user.id}  // Add this
                           user={user}
                           onEdit={handleEditUser}
                            onUpdateProfileImage={handleUpdateProfileImage}
@@ -874,7 +880,7 @@ const UserManagement = () => {
                         ) : (
                           filteredUsers.map((user) => (
                             <ExpandableTableRow
-                              key={user.id}
+                             key={user.id} 
                               user={user}
                               onEdit={handleEditUser}
                                onUpdateProfileImage={handleUpdateProfileImage}
@@ -914,7 +920,7 @@ const UserManagement = () => {
                           </TableRow>
                         ) : (
                           filteredUsers.map((user) => (
-                            <TableRow key={user.id}>
+                            <TableRow key={user.id}> 
                               <TableCell>
                                 <Box
                                   sx={{ display: "flex", alignItems: "center" }}
@@ -1039,7 +1045,7 @@ const UserManagement = () => {
                         ) : (
                           filteredUsers.map((user) => (
                             <ExpandableTableRow
-                              key={user.id}
+                              key={user.id}  // Add this line
                               user={user}
                               onEdit={handleEditUser}
                                onUpdateProfileImage={handleUpdateProfileImage}

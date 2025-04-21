@@ -253,7 +253,7 @@ const GatepassApproved = () => {
         alert("Gate Pass rejected successfully!");
         handleClose();
         const newData = await axios.get(
-          "http://localhost:5000/api/GatePassShow"
+          "http://localhost:5000/api/GatePassShow'"
         );
         setCustomers(newData.data.data);
       }
@@ -338,7 +338,7 @@ const GatepassApproved = () => {
             >
               {isExpanded ? "Hide Details" : "View"}
             </Button>
-            <Chip label="Approved" color="success" size="small" />
+            <Chip label="Approval" color="success" size="small" />
           </Box>
 
           {isExpanded && (
@@ -445,7 +445,7 @@ const GatepassApproved = () => {
 
                 <TableCell>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Chip label="Approved" color="success" size="small" />
+                    <Chip label="Approval" color="success" size="small" />
                     <IconButton
                       size="small"
                       color="success"
@@ -650,7 +650,7 @@ const GatepassApproved = () => {
                           {customer.carBooking?.model || "N/A"}
                         </TableCell>
                         <TableCell>
-                          <Chip label="Approved" color="success" size="small" />
+                          <Chip label="Approval" color="success" size="small" />
                         </TableCell>
                         <TableCell>
                           <Button

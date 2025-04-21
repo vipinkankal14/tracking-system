@@ -15,8 +15,8 @@ const ShowSecurityclearance = async (req, res) => {
               c.*,
               cb.*,
               ai.*,
-              ai.updatedAt,
-
+              ai.updatedAt AS acm_updatedAt ,
+              ai.status AS acm_status,
               inv.invoice_id,
               inv.invoice_date,
               inv.due_date,
@@ -308,7 +308,7 @@ const ShowSecurityclearance = async (req, res) => {
 
 
 
-            WHERE ai.status = 'approved'
+            WHERE ai.status = 'Approval'
             ORDER BY c.createdAt DESC
             LIMIT ? OFFSET ?
       `;
@@ -373,7 +373,8 @@ const ShowSecurityclearance = async (req, res) => {
 
                     },
                     account_management: {
-                        updatedAt: row.updatedAt,
+                        updatedAt: row.acm_updatedAt,
+                        status:row.acm_status,
                     },
                     invoiceInfo: {
                         invoice_id: row.invoice_id || '',
@@ -591,7 +592,7 @@ const ShowSecurityclearance = async (req, res) => {
           SELECT COUNT(DISTINCT c.customerId) as total 
           FROM customers c
           JOIN account_management ai ON c.customerId = ai.customerId
-          WHERE ai.status = 'approved'
+          WHERE ai.status = 'Approval'
       `);
         const total = countResult[0].total;
 

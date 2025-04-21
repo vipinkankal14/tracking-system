@@ -288,7 +288,7 @@ const OfficeNavbar = () => {
             gap: 3
           }}>
             {navLinks.map((link) => (
-              <Typography
+              <Button
                 key={link.path}
                 component={Link}
                 to={link.path}
@@ -304,7 +304,7 @@ const OfficeNavbar = () => {
                 }}
               >
                 {link.name}
-              </Typography>
+              </Button>
             ))}
           </Box>
 

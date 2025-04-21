@@ -178,10 +178,14 @@ const handleConfirmOrder = async () => {
   }
 };
 
-// Handle cancellation action
 const handleCancelOrder = async () => {
   if (!isActionConfirmed) {
     alert("Please confirm the action before proceeding.");
+    return;
+  }
+
+  if (!confirmationReason.trim()) {
+    alert("Please provide a cancellation reason.");
     return;
   }
 
@@ -194,22 +198,27 @@ const handleCancelOrder = async () => {
       body: JSON.stringify({
         customerId: selectedCustomerId,
         cancellationReason: confirmationReason,
-        isConfirmed: true,
       }),
     });
 
     if (!response.ok) {
-      throw new Error("Failed to cancel the order.");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to cancel the order.");
     }
 
     const data = await response.json();
     alert(data.message);
-    closeCancelModal();
 
-    // Refresh the data
+    // Close modal and reset state
+    closeCancelModal();
+    setConfirmationReason('');
+    setIsActionConfirmed(false);
+
+    // Refresh booking list
     const endpoint = activeTab === 0 ? "confirmed" : "canceled";
     const bookingsResponse = await axios.get(`http://localhost:5000/api/bookings/${endpoint}`);
     setBookings(bookingsResponse.data.data);
+
   } catch (error) {
     console.error("Error:", error.message);
     alert(`Error: ${error.message}`);

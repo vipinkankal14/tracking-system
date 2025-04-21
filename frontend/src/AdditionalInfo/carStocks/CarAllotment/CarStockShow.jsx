@@ -109,7 +109,7 @@ const CarStockShow = () => {
   }
 
   const handleCarAllotment = (vin) => {
-    navigate(`/car-allotment/${vin}`, { 
+    navigate(`/car-stock-Management/car-allotment/${vin}`, { 
       state: { 
         targetCustomerId: targetCustomerId // Pass the target customer ID
       }
@@ -139,7 +139,7 @@ const CarStockShow = () => {
 
   // Render filter controls
   const renderFilterControls = () => (
-    <Box sx={{ mb: 4 }}>
+    <Box sx={{ mb: 4 }} >
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={3}>
           <FormControl fullWidth size="small">
@@ -237,7 +237,7 @@ const CarStockShow = () => {
 
   // Render mobile card view
   const renderMobileView = () => (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%' }} >
       {filteredCarStocks.length > 0 ? (
         filteredCarStocks.map((stock, index) => (
           <Card key={index} sx={{ mb: 2, borderRadius: 1 }}>
@@ -420,7 +420,7 @@ const CarStockShow = () => {
   )
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }} style={{marginTop:'-60px'}} >
       {/* Back Button */}
       <Button 
         startIcon={<ArrowBackIcon />} 

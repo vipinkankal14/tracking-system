@@ -32,8 +32,7 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AssessmentIcon from "@mui/icons-material/Assessment";
-import PaymentSummary from "../PaymentSummary/PaymentSummary";
-
+ 
 const PaymentDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -65,7 +64,7 @@ const PaymentDashboard = () => {
           (acc, customer) => {
             // First check if this customer should be counted (not approved/rejected)
             const shouldCount =
-              customer.status !== "approved" && customer.status !== "rejected";
+              customer.status !== "Approval" && customer.status !== "Rejected";
 
             if (shouldCount) {
               acc.total++; // Only increment total for visible customers
@@ -98,10 +97,10 @@ const PaymentDashboard = () => {
   useEffect(() => {
     let result = [...customers];
 
-    // First filter by approval status (exclude approved/rejected)
+    // First filter by Approval status (exclude approved/rejected)
     result = result.filter(
       (customer) =>
-        customer.status !== "approved" && customer.status !== "rejected"
+        customer.status !== "Approval" && customer.status !== "Rejected"
     );
 
     // Filter by payment status based on active tab
@@ -179,7 +178,7 @@ const PaymentDashboard = () => {
   };
 
   const handleViewCustomerDetails = (customerId) => {
-    navigate(`/payment-history/${customerId}`);
+    navigate(`/account-Management/payment-history/${customerId}`);
   };
 
   const formatCurrency = (amount) => {
@@ -691,7 +690,7 @@ const PaymentDashboard = () => {
                 Showing {filteredCustomers.length} of{" "}
                 {
                   customers.filter(
-                    (c) => c.status !== "approved" && c.status !== "rejected"
+                    (c) => c.status !== "Approval" && c.status !== "Rejected"
                   ).length
                 }{" "}
                 customers...

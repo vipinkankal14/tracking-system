@@ -989,7 +989,35 @@ CREATE TABLE `gate_pass` (
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+
+
+
+
+
+
 gate_pass === Approval  after show management_security_clearance
+
+
+
+
+
+CREATE TABLE `additional_info` (
+  `id` int(11) NOT NULL,backend/serrs.sql
+  `customerId` varchar(20) NOT NULL,
+  `exchange` enum('YES','NO') DEFAULT 'NO',
+  `finance` enum('YES','NO') DEFAULT 'NO',
+  `accessories` enum('YES','NO') DEFAULT 'NO',
+  `coating` enum('YES','NO') DEFAULT 'NO',
+  `fast_tag` enum('YES','NO') DEFAULT 'NO',
+  `rto` enum('YES','NO') DEFAULT 'NO',
+  `insurance` enum('YES','NO') DEFAULT 'NO',
+  `extended_warranty` enum('YES','NO') DEFAULT 'NO',
+  `auto_card` enum('YES','NO') DEFAULT 'NO',
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 CREATE TABLE `management_security_clearance` (
   `id` int(11) NOT NULL,
   `customerId` varchar(12) NOT NULL,
@@ -997,4 +1025,158 @@ CREATE TABLE `management_security_clearance` (
   `securityClearanceReason` text DEFAULT NULL,
   `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `gate_pass` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(12) NOT NULL,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `gatepassReason` text DEFAULT NULL,
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `predeliveryinspection` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(12) NOT NULL,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `PreDeliveryInspectionReason` text DEFAULT NULL,
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `car_exchange_requests` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(11) NOT NULL,
+  `rcDocument` varchar(255) NOT NULL,
+  `insurancePolicy` varchar(255) NOT NULL,
+  `pucCertificate` varchar(255) NOT NULL,
+  `identityProof` varchar(255) NOT NULL,
+  `addressProof` varchar(255) NOT NULL,
+  `loanClearance` varchar(255) DEFAULT NULL,
+  `serviceHistory` varchar(255) DEFAULT NULL,
+  `carOwnerFullName` varchar(100) NOT NULL,
+  `carMake` varchar(100) NOT NULL,
+  `carModel` varchar(100) NOT NULL,
+  `carColor` varchar(50) NOT NULL,
+  `carRegistration` varchar(20) NOT NULL,
+  `carYear` int(11) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `exchangeAmount` decimal(10,2) DEFAULT NULL,
+  `exchangeReason` text DEFAULT NULL,
+  `status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `account_management` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(12) NOT NULL,
+  `status` enum('pending','approved','rejected') DEFAULT 'pending',
+  `cancellationReason` text DEFAULT NULL,
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `orders_accessories_request` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(255) NOT NULL,
+  `totalAmount` decimal(10,2) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `accessorieReason` text DEFAULT NULL,
+  `accessorieRecipes` varchar(255) DEFAULT NULL,
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+CREATE TABLE `coating_requests` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(11) NOT NULL,
+  `coatingType` varchar(100) NOT NULL,
+  `preferredDate` date NOT NULL,
+  `preferredTime` varchar(20) NOT NULL,
+  `additionalNotes` text DEFAULT NULL,
+  `coating_amount` decimal(10,2) DEFAULT NULL,
+  `durability` varchar(50) NOT NULL,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `coatingReason` text DEFAULT NULL,
+  `coatingRecipes` varchar(255) DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `car_rto_requests` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(255) NOT NULL,
+  `form20` varchar(255) DEFAULT NULL,
+  `form21` varchar(255) DEFAULT NULL,
+  `form22` varchar(255) DEFAULT NULL,
+  `invoice` varchar(255) DEFAULT NULL,
+  `insurance` varchar(255) DEFAULT NULL,
+  `puc` varchar(255) DEFAULT NULL,
+  `idProof` varchar(255) DEFAULT NULL,
+  `roadTax` varchar(255) DEFAULT NULL,
+  `tempReg` varchar(255) DEFAULT NULL,
+  `form34` varchar(255) DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `rto_amount` decimal(10,2) NOT NULL,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `rtoReason` text DEFAULT NULL,
+  `rtoRecipes` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `car_fasttag_requests` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(255) NOT NULL,
+  `rcDocument` varchar(255) NOT NULL,
+  `aadhaarDocument` varchar(255) NOT NULL,
+  `panDocument` varchar(255) NOT NULL,
+  `passportPhoto` varchar(255) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `fasttag_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `fasttagReason` text DEFAULT NULL,
+  `fasttagRecipes` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `car_insurance_requests` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(255) NOT NULL,
+  `rcDocument` varchar(255) NOT NULL,
+  `salesInvoice` varchar(255) NOT NULL,
+  `identityProof` varchar(255) NOT NULL,
+  `addressProof` varchar(255) NOT NULL,
+  `form21` varchar(255) NOT NULL,
+  `form22` varchar(255) NOT NULL,
+  `tempReg` varchar(255) NOT NULL,
+  `puc` varchar(255) NOT NULL,
+  `loanDocuments` varchar(255) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `insurance_amount` decimal(10,2) NOT NULL,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `insuranceReason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `car_autocard_requests` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(11) NOT NULL,
+  `confirm_Benefits` varchar(155) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `autocard_amount` decimal(10,2) NOT NULL,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `autoCardReason` text DEFAULT NULL,
+  `autoCardRecipes` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `car_extended_warranty_requests` (
+  `id` int(11) NOT NULL,
+  `customerId` varchar(255) NOT NULL,
+  `request_extended_warranty` varchar(90) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `extendedwarranty_amount` decimal(10,2) NOT NULL,
+  `status` enum('Pending','Approval','Rejected') DEFAULT 'Pending',
+  `ex_Reason` text DEFAULT NULL,
+  `ex_Recipes` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

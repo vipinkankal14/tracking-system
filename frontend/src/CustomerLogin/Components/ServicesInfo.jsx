@@ -1,20 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { 
-  Paper, 
-  Typography, 
-  Grid, 
-  Box, 
-  Divider, 
-  Chip, 
-  Alert, 
-  Tabs, 
-  Tab, 
-  Card, 
+import {
+  Paper,
+  Typography,
+  Grid,
+  Box,
+  Divider,
+  Chip,
+  Alert,
+  Tabs,
+  Tab,
+  Card,
   CardContent,
-  Button,
-  Collapse
+  Collapse,
 } from "@mui/material"
 import {
   Brush,
@@ -24,12 +23,11 @@ import {
   CreditCard,
   Autorenew,
   VpnKey,
-  InsertDriveFile,
   ExpandMore,
   ExpandLess,
   CheckCircle,
   Pending,
-  Cancel
+  Cancel,
 } from "@mui/icons-material"
 
 function TabPanel(props) {
@@ -58,7 +56,7 @@ function a11yProps(index) {
 const StatusChip = ({ status }) => {
   let icon = <Pending color="inherit" />
   let color = "default"
-  
+
   switch (status?.toLowerCase()) {
     case "approved":
       icon = <CheckCircle color="inherit" />
@@ -76,15 +74,7 @@ const StatusChip = ({ status }) => {
       break
   }
 
-  return (
-    <Chip 
-      icon={icon}
-      label={status || "Processing"} 
-      color={color} 
-      size="small" 
-      variant="outlined"
-    />
-  )
+  return <Chip icon={icon} label={status || "Processing"} color={color} size="small" variant="outlined" />
 }
 
 const ServiceSection = ({ title, children, defaultExpanded = true }) => {
@@ -92,12 +82,12 @@ const ServiceSection = ({ title, children, defaultExpanded = true }) => {
 
   return (
     <Box sx={{ mb: 3 }}>
-      <Box 
-        display="flex" 
-        alignItems="center" 
+      <Box
+        display="flex"
+        alignItems="center"
         justifyContent="space-between"
         onClick={() => setExpanded(!expanded)}
-        sx={{ cursor: 'pointer', mb: 1 }}
+        sx={{ cursor: "pointer", mb: 1 }}
       >
         <Typography variant="subtitle1" fontWeight="medium">
           {title}
@@ -106,39 +96,9 @@ const ServiceSection = ({ title, children, defaultExpanded = true }) => {
       </Box>
       <Divider />
       <Collapse in={expanded}>
-        <Box sx={{ pt: 2 }}>
-          {children}
-        </Box>
+        <Box sx={{ pt: 2 }}>{children}</Box>
       </Collapse>
     </Box>
-  )
-}
-
-const DocumentItem = ({ label, value }) => {
-  if (!value) return null
-
-  return (
-    <Grid item xs={12} sm={6} md={4}>
-      <Card variant="outlined">
-        <CardContent sx={{ p: 2 }}>
-          <Box display="flex" alignItems="center">
-            <InsertDriveFile color="action" />
-            <Box ml={1}>
-              <Typography variant="body2">{label}</Typography>
-              {typeof value === 'string' && value.startsWith('http') && (
-                <Button 
-                  size="small" 
-                  sx={{ mt: 1 }}
-                  onClick={() => window.open(value, '_blank')}
-                >
-                  View Document
-                </Button>
-              )}
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </Grid>
   )
 }
 
@@ -193,19 +153,19 @@ const ServicesInfo = ({ userData }) => {
           <Typography variant="h6" gutterBottom>
             Coating Services
           </Typography>
-          
+
           {hasCoating ? (
             coatingRequests.length > 0 ? (
               coatingRequests.map((coating, index) => (
-                <ServiceSection 
-                  key={coating.id || index} 
+                <ServiceSection
+                  key={coating.id || index}
                   title={`Coating Request #${index + 1}`}
                   defaultExpanded={index === 0}
                 >
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={coating.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
@@ -217,7 +177,7 @@ const ServicesInfo = ({ userData }) => {
                       <Typography variant="caption" color="textSecondary">
                         Amount
                       </Typography>
-                      <Typography>₹{coating.coating_amount?.toLocaleString('en-IN') || "N/A"}</Typography>
+                      <Typography>₹{coating.coating_amount?.toLocaleString("en-IN") || "N/A"}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
@@ -258,7 +218,7 @@ const ServicesInfo = ({ userData }) => {
                     </Box>
                   )}
 
-                  {coating.reason && (
+                  {coating.reason && coating.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -284,45 +244,37 @@ const ServicesInfo = ({ userData }) => {
           <Typography variant="h6" gutterBottom>
             RTO Services
           </Typography>
-          
+
           {hasRTO ? (
             RTORequests.length > 0 ? (
               RTORequests.map((rto, index) => (
-                <ServiceSection 
-                  key={rto.id || index} 
-                  title={`RTO Request #${index + 1}`}
-                  defaultExpanded={index === 0}
-                >
+                <ServiceSection key={rto.id || index} title={`RTO Request #${index + 1}`} defaultExpanded={index === 0}>
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={rto.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Amount
                       </Typography>
-                      <Typography>₹{rto.rto_amount?.toLocaleString('en-IN') || "N/A"}</Typography>
+                      <Typography>₹{rto.rto_amount?.toLocaleString("en-IN") || "N/A"}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Request Date
                       </Typography>
-                      <Typography>
-                        {rto.createdAt ? new Date(rto.createdAt).toLocaleDateString() : "N/A"}
-                      </Typography>
+                      <Typography>{rto.createdAt ? new Date(rto.createdAt).toLocaleDateString() : "N/A"}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Last Updated
                       </Typography>
-                      <Typography>
-                        {rto.updatedAt ? new Date(rto.updatedAt).toLocaleDateString() : "N/A"}
-                      </Typography>
+                      <Typography>{rto.updatedAt ? new Date(rto.updatedAt).toLocaleDateString() : "N/A"}</Typography>
                     </Grid>
                   </Grid>
 
-                  {rto.rtoReason && (
+                  {rto.rtoReason && rto.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -330,22 +282,6 @@ const ServicesInfo = ({ userData }) => {
                       <Typography>{rto.rtoReason}</Typography>
                     </Box>
                   )}
-
-                  <Typography variant="subtitle2" mt={3} mb={1}>
-                    Submitted Documents
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <DocumentItem label="Form 20" value={rto.form20} />
-                    <DocumentItem label="Form 21" value={rto.form21} />
-                    <DocumentItem label="Form 22" value={rto.form22} />
-                    <DocumentItem label="Form 34" value={rto.form34} />
-                    <DocumentItem label="Invoice" value={rto.invoice} />
-                    <DocumentItem label="Insurance" value={rto.insurance} />
-                    <DocumentItem label="PUC" value={rto.puc} />
-                    <DocumentItem label="ID Proof" value={rto.idProof} />
-                    <DocumentItem label="Road Tax" value={rto.roadTax} />
-                    <DocumentItem label="Temp Registration" value={rto.tempReg} />
-                  </Grid>
                 </ServiceSection>
               ))
             ) : (
@@ -366,37 +302,35 @@ const ServicesInfo = ({ userData }) => {
           <Typography variant="h6" gutterBottom>
             FASTag Services
           </Typography>
-          
+
           {hasFastTag ? (
             fasttagRequests.length > 0 ? (
               fasttagRequests.map((tag, index) => (
-                <ServiceSection 
-                  key={tag.id || index} 
+                <ServiceSection
+                  key={tag.id || index}
                   title={`FASTag Request #${index + 1}`}
                   defaultExpanded={index === 0}
                 >
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={tag.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Amount
                       </Typography>
-                      <Typography>₹{tag.fasttag_amount?.toLocaleString('en-IN') || "N/A"}</Typography>
+                      <Typography>₹{tag.fasttag_amount?.toLocaleString("en-IN") || "N/A"}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Request Date
                       </Typography>
-                      <Typography>
-                        {tag.createdAt ? new Date(tag.createdAt).toLocaleDateString() : "N/A"}
-                      </Typography>
+                      <Typography>{tag.createdAt ? new Date(tag.createdAt).toLocaleDateString() : "N/A"}</Typography>
                     </Grid>
                   </Grid>
 
-                  {tag.fasttagReason && (
+                  {tag.fasttagReason && tag.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -404,16 +338,6 @@ const ServicesInfo = ({ userData }) => {
                       <Typography>{tag.fasttagReason}</Typography>
                     </Box>
                   )}
-
-                  <Typography variant="subtitle2" mt={3} mb={1}>
-                    Submitted Documents
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <DocumentItem label="RC Document" value={tag.rcDocument} />
-                    <DocumentItem label="PAN Card" value={tag.panDocument} />
-                    <DocumentItem label="Passport Photo" value={tag.passportPhoto} />
-                    <DocumentItem label="Aadhaar Card" value={tag.aadhaarDocument} />
-                  </Grid>
                 </ServiceSection>
               ))
             ) : (
@@ -433,37 +357,35 @@ const ServicesInfo = ({ userData }) => {
           <Typography variant="h6" gutterBottom>
             Insurance Services
           </Typography>
-          
+
           {hasInsurance ? (
             insuranceRequests.length > 0 ? (
               insuranceRequests.map((ins, index) => (
-                <ServiceSection 
-                  key={ins.id || index} 
+                <ServiceSection
+                  key={ins.id || index}
                   title={`Insurance Request #${index + 1}`}
                   defaultExpanded={index === 0}
                 >
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={ins.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Amount
                       </Typography>
-                      <Typography>₹{ins.insurance_amount?.toLocaleString('en-IN') || "N/A"}</Typography>
+                      <Typography>₹{ins.insurance_amount?.toLocaleString("en-IN") || "N/A"}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Request Date
                       </Typography>
-                      <Typography>
-                        {ins.createdAt ? new Date(ins.createdAt).toLocaleDateString() : "N/A"}
-                      </Typography>
+                      <Typography>{ins.createdAt ? new Date(ins.createdAt).toLocaleDateString() : "N/A"}</Typography>
                     </Grid>
                   </Grid>
 
-                  {ins.insuranceReason && (
+                  {ins.insuranceReason && ins.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -471,21 +393,6 @@ const ServicesInfo = ({ userData }) => {
                       <Typography>{ins.insuranceReason}</Typography>
                     </Box>
                   )}
-
-                  <Typography variant="subtitle2" mt={3} mb={1}>
-                    Submitted Documents
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <DocumentItem label="RC Document" value={ins.rcDocument} />
-                    <DocumentItem label="Sales Invoice" value={ins.salesInvoice} />
-                    <DocumentItem label="Identity Proof" value={ins.identityProof} />
-                    <DocumentItem label="Address Proof" value={ins.addressProof} />
-                    <DocumentItem label="Form 21" value={ins.form21} />
-                    <DocumentItem label="Form 22" value={ins.form22} />
-                    <DocumentItem label="Temp Registration" value={ins.tempReg} />
-                    <DocumentItem label="PUC Certificate" value={ins.puc} />
-                    <DocumentItem label="Loan Documents" value={ins.loanDocuments} />
-                  </Grid>
                 </ServiceSection>
               ))
             ) : (
@@ -502,180 +409,180 @@ const ServicesInfo = ({ userData }) => {
 
         {/* AutoCard Tab */}
         <TabPanel value={tabValue} index={4}>
-  <Typography variant="h6" gutterBottom>
-    AutoCard Services
-  </Typography>
-  
-  {hasAutoCard ? (
-    autocardRequests.length > 0 ? (
-      autocardRequests.map((card, index) => (
-        <ServiceSection 
-          key={card.id || index} 
-          title={`AutoCard Request #${index + 1}`}
-          defaultExpanded={index === 0}
-        >
-          <Box display="flex" justifyContent="flex-end" mb={2}>
-            <StatusChip status={card.status} />
-          </Box>
-          
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={4}>
-              <Typography variant="caption" color="textSecondary">
-                Amount
-              </Typography>
-              <Typography>₹{card.autocard_amount?.toLocaleString('en-IN') || "N/A"}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <Typography variant="caption" color="textSecondary">
-                Request Date
-              </Typography>
-              <Typography>
-                {card.createdAt ? new Date(card.createdAt).toLocaleDateString() : "N/A"}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={12}>
-              <Typography variant="caption" color="textSecondary">
-                Benefits Confirmed
-              </Typography>
-              <Typography>
-                {card.confirm_Benefits}
-              </Typography>
-            </Grid>
-          </Grid>
+          <Typography variant="h6" gutterBottom>
+            AutoCard Services
+          </Typography>
 
-          {card.autoCardReason && (
-            <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
-              <Typography variant="caption" color="textSecondary">
-                Remarks
-              </Typography>
-              <Typography>{card.autoCardReason}</Typography>
-            </Box>
+          {hasAutoCard ? (
+            autocardRequests.length > 0 ? (
+              autocardRequests.map((card, index) => (
+                <ServiceSection
+                  key={card.id || index}
+                  title={`AutoCard Request #${index + 1}`}
+                  defaultExpanded={index === 0}
+                >
+                  <Box display="flex" justifyContent="flex-end" mb={2}>
+                    <StatusChip status={card.status} />
+                  </Box>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Typography variant="caption" color="textSecondary">
+                        Amount
+                      </Typography>
+                      <Typography>₹{card.autocard_amount?.toLocaleString("en-IN") || "N/A"}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Typography variant="caption" color="textSecondary">
+                        Request Date
+                      </Typography>
+                      <Typography>{card.createdAt ? new Date(card.createdAt).toLocaleDateString() : "N/A"}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={12}>
+                      <Typography variant="caption" color="textSecondary">
+                        Benefits Confirmed
+                      </Typography>
+                      <Typography>{card.confirm_Benefits}</Typography>
+                    </Grid>
+                  </Grid>
+
+                  {card.autoCardReason && card.status?.toLowerCase() === "rejected" && (
+                    <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
+                      <Typography variant="caption" color="textSecondary">
+                        Remarks
+                      </Typography>
+                      <Typography>{card.autoCardReason}</Typography>
+                    </Box>
+                  )}
+
+                  <Box mt={3}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      AutoCard Benefits
+                    </Typography>
+                    <Card variant="outlined">
+                      <CardContent>
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} md={6}>
+                            <Box display="flex" alignItems="flex-start" mb={2}>
+                              <CheckCircle color="success" sx={{ mr: 1 }} />
+                              <Box>
+                                <Typography variant="subtitle2">Free/Discounted Car Services</Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  Free car washes, interior cleaning, and exterior polishing. Special discounts on
+                                  periodic maintenance.
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            <Box display="flex" alignItems="flex-start" mb={2}>
+                              <CheckCircle color="success" sx={{ mr: 1 }} />
+                              <Box>
+                                <Typography variant="subtitle2">Extended Warranty Offers</Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  Special pricing on extended warranty plans. Hassle-free claim process for repairs.
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            <Box display="flex" alignItems="flex-start" mb={2}>
+                              <CheckCircle color="success" sx={{ mr: 1 }} />
+                              <Box>
+                                <Typography variant="subtitle2">Roadside Assistance (RSA)</Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  24/7 emergency towing services. Battery jumpstart, fuel delivery, flat tire
+                                  assistance.
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Grid>
+
+                          <Grid item xs={12} md={6}>
+                            <Box display="flex" alignItems="flex-start" mb={2}>
+                              <CheckCircle color="success" sx={{ mr: 1 }} />
+                              <Box>
+                                <Typography variant="subtitle2">Exclusive Discounts</Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  Savings on genuine spare parts and car accessories. Special offers on premium add-ons.
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            <Box display="flex" alignItems="flex-start" mb={2}>
+                              <CheckCircle color="success" sx={{ mr: 1 }} />
+                              <Box>
+                                <Typography variant="subtitle2">Insurance Benefits</Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  Discounts on insurance renewals and add-on covers. Hassle-free cashless claim
+                                  settlement.
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            <Box display="flex" alignItems="flex-start" mb={2}>
+                              <CheckCircle color="success" sx={{ mr: 1 }} />
+                              <Box>
+                                <Typography variant="subtitle2">Loyalty Rewards</Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  Earn reward points on each service & purchase. Redeem points for services and
+                                  accessories.
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Grid>
+                        </Grid>
+
+                        <Box mt={2} pt={2} borderTop="1px dashed #ddd">
+                          <Typography variant="subtitle2">Additional Benefits:</Typography>
+                          <ul style={{ marginTop: 8, paddingLeft: 24 }}>
+                            <li>
+                              <Typography variant="body2">Faster service appointments & priority handling</Typography>
+                            </li>
+                            <li>
+                              <Typography variant="body2">Free vehicle pick-up & drop for servicing</Typography>
+                            </li>
+                          </ul>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Box>
+                </ServiceSection>
+              ))
+            ) : (
+              <Alert severity="info" icon={<CreditCard />}>
+                AutoCard has been requested but details are not available yet.
+              </Alert>
+            )
+          ) : (
+            <Alert severity="info" icon={<CreditCard />}>
+              No AutoCard has been requested for this vehicle.
+            </Alert>
           )}
-
-          <Box mt={3}>
-            <Typography variant="subtitle1" gutterBottom>
-              AutoCard Benefits
-            </Typography>
-            <Card variant="outlined">
-              <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Box display="flex" alignItems="flex-start" mb={2}>
-                      <CheckCircle color="success" sx={{ mr: 1 }} />
-                      <Box>
-                        <Typography variant="subtitle2">Free/Discounted Car Services</Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Free car washes, interior cleaning, and exterior polishing. Special discounts on periodic maintenance.
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box display="flex" alignItems="flex-start" mb={2}>
-                      <CheckCircle color="success" sx={{ mr: 1 }} />
-                      <Box>
-                        <Typography variant="subtitle2">Extended Warranty Offers</Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Special pricing on extended warranty plans. Hassle-free claim process for repairs.
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box display="flex" alignItems="flex-start" mb={2}>
-                      <CheckCircle color="success" sx={{ mr: 1 }} />
-                      <Box>
-                        <Typography variant="subtitle2">Roadside Assistance (RSA)</Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          24/7 emergency towing services. Battery jumpstart, fuel delivery, flat tire assistance.
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <Box display="flex" alignItems="flex-start" mb={2}>
-                      <CheckCircle color="success" sx={{ mr: 1 }} />
-                      <Box>
-                        <Typography variant="subtitle2">Exclusive Discounts</Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Savings on genuine spare parts and car accessories. Special offers on premium add-ons.
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box display="flex" alignItems="flex-start" mb={2}>
-                      <CheckCircle color="success" sx={{ mr: 1 }} />
-                      <Box>
-                        <Typography variant="subtitle2">Insurance Benefits</Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Discounts on insurance renewals and add-on covers. Hassle-free cashless claim settlement.
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box display="flex" alignItems="flex-start" mb={2}>
-                      <CheckCircle color="success" sx={{ mr: 1 }} />
-                      <Box>
-                        <Typography variant="subtitle2">Loyalty Rewards</Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Earn reward points on each service & purchase. Redeem points for services and accessories.
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
-                </Grid>
-
-                <Box mt={2} pt={2} borderTop="1px dashed #ddd">
-                  <Typography variant="subtitle2">Additional Benefits:</Typography>
-                  <ul style={{ marginTop: 8, paddingLeft: 24 }}>
-                    <li>
-                      <Typography variant="body2">Faster service appointments & priority handling</Typography>
-                    </li>
-                    <li>
-                      <Typography variant="body2">Free vehicle pick-up & drop for servicing</Typography>
-                    </li>
-                  </ul>
-                </Box>
-              </CardContent>
-            </Card>
-          </Box>
-        </ServiceSection>
-      ))
-    ) : (
-      <Alert severity="info" icon={<CreditCard />}>
-        AutoCard has been requested but details are not available yet.
-      </Alert>
-    )
-  ) : (
-    <Alert severity="info" icon={<CreditCard />}>
-      No AutoCard has been requested for this vehicle.
-    </Alert>
-  )}
-</TabPanel>
+        </TabPanel>
 
         {/* Extended Warranty Tab */}
         <TabPanel value={tabValue} index={5}>
           <Typography variant="h6" gutterBottom>
             Extended Warranty
           </Typography>
-          
+
           {hasExtendedWarranty ? (
             extendedWarrantyRequests.length > 0 ? (
               extendedWarrantyRequests.map((warranty, index) => (
-                <ServiceSection 
-                  key={warranty.id || index} 
+                <ServiceSection
+                  key={warranty.id || index}
                   title={`Warranty Request #${index + 1}`}
                   defaultExpanded={index === 0}
                 >
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={warranty.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
                         Amount
                       </Typography>
-                      <Typography>₹{warranty.extendedwarranty_amount?.toLocaleString('en-IN') || "N/A"}</Typography>
+                      <Typography>₹{warranty.extendedwarranty_amount?.toLocaleString("en-IN") || "N/A"}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
@@ -686,16 +593,14 @@ const ServicesInfo = ({ userData }) => {
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={12}>
-              <Typography variant="caption" color="textSecondary">
-                Benefits Confirmed
-              </Typography>
-              <Typography>
-                {warranty.request_extended_warranty}
-              </Typography>
-            </Grid>
+                      <Typography variant="caption" color="textSecondary">
+                        Benefits Confirmed
+                      </Typography>
+                      <Typography>{warranty.request_extended_warranty}</Typography>
+                    </Grid>
                   </Grid>
 
-                  {warranty.ex_Reason && (
+                  {warranty.ex_Reason && warranty.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -722,7 +627,7 @@ const ServicesInfo = ({ userData }) => {
           <Typography variant="h6" gutterBottom>
             Inspection & Clearance
           </Typography>
-          
+
           <ServiceSection title="Pre-Delivery Inspection">
             {predeliveryinspection.length > 0 ? (
               predeliveryinspection.map((pdi, index) => (
@@ -730,19 +635,17 @@ const ServicesInfo = ({ userData }) => {
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={pdi.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
-                        Request Date
+                        Approval Date
                       </Typography>
-                      <Typography>
-                        {pdi.createdAt ? new Date(pdi.createdAt).toLocaleDateString() : "N/A"}
-                      </Typography>
+                      <Typography>{pdi.updatedAt ? new Date(pdi.updatedAt).toLocaleDateString() : "N/A"}</Typography>
                     </Grid>
                   </Grid>
 
-                  {pdi.PreDeliveryInspectionReason && (
+                  {pdi.PreDeliveryInspectionReason && pdi.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -753,9 +656,7 @@ const ServicesInfo = ({ userData }) => {
                 </Box>
               ))
             ) : (
-              <Alert severity="info">
-                No pre-delivery inspection records found.
-              </Alert>
+              <Alert severity="info">No pre-delivery inspection records found.</Alert>
             )}
           </ServiceSection>
 
@@ -766,19 +667,17 @@ const ServicesInfo = ({ userData }) => {
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={gate.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
-                        Request Date
+                        Approval Date
                       </Typography>
-                      <Typography>
-                        {gate.createdAt ? new Date(gate.createdAt).toLocaleDateString() : "N/A"}
-                      </Typography>
+                      <Typography>{gate.updatedAt ? new Date(gate.updatedAt).toLocaleDateString() : "N/A"}</Typography>
                     </Grid>
                   </Grid>
 
-                  {gate.gatepassReason && (
+                  {gate.gatepassReason && gate.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -789,9 +688,7 @@ const ServicesInfo = ({ userData }) => {
                 </Box>
               ))
             ) : (
-              <Alert severity="info">
-                No gate pass records found.
-              </Alert>
+              <Alert severity="info">No gate pass records found.</Alert>
             )}
           </ServiceSection>
 
@@ -802,19 +699,19 @@ const ServicesInfo = ({ userData }) => {
                   <Box display="flex" justifyContent="flex-end" mb={2}>
                     <StatusChip status={clearance.status} />
                   </Box>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <Typography variant="caption" color="textSecondary">
-                        Request Date
+                        Approval Date
                       </Typography>
                       <Typography>
-                        {clearance.createdAt ? new Date(clearance.createdAt).toLocaleDateString() : "N/A"}
+                        {clearance.updatedAt ? new Date(clearance.updatedAt).toLocaleDateString() : "N/A"}
                       </Typography>
                     </Grid>
                   </Grid>
 
-                  {clearance.securityClearanceReason && (
+                  {clearance.securityClearanceReason && clearance.status?.toLowerCase() === "rejected" && (
                     <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
                       <Typography variant="caption" color="textSecondary">
                         Remarks
@@ -825,9 +722,7 @@ const ServicesInfo = ({ userData }) => {
                 </Box>
               ))
             ) : (
-              <Alert severity="info">
-                No security clearance records found.
-              </Alert>
+              <Alert severity="info">No security clearance records found.</Alert>
             )}
           </ServiceSection>
         </TabPanel>

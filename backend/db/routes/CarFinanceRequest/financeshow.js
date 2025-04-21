@@ -104,7 +104,9 @@ const financeshow = async (req, res) => {
                             id: row.document_id,
                             employed_type: row.employed_type,
                             document_name: row.document_name,
-                            document_path: row.document_path,
+                            document_path: row.document_path 
+                            ? `${req.protocol}://${req.get('host')}${row.document_path}`
+                            : null,
                             uploaded_at: row.document_uploaded
                         });
                     }

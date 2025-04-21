@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
-import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
 import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
-import PaymentSummary from './PaymentSummary/PaymentSummary';
+import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
 
 const Container = styled.div`
   padding: 2rem 1rem;
@@ -25,6 +23,7 @@ const Title = styled.h1`
     font-size: 1.5rem;
   }
 `;
+
 const Subtitle = styled.h2`
   margin-bottom: 1rem;
   text-align: center;
@@ -67,15 +66,12 @@ const CardContent = styled.div`
 
 const getIconStyles = (type) => {
   const styles = {
-    CashierMhanaement: { background: '#f0f9ff', color: '#0e7490' },
-    Payment: {background: '#e6e6e8', color: '#2c02fa'},
+    CashierManagement: { background: '#f0f9ff', color: '#0e7490' },
+    Payment: { background: '#e6e6e8', color: '#2c02fa' },
     CustomerDetails: { background: '#f4f2f5', color: '#0b070d' },
-    primary: { background: '#e0f2fe', color: '#0284c7' },
-    danger: { background: '#fee2e2', color: '#dc2626' },
-    success: { background: '#dcfce7', color: '#16a34a' },
     warning: { background: '#fcfcd7', color: '#f0f046' }
   };
-  return styles[type] || styles.primary;
+  return styles[type] || styles.CashierManagement;
 };
 
 const IconWrapper = styled.div`
@@ -113,52 +109,140 @@ const CardStatus = styled.div`
   color: #6b7280;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #4b5563;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #dc2626;
+  padding: 1rem;
+  text-align: center;
+`;
+
 function AccountApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({
+    account: { total: 0, Approval: 0, Rejected: 0 },
+    gatePass: { total: 0, Approval: 0, Rejected: 0, Pending: 0 }
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchAccountData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        if (data.success) {
+          setCounts({
+            account: {
+               Approval: data.data.counts.account?.Approval || 0,
+              Rejected: data.data.counts.account?.Rejected || 0
+             },
+            gatePass: {
+               Approval: data.data.counts.gatePass?.Approval || 0,
+              Rejected: data.data.counts.gatePass?.Rejected || 0,
+              Pending: data.data.counts.gatePass?.Pending || 0
+            }
+          });
+        } else {
+          throw new Error(data.message || 'Failed to fetch account data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAccountData();
+  }, []);
+
+  const statusCards = [
     {
-      id: 'CashierManaement',
-      title: 'Account Manaement',
-      status: 'Approved / Rejected',
+      id: 'account-management',
+      title: 'Account Management',
+      count: counts.account.total,
+      status: `Approved: ${counts.account.Approval} | Rejected: ${counts.account.Rejected} `,
       icon: FlakyRoundedIcon,
-      iconType: 'CashierMhanaement',
+      iconType: 'CashierManagement',
       path: '/account-Management/ACMApprovedRejected',
     },
-     
     {
-      id: 'Payment Dashboard',
+      id: 'payment-dashboard',
       title: 'Payment Dashboard',
-      status: 'Paid / Unpaid / Refund',
+       status: 'Paid / Unpaid / Refund',
       icon: PersonSearchRoundedIcon,
       iconType: 'CustomerDetails',
       path: '/account-Management/customer-payment-details'
     },
- 
     {
-      id: 'gatepass-app',
-      title: 'Gate Pass Request',
-       status: 'Pending / Approved / Rejected',
-      icon: FlakyRoundedIcon,
-      iconType: 'gatepass-app',
+      id: 'gatepass-requests',
+      title: 'Gate Pass Requests',
+      count: counts.gatePass.total,
+      status: `Approved: ${counts.gatePass.Approval} | Rejected: ${counts.gatePass.Rejected} | Pending: ${counts.gatePass.Pending}`,
+      icon: AssuredWorkloadRoundedIcon,
+      iconType: 'warning',
       path: '/account-Management/gatepass-app',
     },
- 
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return (
+      <Container>
+        <LoadingContainer>Loading account data...</LoadingContainer>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <ErrorContainer>
+          Error: {error}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ 
+              marginTop: '1rem',
+              padding: '0.5rem 1rem',
+              background: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Retry
+          </button>
+        </ErrorContainer>
+      </Container>
+    );
+  }
+
   return (
     <Container>
-      <Title>Status Overview</Title>
+      <Title>Account Management Overview</Title>
+      <Subtitle>
+       </Subtitle>
       <Grid>
         {statusCards.map((card) => (
-          <Card 
-            key={card.id}
-            onClick={() => handleCardClick(card.path)}
-          >
+          <Card key={card.id} onClick={() => handleCardClick(card.path)}>
             <CardContent>
               <IconWrapper iconType={card.iconType}>
                 <card.icon sx={{ fontSize: 32 }} />
@@ -166,13 +250,12 @@ function AccountApp() {
               <CardInfo>
                 <CardTitle>{card.title}</CardTitle>
                 <CardNumber>{card.count}</CardNumber>
-                <CardStatus>Status: {card.status}</CardStatus>
+                <CardStatus>{card.status}</CardStatus>
               </CardInfo>
             </CardContent>
           </Card>
         ))}
       </Grid>
-      <PaymentSummary />
     </Container>
   );
 }

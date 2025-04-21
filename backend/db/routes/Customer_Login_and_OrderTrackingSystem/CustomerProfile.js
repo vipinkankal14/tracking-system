@@ -22,197 +22,244 @@ const getCustomerProfile = async (req, res) => {
   try {
     const [rows] = await pool.execute(
       `SELECT 
-          c.*,
-          cb.*,
-          ai.*,
-          ai.updatedAt AS ai_updatedAt,  -- Alias to prevent conflicts
-          inv.invoice_id,
-          inv.invoice_date,
-          inv.due_date,
-          inv.total_on_road_price,
-          inv.total_charges,
-          inv.grand_total AS invoice_grand_total,
-          inv.payment_status,
-          inv.customer_account_balance,
-          opd.order_date,
-          opd.tentative_date,
-          opd.preferred_date,
-          opd.request_date,
-          opd.prebooking,
-          opd.prebooking_date,
-          opd.delivery_date,
-          cs.vin,
-          cs.chassisNumber,
-          cs.engineNumber,
-          cs.allotmentCarStatus as allotmentStatus,
-          o.id AS accessory_request_id,
-          o.totalAmount AS accessory_total_amount,
-          o.createdAt AS accessory_createdAt,
-          o.status AS accessory_status,
-          o.accessorieReason,
-          o.accessorieRecipes,
-          o.updatedAt AS accessory_updatedAt,
-          p.id AS product_id,
-          p.category AS product_category,
-          p.name AS product_name,
-          p.price AS product_price,
-          s.coatingType,
-          s.preferredDate,
-          s.preferredTime,
-          s.additionalNotes,
-          s.coating_amount,
-          s.durability,
-          s.createdAt AS coating_createdAt,
-          s.updatedAt  AS coating_updatedAt,
-          s.status AS coating_status,
-          s.coatingReason,
-          s.id AS coating_id,
-          rt.id AS RTO_id,
-          rt.form20,
-          rt.form21,
-          rt.form22,
-          rt.form34,
-          rt.invoice,
-          rt.insurance,
-          rt.puc,
-          rt.idProof,
-          rt.roadTax,
-          rt.tempReg,
-          rt.createdAt AS rto_createdAt,
-          rt.updatedAt AS rto_updatedAt,
-          rt.rto_amount,
-          rt.status AS RTO_status,
-          rt.rtoReason,
-          rt.rtoRecipes,
-          adi.exchange,
-          adi.finance,
-          adi.accessories,
-          adi.coating,
-          adi.rto,
-          adi.fast_tag,
-          adi.insurance,
-          adi.auto_card,
-          adi.extended_warranty,
-          cir.id AS fasttag_id,
-          cir.rcDocument,
-          cir.panDocument,
-          cir.passportPhoto,
-          cir.fasttag_amount,
-          cir.fasttagRecipes,
-          cir.aadhaarDocument,
-          cir.status AS fasttag_status,
-          cir.fasttagReason,
-          cir.createdAt AS fasttag_created,
-          cir.updatedAt AS fasttag_updated,
-          ins.id AS insurance_id,
-          ins.rcDocument,
-          ins.salesInvoice,
-          ins.identityProof,
-          ins.addressProof,
-          ins.form21,
-          ins.form22,
-          ins.tempReg,
-          ins.puc,
-          ins.status AS insurance_status,
-          ins.insuranceReason,
-          ins.loanDocuments,
-          ins.insurance_amount,
-          ins.createdAt AS insurance_created,
-          ins.updatedAt AS insurance_updated,
-          aut.id AS autocard_id,
-          aut.confirm_Benefits,
-          aut.autocard_amount,
-          aut.status AS autocard_status,
-          aut.autoCardReason,
-          aut.createdAt AS autocard_created,
-          aut.updatedAt AS autocard_updated,
-          ex.id AS warranty_id,
-          ex.request_extended_warranty,
-          ex.extendedwarranty_amount,
-          ex.status AS ex_status,
-          ex.ex_Reason,
-          ex.createdAt AS ex_created,
-          ex.updatedAt AS ex_updated,
-          pre.id AS pdi_id,
-          pre.status AS pdi_status,
-          pre.PreDeliveryInspectionReason,
-          pre.createdAt AS pdi_created,
-          pre.updatedAt AS pdi_updated,
-          gsc.id AS sc_id,
-          gsc.status AS sc_status,
-          gsc.gatepassReason,
-          gsc.createdAt AS sc_created,
-          gsc.updatedAt AS sc_updated,
-          mc.id AS mc_id,
-          mc.status AS msc_status,
-          mc.securityClearanceReason,
-          mc.createdAt AS msc_created,
-          mc.updatedAt AS msc_updated,
-          l.id AS loan_id,
-          l.loan_amount,
-          l.interest_rate,
-          l.loan_duration,
-          l.status AS loan_status,
-          l.financeReason,
-          l.financeAmount,
-          l.calculated_emi,
-          l.createdAt AS loan_created,
-          d.id AS document_id,
-          d.employed_type,
-          d.document_name,
-          d.uploaded_file AS document_path,
-          d.uploaded_at AS document_uploaded,
-          cer.id AS exchange_id,
-          cer.rcDocument AS exchange_rcDocument,
-          cer.insurancePolicy AS exchange_insurancePolicy,
-          cer.pucCertificate AS exchange_pucCertificate,
-          cer.identityProof AS exchange_identityProof,
-          cer.addressProof AS exchange_addressProof,
-          cer.loanClearance AS exchange_loanClearance,
-          cer.serviceHistory AS exchange_serviceHistory,
-          cer.carOwnerFullName AS exchange_carOwnerFullName,
-          cer.carMake AS exchange_carMake,
-          cer.carModel AS exchange_carModel,
-          cer.carColor AS exchange_carColor,
-          cer.carRegistration AS exchange_carRegistration,
-          cer.carYear AS exchange_carYear,
-          cer.status AS exchange_status,
-          cer.exchangeAmount AS exchange_exchangeAmount,
-          cer.exchangeReason AS exchange_exchangeReason,
-          cer.createdAt AS exchange_createdAt,
-          cer.updatedAt AS exchange_updatedAt
-        FROM customers c
-        LEFT JOIN carbooking cb ON c.customerId = cb.customerId
-        LEFT JOIN account_management ai ON c.customerId = ai.customerId
-        LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
-        LEFT JOIN orders_prebooking_date opd ON c.customerId = opd.customerId
-        LEFT JOIN carstocks cs ON c.customerId = cs.customerId
-        LEFT JOIN additional_info adi ON c.customerId = adi.customerId
-        LEFT JOIN orders_accessories_request o ON c.customerId = o.customerId 
-            AND cs.allotmentCarStatus = 'allocated' 
-            AND adi.accessories = 'Yes'
-        LEFT JOIN order_products p ON o.id = p.orderId
-        LEFT JOIN coating_requests s ON c.customerId = s.customerId 
-            AND adi.coating = 'Yes'
-        LEFT JOIN car_rto_requests rt ON c.customerId = rt.customerId 
-            AND adi.rto = 'Yes'
-        LEFT JOIN car_fasttag_requests cir ON c.customerId = cir.customerId 
-            AND adi.fast_tag = 'Yes'
-        LEFT JOIN car_insurance_requests ins ON c.customerId = ins.customerId 
-            AND adi.insurance = 'Yes'
-        LEFT JOIN car_autocard_requests aut ON c.customerId = aut.customerId 
-            AND adi.auto_card = 'Yes'
-        LEFT JOIN car_extended_warranty_requests ex ON c.customerId = ex.customerId 
-            AND adi.extended_warranty = 'Yes'
-        LEFT JOIN predeliveryinspection pre ON c.customerId = pre.customerId
-        LEFT JOIN gate_pass gsc ON c.customerId = gsc.customerId
-        LEFT JOIN management_security_clearance mc ON c.customerId = mc.customerId
-        LEFT JOIN car_exchange_requests cer ON c.customerId = cer.customerId 
-            AND adi.exchange = 'Yes'
-        LEFT JOIN loans l ON c.customerId = l.customerId 
-            AND adi.finance = 'Yes'
-        LEFT JOIN customer_documents d ON l.id = d.loan_id
-        WHERE c.customerId = ?`,
+      c.*,
+      cb.*,
+      ai.*,
+      ai.updatedAt AS ai_updatedAt,
+      ai.status AS acm_status,
+      inv.invoice_id,
+      inv.invoice_date,
+      inv.updatedAt AS inv_updatedAt,
+      inv.due_date,
+      inv.total_on_road_price,
+      inv.total_charges,
+      inv.grand_total AS invoice_grand_total,
+      inv.payment_status,
+      inv.customer_account_balance,
+      opd.order_date,
+      opd.tentative_date,
+      opd.preferred_date,
+      opd.request_date,
+      opd.prebooking,
+      opd.prebooking_date,
+      opd.delivery_date,
+      cs.vin,
+      cs.chassisNumber,
+      cs.engineNumber,
+      cs.allotmentCarStatus as allotmentStatus,
+      cs.updatedAt  AS stock_updatedAt,
+      o.id AS accessory_request_id,
+      o.totalAmount AS accessory_total_amount,
+      o.createdAt AS accessory_createdAt,
+      o.status AS accessory_status,
+      o.accessorieReason,
+      o.accessorieRecipes,
+      o.updatedAt AS accessory_updatedAt,
+      p.id AS product_id,
+      p.orderId,
+      p.category AS product_category,
+      p.name AS product_name,
+      p.price AS product_price,
+      s.coatingType,
+      s.preferredDate,
+      s.preferredTime,
+      s.additionalNotes,
+      s.coating_amount,
+      s.durability,
+      s.createdAt AS coating_createdAt,
+      s.updatedAt  AS coating_updatedAt,
+      s.status AS coating_status,
+      s.coatingReason,
+      s.id AS coating_id,
+      rt.id AS RTO_id,
+      rt.form20,
+      rt.form21,
+      rt.form22,
+      rt.form34,
+      rt.invoice,
+      rt.insurance AS RTO_insurance,
+      rt.puc,
+      rt.idProof,
+      rt.roadTax,
+      rt.tempReg,
+      rt.createdAt AS rto_createdAt,
+      rt.updatedAt AS rto_updatedAt,
+      rt.rto_amount,
+      rt.status AS RTO_status,
+      rt.rtoReason,
+      rt.rtoRecipes,
+      adi.exchange,
+      adi.finance,
+      adi.accessories,
+      adi.coating,
+      adi.rto,
+      adi.fast_tag,
+      adi.insurance,
+      adi.auto_card,
+      adi.extended_warranty,
+      cir.id AS fasttag_id,
+      cir.rcDocument,
+      cir.panDocument,
+      cir.passportPhoto,
+      cir.fasttag_amount,
+      cir.fasttagRecipes,
+      cir.aadhaarDocument,
+      cir.status AS fasttag_status,
+      cir.fasttagReason,
+      cir.createdAt AS fasttag_created,
+      cir.updatedAt AS fasttag_updated,
+      ins.id AS insurance_id,
+      ins.rcDocument,
+      ins.salesInvoice,
+      ins.identityProof,
+      ins.addressProof,
+      ins.form21,
+      ins.form22,
+      ins.tempReg,
+      ins.puc,
+      ins.status AS insurance_status,
+      ins.insuranceReason,
+      ins.loanDocuments,
+      ins.insurance_amount,
+      ins.createdAt AS insurance_created,
+      ins.updatedAt AS insurance_updated,
+      aut.id AS autocard_id,
+      aut.confirm_Benefits,
+      aut.autocard_amount,
+      aut.status AS autocard_status,
+      aut.autoCardReason,
+      aut.createdAt AS autocard_created,
+      aut.updatedAt AS autocard_updated,
+      ex.id AS warranty_id,
+      ex.request_extended_warranty,
+      ex.extendedwarranty_amount,
+      ex.status AS ex_status,
+      ex.ex_Reason,
+      ex.createdAt AS ex_created,
+      ex.updatedAt AS ex_updated,
+      pre.id AS pdi_id,
+      pre.status AS pdi_status,
+      pre.PreDeliveryInspectionReason,
+      pre.createdAt AS pdi_created,
+      pre.updatedAt AS pdi_updated,
+      gsc.id AS sc_id,
+      gsc.status AS sc_status,
+      gsc.gatepassReason,
+      gsc.createdAt AS sc_created,
+      gsc.updatedAt AS sc_updated,
+      mc.id AS mc_id,
+      mc.status AS msc_status,
+      mc.securityClearanceReason,
+      mc.createdAt AS msc_created,
+      mc.updatedAt AS msc_updated,
+      l.id AS loan_id,
+      l.loan_amount,
+      l.interest_rate,
+      l.loan_duration,
+      l.status AS loan_status,
+      l.financeReason,
+      l.financeAmount,
+      l.calculated_emi,
+      l.createdAt AS loan_created,
+      d.id AS document_id,
+      d.employed_type,
+      d.document_name,
+      d.uploaded_file AS document_path,
+      d.uploaded_at AS document_uploaded,
+      cer.id AS exchange_id,
+      cer.rcDocument AS exchange_rcDocument,
+      cer.insurancePolicy AS exchange_insurancePolicy,
+      cer.pucCertificate AS exchange_pucCertificate,
+      cer.identityProof AS exchange_identityProof,
+      cer.addressProof AS exchange_addressProof,
+      cer.loanClearance AS exchange_loanClearance,
+      cer.serviceHistory AS exchange_serviceHistory,
+      cer.carOwnerFullName AS exchange_carOwnerFullName,
+      cer.carMake AS exchange_carMake,
+      cer.carModel AS exchange_carModel,
+      cer.carColor AS exchange_carColor,
+      cer.carRegistration AS exchange_carRegistration,
+      cer.carYear AS exchange_carYear,
+      cer.status AS exchange_status,
+      cer.exchangeAmount AS exchange_exchangeAmount,
+      cer.exchangeReason AS exchange_exchangeReason,
+      cer.createdAt AS exchange_createdAt,
+      cer.updatedAt AS exchange_updatedAt,
+      -- Additional charges fields
+      ac.charge_id,
+      ac.coating AS charge_coating,
+      ac.fast_tag AS charge_fast_tag,
+      ac.rto AS charge_rto,
+      ac.insurance AS charge_insurance,
+      ac.extended_warranty AS charge_extended_warranty,
+      ac.auto_card AS charge_auto_card,
+      ac.total_charges AS charge_total_charges,
+      -- On road price details fields
+      op.price_detail_id,
+      op.ex_showroom_price,
+      op.accessories AS price_accessories,
+      op.discount,
+      op.subtotal,
+      op.gst_rate,
+      op.gst_amount,
+      op.cess_rate,
+      op.cess_amount,
+      op.total_on_road_price AS price_total_on_road,
+      -- Account management refund fields
+      amr.id AS refund_id,
+      amr.status AS refund_status,
+      amr.refundReason,
+      amr.refundAmount,
+      amr.transactionType,
+      amr.createdAt AS refund_createdAt,
+      amr.updatedAt AS refund_updatedAt,
+      -- Cashier fields
+      cash.id AS cashier_id,
+      cash.debitedAmount,
+      cash.creditedAmount,
+      cash.paymentDate,
+      cash.transactionType AS cashier_transactionType,
+      cash.paymentType
+    FROM customers c
+    LEFT JOIN carbooking cb ON c.customerId = cb.customerId
+    LEFT JOIN account_management ai ON c.customerId = ai.customerId
+    LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
+    LEFT JOIN orders_prebooking_date opd ON c.customerId = opd.customerId
+    LEFT JOIN carstocks cs ON c.customerId = cs.customerId
+    LEFT JOIN additional_info adi ON c.customerId = adi.customerId
+    
+        LEFT JOIN orders_accessories_request o 
+          ON c.customerId = o.customerId 
+          AND (adi.accessories = 'Yes' OR adi.accessories = 'YES')  -- Handle both cases
+        LEFT JOIN order_products p 
+          ON o.id = p.orderId
+
+    LEFT JOIN coating_requests s ON c.customerId = s.customerId 
+        AND adi.coating = 'Yes'
+    LEFT JOIN car_rto_requests rt ON c.customerId = rt.customerId 
+        AND adi.rto = 'Yes'
+    LEFT JOIN car_fasttag_requests cir ON c.customerId = cir.customerId 
+        AND adi.fast_tag = 'Yes'
+    LEFT JOIN car_insurance_requests ins ON c.customerId = ins.customerId 
+        AND adi.insurance = 'Yes'
+    LEFT JOIN car_autocard_requests aut ON c.customerId = aut.customerId 
+        AND adi.auto_card = 'Yes'
+    LEFT JOIN car_extended_warranty_requests ex ON c.customerId = ex.customerId 
+        AND adi.extended_warranty = 'Yes'
+    LEFT JOIN predeliveryinspection pre ON c.customerId = pre.customerId
+    LEFT JOIN gate_pass gsc ON c.customerId = gsc.customerId
+    LEFT JOIN management_security_clearance mc ON c.customerId = mc.customerId
+    LEFT JOIN car_exchange_requests cer ON c.customerId = cer.customerId 
+        AND adi.exchange = 'Yes'
+    LEFT JOIN loans l ON c.customerId = l.customerId 
+        AND adi.finance = 'Yes'
+    LEFT JOIN customer_documents d ON l.id = d.loan_id
+    -- New joins for additional tables
+    LEFT JOIN additional_charges ac ON inv.invoice_id = ac.invoice_id
+    LEFT JOIN on_road_price_details op ON inv.invoice_id = op.invoice_id
+    LEFT JOIN account_management_refund amr ON c.customerId = amr.customerId
+    LEFT JOIN cashier cash ON c.customerId = cash.customerId
+    WHERE c.customerId = ?`,
       [req.user.customerId]
     );
 
@@ -256,7 +303,7 @@ const getCustomerProfile = async (req, res) => {
           },
           additional_info: {
             accessories: row.accessories || "",
-            coating: row.coating || "",  
+            coating: row.coating || "",
             rto: row.rto || "",
             fast_tag: row.fast_tag || "",
             insurance: row.insurance || "",
@@ -266,20 +313,26 @@ const getCustomerProfile = async (req, res) => {
             finance: row.finance || "",
           },
           account_management: {
-            updatedAt: row.ai_updatedAt, 
+            updatedAt: row.ai_updatedAt,
+            status: row.acm_status,
+            accountManagementRefund: []
           },
           invoiceInfo: {
             invoice_id: row.invoice_id || "",
             invoice_date: row.invoice_date || null,
+            inv_updatedAt: row.inv_updatedAt || null,
             due_date: row.due_date || null,
             total_on_road_price: row.total_on_road_price || 0,
             total_charges: row.total_charges || 0,
             grand_total: row.invoice_grand_total || 0,
             payment_status: row.payment_status || "",
-            customer_account_balance:row.customer_account_balance || 0,
+            customer_account_balance: row.customer_account_balance || 0,
+            OnRoadPriceDetails: [],
+            AdditionalCharges: [],
+            CashierTransactions: []
           },
           orderInfo: {
-            order_date: row.order_date ||'',
+            order_date: row.order_date || '',
             tentative_date: row.tentative_date || null,
             preferred_date: row.preferred_date || null,
             request_date: row.request_date || null,
@@ -294,6 +347,7 @@ const getCustomerProfile = async (req, res) => {
                 chassisNumber: row.chassisNumber || "",
                 engineNumber: row.engineNumber || "",
                 allotmentStatus: row.allotmentStatus || "Not Allocated",
+                updatedAt: row.stock_updatedAt || "",
               }
               : undefined,
           grandTotal: row.grand_total || row.invoice_grand_total || 0,
@@ -389,11 +443,11 @@ const getCustomerProfile = async (req, res) => {
           };
           customer.accessoriesRequests.push(request);
         }
-
         // Add product if exists
         if (row.product_id) {
           request.products.push({
             id: row.product_id,
+            orderId: row.orderId,
             category: row.product_category,
             name: row.product_name,
             price: row.product_price
@@ -431,7 +485,7 @@ const getCustomerProfile = async (req, res) => {
           form22: row.form22,
           form34: row.form34,
           invoice: row.invoice,
-          insurance: row.insurance,
+          insurance: row.RTO_insurance,
           puc: row.puc,
           idProof: row.idProof,
           roadTax: row.roadTax,
@@ -467,6 +521,7 @@ const getCustomerProfile = async (req, res) => {
           salesInvoice: row.salesInvoice,
           identityProof: row.identityProof,
           addressProof: row.addressProof,
+
           form21: row.form21,
           form22: row.form22,
           tempReg: row.tempReg,
@@ -534,7 +589,72 @@ const getCustomerProfile = async (req, res) => {
         });
       }
 
-     });
+
+      // Process On Road Price Details
+      if (row.price_detail_id && !customer.invoiceInfo.OnRoadPriceDetails.some(
+        item => item.price_detail_id === row.price_detail_id
+      )) {
+        customer.invoiceInfo.OnRoadPriceDetails.push({
+          price_detail_id: row.price_detail_id,
+          ex_showroom_price: row.ex_showroom_price,
+          accessories: row.price_accessories,
+          discount: row.discount,
+          subtotal: row.subtotal,
+          gst_rate: row.gst_rate,
+          gst_amount: row.gst_amount,
+          cess_rate: row.cess_rate,
+          cess_amount: row.cess_amount,
+          total_on_road_price: row.price_total_on_road
+        });
+      }
+
+      // Process Additional Charges
+      if (row.charge_id && !customer.invoiceInfo.AdditionalCharges.some(
+        item => item.charge_id === row.charge_id
+      )) {
+        customer.invoiceInfo.AdditionalCharges.push({
+          charge_id: row.charge_id,
+          coating: row.charge_coating,
+          fast_tag: row.charge_fast_tag,
+          rto: row.charge_rto,
+          insurance: row.charge_insurance,
+          extended_warranty: row.charge_extended_warranty,
+          auto_card: row.charge_auto_card,
+          total_charges: row.charge_total_charges
+        });
+      }
+
+      // Process Account Management Refund
+      if (row.refund_id && !customer.account_management.accountManagementRefund.some(
+        item => item.id === row.refund_id
+      )) {
+        customer.account_management.accountManagementRefund.push({
+          id: row.refund_id,
+          status: row.refund_status,
+          refundReason: row.refundReason,
+          refundAmount: row.refundAmount,
+          transactionType: row.transactionType,
+          createdAt: row.refund_createdAt,
+          updatedAt: row.refund_updatedAt
+        });
+      }
+
+      // Process Cashier Transactions
+      if (row.cashier_id && !customer.invoiceInfo.CashierTransactions.some(
+        item => item.id === row.cashier_id
+      )) {
+        customer.invoiceInfo.CashierTransactions.push({
+          id: row.cashier_id,
+          debitedAmount: row.debitedAmount,
+          creditedAmount: row.creditedAmount,
+          paymentDate: row.paymentDate,
+          transactionType: row.cashier_transactionType,
+          paymentType: row.paymentType
+        });
+      }
+
+
+    });
 
     const formattedResults = Array.from(customersMap.values());
 
@@ -581,13 +701,13 @@ const Customerlogin = async (req, res) => {
     // Remove password from user object
     delete user.password;
 
-       // Prepare user data for response (exclude password)
+    // Prepare user data for response (exclude password)
     const userResponse = {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email
-     };
+    };
 
     res.json({
       success: true,
@@ -601,4 +721,4 @@ const Customerlogin = async (req, res) => {
 }
 
 
-module.exports = { getCustomerProfile ,verifyToken,Customerlogin};
+module.exports = { getCustomerProfile, verifyToken, Customerlogin };

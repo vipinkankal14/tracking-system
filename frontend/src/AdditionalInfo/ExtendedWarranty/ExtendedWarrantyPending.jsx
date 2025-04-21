@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import axios from "axios"
-import { useTheme } from "@mui/material/styles"
-import useMediaQuery from "@mui/material/useMediaQuery"
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Typography,
   TextField,
@@ -33,111 +33,125 @@ import {
   CircularProgress,
   Alert,
   Button,
-} from "@mui/material"
+} from "@mui/material";
 
 // Icons
-import SearchIcon from "@mui/icons-material/Search"
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded"
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
+import SearchIcon from "@mui/icons-material/Search";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const ExtendedWarrantyManager = () => {
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
-  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"))
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"))
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   // State variables
-  const [searchQuery, setSearchQuery] = useState("")
-  const [customers, setCustomers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Modal states
-  const [showModal, setShowModal] = useState(false)
-  const [showDocumentsModal, setShowDocumentsModal] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState(null)
-  const [selectedWarranty, setSelectedWarranty] = useState(null)
-  const [isConfirmed, setIsConfirmed] = useState(false)
-  const [ex_Reason, setEx_Reason] = useState("")
+  const [showModal, setShowModal] = useState(false);
+  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedWarranty, setSelectedWarranty] = useState(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [ex_Reason, setEx_Reason] = useState("");
 
   // Expandable row states
-  const [expandedRows, setExpandedRows] = useState({})
+  const [expandedRows, setExpandedRows] = useState({});
 
   // Fetch extended warranty data
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/showExtendedWarranty")
+        const response = await axios.get(
+          "http://localhost:5000/api/showExtendedWarranty"
+        );
 
         if (response.data && Array.isArray(response.data.data)) {
-          setCustomers(response.data.data)
+          setCustomers(response.data.data);
         } else {
-          throw new Error("Invalid data format: Expected an array.")
+          throw new Error("Invalid data format: Expected an array.");
         }
       } catch (err) {
-        setError("Failed to fetch extended warranty customer data.")
-        console.error("Error fetching customers:", err)
+        setError("Failed to fetch extended warranty customer data.");
+        console.error("Error fetching customers:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchCustomers()
-  }, [])
+    fetchCustomers();
+  }, []);
 
   // Filter customers based on search query and pending status
   const getFilteredCustomers = () => {
     return customers.filter(
       (customer) =>
-        (customer.customerId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        (customer.customerId
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+          customer.firstName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          customer.lastName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())) &&
         customer.extendedWarrantyRequests?.length > 0 &&
-        customer.extendedWarrantyRequests[0]?.status === "Pending",
-    )
-  }
+        customer.extendedWarrantyRequests[0]?.status === "Pending"
+    );
+  };
 
-  const filteredCustomers = getFilteredCustomers()
+  const filteredCustomers = getFilteredCustomers();
 
   // Handle documents icon click
   const handleDocumentsClick = (customer, warranty) => {
-    setSelectedCustomer(customer)
-    setSelectedWarranty(warranty)
-    setShowDocumentsModal(true)
-  }
+    setSelectedCustomer(customer);
+    setSelectedWarranty(warranty);
+    setShowDocumentsModal(true);
+  };
 
   // Handle approve action
   const handleApprove = async () => {
     try {
       const response = await axios.put(
         `http://localhost:5000/api/extendedWarrantyApproval/update-status/${selectedCustomer.customerId}`,
-        { status: "Approval" },
-      )
+        { status: "Approval" }
+      );
 
       if (response.status === 200) {
-        alert("Extended warranty approved successfully!")
-        handleCloseModal()
+        alert("Extended warranty approved successfully!");
+        handleCloseModal();
         // Refresh the data
-        const newData = await axios.get("http://localhost:5000/api/showExtendedWarranty")
-        setCustomers(newData.data.data)
+        const newData = await axios.get(
+          "http://localhost:5000/api/showExtendedWarranty"
+        );
+        setCustomers(newData.data.data);
       }
     } catch (err) {
-      setError(`Failed to approve extended warranty: ${err.response?.data?.error || err.message}`)
-      console.error("Error:", err)
+      setError(
+        `Failed to approve extended warranty: ${
+          err.response?.data?.error || err.message
+        }`
+      );
+      console.error("Error:", err);
     }
-  }
+  };
 
   // Handle reject action
   const handleReject = async () => {
     if (!isConfirmed) {
-      setError("Please confirm the extended warranty rejection.")
-      return
+      setError("Please confirm the extended warranty rejection.");
+      return;
     }
 
     if (!ex_Reason) {
-      setError("Please provide a reason for rejection.")
-      return
+      setError("Please provide a reason for rejection.");
+      return;
     }
 
     try {
@@ -146,55 +160,63 @@ const ExtendedWarrantyManager = () => {
         {
           status: "Rejected",
           ex_Reason,
-        },
-      )
+        }
+      );
 
       if (response.status === 200) {
-        alert("Extended warranty rejected successfully!")
-        handleCloseModal()
+        alert("Extended warranty rejected successfully!");
+        handleCloseModal();
         // Refresh the data
-        const newData = await axios.get("http://localhost:5000/api/showExtendedWarranty")
-        setCustomers(newData.data.data)
+        const newData = await axios.get(
+          "http://localhost:5000/api/showExtendedWarranty"
+        );
+        setCustomers(newData.data.data);
       }
     } catch (err) {
-      setError(`Failed to reject extended warranty: ${err.response?.data?.error || err.message}`)
-      console.error("Error:", err)
+      setError(
+        `Failed to reject extended warranty: ${
+          err.response?.data?.error || err.message
+        }`
+      );
+      console.error("Error:", err);
     }
-  }
+  };
 
   // Close modal and reset state
   const handleCloseModal = () => {
-    setShowModal(false)
-    setShowDocumentsModal(false)
-    setIsConfirmed(false)
-    setEx_Reason("")
-    setError(null)
-  }
+    setShowModal(false);
+    setShowDocumentsModal(false);
+    setIsConfirmed(false);
+    setEx_Reason("");
+    setError(null);
+  };
 
   // Get full name from customer object
   const getFullName = (customer) => {
-    return `${customer.firstName}${customer.middleName ? ` ${customer.middleName}` : ""} ${customer.lastName}`
-  }
+    return `${customer.firstName}${
+      customer.middleName ? ` ${customer.middleName}` : ""
+    } ${customer.lastName}`;
+  };
 
   // Toggle row expansion
   const toggleRowExpand = (id) => {
     setExpandedRows({
       ...expandedRows,
       [id]: !expandedRows[id],
-    })
-  }
+    });
+  };
 
   // Get status chip color based on status
   const getStatusColor = (status) => {
     switch (status) {
       case "Approval":
-        return "success"
+        return "success";
       case "Rejected":
-        return "error"
+        return "error";
       default:
-        return "warning"
+        return "warning";
     }
-  }
+  };
 
   // Mobile view - Card based layout
   const renderMobileView = () => {
@@ -202,14 +224,26 @@ const ExtendedWarrantyManager = () => {
       <Box sx={{ mt: 2 }}>
         {filteredCustomers.length > 0 ? (
           filteredCustomers.map((customer, index) => {
-            const warranty = customer.extendedWarrantyRequests[0]
+            const warranty = customer.extendedWarrantyRequests[0];
             return (
               <Card key={index} sx={{ mb: 2, borderRadius: 2 }}>
                 <CardHeader
                   title={
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <Typography variant="subtitle1">ID: {customer.customerId}</Typography>
-                      <Chip label={warranty.status} color={getStatusColor(warranty.status)} size="small" />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="subtitle1">
+                        ID: {customer.customerId}
+                      </Typography>
+                      <Chip
+                        label={warranty.status}
+                        color={getStatusColor(warranty.status)}
+                        size="small"
+                      />
                     </Box>
                   }
                   action={
@@ -218,7 +252,11 @@ const ExtendedWarrantyManager = () => {
                       aria-expanded={expandedRows[customer.customerId]}
                       aria-label="show more"
                     >
-                      {expandedRows[customer.customerId] ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                      {expandedRows[customer.customerId] ? (
+                        <KeyboardArrowUpIcon />
+                      ) : (
+                        <KeyboardArrowDownIcon />
+                      )}
                     </IconButton>
                   }
                   sx={{ pb: 0 }}
@@ -231,37 +269,133 @@ const ExtendedWarrantyManager = () => {
                     {customer.email}
                   </Typography>
 
-                  <Collapse in={expandedRows[customer.customerId]} timeout="auto" unmountOnExit>
+                  <Collapse
+                    in={expandedRows[customer.customerId]}
+                    timeout="auto"
+                    unmountOnExit
+                  >
                     <Box sx={{ mt: 2, mb: 1 }}>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} |{" "}
-                        {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+                      <Typography variant="h6" gutterBottom>
+                        Customer Details
                       </Typography>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        <strong>Extended Warranty Amount:</strong> {warranty.extendedwarranty_amount || "N/A"}
+                      <Grid container spacing={2} sx={{ mb: 3 }}>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>Email:</strong> {customer.email || "N/A"}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>Phone1:</strong>{" "}
+                            {customer.mobileNumber1 || "N/A"}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Phone2:</strong>{" "}
+                            {customer.mobileNumber2 || "N/A"}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+
+                      {/* Vehicle Details Section */}
+                      <Typography
+                        variant="h6"
+                        gutterBottom
+                        sx={{ fontSize: "1rem" }}
+                      >
+                        Vehicle Details
                       </Typography>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        <strong>Created At:</strong> {new Date(warranty.createdAt).toLocaleString()}
+                      <Grid container spacing={2} sx={{ mb: 3 }}>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>Allotment Status:</strong>{" "}
+                            {customer?.stockInfo?.allotmentStatus ||
+                              "Not Allocated"}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>VIN:</strong>{" "}
+                            {customer?.stockInfo?.vin || "N/A"}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>Chassis Number:</strong>{" "}
+                            {customer?.stockInfo?.chassisNumber || "N/A"}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>Engine Number:</strong>{" "}
+                            {customer?.stockInfo?.engineNumber || "N/A"}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Typography variant="body2">
+                            <strong>Car Details:</strong>{" "}
+                            {customer.carBooking?.model || "N/A"} |{" "}
+                            {customer.carBooking?.version || "N/A"} |{" "}
+                            {customer.carBooking?.color || "N/A"}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+
+                      <Typography
+                        variant="h6"
+                        gutterBottom
+                        sx={{ fontSize: "1rem" }}
+                      >
+                        Extended Warranty Details
                       </Typography>
-                      {warranty.ex_Reason && (
-                        <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                          <strong>Rejection Reason:</strong> {warranty.ex_Reason}
+                      <Grid container spacing={2} sx={{ mb: 3 }}>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>Extended Warranty Amount:</strong>{" "}
+                            {warranty?.extendedwarranty_amount || "N/A"}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2">
+                            <strong>Request Date:</strong>{" "}
+                            {warranty?.createdAt
+                              ? new Date(warranty.createdAt).toLocaleString(
+                                  "en-IN",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  }
+                                )
+                              : "N/A"}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Typography variant="body2">
+                          <strong>Confirm Benefits:</strong>{" "}
+                          {warranty?.request_extended_warranty || "N/A"}
                         </Typography>
-                      )}
+                      </Grid>
                     </Box>
                   </Collapse>
                 </CardContent>
                 <CardActions sx={{ justifyContent: "flex-end", pt: 0 }}>
-                  <Button size="small" onClick={() => handleDocumentsClick(customer, warranty)}>
+                  <Button
+                    size="small"
+                    onClick={() => handleDocumentsClick(customer, warranty)}
+                  >
                     Warranty Details
                   </Button>
                   <Button
                     size="small"
                     color="success"
                     onClick={() => {
-                      setSelectedCustomer(customer)
-                      setSelectedWarranty(warranty)
-                      handleApprove(selectedCustomer.customerId)
+                      setSelectedCustomer(customer);
+                      setSelectedWarranty(warranty);
+                      handleApprove(selectedCustomer.customerId);
                     }}
                   >
                     Approve
@@ -270,25 +404,27 @@ const ExtendedWarrantyManager = () => {
                     size="small"
                     color="error"
                     onClick={() => {
-                      setSelectedCustomer(customer)
-                      setSelectedWarranty(warranty)
-                      setShowModal(true)
+                      setSelectedCustomer(customer);
+                      setSelectedWarranty(warranty);
+                      setShowModal(true);
                     }}
                   >
                     Reject
                   </Button>
                 </CardActions>
               </Card>
-            )
+            );
           })
         ) : (
           <Card sx={{ p: 2, textAlign: "center" }}>
-            <Typography color="text.secondary">No pending extended warranties found.</Typography>
+            <Typography color="text.secondary">
+              No pending extended warranties found.
+            </Typography>
           </Card>
         )}
       </Box>
-    )
-  }
+    );
+  };
 
   // Tablet view - Simplified table
   const renderTabletView = () => {
@@ -302,13 +438,12 @@ const ExtendedWarrantyManager = () => {
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer, index) => {
-                const warranty = customer.extendedWarrantyRequests[0]
+                const warranty = customer.extendedWarrantyRequests[0];
                 return (
                   <React.Fragment key={index}>
                     <TableRow>
@@ -319,7 +454,11 @@ const ExtendedWarrantyManager = () => {
                           aria-expanded={expandedRows[customer.customerId]}
                           aria-label="expand row"
                         >
-                          {expandedRows[customer.customerId] ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                          {expandedRows[customer.customerId] ? (
+                            <KeyboardArrowUpIcon />
+                          ) : (
+                            <KeyboardArrowDownIcon />
+                          )}
                         </IconButton>
                       </TableCell>
                       <TableCell component="th" scope="row">
@@ -328,71 +467,167 @@ const ExtendedWarrantyManager = () => {
                       <TableCell>{getFullName(customer)}</TableCell>
                       <TableCell>{customer.email}</TableCell>
                       <TableCell>
-                        <Chip label={warranty.status} color={getStatusColor(warranty.status)} size="small" />
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button size="small" onClick={() => handleDocumentsClick(customer, warranty)} sx={{ mr: 1 }}>
-                          Details
-                        </Button>
-                        <Button
+                        <Chip
+                          label={warranty.status}
+                          color={getStatusColor(warranty.status)}
                           size="small"
-                          color="success"
-                          onClick={() => {
-                            setSelectedCustomer(customer)
-                            setSelectedWarranty(warranty)
-                            handleApprove(selectedCustomer.customerId)
-                          }}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          onClick={() => {
-                            setSelectedCustomer(customer)
-                            setSelectedWarranty(warranty)
-                            setShowModal(true)
-                          }}
-                        >
-                          Reject
-                        </Button>
+                        />
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                        <Collapse in={expandedRows[customer.customerId]} timeout="auto" unmountOnExit>
+                      <TableCell
+                        style={{ paddingBottom: 0, paddingTop: 0 }}
+                        colSpan={6}
+                      >
+                        <Collapse
+                          in={expandedRows[customer.customerId]}
+                          timeout="auto"
+                          unmountOnExit
+                        >
                           <Box sx={{ margin: 1, py: 2 }}>
-                            <Grid container spacing={2}>
+                            <Typography variant="h6" gutterBottom>
+                              Customer Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Email:</strong>{" "}
+                                  {customer.email || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Phone1:</strong>{" "}
+                                  {customer.mobileNumber1 || "N/A"}
+                                </Typography>
+                                <Typography variant="body2">
+                                  <strong>Phone2:</strong>{" "}
+                                  {customer.mobileNumber2 || "N/A"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+
+                            {/* Vehicle Details Section */}
+                            <Typography
+                              variant="h6"
+                              gutterBottom
+                              sx={{ fontSize: "1rem" }}
+                            >
+                              Vehicle Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Allotment Status:</strong>{" "}
+                                  {customer?.stockInfo?.allotmentStatus ||
+                                    "Not Allocated"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>VIN:</strong>{" "}
+                                  {customer?.stockInfo?.vin || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Chassis Number:</strong>{" "}
+                                  {customer?.stockInfo?.chassisNumber || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Engine Number:</strong>{" "}
+                                  {customer?.stockInfo?.engineNumber || "N/A"}
+                                </Typography>
+                              </Grid>
                               <Grid item xs={12}>
                                 <Typography variant="body2">
-                                  <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} |{" "}
-                                  {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+                                  <strong>Car Details:</strong>{" "}
+                                  {customer.carBooking?.model || "N/A"} |{" "}
+                                  {customer.carBooking?.version || "N/A"} |{" "}
+                                  {customer.carBooking?.color || "N/A"}
                                 </Typography>
                               </Grid>
-                              <Grid item xs={6}>
-                                <Typography variant="body2">
-                                  <strong>Extended Warranty Amount:</strong> {warranty.extendedwarranty_amount || "N/A"}
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={6}>
-                                <Typography variant="body2">
-                                  <strong>Created At:</strong> {new Date(warranty.createdAt).toLocaleString()}
-                                </Typography>
-                              </Grid>
-                              {warranty.ex_Reason && (
-                                <Grid item xs={12}>
-                                  <Typography variant="body2" color="error">
-                                    <strong>Rejection Reason:</strong> {warranty.ex_Reason}
-                                  </Typography>
-                                </Grid>
-                              )}
                             </Grid>
+
+                            <Typography
+                              variant="h6"
+                              gutterBottom
+                              sx={{ fontSize: "1rem" }}
+                            >
+                              Extended Warranty Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Extended Warranty Amount:</strong>{" "}
+                                  {warranty?.extendedwarranty_amount || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Request Date:</strong>{" "}
+                                  {warranty?.createdAt
+                                    ? new Date(
+                                        warranty.createdAt
+                                      ).toLocaleString("en-IN", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })
+                                    : "N/A"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                            <Grid item xs={12}>
+                              <Typography variant="body2">
+                                <strong>Confirm Benefits:</strong>{" "}
+                                {warranty?.request_extended_warranty || "N/A"}
+                              </Typography>
+                            </Grid>
+                          </Box>
+                          <Box align="right">
+                            <Button
+                              size="small"
+                              onClick={() =>
+                                handleDocumentsClick(customer, warranty)
+                              }
+                              sx={{ mr: 1 }}
+                            >
+                              Details
+                            </Button>
+                            <Button
+                              size="small"
+                              color="success"
+                              onClick={() => {
+                                setSelectedCustomer(customer);
+                                setSelectedWarranty(warranty);
+                                handleApprove(selectedCustomer.customerId);
+                              }}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="small"
+                              color="error"
+                              onClick={() => {
+                                setSelectedCustomer(customer);
+                                setSelectedWarranty(warranty);
+                                setShowModal(true);
+                              }}
+                            >
+                              Reject
+                            </Button>
                           </Box>
                         </Collapse>
                       </TableCell>
                     </TableRow>
                   </React.Fragment>
-                )
+                );
               })
             ) : (
               <TableRow>
@@ -404,8 +639,8 @@ const ExtendedWarrantyManager = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    )
-  }
+    );
+  };
 
   // Desktop view - Full table
   const renderDesktopView = () => {
@@ -427,7 +662,7 @@ const ExtendedWarrantyManager = () => {
           <TableBody>
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer, index) => {
-                const warranty = customer.extendedWarrantyRequests[0]
+                const warranty = customer.extendedWarrantyRequests[0];
                 return (
                   <React.Fragment key={index}>
                     <TableRow>
@@ -438,7 +673,11 @@ const ExtendedWarrantyManager = () => {
                           aria-expanded={expandedRows[customer.customerId]}
                           aria-label="expand row"
                         >
-                          {expandedRows[customer.customerId] ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                          {expandedRows[customer.customerId] ? (
+                            <KeyboardArrowUpIcon />
+                          ) : (
+                            <KeyboardArrowDownIcon />
+                          )}
                         </IconButton>
                       </TableCell>
                       <TableCell component="th" scope="row">
@@ -447,24 +686,37 @@ const ExtendedWarrantyManager = () => {
                       <TableCell>{getFullName(customer)}</TableCell>
                       <TableCell>{customer.email}</TableCell>
                       <TableCell>
-                        {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} |{" "}
+                        {customer.carBooking?.model || "N/A"} |{" "}
+                        {customer.carBooking?.version || "N/A"} |{" "}
                         {customer.carBooking?.color || "N/A"}
                       </TableCell>
-                      <TableCell>{warranty.extendedwarranty_amount || "N/A"}</TableCell>
                       <TableCell>
-                        <Chip label={warranty.status} color={getStatusColor(warranty.status)} size="small" />
+                        {warranty.extendedwarranty_amount || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={warranty.status}
+                          color={getStatusColor(warranty.status)}
+                          size="small"
+                        />
                       </TableCell>
                       <TableCell align="right">
-                        <Button size="small" onClick={() => handleDocumentsClick(customer, warranty)} sx={{ mr: 1 }}>
+                        <Button
+                          size="small"
+                          onClick={() =>
+                            handleDocumentsClick(customer, warranty)
+                          }
+                          sx={{ mr: 1 }}
+                        >
                           Details
                         </Button>
                         <Button
                           size="small"
                           color="success"
                           onClick={() => {
-                            setSelectedCustomer(customer)
-                            setSelectedWarranty(warranty)
-                            handleApprove(selectedCustomer.customerId)
+                            setSelectedCustomer(customer);
+                            setSelectedWarranty(warranty);
+                            handleApprove(selectedCustomer.customerId);
                           }}
                         >
                           Approve
@@ -473,9 +725,9 @@ const ExtendedWarrantyManager = () => {
                           size="small"
                           color="error"
                           onClick={() => {
-                            setSelectedCustomer(customer)
-                            setSelectedWarranty(warranty)
-                            setShowModal(true)
+                            setSelectedCustomer(customer);
+                            setSelectedWarranty(warranty);
+                            setShowModal(true);
                           }}
                         >
                           Reject
@@ -483,38 +735,126 @@ const ExtendedWarrantyManager = () => {
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
-                        <Collapse in={expandedRows[customer.customerId]} timeout="auto" unmountOnExit>
+                      <TableCell
+                        style={{ paddingBottom: 0, paddingTop: 0 }}
+                        colSpan={8}
+                      >
+                        <Collapse
+                          in={expandedRows[customer.customerId]}
+                          timeout="auto"
+                          unmountOnExit
+                        >
                           <Box sx={{ margin: 1, py: 2 }}>
-                            <Typography variant="h6" gutterBottom component="div">
+                            <Typography variant="h6" gutterBottom>
+                              Customer Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Email:</strong>{" "}
+                                  {customer.email || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Phone1:</strong>{" "}
+                                  {customer.mobileNumber1 || "N/A"}
+                                </Typography>
+                                <Typography variant="body2">
+                                  <strong>Phone2:</strong>{" "}
+                                  {customer.mobileNumber2 || "N/A"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+
+                            {/* Vehicle Details Section */}
+                            <Typography
+                              variant="h6"
+                              gutterBottom
+                              sx={{ fontSize: "1rem" }}
+                            >
+                              Vehicle Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Allotment Status:</strong>{" "}
+                                  {customer?.stockInfo?.allotmentStatus ||
+                                    "Not Allocated"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>VIN:</strong>{" "}
+                                  {customer?.stockInfo?.vin || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Chassis Number:</strong>{" "}
+                                  {customer?.stockInfo?.chassisNumber || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Engine Number:</strong>{" "}
+                                  {customer?.stockInfo?.engineNumber || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography variant="body2">
+                                  <strong>Car Details:</strong>{" "}
+                                  {customer.carBooking?.model || "N/A"} |{" "}
+                                  {customer.carBooking?.version || "N/A"} |{" "}
+                                  {customer.carBooking?.color || "N/A"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+
+                            <Typography
+                              variant="h6"
+                              gutterBottom
+                              sx={{ fontSize: "1rem" }}
+                            >
                               Extended Warranty Details
                             </Typography>
-                            <Grid container spacing={2}>
-                              <Grid item xs={12} md={6}>
-                                <Typography variant="body2" gutterBottom>
-                                  <strong>Warranty Information:</strong>
-                                </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
                                 <Typography variant="body2">
-                                  Created At: {new Date(warranty.createdAt).toLocaleString()}
-                                </Typography>
-                                <Typography variant="body2">
-                                  Updated At: {new Date(warranty.updatedAt).toLocaleString()}
+                                  <strong>Extended Warranty Amount:</strong>{" "}
+                                  {warranty?.extendedwarranty_amount || "N/A"}
                                 </Typography>
                               </Grid>
-                              <Grid item xs={12} md={6}>
-                                {warranty.ex_Reason && (
-                                  <Typography variant="body2" color="error">
-                                    <strong>Rejection Reason:</strong> {warranty.ex_Reason}
-                                  </Typography>
-                                )}
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Request Date:</strong>{" "}
+                                  {warranty?.createdAt
+                                    ? new Date(
+                                        warranty.createdAt
+                                      ).toLocaleString("en-IN", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })
+                                    : "N/A"}
+                                </Typography>
                               </Grid>
+                            </Grid>
+                            <Grid item xs={12}>
+                              <Typography variant="body2">
+                                <strong>Confirm Benefits:</strong>{" "}
+                                {warranty?.request_extended_warranty || "N/A"}
+                              </Typography>
                             </Grid>
                           </Box>
                         </Collapse>
                       </TableCell>
                     </TableRow>
                   </React.Fragment>
-                )
+                );
               })
             ) : (
               <TableRow>
@@ -526,17 +866,28 @@ const ExtendedWarrantyManager = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    )
-  }
+    );
+  };
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom align="center" sx={{ color: "#071947" }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        align="center"
+        sx={{ color: "#071947" }}
+      >
         Extended Warranty Management
       </Typography>
 
       {/* Search Bar */}
-      <Box sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" }, mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: { xs: "center", md: "flex-start" },
+          mb: 3,
+        }}
+      >
         <TextField
           variant="outlined"
           placeholder="Search..."
@@ -571,7 +922,12 @@ const ExtendedWarrantyManager = () => {
       )}
 
       {/* Documents Modal */}
-      <Dialog open={showDocumentsModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+      <Dialog
+        open={showDocumentsModal}
+        onClose={handleCloseModal}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Extended Warranty Details</DialogTitle>
         <DialogContent dividers>
           {selectedWarranty && (
@@ -583,25 +939,29 @@ const ExtendedWarrantyManager = () => {
                 <strong>Full Name:</strong> {getFullName(selectedCustomer)}
               </Typography>
               <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Extended Warranty Amount:</strong> {selectedWarranty.extendedwarranty_amount}
+                <strong>Extended Warranty Amount:</strong>{" "}
+                {selectedWarranty.extendedwarranty_amount}
               </Typography>
               <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Created At:</strong> {new Date(selectedWarranty.createdAt).toLocaleString()}
+                <strong>Created At:</strong>{" "}
+                {new Date(selectedWarranty.createdAt).toLocaleString()}
               </Typography>
               <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Updated At:</strong> {new Date(selectedWarranty.updatedAt).toLocaleString()}
+                <strong>Updated At:</strong>{" "}
+                {new Date(selectedWarranty.updatedAt).toLocaleString()}
               </Typography>
-              {selectedWarranty.ex_Reason && (
-                <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                  <strong>Extended Warranty Rejection Reason:</strong> {selectedWarranty.ex_Reason}
-                </Typography>
-              )}
+          
             </>
           )}
         </DialogContent>
         <DialogActions>
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button variant="contained" color="success" size="small" onClick={handleApprove}>
+            <Button
+              variant="contained"
+              color="success"
+              size="small"
+              onClick={handleApprove}
+            >
               Approve
             </Button>
             <Button
@@ -609,13 +969,18 @@ const ExtendedWarrantyManager = () => {
               color="error"
               size="small"
               onClick={() => {
-                setShowDocumentsModal(false)
-                setShowModal(true)
+                setShowDocumentsModal(false);
+                setShowModal(true);
               }}
             >
               Reject
             </Button>
-            <Button variant="contained" color="primary" size="small" onClick={handleCloseModal}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={handleCloseModal}
+            >
               Close
             </Button>
           </Box>
@@ -623,10 +988,16 @@ const ExtendedWarrantyManager = () => {
       </Dialog>
 
       {/* Rejection Modal */}
-      <Dialog open={showModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+      <Dialog
+        open={showModal}
+        onClose={handleCloseModal}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>
           <Typography>
-            <strong>Reject Extended Warranty for:</strong> {selectedCustomer?.customerId || "N/A"}{" "}
+            <strong>Reject Extended Warranty for:</strong>{" "}
+            {selectedCustomer?.customerId || "N/A"}{" "}
             {selectedCustomer?.customerId && (
               <VerifiedRoundedIcon
                 sx={{
@@ -660,7 +1031,12 @@ const ExtendedWarrantyManager = () => {
             />
 
             <FormControlLabel
-              control={<Checkbox checked={isConfirmed} onChange={(e) => setIsConfirmed(e.target.checked)} />}
+              control={
+                <Checkbox
+                  checked={isConfirmed}
+                  onChange={(e) => setIsConfirmed(e.target.checked)}
+                />
+              }
               label="I confirm the extended warranty rejection"
             />
           </Box>
@@ -673,13 +1049,18 @@ const ExtendedWarrantyManager = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseModal}>Close</Button>
-          <Button variant="contained" color="error" disabled={!isConfirmed || !ex_Reason} onClick={handleReject}>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={!isConfirmed || !ex_Reason}
+            onClick={handleReject}
+          >
             Confirm
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
-  )
-}
+  );
+};
 
-export default ExtendedWarrantyManager
+export default ExtendedWarrantyManager;

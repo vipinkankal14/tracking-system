@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
- 
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import FlakyRoundedIcon from '@mui/icons-material/FlakyRounded';
- 
+
 const Container = styled.div`
   padding: 2rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
   overflow: auto;
- `;
+`;
 
 const Title = styled.h1`
   margin-bottom: 2rem;
@@ -23,6 +22,7 @@ const Title = styled.h1`
     font-size: 1.5rem;
   }
 `;
+
 const Subtitle = styled.h2`
   margin-bottom: 1rem;
   text-align: center;
@@ -69,10 +69,10 @@ const getIconStyles = (type) => {
     danger: { background: '#fee2e2', color: '#dc2626' },
     success: { background: '#dcfce7', color: '#16a34a' },
     warning: { background: '#fef3c7', color: '#d97706' },
-    CarAllotment: { background: '#e1f5e6', color: '#0f0569' },
-    CarAllotmentByCustomer: { background: '#ebe6ed', color: '#09913d' },
-    CarAllotmentBOOKING: { background: '#f4f2f5', color: '#0b070d' },
-   };
+    Approved: { background: '#d4edda', color: '#155724' },
+    Rejected: { background: '#f8d7da', color: '#721c24' },
+    pending: { background: '#fff3cd', color: '#856404' },
+  };
   return styles[type] || styles.primary;
 };
 
@@ -111,56 +111,137 @@ const CardStatus = styled.div`
   color: #6b7280;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #4b5563;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #dc2626;
+  padding: 1rem;
+  text-align: center;
+`;
 
 function CoatingApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ 
+    Approval: 0, 
+    Rejected: 0, 
+    Pending: 0,
+    totalInterested: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success) {
+          setCounts({
+            Approval: data.data.counts.coating?.Approval || 0,
+            Rejected: data.data.counts.coating?.Rejected || 0,
+            Pending: data.data.counts.coating?.Pending || 0,
+            totalInterested: data.data.counts.coating?.totalInterested || 0
+          });
+        } else {
+          throw new Error(data.message || 'Failed to fetch data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCounts();
+  }, []);
+
+  const statusCards = [
     {
       id: 'Approved',
       title: 'Coating Approved',
-      count: 80,
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
       path: '/Coating-Management/coating-approved',
-     
     },
     {
       id: 'Rejected',
       title: 'Coating Rejected',
-      count: 80,
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
       path: '/Coating-Management/coating-rejected',
-     
     },
     {
       id: 'pending',
-      title: 'Car Pending for Coating',
-      count: 80,
-      status: 'Car coating Amount update Request',
+      title: 'Pending Coating',
+      count: counts.Pending,
+      status: 'Pending Approval',
       icon: CarRentalIcon,
       iconType: 'pending',
       path: '/Coating-Management/car-pending-for-coating',
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return (
+      <Container>
+        <LoadingContainer>Loading coating data...</LoadingContainer>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <ErrorContainer>
+          Error loading coating data: {error}
+          <br />
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ 
+              marginTop: '1rem',
+              padding: '0.5rem 1rem',
+              background: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Retry
+          </button>
+        </ErrorContainer>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>Coating Status Overview</Title>
+       <Grid>
         {statusCards.map((card) => (
-          <Card 
-            key={card.id}
-            onClick={() => handleCardClick(card.path)}
-          >
+          <Card key={card.id} onClick={() => handleCardClick(card.path)}>
             <CardContent>
               <IconWrapper iconType={card.iconType}>
                 <card.icon sx={{ fontSize: 32 }} />
@@ -179,7 +260,3 @@ function CoatingApp() {
 }
 
 export default CoatingApp;
-
-
-
-

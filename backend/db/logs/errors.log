@@ -1,0 +1,6 @@
+2025-04-13 15:18:00 - ERROR: Database error
+{
+  "error": "Column 'password' cannot be null",
+  "query": "INSERT INTO users SET `emp_id` = 'EMP0019', `username` = 'vishukankal', `email` = 'vishukankal007@gmail.com', `password` = NULL, `role` = 'Sales Department', `profile_image` = '', `teamLeaderName` = '', `teamRole` = 'Team Leader', `phone_number` = '7775870753', `current_salary` = '299993', `aadhar_number` = '111111111111', `pan_number` = 'DFSH3489SD', `street_address` = 'Himanshu haven society flat no:BA-08, 85-deolail Aurangabad', `city` = 'Pune', `state` = 'forgot-password', `postal_code` = '431007', `country` = 'India', `employment_start_date` = '2025-04-13', `employment_end_date` = 'null', `is_active` = 'true'"
+}
+

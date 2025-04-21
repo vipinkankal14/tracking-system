@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
  
@@ -114,48 +114,99 @@ const CardStatus = styled.div`
 
 function SecurityClearanceApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ 
+    Approval: 0, 
+    Rejected: 0, 
+    Pending: 0,
+    totalInterested: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect (() => {
+    const fetchSecurityData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        const data = await response.json();
+        
+        if (data.success) {
+          setCounts({
+            Approval: data.data.counts.securityClearance?.Approval || 0,
+            Rejected: data.data.counts.securityClearance?.Rejected || 0,
+            Pending: data.data.counts.securityClearance?.Pending || 0,
+            totalInterested: data.data.counts.securityClearance?.totalInterested || 0
+          });
+        } else {
+          throw new Error('Failed to fetch security clearance data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSecurityData();
+  }, []);
+
+  const statusCards = [
     {
       id: 'Approved',
-      title: 'security clearance Approved',
-      count: 80,
+      title: 'Security Clearance Approved',
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
       path: '/SecurityClearance-Management/securityclearance-approved',
-     
     },
     {
       id: 'Rejected',
       title: 'Security Clearance Rejected',
-      count: 80,
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
       path: '/SecurityClearance-Management/securityclearance-rejected',
-     
     },
     {
       id: 'pending',
-      title: 'Car Pending for Security Clearance',
-      count: 80,
-      status: 'Car Security Clearance Amount update Request',
+      title: 'Security Clearance Pending',
+      count: counts.Pending,
+      status: 'Pending Approval',
       icon: CarRentalIcon,
       iconType: 'pending',
       path: '/SecurityClearance-Management/car-pending-for-securityclearance',
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return <Container>Loading security clearance data...</Container>;
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <div style={{ color: 'red', textAlign: 'center' }}>
+          Error: {error}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+          >
+            Retry
+          </button>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>Security Clearance Status Overview</Title>
+       <Grid>
         {statusCards.map((card) => (
           <Card 
             key={card.id}

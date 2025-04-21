@@ -90,7 +90,7 @@ const NotificationSystem = () => {
 
   const handleCustomerClick = (customer) => {
     markAsRead(customer.customerId)
-    navigate("/car-stock-show", {
+    navigate("/car-stock-Management/car-stock-show", {
       state: {
         model: customer.carBooking?.model,
         version: customer.carBooking?.version,

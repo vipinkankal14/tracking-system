@@ -172,7 +172,7 @@ function Navbar() {
             }}
           >
             {navLinks.map((link) => (
-              <Typography
+              <Button
                 key={link.path}
                 component={Link}
                 to={link.path}
@@ -191,7 +191,7 @@ function Navbar() {
                 }}
               >
                 {link.name}
-              </Typography>
+              </Button>
             ))}
           </Box>
 

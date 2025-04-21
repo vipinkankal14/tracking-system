@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
 import { DirectionsCar} from '@mui/icons-material';
@@ -116,48 +116,99 @@ const CardStatus = styled.div`
 
 function FinanceApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ 
+    Approval: 0, 
+    Rejected: 0, 
+    Pending: 0,
+    totalInterested: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchFinanceData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        const data = await response.json();
+        
+        if (data.success) {
+          setCounts({
+            Approval: data.data.counts.finance?.Approval || 0,
+            Rejected: data.data.counts.finance?.Rejected || 0,
+            Pending: data.data.counts.finance?.Pending || 0,
+            totalInterested: data.data.counts.finance?.totalInterested || 0
+          });
+        } else {
+          throw new Error('Failed to fetch finance data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFinanceData();
+  }, []);
+
+  const statusCards = [
     {
       id: 'Approved',
       title: 'Finance Approved',
-      count: 80,
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
       path: '/Finance-Management/finance-approved',
-     
     },
     {
       id: 'Rejected',
       title: 'Finance Rejected',
-      count: 80,
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
       path: '/Finance-Management/finance-rejected',
-     
     },
     {
       id: 'pending',
-      title: 'Car Pending for Finance',
-      count: 80,
-      status: 'Car Finance Amount update Request',
+      title: 'Finance Pending',
+      count: counts.Pending,
+      status: 'Pending Approval',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/Finance-Management/Finance-Pending',
+      path: '/Finance-Management/finance-pending',
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return <Container>Loading finance data...</Container>;
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <div style={{ color: 'red', textAlign: 'center' }}>
+          Error: {error}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+          >
+            Retry
+          </button>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>Finance Status Overview</Title>
+       <Grid>
         {statusCards.map((card) => (
           <Card 
             key={card.id}

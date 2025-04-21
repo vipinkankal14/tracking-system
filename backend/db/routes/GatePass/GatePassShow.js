@@ -93,6 +93,7 @@ const GatePassShow = async (req, res) => {
               adi.fast_tag,
               adi.insurance,
               adi.auto_card,
+              adi.extended_warranty,
 
               cir.id AS fasttag_id,
               cir.rcDocument,
@@ -275,7 +276,7 @@ const GatePassShow = async (req, res) => {
             )
             AND pre.status = 'Approval'  -- Added condition to check pre.status
 
-            WHERE ai.status = 'approved'
+            WHERE ai.status = 'Approval'
             ORDER BY c.createdAt DESC
             LIMIT ? OFFSET ?
       `;
@@ -337,8 +338,6 @@ const GatePassShow = async (req, res) => {
                         insurance: row.insurance || '',
                         auto_card: row.auto_card || '',
                         extended_warranty:row.extended_warranty || ''
-
-                        
                     },
                     account_management: {
                         updatedAt: row.updatedAt,
@@ -549,7 +548,7 @@ const GatePassShow = async (req, res) => {
           SELECT COUNT(DISTINCT c.customerId) as total 
           FROM customers c
           JOIN account_management ai ON c.customerId = ai.customerId
-          WHERE ai.status = 'approved'
+          WHERE ai.status = 'Approval'
       `);
         const total = countResult[0].total;
 

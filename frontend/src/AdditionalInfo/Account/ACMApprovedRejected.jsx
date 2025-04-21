@@ -57,12 +57,12 @@ const PaymentDashboard = () => {
 
         const stats = response.data.reduce(
           (acc, customer) => {
-            if (customer.status === "approved" || customer.status === "rejected") {
+            if (customer.status === "Approval" || customer.status === "Rejected") {
               acc.total++;
               
-              if (customer.status === "approved") {
+              if (customer.status === "Approval") {
                 acc.approved++;
-              } else if (customer.status === "rejected") {
+              } else if (customer.status === "Rejected") {
                 acc.rejected++;
               }
             }
@@ -89,14 +89,14 @@ const PaymentDashboard = () => {
 
     // First filter by approval status (include only approved or rejected)
     result = result.filter(customer => 
-      customer.status === "approved" || customer.status === "rejected"
+      customer.status === "Approval" || customer.status === "Rejected"
     );
 
     // Filter by payment status based on active tab
     if (activeTab === 1) {
-      result = result.filter((customer) => customer.status === "approved")
+      result = result.filter((customer) => customer.status === "Approval")
     } else if (activeTab === 2) {
-      result = result.filter((customer) => customer.status === "rejected")
+      result = result.filter((customer) => customer.status === "Rejected")
     }
 
     // Apply search filter
@@ -155,7 +155,7 @@ const PaymentDashboard = () => {
   }
 
   const handleViewCustomerDetails = (customerId) => {
-    navigate(`/payment-history/${customerId}`)
+    navigate(`/account-Management/payment-history/${customerId}`)
   }
 
   const formatCurrency = (amount) => {
@@ -325,7 +325,7 @@ const PaymentDashboard = () => {
                               ID: {customer.customerId}
                             </Typography>
                           </div>
-                          <Badge bg={customer.status === "approved" ? "success" : "danger"} className="px-3 py-2">
+                          <Badge bg={customer.status === "Approval" ? "success" : "danger"} className="px-3 py-2">
                             {customer.status}
                           </Badge>
                         </div>
@@ -376,7 +376,7 @@ const PaymentDashboard = () => {
 
                         <div className="d-flex justify-content-end mt-3">
                           <IconButton color="primary" onClick={() => handleViewCustomerDetails(customer.customerId)}>
-                            {customer.status === "approved" ? (
+                            {customer.status === "Approval" ? (
                               <DoneAllIcon style={{ color: "#1b1994" }} />
                             ) : (
                               <PendingActionsOutlinedIcon style={{ color: "#e8e110" }} />
@@ -510,7 +510,7 @@ const PaymentDashboard = () => {
                             <Chip
                               label={customer.status}
                               size="small"
-                              color={customer.status === "approved" ? "success" : "error"}
+                              color={customer.status === "Approval" ? "success" : "error"}
                             />
                           </TableCell>
                           <TableCell>
@@ -547,7 +547,7 @@ const PaymentDashboard = () => {
             <div className="d-flex justify-content-between align-items-center">
               <Typography variant="body2">
                 Showing {filteredCustomers.length} of {customers.filter(c => 
-                  c.status === "approved" || c.status === "rejected"
+                  c.status === "Approval" || c.status === "Rejected"
                 ).length} customers...
               </Typography>
               <div>

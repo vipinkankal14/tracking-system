@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
  
@@ -112,50 +112,102 @@ const CardStatus = styled.div`
 `;
 
 
+
 function GatepassApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ 
+    Approval: 0, 
+    Rejected: 0, 
+    Pending: 0,
+    totalInterested: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchGatepassData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        const data = await response.json();
+        
+        if (data.success) {
+          setCounts({
+            Approval: data.data.counts.gatePass?.Approval || 0,
+            Rejected: data.data.counts.gatePass?.Rejected || 0,
+            Pending: data.data.counts.gatePass?.Pending || 0,
+            totalInterested: data.data.counts.gatePass?.totalInterested || 0
+          });
+        } else {
+          throw new Error('Failed to fetch gatepass data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGatepassData();
+  }, []);
+
+  const statusCards = [
     {
       id: 'Approved',
       title: 'Gatepass Approved',
-      count: 80,
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
       path: '/account-Management/gatepass-approved',
-     
     },
     {
       id: 'Rejected',
       title: 'Gatepass Rejected',
-      count: 80,
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
       path: '/account-Management/gatepass-rejected',
-     
     },
     {
       id: 'pending',
-      title: 'Car Pending for Gatepass',
-      count: 80,
-      status: 'Car gatepass Amount update Request',
+      title: 'Gatepass Pending',
+      count: counts.Pending,
+      status: 'Pending Approval',
       icon: CarRentalIcon,
       iconType: 'pending',
       path: '/account-Management/car-pending-for-gatepass',
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return <Container>Loading gatepass data...</Container>;
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <div style={{ color: 'red', textAlign: 'center' }}>
+          Error: {error}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+          >
+            Retry
+          </button>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>Gatepass Status Overview</Title>
+       <Grid>
         {statusCards.map((card) => (
           <Card 
             key={card.id}
@@ -179,7 +231,5 @@ function GatepassApp() {
 }
 
 export default GatepassApp;
-
-
 
 

@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Spinner } from "react-bootstrap";
-import axios from "axios";
+ import axios from "axios";
 import {
   Paper,
   Typography,
   Box,
-  Divider,
   Table,
   TableBody,
   TableCell,
@@ -15,8 +14,6 @@ import {
   TableHead,
   TableRow,
   Button,
-  Tabs,
-  Tab,
   Slider,
   styled,
   useMediaQuery,
@@ -25,6 +22,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Modal,
 } from "@mui/material";
 import {
   PieChart,
@@ -38,12 +36,11 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts";
-import { Refresh, Download } from "@mui/icons-material";
+import { Refresh, Download,  Visibility,   } from "@mui/icons-material";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import RecentPayments from "./RecentPayments";
 
 // Custom styled IOSSlider
 const IOSSlider = styled(Slider)(({ theme }) => ({
@@ -110,6 +107,7 @@ const PaymentSummary = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState("all");
+   const [openRecentPaymentsModal, setOpenRecentPaymentsModal] = useState(false);
 
   const [activeTab, setActiveTab] = useState(0);
   const [timeRange, setTimeRange] = useState("live");
@@ -435,335 +433,315 @@ const PaymentSummary = () => {
   }
 
   return (
-    <Container>
-        <div ref={reportRef}>
+    <>
+      <div ref={reportRef}>
+        <Row className="mb-4">
+          <Col>
+            <Paper elevation={0} className="p-4 bg-white rounded">
+                 
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <Button
+                variant="outlined"
+                startIcon={<Download />}
+                onClick={exportToPDF}
+              >
+                Export as PDF
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => setOpenRecentPaymentsModal(true)}
+                startIcon={<Visibility />}
+              >
+                View Recent Payments
+              </Button>
+              </div>
               
-            <Row className="mb-4">
-            <Col>
-                <Paper elevation={0} className="p-4 bg-white rounded">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <Typography variant="h5" style={{ color: "#071947" }}>
-                    Payment Summary
-                    </Typography>
-                    <Button
-                    variant="outlined"
-                    startIcon={<Download />}
-                    onClick={exportToPDF}
-                    >
-                    Export as PDF
-                    </Button>
-                </div>
-                <Row>
-                    <Col md={3} sm={6} className="mb-3">
-                    <Card className="text-center h-100 border-0 shadow-sm">
-                        <Card.Body>
-                        <Typography variant="subtitle2" color="textSecondary">
-                            Total Amount
-                        </Typography>
-                        <Typography variant="h5" className="mt-2">
-                            {formatCurrency(summaryData.totalAmount)}
-                        </Typography>
-                        </Card.Body>
-                    </Card>
-                    </Col>
-                    <Col md={3} sm={6} className="mb-3">
-                    <Card
-                        className="text-center h-100 border-0 shadow-sm"
-                        style={{ backgroundColor: "#f0fdf4" }}
-                    >
-                        <Card.Body>
-                        <Typography variant="subtitle2" color="textSecondary">
-                            Paid Amount
-                        </Typography>
-                        <Typography
-                            variant="h5"
-                            className="mt-2"
-                            style={{ color: "#16a34a" }}
-                        >
-                            {formatCurrency(summaryData.paidAmount)}
-                        </Typography>
-                        </Card.Body>
-                    </Card>
-                    </Col>
-                    <Col md={3} sm={6} className="mb-3">
-                    <Card
-                        className="text-center h-100 border-0 shadow-sm"
-                        style={{ backgroundColor: "#fef2f2" }}
-                    >
-                        <Card.Body>
-                        <Typography variant="subtitle2" color="textSecondary">
-                            Unpaid Amount
-                        </Typography>
-                        <Typography
-                            variant="h5"
-                            className="mt-2"
-                            style={{ color: "#dc2626" }}
-                        >
-                            {formatCurrency(summaryData.unpaidAmount)}
-                        </Typography>
-                        </Card.Body>
-                    </Card>
-                    </Col>
-                    <Col md={3} sm={6} className="mb-3">
-                    <Card
-                        className="text-center h-100 border-0 shadow-sm"
-                        style={{ backgroundColor: "#f3f4f6" }}
-                    >
-                        <Card.Body>
-                        <Typography variant="subtitle2" color="textSecondary">
-                            Collection Rate
-                        </Typography>
-                        <Typography variant="h5" className="mt-2">
-                            {Math.round(
-                            (summaryData.paidAmount / summaryData.totalAmount) *
-                                100
-                            )}
-                            %
-                        </Typography>
-                        </Card.Body>
-                    </Card>
-                    </Col>
-                </Row>
-                </Paper>
-            </Col>
-            </Row>
+              <Row>
+                <Col md={6} sm={6} className="mb-3">
+                  <Card className="text-center h-100 border-0 shadow-sm">
+                    <Card.Body>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Total Amount
+                      </Typography>
+                      <Typography variant="caption" className="mt-2">
+                        {formatCurrency(summaryData.totalAmount)}
+                      </Typography>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={6} sm={6} className="mb-3">
+                  <Card
+                    className="text-center h-100 border-0 shadow-sm"
+                    style={{ backgroundColor: "#f0fdf4" }}
+                  >
+                    <Card.Body>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Paid Amount
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        className="mt-2"
+                        style={{ color: "#16a34a" }}
+                      >
+                        {formatCurrency(summaryData.paidAmount)}
+                      </Typography>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={6} sm={6} className="mb-3">
+                  <Card
+                    className="text-center h-100 border-0 shadow-sm"
+                    style={{ backgroundColor: "#fef2f2" }}
+                  >
+                    <Card.Body>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Unpaid Amount
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        className="mt-2"
+                        style={{ color: "#dc2626" }}
+                      >
+                        {formatCurrency(summaryData.unpaidAmount)}
+                      </Typography>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={6} sm={6} className="mb-3">
+                  <Card
+                    className="text-center h-100 border-0 shadow-sm"
+                    style={{ backgroundColor: "#f3f4f6" }}
+                  >
+                    <Card.Body>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Collection Rate
+                      </Typography>
+                      <Typography variant="caption" className="mt-2">
+                        {Math.round(
+                          (summaryData.paidAmount / summaryData.totalAmount) *
+                            100
+                        )}
+                        %
+                      </Typography>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Paper>
+          </Col>
+        </Row>
 
-            <Row className="mb-4">
-            <Col lg={6} className="mb-3 mb-md-0">
-                <Paper elevation={1} className="p-3 h-100">
-                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3">
-                    <Typography variant="h6" gutterBottom className="mb-2 mb-sm-0">
-                    Recent Payment
-                    </Typography>
-                    <Box
-                    sx={{ width: isMobile ? "100%" : 400, mt: isMobile ? 2 : 0 }}
+        <Row className="mb-4">
+          <Col lg={12} className="mb-3 mb-md-0">
+            <Paper elevation={1} className="p-3 h-100">
+              <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3">
+                <Typography variant="h6" gutterBottom className="mb-2 mb-sm-0">
+                  Recent Payment
+                </Typography>
+                <Box
+                  sx={{ width: isMobile ? "100%" : 400, mt: isMobile ? 2 : 0 }}
+                >
+                  <IOSSlider
+                    aria-label="Time range"
+                    defaultValue={8}
+                    step={1}
+                    marks={timeRangeMarks}
+                    min={0}
+                    max={8}
+                    valueLabelDisplay="off"
+                    onChange={handleTimeRangeChange}
+                  />
+                </Box>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={getTrendData()}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
+                  <Legend />
+                  <Bar dataKey="value" name="Amount">
+                    {getTrendData().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Col>
+          <Col lg={12} className="mt-3 mb-md-0">
+            <Paper elevation={1} className="p-3 h-100">
+              <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3">
+                <Typography variant="h6" gutterBottom>
+                  Monthly Payment
+                </Typography>
+
+                <FormControl
+                  size="small"
+                  sx={{ width: isMobile ? "100%" : 400, mt: isMobile ? 2 : 0 }}
+                >
+                  <InputLabel>Month</InputLabel>
+                  <Select
+                    value={selectedMonth}
+                    label="Month"
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                  >
+                    <MenuItem value="all">All Months</MenuItem>
+                    {summaryData.monthlyData.map((month) => (
+                      <MenuItem key={month.name} value={month.name}>
+                        {month.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={
+                    selectedMonth === "all"
+                      ? summaryData.monthlyData
+                      : summaryData.monthlyData.filter(
+                          (m) => m.name === selectedMonth
+                        )
+                  }
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(value)}
+                    labelFormatter={(label) => `Month: ${label}`}
+                  />
+                  <Legend />
+                  <Bar dataKey="paid" name="Paid Amount" fill="#16a34a" />
+                  <Bar dataKey="unpaid" name="Unpaid Amount" fill="#dc2626" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Col>
+        </Row>
+
+        <Row className="mb-4">
+          <Col xs={12} md={6} className="mb-3 mb-md-0">
+            <Paper elevation={1} className="p-3 h-100">
+              <Typography variant="h6" gutterBottom>
+                Payment Distribution
+              </Typography>
+              <div style={{ height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={isMobile ? 60 : 80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={renderCustomizedLabel}
                     >
-                    <IOSSlider
-                        aria-label="Time range"
-                        defaultValue={8}
-                        step={1}
-                        marks={timeRangeMarks}
-                        min={0}
-                        max={8}
-                        valueLabelDisplay="off"
-                        onChange={handleTimeRangeChange}
-                    />
-                    </Box>
-                </div>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                    data={getTrendData()}
-                    margin={{
-                        top: 20,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                    }}
-                    >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
+                      {pieData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
                     <Tooltip formatter={(value) => formatCurrency(value)} />
                     <Legend />
-                    <Bar dataKey="value" name="Amount">
-                        {getTrendData().map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                    </Bar>
-                    </BarChart>
+                  </PieChart>
                 </ResponsiveContainer>
-                </Paper>
-            </Col>
-            <Col lg={6}>
-                <Paper elevation={1} className="p-3 h-100">
-                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3">
-                    <Typography variant="h6" gutterBottom>
-                    Monthly Payment
-                    </Typography>
+              </div>
+            </Paper>
+          </Col>
 
-                    <FormControl
-                    size="small"
-                    sx={{ width: isMobile ? "100%" : 400, mt: isMobile ? 2 : 0 }}
+          <Col xs={12} md={6}>
+            <Paper elevation={1} className="p-3 h-100">
+              <Typography variant="h6" gutterBottom>
+                Customer Status
+              </Typography>
+              <div style={{ height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={customerPieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={isMobile ? 60 : 80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={renderCustomizedLabel}
                     >
-                    <InputLabel>Month</InputLabel>
-                    <Select
-                        value={selectedMonth}
-                        label="Month"
-                        onChange={(e) => setSelectedMonth(e.target.value)}
-                    >
-                        <MenuItem value="all">All Months</MenuItem>
-                        {summaryData.monthlyData.map((month) => (
-                        <MenuItem key={month.name} value={month.name}>
-                            {month.name}
-                        </MenuItem>
-                        ))}
-                    </Select>
-                    </FormControl>
-                </div>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                    data={
-                        selectedMonth === "all"
-                        ? summaryData.monthlyData
-                        : summaryData.monthlyData.filter(
-                            (m) => m.name === selectedMonth
-                            )
-                    }
-                    margin={{
-                        top: 20,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                    }}
-                    >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip
-                        formatter={(value) => formatCurrency(value)}
-                        labelFormatter={(label) => `Month: ${label}`}
-                    />
+                      {customerPieData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
                     <Legend />
-                    <Bar dataKey="paid" name="Paid Amount" fill="#16a34a" />
-                    <Bar dataKey="unpaid" name="Unpaid Amount" fill="#dc2626" />
-                    </BarChart>
+                  </PieChart>
                 </ResponsiveContainer>
-                </Paper>
-            </Col>
-            </Row>
-
-            <Row className="mb-4">
-            <Col xs={12} md={6} className="mb-3 mb-md-0">
-                <Paper elevation={1} className="p-3 h-100">
-                <Typography variant="h6" gutterBottom>
-                    Payment Distribution
-                </Typography>
-                <div style={{ height: 300 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                        data={pieData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={isMobile ? 60 : 80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={renderCustomizedLabel}
-                        >
-                        {pieData.map((entry, index) => (
-                            <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                            />
-                        ))}
-                        </Pie>
-                        <Tooltip formatter={(value) => formatCurrency(value)} />
-                        <Legend />
-                    </PieChart>
-                    </ResponsiveContainer>
-                </div>
-                </Paper>
-            </Col>
-
-            <Col xs={12} md={6}>
-                <Paper elevation={1} className="p-3 h-100">
-                <Typography variant="h6" gutterBottom>
-                    Customer Status
-                </Typography>
-                <div style={{ height: 300 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                        data={customerPieData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={isMobile ? 60 : 80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={renderCustomizedLabel}
-                        >
-                        {customerPieData.map((entry, index) => (
-                            <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                            />
-                        ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
-                    </ResponsiveContainer>
-                </div>
-                </Paper>
-            </Col>
-            </Row>
-
-            <Row>
-            <Col>
-                <Paper elevation={1} className="p-3">
-                <Typography variant="h6" gutterBottom>
-                    Recent Payments
-                </Typography>
-                <TableContainer>
-                    <Table>
-                    <TableHead>
-                        <TableRow>
-                        <TableCell style={{ fontWeight: "bold" }}>
-                            Customer ID
-                        </TableCell>
-                        <TableCell style={{ fontWeight: "bold" }}>
-                            Customer Name
-                        </TableCell>
-                        <TableCell style={{ fontWeight: "bold" }}>
-                            Amount
-                        </TableCell>
-                        <TableCell style={{ fontWeight: "bold" }}>Date</TableCell>
-                        <TableCell style={{ fontWeight: "bold" }}>
-                            Status
-                        </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {summaryData.recentPayments.map((payment) => (
-                        <TableRow key={payment.id} hover>
-                            <TableCell>{payment.id}</TableCell>
-                            <TableCell>{payment.name}</TableCell>
-                            <TableCell>{formatCurrency(payment.amount)}</TableCell>
-                            <TableCell>{formatDate(payment.date)}</TableCell>
-                            <TableCell>
-                            <Box
-                                component="span"
-                                sx={{
-                                px: 1,
-                                py: 0.5,
-                                borderRadius: 1,
-                                fontSize: "0.75rem",
-                                backgroundColor:
-                                    payment.status === "Completed"
-                                    ? "#f0fdf4"
-                                    : "#fef2f2",
-                                color:
-                                    payment.status === "Completed"
-                                    ? "#16a34a"
-                                    : "#dc2626",
-                                }}
-                            >
-                                {payment.status}
-                            </Box>
-                            </TableCell>
-                        </TableRow>
-                        ))}
-                    </TableBody>
-                    </Table>
-                </TableContainer>
-                </Paper>
-            </Col>
-            </Row>
-              
-        </div>
-    </Container>
+              </div>
+            </Paper>
+          </Col>
+        </Row>
+        <Modal
+  open={openRecentPaymentsModal}
+  onClose={() => setOpenRecentPaymentsModal(false)}
+  aria-labelledby="recent-payments-modal"
+  aria-describedby="recent-payments-list"
+>
+  <Box sx={{
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: isMobile ? '90%' : '70%',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 2,
+    maxHeight: '80vh',
+    overflow: 'auto'
+  }}>
+    <Typography variant="h6" component="h2" mb={2}>
+      Recent Payments
+    </Typography>
+    <RecentPayments
+      payments={summaryData.recentPayments}
+      formatCurrency={formatCurrency}
+      formatDate={formatDate}
+    />
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+      <Button 
+                variant="contained"
+                size="small"
+        onClick={() => setOpenRecentPaymentsModal(false)}
+      >
+        Close
+      </Button>
+    </Box>
+  </Box>
+</Modal>
+      </div>
+    </>
   );
 };
 

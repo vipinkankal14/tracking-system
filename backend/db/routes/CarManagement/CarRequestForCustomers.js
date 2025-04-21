@@ -40,7 +40,7 @@ const getCarRequestForCustomers = async (req, res) => {
           LEFT JOIN invoice_summary inv ON c.customerId = inv.customerId
           LEFT JOIN orders_prebooking_date opd ON c.customerId = opd.customerId
           LEFT JOIN carstocks cs ON c.customerId = cs.customerId
-          WHERE ai.status = 'approved'
+          WHERE ai.status = 'Approval'
           ORDER BY c.createdAt DESC
           LIMIT ? OFFSET ?
       `;
@@ -50,7 +50,7 @@ const getCarRequestForCustomers = async (req, res) => {
       if (!results || results.length === 0) {
           return res.status(404).json({
               success: false,
-              message: 'No approved customer bookings found'
+              message: 'No Approval customer bookings found'
           });
       }
 
@@ -133,7 +133,7 @@ const getCarRequestForCustomers = async (req, res) => {
           SELECT COUNT(*) as total 
           FROM customers c
           JOIN account_management ai ON c.customerId = ai.customerId
-          WHERE ai.status = 'approved'
+          WHERE ai.status = 'Approval'
       `);
       const total = countResult[0].total;
 
@@ -147,7 +147,7 @@ const getCarRequestForCustomers = async (req, res) => {
       });
 
   } catch (error) {
-      console.error('Error fetching approved bookings:', {
+      console.error('Error fetching Approval bookings:', {
           error: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString()
@@ -155,7 +155,7 @@ const getCarRequestForCustomers = async (req, res) => {
       
       res.status(500).json({
           success: false,
-          message: 'Failed to fetch approved bookings',
+          message: 'Failed to fetch Approval bookings',
           error: process.env.NODE_ENV === 'development' ? {
               message: error.message,
               stack: error.stack

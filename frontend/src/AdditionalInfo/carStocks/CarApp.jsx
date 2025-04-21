@@ -168,7 +168,7 @@ function CarApp() {
   return (
     <>
  
-      <Container>
+      <Container style={{marginTop:'-60px'}} >
         <Title>Status Overview</Title>
         <Grid>
           {statusCards.map((card) => (

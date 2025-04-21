@@ -79,6 +79,9 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [usershowPassword, setUserShowPassword] = useState(false);
+
+
 
   // Check for existing valid session
   useEffect(() => {
@@ -226,11 +229,23 @@ const LoginPage = () => {
                 fullWidth
                 name="password"
                 label="Password"
-                type="password"
                 id="user-password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                type={usershowPassword ? "text" : "password"}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setUserShowPassword(!usershowPassword)}
+                        edge="end"
+                      >
+                        {usershowPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button
                 type="submit"
@@ -320,8 +335,7 @@ const LoginPage = () => {
             </form>
           </TabPanel>
         </Paper>
-        <Sidebar />
-      </Container>
+       </Container>
     </div>
   );
 };

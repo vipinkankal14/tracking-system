@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
  
@@ -112,55 +112,71 @@ const CardStatus = styled.div`
 `;
 
 
+
 function AutoCardApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ Approval: 0, Rejected: 0, Pending: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        const data = await response.json();
+        if (data.success) {
+          setCounts(data.data.counts.autoCard);
+        } else {
+          setError('Failed to fetch data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCounts();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  const statusCards = [
     {
       id: 'Approved',
       title: 'Auto Card Approved',
-      count: 80,
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
-      iconType: 'Approved',
+      iconType: 'success',
       path: '/AutoCard-Management/autocard-approved',
-     
     },
     {
       id: 'Rejected',
       title: 'Auto Card Rejected',
-      count: 80,
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
-      iconType: 'Rejected',
+      iconType: 'danger',
       path: '/AutoCard-Management/autocard-rejected',
-     
     },
     {
       id: 'pending',
-      title: 'Car Pending for Auto Card ',
-      count: 80,
-      status: 'Car autocard Amount update Request',
+      title: 'Car Pending for Auto Card',
+      count: counts.Pending,
+      status: 'Pending',
       icon: CarRentalIcon,
-      iconType: 'pending',
+      iconType: 'warning',
       path: '/AutoCard-Management/car-pending-for-autocard',
     },
-  ]);
-
-  const handleCardClick = (path) => {
-    navigate(path);
-  };
-
+  ];
 
   return (
     <Container>
-      <Title>Status Overview</Title>
+      <Title>Auto Card Status Overview</Title>
       <Grid>
         {statusCards.map((card) => (
-          <Card 
-            key={card.id}
-            onClick={() => handleCardClick(card.path)}
-          >
+          <Card key={card.id} onClick={() => navigate(card.path)}>
             <CardContent>
               <IconWrapper iconType={card.iconType}>
                 <card.icon sx={{ fontSize: 32 }} />
@@ -179,7 +195,3 @@ function AutoCardApp() {
 }
 
 export default AutoCardApp;
-
-
-
-

@@ -464,7 +464,7 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, handleConfirmReje
         borderRadius: 2
       }}>
         <Typography id="rejection-modal-title" variant="h6" component="h2">
-          Reject Approved Finance Request
+          Reject Finance Request
         </Typography>
         
         {selectedCustomer && (
@@ -482,7 +482,7 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, handleConfirmReje
         <Box sx={{ mt: 3 }}>
           <TextareaAutosize
             minRows={3}
-            placeholder="Reason for rejecting this approved request (required)"
+            placeholder="Reason for rejecting (required)"
             style={{
               width: "100%",
               padding: "10px",
@@ -502,7 +502,7 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, handleConfirmReje
                 onChange={(e) => setIsConfirmed(e.target.checked)}
               />
             }
-            label="I confirm the rejection of this approved finance request"
+            label="I confirm the rejection request"
             sx={{ mt: 2 }}
           />
           

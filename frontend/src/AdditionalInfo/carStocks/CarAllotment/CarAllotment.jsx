@@ -174,7 +174,7 @@ const CarAllotment = () => {
       await handleAllotment(modalAction); // Call handleAllotment with the modal action
       setShowModal(false); // Close the modal
       resetLocalData(); // Clear local data
-      navigate('/car-management'); // Redirect to the desired page
+      navigate('/car-stock-Management/car-management'); // Redirect to the desired page
     } catch (error) {
       setError('Error confirming allotment');
     }
@@ -194,7 +194,7 @@ const CarAllotment = () => {
     if (!customerData) return null;
 
     return (
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3 }} >
         <Typography variant="h6" gutterBottom>
           Customer Information
         </Typography>
@@ -544,7 +544,7 @@ const CarAllotment = () => {
   );
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }} style={{marginTop:'-60px'}} >
       {/* Back Button */}
       <Button 
         startIcon={<ArrowBackIcon />} 

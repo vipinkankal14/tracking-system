@@ -286,7 +286,7 @@ useEffect(() => {
               >
                 <MenuItem value="">Select Booking Type</MenuItem>
                 <MenuItem value="Online">Online</MenuItem>
-                <MenuItem value="Dealership Advisor">
+                <MenuItem value="DealershipAdvisor">
                   Dealership Advisor
                 </MenuItem>
               </Select>
@@ -296,7 +296,7 @@ useEffect(() => {
       </div>
 
       <br />
-      {data.bookingType === "Dealership Advisor" && (
+      {data.bookingType === "DealershipAdvisor" && (
         <div className="space-y-4">
           <Typography variant="h6">Dealership Advisor</Typography>
           <Grid container spacing={2}>
@@ -344,14 +344,7 @@ useEffect(() => {
           <Typography gutterBottom variant="h6"></Typography>
 
           <Grid container spacing={2}>
-         
-
-
-
-
-            
-
-            
+                     
             <Grid item xs={12} sm={6} lg={3}>
               <FormControl fullWidth>
                 <InputLabel id="carType-label">Car FuelType</InputLabel>
@@ -482,8 +475,8 @@ useEffect(() => {
                 sx={{ mb: 2, color: "text.secondary" }}
               >
                 Booking Type:{" "}
-                {data.bookingType === "Dealership Advisor"
-                  ? `Dealership Advisor: ${data.team_Member} | ${data.team_Leader}`
+                {data.bookingType === "DealershipAdvisor"
+                  ? `DealershipAdvisor: ${data.teamMember} | ${data.teamLeader}`
                   : "Online"}
               </Typography>
 

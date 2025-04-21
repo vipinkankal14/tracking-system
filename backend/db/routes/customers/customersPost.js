@@ -7,7 +7,7 @@ require('dotenv').config();
 
 // Security configurations
 const SALT_ROUNDS = 12;
-const TEMP_PASSWORD_LENGTH = 16;
+const TEMP_PASSWORD_LENGTH = 6;
 
 const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
   const connection = await pool.getConnection();
@@ -66,7 +66,7 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         personalInfo.customerId,
-        dbValue(orderInfo.orderDate),
+        dbValue(orderInfo.orderDate) || 'NO',
         dbValue(orderInfo.tentativeDate),
         dbValue(orderInfo.preferredDate),
         dbValue(orderInfo.requestDate),
@@ -129,7 +129,7 @@ const postCustomers = async (personalInfo, orderInfo, additionalInfo) => {
         service: 'gmail',
         auth: {
           user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
+          pass: process.env.EMAIL_PASSWORD
         }
       });
 

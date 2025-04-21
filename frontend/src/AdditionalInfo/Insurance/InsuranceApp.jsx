@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
 import { DirectionsCar} from '@mui/icons-material';
@@ -116,48 +116,99 @@ const CardStatus = styled.div`
 
 function InsuranceApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ 
+    Approval: 0, 
+    Rejected: 0, 
+    Pending: 0,
+    totalInterested: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchInsuranceData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        const data = await response.json();
+        
+        if (data.success) {
+          setCounts({
+            Approval: data.data.counts.insurance?.Approval || 0,
+            Rejected: data.data.counts.insurance?.Rejected || 0,
+            Pending: data.data.counts.insurance?.Pending || 0,
+            totalInterested: data.data.counts.insurance?.totalInterested || 0
+          });
+        } else {
+          throw new Error('Failed to fetch insurance data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInsuranceData();
+  }, []);
+
+  const statusCards = [
     {
       id: 'Approved',
       title: 'Insurance Approved',
-      count: 80,
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
       path: '/insurance-Management/insurance-approved',
-     
     },
     {
       id: 'Rejected',
       title: 'Insurance Rejected',
-      count: 80,
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
       path: '/insurance-Management/insurance-rejected',
-     
     },
     {
       id: 'pending',
-      title: 'Car Pending for Insurance',
-      count: 80,
-      status: 'Car Insurance Amount update Request',
+      title: 'Insurance Pending',
+      count: counts.Pending,
+      status: 'Pending Approval',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/insurance-Management/car-pending-for-Insurance',
+      path: '/insurance-Management/car-pending-for-insurance',
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return <Container>Loading insurance data...</Container>;
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <div style={{ color: 'red', textAlign: 'center' }}>
+          Error: {error}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+          >
+            Retry
+          </button>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>Insurance Status Overview</Title>
+       <Grid>
         {statusCards.map((card) => (
           <Card 
             key={card.id}
@@ -181,7 +232,6 @@ function InsuranceApp() {
 }
 
 export default InsuranceApp;
-
 
 
 

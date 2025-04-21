@@ -120,16 +120,14 @@ function DiscountApp() {
       title: 'UPDATE FOR BOOKING AMOUNT',
       icon: PercentIcon,
       iconType: 'CarAllotmentBOOKING',
-      path: '/booking-amount',
-     
+      path: '/car-stock-Management/booking-amount',  // Full path     
     },
     {
       id: 'DISCOUNTFORCAR',
       title: 'DISCOUNT FOR CAR',
       icon: PercentIcon,
       iconType: 'CarAllotmentBOOKING',
-      path: '/discount-for-car-and-additional',
-     
+      path: '/car-stock-Management/discount-for-car-and-additional',  // Full path     
     },  
   ]);
 

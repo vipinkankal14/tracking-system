@@ -63,6 +63,7 @@ const { getcanceledBookings } = require('./db/routes/BookingsConfirmed/Canceled'
 const { getCarRequestForCustomers } = require('./db/routes/CarManagement/CarRequestForCustomers');
 const { createUser, getUsers, getUserById, updateUser, deleteUser, uploadProfileImageForNewUser, uploadProfileImage, upload } = require('./db/routes/Usermanagement/createUser');
 const { getCustomerProfile, verifyToken, Customerlogin } = require('./db/routes/Customer_Login_and_OrderTrackingSystem/CustomerProfile');
+const { getCustomerDetailsWithStatuses } = require('./db/routes/getCustomerDetailsWithStatuses/DetailsWithStatuses');
 
 /* app.get('/api/cashier/all', getAllCashierTransactions); */
 
@@ -435,37 +436,38 @@ app.get('/api/customer/:customerId', (req, res) => {
 });
 
 app.put('/api/cancel-order', (req, res) => {
-  const { customerId, cancellationReason, isConfirmed } = req.body;
+  const { customerId, cancellationReason } = req.body;
 
-  // Determine the new values based on the status
+  // Validate required fields
+  if (!customerId || !cancellationReason) {
+    return res.status(400).send({ error: 'Customer ID and cancellation reason are required.' });
+  }
+
   const status = 'canceled';
-  const newCancellationReason = 'confirmed' === status ? null : cancellationReason; // Clear if status is 'confirmed'
-  const newIsConfirmed = 'confirmed' === status ? false : isConfirmed; // Clear if status is 'confirmed'
-
+ 
   const query = `
     UPDATE customers
     SET 
       status = ?,
-      cancellationReason = ?,
-      isConfirmed = ?
+      cancellationReason = ?
+    
     WHERE customerId = ?;
   `;
 
-  pool.execute(query, [status, newCancellationReason, newIsConfirmed, customerId], (err, results) => {
+  pool.execute(query, [status, cancellationReason, customerId], (err, results) => {
     if (err) {
-      res.status(500).send({ error: 'Failed to cancel the order.' });
-      return;
+      console.error('Database Error:', err);
+      return res.status(500).send({ error: 'Failed to cancel the order.' });
     }
 
-    // Check if any rows were affected
     if (results.affectedRows === 0) {
-      res.status(404).send({ message: 'Customer not found.' });
-      return;
+      return res.status(404).send({ message: 'Customer not found.' });
     }
 
     res.send({ message: 'Order canceled successfully.' });
   });
 });
+
 
 app.put('/api/confirmed-order', (req, res) => {
   const { customerId } = req.body;
@@ -473,18 +475,17 @@ app.put('/api/confirmed-order', (req, res) => {
   // Define the new values
   const status = 'confirmed';
   const cancellationReason = null; // Set to NULL
-  const isConfirmed = false; // Set to FALSE
-
+ 
   const query = `
     UPDATE customers
     SET 
       status = ?,
-      cancellationReason = ?,
-      isConfirmed = ?
+      cancellationReason = ?
+   
     WHERE customerId = ?;
   `;
 
-  pool.execute(query, [status, cancellationReason, isConfirmed, customerId], (err, results) => {
+  pool.execute(query, [status, cancellationReason, customerId], (err, results) => {
     if (err) {
       console.error('Error confirming the order:', err);
       res.status(500).send({ error: 'Failed to confirm the order.' });
@@ -2544,12 +2545,78 @@ app.get("/api/suggested-products", async (req, res) => {
   }
 });
 
+app.get("/api/suggested-products/12-15", async (req, res) => {
+  try {
+    // Define price range in Lakhs
+    const minPrice = 1200000.00;
+    const maxPrice = 1500000.00;
+
+    const [rows] = await pool.promise().query(
+      "SELECT * FROM carstocks WHERE exShowroomPrice BETWEEN ? AND ? LIMIT 20",
+      [minPrice, maxPrice]
+    );
+
+    const carsWithImages = rows.map(car => {
+      const baseUrl = `${req.protocol}://${req.get('host')}/carImages`;
+      const carWithImages = { ...car };
+
+      ['image1', 'image2', 'image3', 'image4'].forEach(field => {
+        if (car[field]) {
+          const filename = car[field].split('/').pop();
+          carWithImages[field] = `${baseUrl}/${filename}`;
+        }
+      });
+
+      return carWithImages;
+    });
+
+    res.json(carsWithImages);
+  } catch (error) {
+    console.error("Error fetching suggested products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.get("/api/suggested-products/1530", async (req, res) => {
+  try {
+    // Define price range in Lakhs
+    const minPrice = 1500000.00;
+    const maxPrice = 3000000.00;
+
+    const [rows] = await pool.promise().query(
+      "SELECT * FROM carstocks WHERE exShowroomPrice BETWEEN ? AND ? LIMIT 20",
+      [minPrice, maxPrice]
+    );
+
+    const carsWithImages = rows.map(car => {
+      const baseUrl = `${req.protocol}://${req.get('host')}/carImages`;
+      const carWithImages = { ...car };
+
+      ['image1', 'image2', 'image3', 'image4'].forEach(field => {
+        if (car[field]) {
+          const filename = car[field].split('/').pop();
+          carWithImages[field] = `${baseUrl}/${filename}`;
+        }
+      });
+
+      return carWithImages;
+    });
+
+    res.json(carsWithImages);
+  } catch (error) {
+    console.error("Error fetching suggested products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 {/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */ }
 
 app.get('/api/bookings/confirmed', getConfirmedBookings);
 app.get('/api/bookings/canceled', getcanceledBookings);
 app.get('/api/Customers/Request', getCarRequestForCustomers);
+
+
+app.get('/api/getCustomerDetailsWithStatuses', getCustomerDetailsWithStatuses);
 
 
 
@@ -2626,7 +2693,7 @@ app.post('/login', async (req, res) => {
     let navigatePath;
     switch (user.role) {
       case 'Admin':
-        navigatePath = 'Admin';
+        navigatePath = 'OwnerAdmin';
         break;
       case 'Accessories Management':
         navigatePath = 'Accessories-Management';

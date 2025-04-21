@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
  
@@ -114,48 +114,99 @@ const CardStatus = styled.div`
 
 function PADApp() {
   const navigate = useNavigate();
+  const [counts, setCounts] = useState({ 
+    Approval: 0, 
+    Rejected: 0, 
+    Pending: 0,
+    totalInterested: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [statusCards] = useState([
+  useEffect(() => {
+    const fetchPreDeliveryData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getCustomerDetailsWithStatuses');
+        const data = await response.json();
+        
+        if (data.success) {
+          setCounts({
+            Approval: data.data.counts.preDelivery?.Approval || 0,
+            Rejected: data.data.counts.preDelivery?.Rejected || 0,
+            Pending: data.data.counts.preDelivery?.Pending || 0,
+            totalInterested: data.data.counts.preDelivery?.totalInterested || 0
+          });
+        } else {
+          throw new Error('Failed to fetch pre-delivery data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPreDeliveryData();
+  }, []);
+
+  const statusCards = [
     {
       id: 'Approved',
-      title: 'Pre-DeliveryInspection Approved',
-      count: 80,
+      title: 'Pre-Delivery Inspection Approved',
+      count: counts.Approval,
       status: 'Approved',
       icon: FlakyRoundedIcon,
       iconType: 'Approved',
-      path: '/PreDelivery-Management/pdi-Approved',
-     
+      path: '/PreDelivery-Management/pdi-approved',
     },
     {
       id: 'Rejected',
-      title: 'Pre-DeliveryInspection Rejected',
-      count: 80,
+      title: 'Pre-Delivery Inspection Rejected',
+      count: counts.Rejected,
       status: 'Rejected',
       icon: FlakyRoundedIcon,
       iconType: 'Rejected',
-      path: '/PreDelivery-Management/pdi-iRejected',
-     
+      path: '/PreDelivery-Management/pdi-rejected',
     },
     {
       id: 'pending',
-      title: 'Pre-DeliveryInspection pending',
-      count: 80,
-      status: 'pending',
+      title: 'Pre-Delivery Inspection Pending',
+      count: counts.Pending,
+      status: 'Pending',
       icon: CarRentalIcon,
       iconType: 'pending',
-      path: '/PreDelivery-Management/pdi-Pending',
+      path: '/PreDelivery-Management/pdi-pending',
     },
-  ]);
+  ];
 
   const handleCardClick = (path) => {
     navigate(path);
   };
 
+  if (loading) {
+    return <Container>Loading pre-delivery data...</Container>;
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <div style={{ color: 'red', textAlign: 'center' }}>
+          Error: {error}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+          >
+            Retry
+          </button>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
-      <Title>Status Overview</Title>
-      <Grid>
+      <Title>Pre-Delivery Inspection Status</Title>
+       <Grid>
         {statusCards.map((card) => (
           <Card 
             key={card.id}
@@ -179,7 +230,5 @@ function PADApp() {
 }
 
 export default PADApp;
-
-
 
 

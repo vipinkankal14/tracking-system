@@ -88,17 +88,85 @@ const MobileCardRow = ({ customer, handleDocumentsClick, handleApprove }) => {
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Box sx={{ mt: 2 }}>
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="body2">
-              <strong>Email:</strong> {customer.email}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
-            </Typography>
-            {customer.insuranceRequests[0]?.insurance_amount && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Insurance Amount:</strong> {customer.insuranceRequests[0]?.insurance_amount}
-              </Typography>
-            )}
+               {/* Customer Details Section */}
+                         <Typography variant="h6" gutterBottom>
+                           Customer Details
+                         </Typography>
+                         <Grid container spacing={2} sx={{ mb: 3 }}>
+                           <Grid item xs={12} sm={6}>
+                             <Typography variant="body2">
+                               <strong>Email:</strong> {customer.email || "N/A"}
+                             </Typography>
+                           </Grid>
+                          <Grid item xs={12} sm={6}>
+                                                <Typography variant="body2">
+                                             <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                                          </Typography>
+                                          <Typography variant="body2">
+                                             <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                                                </Typography>
+                                              </Grid>
+                         </Grid>
+           
+                         {/* Vehicle Details Section */}
+                         <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                           Vehicle Details
+                         </Typography>
+                         <Grid container spacing={2} sx={{ mb: 3 }}>
+                           <Grid item xs={12} sm={6}>
+                             <Typography variant="body2">
+                               <strong>Allotment Status:</strong>{" "}
+                               {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                             </Typography>
+                           </Grid>
+                           <Grid item xs={12} sm={6}>
+                             <Typography variant="body2">
+                               <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                             </Typography>
+                           </Grid>
+                           <Grid item xs={12} sm={6}>
+                             <Typography variant="body2">
+                               <strong>Chassis Number:</strong>{" "}
+                               {customer?.stockInfo?.chassisNumber || "N/A"}
+                             </Typography>
+                           </Grid>
+                           <Grid item xs={12} sm={6}>
+                             <Typography variant="body2">
+                               <strong>Engine Number:</strong>{" "}
+                               {customer?.stockInfo?.engineNumber || "N/A"}
+                             </Typography>
+                           </Grid>
+                           <Grid item xs={12}>
+                             <Typography variant="body2">
+                               <strong>Car Details:</strong>{" "}
+                               {customer.carBooking?.model || "N/A"} |{" "}
+                               {customer.carBooking?.version || "N/A"} |{" "}
+                               {customer.carBooking?.color || "N/A"}
+                             </Typography>
+                           </Grid>
+                         </Grid>
+           
+                         <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                           Insurance Details
+                         </Typography>
+                         <Grid container spacing={2} sx={{ mb: 3 }}>
+                           <Grid item xs={12} sm={6}>
+                             <Typography variant="body2">
+                               <strong>Insurance Amount:</strong>{" "}
+                               {customer.insuranceRequests[0]?.insurance_amount || "N/A"}
+                             </Typography>
+                           </Grid>
+                           <Grid item xs={12} sm={6}>
+                             <Typography variant="body2">
+                               <strong>Request Date:</strong>{" "}
+                               {customer.insuranceRequests[0]?.createdAt
+                                 ? new Date(
+                                     customer.insuranceRequests[0].createdAt
+                                   ).toLocaleDateString()
+                                 : "N/A"}
+                             </Typography>
+                           </Grid>
+                         </Grid>
             {customer.insuranceRequests[0]?.insuranceReason && (
               <Typography variant="body2" sx={{ mt: 1, color: "error.main" }}>
                 <strong>Rejection Reason:</strong> {customer.insuranceRequests[0]?.insuranceReason}
@@ -171,25 +239,86 @@ const TabletRow = ({ customer, handleDocumentsClick, handleApprove }) => {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Email:</strong> {customer.email}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Insurance Amount:</strong> {customer.insuranceRequests[0]?.insurance_amount || "N/A"}
-                  </Typography>
-                </Grid>
+                 {/* Customer Details Section */}
+                           <Typography variant="h6" gutterBottom>
+                             Customer Details
+                           </Typography>
+                           <Grid container spacing={2} sx={{ mb: 3 }}>
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body2">
+                                 <strong>Email:</strong> {customer.email || "N/A"}
+                               </Typography>
+                             </Grid>
+                             <Grid item xs={12} sm={6}>
+                                                   <Typography variant="body2">
+                                                <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                                             </Typography>
+                                             <Typography variant="body2">
+                                                <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                                                   </Typography>
+                                                 </Grid>
+                           </Grid>
+             
+                           {/* Vehicle Details Section */}
+                           <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                             Vehicle Details
+                           </Typography>
+                           <Grid container spacing={2} sx={{ mb: 3 }}>
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body2">
+                                 <strong>Allotment Status:</strong>{" "}
+                                 {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                               </Typography>
+                             </Grid>
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body2">
+                                 <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                               </Typography>
+                             </Grid>
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body2">
+                                 <strong>Chassis Number:</strong>{" "}
+                                 {customer?.stockInfo?.chassisNumber || "N/A"}
+                               </Typography>
+                             </Grid>
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body2">
+                                 <strong>Engine Number:</strong>{" "}
+                                 {customer?.stockInfo?.engineNumber || "N/A"}
+                               </Typography>
+                             </Grid>
+                             <Grid item xs={12}>
+                               <Typography variant="body2">
+                                 <strong>Car Details:</strong>{" "}
+                                 {customer.carBooking?.model || "N/A"} |{" "}
+                                 {customer.carBooking?.version || "N/A"} |{" "}
+                                 {customer.carBooking?.color || "N/A"}
+                               </Typography>
+                             </Grid>
+                           </Grid>
+             
+                           <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                             Insurance Details
+                           </Typography>
+                           <Grid container spacing={2} sx={{ mb: 3 }}>
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body2">
+                                 <strong>Insurance Amount:</strong>{" "}
+                                 {customer.insuranceRequests[0]?.insurance_amount || "N/A"}
+                               </Typography>
+                             </Grid>
+                             <Grid item xs={12} sm={6}>
+                               <Typography variant="body2">
+                                 <strong>Request Date:</strong>{" "}
+                                 {customer.insuranceRequests[0]?.createdAt
+                                   ? new Date(
+                                       customer.insuranceRequests[0].createdAt
+                                     ).toLocaleDateString()
+                                   : "N/A"}
+                               </Typography>
+                             </Grid>
+                           
+                           
                 {customer.insuranceRequests[0]?.insuranceReason && (
                   <Grid item xs={12}>
                     <Typography variant="body2" color="error">
@@ -279,20 +408,86 @@ const DesktopRow = ({ customer, handleDocumentsClick, handleApprove }) => {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Additional Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Created At:</strong> {customer.insuranceRequests[0]?.createdAt ? new Date(customer.insuranceRequests[0].createdAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2">
-                    <strong>Updated At:</strong> {customer.insuranceRequests[0]?.updatedAt ? new Date(customer.insuranceRequests[0].updatedAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
+                  {/* Customer Details Section */}
+                            <Typography variant="h6" gutterBottom>
+                              Customer Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Email:</strong> {customer.email || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                                    <Typography variant="body2">
+                                                 <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                                              </Typography>
+                                              <Typography variant="body2">
+                                                 <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                                                    </Typography>
+                                                  </Grid>
+                            </Grid>
+              
+                            {/* Vehicle Details Section */}
+                            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                              Vehicle Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Allotment Status:</strong>{" "}
+                                  {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Chassis Number:</strong>{" "}
+                                  {customer?.stockInfo?.chassisNumber || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Engine Number:</strong>{" "}
+                                  {customer?.stockInfo?.engineNumber || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography variant="body2">
+                                  <strong>Car Details:</strong>{" "}
+                                  {customer.carBooking?.model || "N/A"} |{" "}
+                                  {customer.carBooking?.version || "N/A"} |{" "}
+                                  {customer.carBooking?.color || "N/A"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+              
+                            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                              Insurance Details
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 3 }}>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Insurance Amount:</strong>{" "}
+                                  {customer.insuranceRequests[0]?.insurance_amount || "N/A"}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <Typography variant="body2">
+                                  <strong>Request Date:</strong>{" "}
+                                  {customer.insuranceRequests[0]?.createdAt
+                                    ? new Date(
+                                        customer.insuranceRequests[0].createdAt
+                                      ).toLocaleDateString()
+                                    : "N/A"}
+                                </Typography>
+                              </Grid>
+               
+               
                 {customer.insuranceRequests[0]?.insuranceReason && (
                   <Grid item xs={12}>
                     <Typography variant="body2" color="error">

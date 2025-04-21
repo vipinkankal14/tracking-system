@@ -26,7 +26,7 @@ import {
   TextareaAutosize,
   Divider,
   Grid,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -36,11 +36,15 @@ import {
   VerifiedRounded as VerifiedRoundedIcon,
   Check as CheckIcon,
   Close as CloseIcon,
-  CreditCard as CreditCardIcon
+  CreditCard as CreditCardIcon,
 } from "@mui/icons-material";
 
 // Mobile Card Row Component for Autocard
-const AutocardMobileCard = ({ customer, handleDetailsClick, handleApprove }) => {
+const AutocardMobileCard = ({
+  customer,
+  handleDetailsClick,
+  handleApprove,
+}) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -49,39 +53,56 @@ const AutocardMobileCard = ({ customer, handleDetailsClick, handleApprove }) => 
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   const autocardRequest = customer.autocardRequests[0];
 
   return (
-    <Card sx={{ mb: 2, border: `1px solid ${getStatusColor(autocardRequest?.status)}` }}>
+    <Card
+      sx={{
+        mb: 2,
+        border: `1px solid ${getStatusColor(autocardRequest?.status)}`,
+      }}
+    >
       <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="subtitle1" fontWeight="bold">
             {customer.customerId}
           </Typography>
-          <Chip 
-            label={autocardRequest?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={autocardRequest?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(autocardRequest?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </Box>
-        
+
         <Typography variant="body2" sx={{ mt: 1 }}>
-          {`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}
+          {`${customer.firstName} ${customer.middleName || ""} ${
+            customer.lastName
+          }`}
         </Typography>
-        
+
         <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             startIcon={<DescriptionIcon />}
             onClick={() => handleDetailsClick(customer, autocardRequest)}
           >
@@ -91,37 +112,120 @@ const AutocardMobileCard = ({ customer, handleDetailsClick, handleApprove }) => 
             {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </Box>
-        
+
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Box sx={{ mt: 2 }}>
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="body2">
-              <strong>Email:</strong> {customer.email}
+            <Typography variant="h6" gutterBottom>
+              Customer Details
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Email:</strong> {customer.email || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            {/* Vehicle Details Section */}
+            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+              Vehicle Details
             </Typography>
-            {autocardRequest?.autocardAmount && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Amount:</strong> {autocardRequest?.autocardAmount}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Allotment Status:</strong>{" "}
+                  {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Chassis Number:</strong>{" "}
+                  {customer?.stockInfo?.chassisNumber || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Engine Number:</strong>{" "}
+                  {customer?.stockInfo?.engineNumber || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  <strong>Car Details:</strong>{" "}
+                  {customer.carBooking?.model || "N/A"} |{" "}
+                  {customer.carBooking?.version || "N/A"} |{" "}
+                  {customer.carBooking?.color || "N/A"}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+              AutoCard Details
+            </Typography>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>AutoCard Amount:</strong>{" "}
+                  {autocardRequest?.autocardAmount || "N/A"}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <strong>Request Date:</strong>{" "}
+                  {autocardRequest?.createdAt
+                    ? new Date(autocardRequest.createdAt).toLocaleString(
+                        "en-IN",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        }
+                      )
+                    : "N/A"}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body2">
+                <strong>Confirm Benefits:</strong>{" "}
+                {autocardRequest?.confirmBenefits || "N/A"}
               </Typography>
-            )}
-       
-            
-            <Typography variant="body2" sx={{ mt: 1 , mb: 1, fontWeight: 'bold' , color: 'red'}}>
-              <strong style={{color:'black'}} >Rejection Reason :</strong>  {autocardRequest?.autoCardReason || "N/A"}
+            </Grid>
+
+            <Typography
+              variant="body2"
+              sx={{ mt: 1, mb: 1, fontWeight: "bold", color: "red" }}
+            >
+              <strong style={{ color: "black" }}>Rejection Reason :</strong>{" "}
+              {autocardRequest?.autoCardReason || "N/A"}
             </Typography>
 
             <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-              <Button 
-                variant="contained" 
-                size="small" 
+              <Button
+                variant="contained"
+                size="small"
                 color="success"
                 onClick={() => handleApprove(customer)}
               >
                 Approve
               </Button>
-          
             </Box>
           </Box>
         </Collapse>
@@ -137,21 +241,22 @@ const AutocardTabletRow = ({ customer, handleDetailsClick, handleApprove }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
-          <IconButton
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
+          <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
@@ -159,12 +264,12 @@ const AutocardTabletRow = ({ customer, handleDetailsClick, handleApprove }) => {
         <TableCell>{`${customer.firstName} ${customer.lastName}`}</TableCell>
         <TableCell>{autocardRequest?.autocardAmount || "N/A"}</TableCell>
         <TableCell>
-          <Chip 
-            label={autocardRequest?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={autocardRequest?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(autocardRequest?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </TableCell>
@@ -181,56 +286,118 @@ const AutocardTabletRow = ({ customer, handleDetailsClick, handleApprove }) => {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-              Autocard  Details
+              <Typography variant="h6" gutterBottom>
+                Customer Details
               </Typography>
-              <Grid container spacing={2}>
-                
-
-                
-                <Grid item xs={6}>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    <strong>Email:</strong> {customer.email}
+                    <strong>Email:</strong> {customer.email || "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    <strong>Car Details:</strong> {customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"}
+                    <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
                   </Typography>
                 </Grid>
-
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Created At:</strong> {autocardRequest?.createdAt ? new Date(autocardRequest.createdAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2">
-                    <strong>Updated At:</strong> {autocardRequest?.updatedAt ? new Date(autocardRequest.updatedAt).toLocaleString() : "N/A"}
-                  </Typography>
-                </Grid>
-      
-        
-                <Grid item xs={12}>
-                <Typography variant="body2" sx={{ mt: 1 , mb: 1, fontWeight: 'bold' , color: 'red'}}>
-              <strong style={{color:'black'}} >Rejection Reason :</strong>  {autocardRequest?.autoCardReason || "N/A"}
-                  </Typography>
-                  </Grid>
               </Grid>
 
-          
+              {/* Vehicle Details Section */}
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                Vehicle Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Allotment Status:</strong>{" "}
+                    {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Chassis Number:</strong>{" "}
+                    {customer?.stockInfo?.chassisNumber || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Engine Number:</strong>{" "}
+                    {customer?.stockInfo?.engineNumber || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2">
+                    <strong>Car Details:</strong>{" "}
+                    {customer.carBooking?.model || "N/A"} |{" "}
+                    {customer.carBooking?.version || "N/A"} |{" "}
+                    {customer.carBooking?.color || "N/A"}
+                  </Typography>
+                </Grid>
+              </Grid>
 
-              
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                AutoCard Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>AutoCard Amount:</strong>{" "}
+                    {autocardRequest?.autocardAmount || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Request Date:</strong>{" "}
+                    {autocardRequest?.createdAt
+                      ? new Date(autocardRequest.createdAt).toLocaleString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )
+                      : "N/A"}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  <strong>Confirm Benefits:</strong>{" "}
+                  {autocardRequest?.confirmBenefits || "N/A"}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 1, mb: 1, fontWeight: "bold", color: "red" }}
+                >
+                  <strong style={{ color: "black" }}>Rejection Reason :</strong>{" "}
+                  {autocardRequest?.autoCardReason || "N/A"}
+                </Typography>
+              </Grid>
+
               <Box sx={{ mt: 2, mb: 2, display: "flex", gap: 1 }}>
-                <Button 
-                  variant="contained" 
-                  size="small" 
+                <Button
+                  variant="contained"
+                  size="small"
                   color="success"
                   onClick={() => handleApprove(customer)}
                 >
                   Approve
                 </Button>
- 
               </Box>
             </Box>
           </Collapse>
@@ -241,42 +408,53 @@ const AutocardTabletRow = ({ customer, handleDetailsClick, handleApprove }) => {
 };
 
 // Desktop Row Component for Autocard
-const AutocardDesktopRow = ({ customer, handleDetailsClick, handleApprove }) => {
+const AutocardDesktopRow = ({
+  customer,
+  handleDetailsClick,
+  handleApprove,
+}) => {
   const [open, setOpen] = useState(false);
   const autocardRequest = customer.autocardRequests[0];
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending": return "#f57c00";
-      case "Approval": return "#4caf50";
-      case "Rejected": return "#f44336";
-      default: return "#9e9e9e";
+      case "Pending":
+        return "#f57c00";
+      case "Approval":
+        return "#4caf50";
+      case "Rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
     }
   };
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
-          <IconButton
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
+          <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
         <TableCell>{customer.customerId}</TableCell>
-        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${customer.lastName}`}</TableCell>
+        <TableCell>{`${customer.firstName} ${customer.middleName || ""} ${
+          customer.lastName
+        }`}</TableCell>
         <TableCell>{customer.email}</TableCell>
-        <TableCell>{customer.carBooking?.model || "N/A"} | {customer.carBooking?.version || "N/A"} | {customer.carBooking?.color || "N/A"}</TableCell>
+        <TableCell>
+          {customer.carBooking?.model || "N/A"} |{" "}
+          {customer.carBooking?.version || "N/A"} |{" "}
+          {customer.carBooking?.color || "N/A"}
+        </TableCell>
         <TableCell>{autocardRequest?.autocardAmount || "N/A"}</TableCell>
         <TableCell>
-          <Chip 
-            label={autocardRequest?.status || "N/A"} 
-            size="small" 
-            sx={{ 
+          <Chip
+            label={autocardRequest?.status || "N/A"}
+            size="small"
+            sx={{
               backgroundColor: getStatusColor(autocardRequest?.status),
-              color: "white"
+              color: "white",
             }}
           />
         </TableCell>
@@ -297,7 +475,6 @@ const AutocardDesktopRow = ({ customer, handleDetailsClick, handleApprove }) => 
             >
               <CheckIcon />
             </IconButton>
-            
           </Box>
         </TableCell>
       </TableRow>
@@ -305,36 +482,107 @@ const AutocardDesktopRow = ({ customer, handleDetailsClick, handleApprove }) => 
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Additional Details
+              <Typography variant="h6" gutterBottom>
+                Customer Details
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    <strong>Created At:</strong> {autocardRequest?.createdAt ? new Date(autocardRequest.createdAt).toLocaleString() : "N/A"}
+                    <strong>Email:</strong> {customer.email || "N/A"}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    <strong>Updated At:</strong> {autocardRequest?.updatedAt ? new Date(autocardRequest.updatedAt).toLocaleString() : "N/A"}
+                    <strong>Phone1:</strong> {customer.mobileNumber1 || "N/A"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Phone2:</strong> {customer.mobileNumber2 || "N/A"}
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              {/* Vehicle Details Section */}
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                Vehicle Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Allotment Status:</strong>{" "}
+                    {customer?.stockInfo?.allotmentStatus || "Not Allocated"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>VIN:</strong> {customer?.stockInfo?.vin || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Chassis Number:</strong>{" "}
+                    {customer?.stockInfo?.chassisNumber || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Engine Number:</strong>{" "}
+                    {customer?.stockInfo?.engineNumber || "N/A"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="body1">
-                    <strong>Confirm Benefits:</strong> {autocardRequest?.confirmBenefits || "N/A"}
+                  <Typography variant="body2">
+                    <strong>Car Details:</strong>{" "}
+                    {customer.carBooking?.model || "N/A"} |{" "}
+                    {customer.carBooking?.version || "N/A"} |{" "}
+                    {customer.carBooking?.color || "N/A"}
                   </Typography>
                 </Grid>
+              </Grid>
 
-                
-                <Grid item xs={12}>
-                <Typography variant="body2" sx={{  fontWeight: 'bold' , color: 'red'}}>
-              <strong style={{color:'black'}} >Rejection Reason :</strong>  {autocardRequest?.autoCardReason || "N/A"}
+              <Typography variant="h6" gutterBottom sx={{ fontSize: "1rem" }}>
+                AutoCard Details
+              </Typography>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>AutoCard Amount:</strong>{" "}
+                    {autocardRequest?.autocardAmount || "N/A"}
                   </Typography>
                 </Grid>
-          
-                  
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    <strong>Request Date:</strong>{" "}
+                    {autocardRequest?.createdAt
+                      ? new Date(autocardRequest.createdAt).toLocaleString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )
+                      : "N/A"}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  <strong>Confirm Benefits:</strong>{" "}
+                  {autocardRequest?.confirmBenefits || "N/A"}
+                </Typography>
+              </Grid>
 
-                  
+              <Grid item xs={12}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "bold", color: "red" }}
+                >
+                  <strong style={{ color: "black" }}>Rejection Reason :</strong>{" "}
+                  {autocardRequest?.autoCardReason || "N/A"}
+                </Typography>
               </Grid>
             </Box>
           </Collapse>
@@ -345,30 +593,42 @@ const AutocardDesktopRow = ({ customer, handleDetailsClick, handleApprove }) => 
 };
 
 // Autocard Details Modal
-const AutocardDetailsModal = ({ open, handleClose, selectedCustomer, selectedAutocard, handleApprove }) => {
+const AutocardDetailsModal = ({
+  open,
+  handleClose,
+  selectedCustomer,
+  selectedAutocard,
+  handleApprove,
+}) => {
   return (
     <Modal
       open={open}
       onClose={handleClose}
       aria-labelledby="autocard-details-modal-title"
     >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: '90%', sm: '80%', md: '70%' },
-        maxHeight: '90vh',
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        p: 4,
-        borderRadius: 2,
-        overflow: 'auto'
-      }}>
-        <Typography id="autocard-details-modal-title" variant="h6" component="h2">
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "90%", sm: "80%", md: "70%" },
+          maxHeight: "90vh",
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+          overflow: "auto",
+        }}
+      >
+        <Typography
+          id="autocard-details-modal-title"
+          variant="h6"
+          component="h2"
+        >
           Autocard Details
         </Typography>
-        
+
         {selectedCustomer && selectedAutocard && (
           <>
             <Box sx={{ mt: 2 }}>
@@ -381,16 +641,19 @@ const AutocardDetailsModal = ({ open, handleClose, selectedCustomer, selectedAut
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Status:</strong>{" "}
-                    <Chip 
-                      label={selectedAutocard.status} 
-                      size="small" 
-                      sx={{ 
-                        backgroundColor: 
-                          selectedAutocard.status === "Pending" ? "#f57c00" : 
-                          selectedAutocard.status === "Approval" ? "#4caf50" : 
-                          selectedAutocard.status === "Rejected" ? "#f44336" : 
-                          "#9e9e9e",
-                        color: "white"
+                    <Chip
+                      label={selectedAutocard.status}
+                      size="small"
+                      sx={{
+                        backgroundColor:
+                          selectedAutocard.status === "Pending"
+                            ? "#f57c00"
+                            : selectedAutocard.status === "Approval"
+                            ? "#4caf50"
+                            : selectedAutocard.status === "Rejected"
+                            ? "#f44336"
+                            : "#9e9e9e",
+                        color: "white",
                       }}
                     />
                   </Typography>
@@ -398,7 +661,9 @@ const AutocardDetailsModal = ({ open, handleClose, selectedCustomer, selectedAut
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Full Name:</strong>{" "}
-                    {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+                    {`${selectedCustomer.firstName} ${
+                      selectedCustomer.middleName || ""
+                    } ${selectedCustomer.lastName}`}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -409,38 +674,50 @@ const AutocardDetailsModal = ({ open, handleClose, selectedCustomer, selectedAut
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Car Details:</strong>{" "}
-                    {`${selectedCustomer.carBooking?.model || "N/A"} | ${selectedCustomer.carBooking?.version || "N/A"} | ${selectedCustomer.carBooking?.color || "N/A"}`}
+                    {`${selectedCustomer.carBooking?.model || "N/A"} | ${
+                      selectedCustomer.carBooking?.version || "N/A"
+                    } | ${selectedCustomer.carBooking?.color || "N/A"}`}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
-                    <strong>Autocard Amount:</strong> {selectedAutocard.autocardAmount}
+                    <strong>Autocard Amount:</strong>{" "}
+                    {selectedAutocard.autocardAmount}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Created At:</strong>{" "}
-                    {selectedAutocard.createdAt ? new Date(selectedAutocard.createdAt).toLocaleString() : "N/A"}
+                    {selectedAutocard.createdAt
+                      ? new Date(selectedAutocard.createdAt).toLocaleString()
+                      : "N/A"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body1">
                     <strong>Updated At:</strong>{" "}
-                    {selectedAutocard.updatedAt ? new Date(selectedAutocard.updatedAt).toLocaleString() : "N/A"}
+                    {selectedAutocard.updatedAt
+                      ? new Date(selectedAutocard.updatedAt).toLocaleString()
+                      : "N/A"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="body1">
-                    <strong>Confirm Benefits:</strong> {selectedAutocard.confirmBenefits || "N/A"}
+                    <strong>Confirm Benefits:</strong>{" "}
+                    {selectedAutocard.confirmBenefits || "N/A"}
                   </Typography>
                 </Grid>
-             
               </Grid>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
-            
-   
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                mt: 3,
+                gap: 1,
+              }}
+            >
               <Button onClick={handleClose} variant="outlined">
                 Close
               </Button>
@@ -453,7 +730,13 @@ const AutocardDetailsModal = ({ open, handleClose, selectedCustomer, selectedAut
 };
 
 // Rejection Modal Component
-const RejectionModal = ({ open, handleClose, selectedCustomer, selectedAutocard, handleConfirmReject }) => {
+const RejectionModal = ({
+  open,
+  handleClose,
+  selectedCustomer,
+  selectedAutocard,
+  handleConfirmReject,
+}) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState(null);
@@ -479,18 +762,25 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, selectedAutocard,
       onClose={handleClose}
       aria-labelledby="rejection-modal-title"
     >
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: { xs: '90%', sm: '80%', md: '50%' },
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        p: 4,
-        borderRadius: 2
-      }}>
-        <Typography id="rejection-modal-title" variant="h6" component="h2" sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "90%", sm: "80%", md: "50%" },
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
+      >
+        <Typography
+          id="rejection-modal-title"
+          variant="h6"
+          component="h2"
+          sx={{ display: "flex", alignItems: "center" }}
+        >
           <strong>Reject Autocard Request:</strong>{" "}
           {selectedCustomer?.customerId || "N/A"}{" "}
           {selectedCustomer?.customerId && (
@@ -498,27 +788,28 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, selectedAutocard,
               sx={{
                 color: "#092e6b",
                 fontSize: "15px",
-                ml: 1
+                ml: 1,
               }}
             />
           )}
         </Typography>
-        
+
         {selectedCustomer && (
           <Box sx={{ mt: 2 }}>
             <Typography variant="body1">
               <strong>Customer:</strong>{" "}
-              {`${selectedCustomer.firstName} ${selectedCustomer.middleName || ""} ${selectedCustomer.lastName}`}
+              {`${selectedCustomer.firstName} ${
+                selectedCustomer.middleName || ""
+              } ${selectedCustomer.lastName}`}
             </Typography>
             {selectedAutocard && (
               <Typography variant="body1">
-                <strong>Amount:</strong>{" "}
-                {selectedAutocard.autocardAmount}
+                <strong>Amount:</strong> {selectedAutocard.autocardAmount}
               </Typography>
             )}
           </Box>
         )}
-        
+
         <Box sx={{ mt: 3 }}>
           <TextareaAutosize
             minRows={3}
@@ -534,7 +825,7 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, selectedAutocard,
             onChange={(e) => setRejectReason(e.target.value)}
             required
           />
-          
+
           <FormControlLabel
             control={
               <Checkbox
@@ -545,21 +836,23 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, selectedAutocard,
             label="I confirm the rejection of this Autocard request"
             sx={{ mt: 2 }}
           />
-          
+
           {error && (
             <Typography variant="body2" color="error" sx={{ mt: 1 }}>
               {error}
             </Typography>
           )}
         </Box>
-        
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 1 }}
+        >
           <Button onClick={handleClose} variant="outlined">
             Cancel
           </Button>
-          <Button 
-            onClick={confirmReject} 
-            variant="contained" 
+          <Button
+            onClick={confirmReject}
+            variant="contained"
             color="error"
             disabled={!isConfirmed || !rejectReason}
           >
@@ -574,9 +867,9 @@ const RejectionModal = ({ open, handleClose, selectedCustomer, selectedAutocard,
 // Main Component
 const AutocardRejected = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   const [searchQuery, setSearchQuery] = useState("");
   const [autocardCustomers, setAutocardCustomers] = useState([]);
@@ -584,7 +877,8 @@ const AutocardRejected = () => {
   const [error, setError] = useState(null);
 
   // Modal states
-  const [autocardDetailsModalOpen, setAutocardDetailsModalOpen] = useState(false);
+  const [autocardDetailsModalOpen, setAutocardDetailsModalOpen] =
+    useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedAutocard, setSelectedAutocard] = useState(null);
@@ -594,15 +888,20 @@ const AutocardRejected = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch autocard data
-        const autocardResponse = await axios.get("http://localhost:5000/api/showAutocard");
-        if (autocardResponse.data && Array.isArray(autocardResponse.data.data)) {
+        const autocardResponse = await axios.get(
+          "http://localhost:5000/api/showAutocard"
+        );
+        if (
+          autocardResponse.data &&
+          Array.isArray(autocardResponse.data.data)
+        ) {
           setAutocardCustomers(autocardResponse.data.data);
         } else {
           throw new Error("Invalid autocard data format");
         }
-        
+
         setLoading(false);
       } catch (err) {
         setError(`Failed to load data: ${err.message}`);
@@ -610,17 +909,21 @@ const AutocardRejected = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
 
   // Filter customers based on search query and Rejected status
   const getFilteredAutocardCustomers = () => {
     return autocardCustomers.filter(
-      (customer) => 
+      (customer) =>
         (customer.customerId?.toString().includes(searchQuery) ||
-         customer.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         customer.lastName?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+          customer.firstName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          customer.lastName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())) &&
         customer.autocardRequests?.length > 0 &&
         customer.autocardRequests[0]?.status === "Rejected"
     );
@@ -633,13 +936,11 @@ const AutocardRejected = () => {
     setAutocardDetailsModalOpen(true);
   };
 
- 
-
   // Handle approve action for autocard
   const handleAutocardApprove = async (customer) => {
     try {
       setLoading(true);
-      
+
       const response = await axios.put(
         `http://localhost:5000/api/autocardApproval/update-status/${customer.customerId}`,
         { status: "Approval" }
@@ -647,30 +948,37 @@ const AutocardRejected = () => {
 
       if (response.status === 200) {
         alert("Autocard approved successfully!");
-        
+
         // Close any open modals
         setAutocardDetailsModalOpen(false);
-        
+
         // Refresh the data
-        const newData = await axios.get("http://localhost:5000/api/showAutocard");
+        const newData = await axios.get(
+          "http://localhost:5000/api/showAutocard"
+        );
         setAutocardCustomers(newData.data.data);
-        
+
         setLoading(false);
       }
     } catch (err) {
-      setError(`Failed to approve autocard: ${err.response?.data?.error || err.message}`);
+      setError(
+        `Failed to approve autocard: ${
+          err.response?.data?.error || err.message
+        }`
+      );
       setLoading(false);
     }
   };
 
- 
-
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      <Typography variant="h5" sx={{ mb: 3, color: "#071947", display: 'flex', alignItems: 'center' }}>
+      <Typography
+        variant="h5"
+        sx={{ mb: 3, color: "#071947", display: "flex", alignItems: "center" }}
+      >
         Rejected Autocard Requests
       </Typography>
-      
+
       <Box
         sx={{
           mt: 3,
@@ -694,16 +1002,16 @@ const AutocardRejected = () => {
               </InputAdornment>
             ),
           }}
-          sx={{ width: { xs: '100%', sm: '350px' } }}
+          sx={{ width: { xs: "100%", sm: "350px" } }}
         />
       </Box>
-      
+
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
           <CircularProgress />
         </Box>
       ) : error ? (
-        <Box sx={{ textAlign: 'center', color: 'error.main', my: 4 }}>
+        <Box sx={{ textAlign: "center", color: "error.main", my: 4 }}>
           <Typography>{error}</Typography>
         </Box>
       ) : (
@@ -713,21 +1021,21 @@ const AutocardRejected = () => {
             <Box>
               {getFilteredAutocardCustomers().length > 0 ? (
                 getFilteredAutocardCustomers().map((customer) => (
-                  <AutocardMobileCard 
+                  <AutocardMobileCard
                     key={customer.customerId}
                     customer={customer}
                     handleDetailsClick={handleAutocardDetailsClick}
                     handleApprove={handleAutocardApprove}
-                   />
+                  />
                 ))
               ) : (
-                <Box sx={{ textAlign: 'center', my: 4 }}>
+                <Box sx={{ textAlign: "center", my: 4 }}>
                   <Typography>No Rejected autocard requests found.</Typography>
                 </Box>
               )}
             </Box>
           )}
-          
+
           {/* Tablet View - Simplified Table */}
           {isTablet && (
             <TableContainer component={Paper}>
@@ -745,16 +1053,16 @@ const AutocardRejected = () => {
                 <TableBody>
                   {getFilteredAutocardCustomers().length > 0 ? (
                     getFilteredAutocardCustomers().map((customer) => (
-                      <AutocardTabletRow 
+                      <AutocardTabletRow
                         key={customer.customerId}
                         customer={customer}
                         handleDetailsClick={handleAutocardDetailsClick}
                         handleApprove={handleAutocardApprove}
-                       />
+                      />
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} sx={{ textAlign: 'center' }}>
+                      <TableCell colSpan={6} sx={{ textAlign: "center" }}>
                         No Rejected autocard requests found.
                       </TableCell>
                     </TableRow>
@@ -763,7 +1071,7 @@ const AutocardRejected = () => {
               </Table>
             </TableContainer>
           )}
-          
+
           {/* Desktop View - Full Table */}
           {isDesktop && (
             <TableContainer component={Paper}>
@@ -783,16 +1091,16 @@ const AutocardRejected = () => {
                 <TableBody>
                   {getFilteredAutocardCustomers().length > 0 ? (
                     getFilteredAutocardCustomers().map((customer) => (
-                      <AutocardDesktopRow 
+                      <AutocardDesktopRow
                         key={customer.customerId}
                         customer={customer}
                         handleDetailsClick={handleAutocardDetailsClick}
                         handleApprove={handleAutocardApprove}
-                       />
+                      />
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} sx={{ textAlign: 'center' }}>
+                      <TableCell colSpan={8} sx={{ textAlign: "center" }}>
                         No Rejected autocard requests found.
                       </TableCell>
                     </TableRow>
@@ -803,17 +1111,15 @@ const AutocardRejected = () => {
           )}
         </>
       )}
-      
+
       {/* Autocard Details Modal */}
-      <AutocardDetailsModal 
+      <AutocardDetailsModal
         open={autocardDetailsModalOpen}
         handleClose={() => setAutocardDetailsModalOpen(false)}
         selectedCustomer={selectedCustomer}
         selectedAutocard={selectedAutocard}
         handleApprove={handleAutocardApprove}
-       />
-      
- 
+      />
     </Box>
   );
 };
