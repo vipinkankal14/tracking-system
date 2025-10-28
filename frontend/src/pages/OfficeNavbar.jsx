@@ -102,7 +102,7 @@ const OfficeNavbar = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      await fetch("http://localhost:5000/logout", {
+      await fetch("/api/logout", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

@@ -84,11 +84,11 @@ app.post('/api/CarStock/add', handleUpload, addCarStock);
 app.get('/api/showAllCarStocks', ShowCarStock); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
 app.get('/api/showAllCarStocksWithCustomers', ShowCarStockWithCustomers);
 app.get('/api/getAllAccessories', getAllAccessories); // frontend\src\carStocks\CarAllotmentByCustomer.jsx // frontend\src\components\AdditionalDetails.jsx
-app.get('/orders/:customerId', getCustomerOrders);
+app.get('/api/orders/:customerId', getCustomerOrders);
 app.get('/api/coating-requests/:customerId', getCustomerCoatingRequests);
 // Serve static files from the "uploads" directory
-app.use('/uploads', express.static(path.join(__dirname, 'CarloansRequest')));
-app.get('/loans/:customerId', getCustomerLoans);
+app.use('/api/uploads', express.static(path.join(__dirname, 'CarloansRequest')));
+app.get('/api/getloans/:customerId', getCustomerLoans);
 
 app.post('/api/payments', handlePayment); // frontend\src\cashier\Payments\PaymentDetails.jsx
 app.post('/api/addAccessory', addAccessory); //frontend\src\Accessories\AddedUploadView\Store\AccessoriesTable.jsx
@@ -2645,7 +2645,7 @@ app.use('/profile-images', express.static(path.join(__dirname, 'public', 'profil
 const tokenBlacklist = new Set();
 
 // Login endpoint
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
     const { emp_id, password } = req.body;
 
@@ -2785,7 +2785,7 @@ app.post('/login', async (req, res) => {
 });
 
 // Corrected Logout Endpoint
-app.post('/logout', async (req, res) => {
+app.post('/api/logout', async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];

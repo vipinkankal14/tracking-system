@@ -6,9 +6,9 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material"
 import "../DiscountBanner/DiscountBanner.scss"
 
 // Import your discount images
-import discount1 from "./assets/homepage.avif"
-import discount2 from "./assets/home-banner-second.avif"
-import discount3 from "./assets/v2-safari.avif"
+import discount1 from "./assets/A1.jpg"
+import discount2 from "./assets/A3.jpg"
+import discount3 from "./assets/A5.jpg"
 
 const DiscountBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -100,8 +100,7 @@ const DiscountBanner = () => {
             transition: "opacity 0.8s ease-in-out",
             display: "flex",
             flexDirection: "column",
-            justifyContent: { xs: "flex-end", sm: "center" },
-            alignItems: { xs: "center", sm: "flex-start" },
+             alignItems: { xs: "center", sm: "flex-start" },
             color: "#fff",
             textAlign: { xs: "center", sm: "left" },
             "&::before": {
@@ -130,7 +129,7 @@ const DiscountBanner = () => {
             {slide.title && (
               <Typography
                 variant="h3"
-                component="h2"
+                component="h1"
                 sx={{
                   fontWeight: 700,
                   mb: 2,
@@ -141,8 +140,7 @@ const DiscountBanner = () => {
                     lg: "3rem",
                   },
                   lineHeight: 1.2,
-                  textShadow: "1px 1px 4px rgba(0,0,0,0.5)",
-                }}
+                 }}
               >
                 {slide.title}
               </Typography>

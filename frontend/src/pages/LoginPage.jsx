@@ -104,7 +104,7 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/Customerlogin", {
+      const response = await axios.post("/api/Customerlogin", {
         customerId,
         password,
       });
@@ -136,7 +136,7 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/login", {
+      const response = await axios.post("/api/login", {
         emp_id: officeEmpid,
         password: officePassword,
       });

@@ -71,8 +71,8 @@ const ProfileImageUpload = ({ open, onClose, user, onSave }) => {
       formData.append("profile_image", file)
 
       const endpoint = user?.id
-        ? `http://localhost:5000/api/users/${user.id}/profile-image`
-        : "http://localhost:5000/api/users/profile-image"
+        ? `/api/users/${user.id}/profile-image`
+        : "/api/users/profile-image"
 
       const response = await fetch(endpoint, {
         method: "POST",

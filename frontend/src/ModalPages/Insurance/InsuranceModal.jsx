@@ -76,7 +76,7 @@ export function InsuranceModal({ open, onClose, personalInfo, carInfo }) {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/submitInsuranceRequest",
+          "/api/submitInsuranceRequest",
           {
             method: "POST",
             body: insuranceData,

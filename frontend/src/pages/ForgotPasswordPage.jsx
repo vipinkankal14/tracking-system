@@ -70,7 +70,7 @@ const ForgotPasswordPage = () => {
     setError("");
     
     try {
-      const response = await fetch('http://localhost:5000/api/request-otp', {
+      const response = await fetch('/api/request-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -97,7 +97,7 @@ const ForgotPasswordPage = () => {
     setError("");
     
     try {
-      const response = await fetch('http://localhost:5000/api/request-otp', {
+      const response = await fetch('/api/request-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -129,7 +129,7 @@ const ForgotPasswordPage = () => {
         ? { email: userEmail, type: 'user', otp }
         : { emp_id: officeEmpId, email: officeEmail, type: 'office', otp };
 
-      const response = await fetch('http://localhost:5000/api/verify-otp', {
+      const response = await fetch('/api/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -177,7 +177,7 @@ const ForgotPasswordPage = () => {
         throw new Error('Session expired. Please start again.');
       }
 
-      const response = await fetch('http://localhost:5000/api/update-password', {
+      const response = await fetch('/api/update-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

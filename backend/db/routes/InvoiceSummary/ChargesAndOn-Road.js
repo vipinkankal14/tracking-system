@@ -1,16 +1,16 @@
 const pool = require('../../databaseConnection/mysqlConnection');
- 
-const getChargesSummary = async (req, res) => {
-    const { customerId } = req.query;
 
-    if (!customerId) {
-        return res.status(400).json({ error: "Customer ID is required" });
-    }
-  
-    try {
-        // Fetch Charges Summary
-        const [chargesSummary] = await pool.query(
-            `SELECT 
+const getChargesSummary = async (req, res) => {
+  const { customerId } = req.query;
+
+  if (!customerId) {
+    return res.status(400).json({ error: "Customer ID is required" });
+  }
+
+  try {
+    // Fetch Charges Summary
+    const [chargesSummary] = await pool.query(
+      `SELECT 
                 COALESCE(cr.coating_amount, 0) AS coating_amount,
                 COALESCE(cf.fasttag_amount, 0) AS fasttag_amount,
                 COALESCE(ca.autocard_amount, 0) AS autocard_amount,
@@ -33,12 +33,12 @@ const getChargesSummary = async (req, res) => {
             LEFT JOIN car_insurance_requests ci ON ci.customerId = cb.customerId
             LEFT JOIN car_rto_requests crr ON crr.customerId = cb.customerId
             WHERE cb.customerId = ?`,
-            [customerId]
-        );
+      [customerId]
+    );
 
-        // Fetch On-Road Price Summary
-        const [onRoadPriceSummary] = await pool.query(
-            `WITH CarData AS (
+    // Fetch On-Road Price Summary
+    const [onRoadPriceSummary] = await pool.query(
+      `WITH CarData AS (
                 SELECT 
                     cb.customerId,
                     COALESCE(cb.exShowroomPrice, 0) AS exShowroomPrice,
@@ -60,15 +60,28 @@ const getChargesSummary = async (req, res) => {
                     END AS gstRate,
 
                     -- Determine Cess Rate
-                    CASE 
-                        WHEN cb.fuelType = 'Electric' THEN 0
-                        WHEN cb.fuelType = 'Petrol' AND cb.engineCapacity <= 1200 AND cb.mileage <= 4 THEN 1
-                        WHEN cb.fuelType = 'Diesel' AND cb.engineCapacity <= 1500 AND cb.mileage <= 4 THEN 3
-                        WHEN cb.engineCapacity > 1200 AND cb.engineCapacity <= 1500 THEN 17
-                        WHEN cb.engineCapacity > 1500 AND cb.mileage > 4 THEN 20
-                        WHEN cb.engineCapacity > 1500 AND cb.mileage > 4 AND cb.groundClearance >= 170 THEN 22
-                        ELSE 0  -- Default Cess
-                    END AS cessRate
+          -- Determine Cess Rate
+CASE 
+    WHEN cb.fuelType = 'Electric' THEN 0
+
+    -- SUV Condition: High GC & Engine >1500
+    WHEN cb.engineCapacity > 1500 AND cb.groundClearance >= 170 THEN 22
+
+    -- Large Petrol/Diesel Car
+    WHEN cb.engineCapacity > 1500 THEN 20
+
+    -- Mid-size
+    WHEN cb.engineCapacity > 1200 AND cb.engineCapacity <= 1500 THEN 17
+
+    -- Small diesel
+    WHEN cb.fuelType = 'Diesel' AND cb.engineCapacity <= 1500 THEN 3
+
+    -- Small petrol
+    WHEN cb.fuelType = 'Petrol' AND cb.engineCapacity <= 1200 THEN 1
+
+    ELSE 0
+END AS cessRate
+
                 FROM carbooking cb
                 LEFT JOIN (
                     SELECT customerId, SUM(totalAmount) AS totalAmount
@@ -94,32 +107,32 @@ const getChargesSummary = async (req, res) => {
                 + ((exShowroomPrice + totalAmount - cardiscount) * cessRate / 100))
                 AS Total_On_Road_Price
             FROM CarData;`,
-            [customerId]
-        );
+      [customerId]
+    );
 
-        if (onRoadPriceSummary.length === 0) {
-            return res.status(404).json({ error: "Customer not found" });
-        }
-
-        // Calculate TotalAmountForRoadPriceCharges
-        const totalCharges = parseFloat(chargesSummary[0].Total_Charges) || 0;
-        const totalOnRoadPrice = parseFloat(onRoadPriceSummary[0].Total_On_Road_Price) || 0;
-        const totalAmountForRoadPriceCharges = totalCharges + totalOnRoadPrice;
-
-        // Return the response
-        res.json({
-            customerId: customerId,
-            ChargesSummary: chargesSummary[0],
-            OnRoadPriceSummary: onRoadPriceSummary[0],
-            TotalAmountForRoadPriceCharges: totalAmountForRoadPriceCharges
-        });
-    } catch (error) {
-        console.error("Error fetching total charges:", error);
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
+    if (onRoadPriceSummary.length === 0) {
+      return res.status(404).json({ error: "Customer not found" });
     }
+
+    // Calculate TotalAmountForRoadPriceCharges
+    const totalCharges = parseFloat(chargesSummary[0].Total_Charges) || 0;
+    const totalOnRoadPrice = parseFloat(onRoadPriceSummary[0].Total_On_Road_Price) || 0;
+    const totalAmountForRoadPriceCharges = totalCharges + totalOnRoadPrice;
+
+    // Return the response
+    res.json({
+      customerId: customerId,
+      ChargesSummary: chargesSummary[0],
+      OnRoadPriceSummary: onRoadPriceSummary[0],
+      TotalAmountForRoadPriceCharges: totalAmountForRoadPriceCharges
+    });
+  } catch (error) {
+    console.error("Error fetching total charges:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
 };
 
- 
+
 const submitInvoice = async (req, res) => {
   const {
     customerId,
@@ -217,6 +230,6 @@ const submitInvoice = async (req, res) => {
   }
 };
 
- 
 
-module.exports = { getChargesSummary ,submitInvoice };
+
+module.exports = { getChargesSummary, submitInvoice };

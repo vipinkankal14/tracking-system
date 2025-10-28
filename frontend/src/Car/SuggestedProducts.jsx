@@ -24,7 +24,7 @@ function SuggestedProducts() {
     const fetchSuggestedProducts = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/suggested-products/12-15"
+          "/api/suggested-products/12-15"
         );
         if (!response.ok) throw new Error("Failed to fetch suggested products");
         const data = await response.json();

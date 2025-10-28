@@ -145,7 +145,7 @@ const FinanceModal = ({ open, onClose, personalInfo, carInfo }) => {
     });
 
     try {
-      const response = await fetch("http://localhost:5000/api/loans", {
+      const response = await fetch("/api/loans", {
         method: "POST",
         body: formData,
       });

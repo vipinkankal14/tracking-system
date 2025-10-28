@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const pool = require('../../databaseConnection/mysqlConnection');
+import { pool } from "../../databaseConnection/mysqlConnection.js"; // Adjust the path as necessary
 
  
 const router = express.Router();

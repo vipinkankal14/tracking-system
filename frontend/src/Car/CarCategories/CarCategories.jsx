@@ -60,7 +60,7 @@ const CarCategories = () => {
   const [statusFilter, setStatusFilter] = useState("all")
 
   const [currentPage, setCurrentPage] = useState(1)
-  const [carsPerPage] = useState(1)
+  const [carsPerPage] = useState(25)
 
   // Calculate pagination
   const indexOfLastCar = currentPage * carsPerPage
@@ -111,7 +111,7 @@ const CarCategories = () => {
   useEffect(() => {
     const fetchCarStocks = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/carstocks")
+        const response = await fetch("/api/carstocks")
         if (!response.ok) {
           throw new Error("Failed to fetch car stocks")
         }

@@ -20,7 +20,7 @@ import "../Accessorie/AccessoriesModal.css";
 
 const fetchLoanAndDocuments = async (customerId) => {
   try {
-    const response = await fetch(`http://localhost:5000/loans/${customerId}`);
+    const response = await fetch(`http://localhost:5000/api/getloans/${customerId}`);
     if (!response.ok) throw new Error("Failed to fetch loans");
     return response.json();
   } catch (error) {
@@ -205,7 +205,7 @@ const FinanceModalView = ({
                                 </Typography>
 
                                 <iframe
-                                  src={`http://localhost:5000/uploads/${customerId}/${encodeURIComponent(
+                                  src={`/uploads/${customerId}/${encodeURIComponent(
                                     fileName
                                   )}`}
                                   width="100%"

@@ -397,7 +397,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:5000/api/users");
+        const response = await fetch("/api/users");
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -493,7 +493,7 @@ const UserManagement = () => {
 
       // Make sure this URL matches your backend route
       const response = await fetch(
-        `http://localhost:5000/api/users/${user.id}`
+        `/api/users/${user.id}`
       );
 
       if (!response.ok) {
@@ -546,7 +546,7 @@ const UserManagement = () => {
       setUsers(users.filter((u) => u.id !== user.id)); // Optimistic update
 
       try {
-        await fetch(`http://localhost:5000/api/users/${user.id}`, {
+        await fetch(`/api/users/${user.id}`, {
           method: "DELETE",
         });
       } catch (error) {
@@ -610,8 +610,8 @@ const UserManagement = () => {
       setLoading(true);
 
       const url = currentUser
-        ? `http://localhost:5000/api/users/${currentUser.id}`
-        : "http://localhost:5000/api/users";
+        ? `/api/users/${currentUser.id}`
+        : "/api/users";
       const method = currentUser ? "PUT" : "POST";
 
       const formDataToSend = new FormData();
@@ -1215,7 +1215,7 @@ const UserManagement = () => {
                         (typeof formData.profile_image === "string" &&
                         formData.profile_image
                           ? formData.profile_image.startsWith("/uploads/")
-                            ? `http://localhost:5000${formData.profile_image}`
+                            ? `${formData.profile_image}`
                             : formData.profile_image
                           : "")
                       }
